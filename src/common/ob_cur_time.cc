@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_cur_time.cpp
+ * ob_cur_time.cc
  *
  * Authors:
  *   Junquan Chen <jianming.cjq@taobao.com>

@@ -5,9 +5,9 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- *         ob_rpc_stub.cpp is for what ...
+ *         ob_rpc_stub.cc is for what ...
  *
- *  Version: $Id: ob_rpc_stub.cpp 11/14/2012 04:34:16 PM qushan Exp $
+ *  Version: $Id: ob_rpc_stub.cc 11/14/2012 04:34:16 PM qushan Exp $
  *
  *  Authors:
  *     qushan < qushan@taobao.com >

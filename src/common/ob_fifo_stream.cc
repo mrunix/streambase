@@ -1,6 +1,6 @@
 ////===================================================================
 //
-// ob_fifo_stream.cpp common / Oceanbase
+// ob_fifo_stream.cc common / Oceanbase
 //
 // Copyright (C) 2010, 2013 Taobao.com, Inc.
 //

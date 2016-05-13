@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_row_desc_ext.cpp
+ * ob_row_desc_ext.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>

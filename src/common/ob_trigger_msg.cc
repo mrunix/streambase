@@ -6,7 +6,7 @@
  * published by the Free Software Foundation.
  *
  *
- * Version:  ob_trigger_msg.cpp,  12/14/2012 11:16:33 AM xiaochu Exp $
+ * Version:  ob_trigger_msg.cc,  12/14/2012 11:16:33 AM xiaochu Exp $
  *
  * Author:
  *   xiaochu.yh <xiaochu.yh@taobao.com>

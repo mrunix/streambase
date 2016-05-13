@@ -5,7 +5,7 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_get_param.cpp for define get param
+ * ob_get_param.cc for define get param
  *
  * Authors:
  *   huating <huating.zmq@taobao.com>

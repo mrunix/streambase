@@ -6,7 +6,7 @@
  * published by the Free Software Foundation.
  *
  *
- * Version:  ob_mysql_stat.cpp,  03/14/2013 05:13:14 PM xiaochu Exp $
+ * Version:  ob_mysql_stat.cc,  03/14/2013 05:13:14 PM xiaochu Exp $
  *
  * Author:
  *   xiaochu.yh <xiaochu.yh@taobao.com>

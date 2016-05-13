@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_root_table3.cpp
+ * ob_root_table3.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>

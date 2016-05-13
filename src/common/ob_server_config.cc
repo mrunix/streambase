@@ -7,7 +7,7 @@
  *
  * Time-stamp: <2013-04-23 15:16:01 fufeng.syd>
  * Version: $Id$
- * Filename: ob_server_config.cpp
+ * Filename: ob_server_config.cc
  *
  * Authors:
  *   Yudi Shi <fufeng.syd@alipay.com>
@@ -161,7 +161,7 @@ int ObServerConfig::add_extra_config(const char* config_str, bool check_name /* 
 }
 
 DEFINE_SERIALIZE(ObServerConfig) {
-  static const int HEADER_LENGTH = sizeof(uint32_t) + sizeof(uint64_t);
+  static const int HEADER_LENGTH = (int)(sizeof(uint32_t) + sizeof(uint64_t));
   const int64_t pos_beg = pos;
   char* const p_hash = buf + pos_beg;
   char* const p_length = buf + pos_beg + sizeof(uint32_t);

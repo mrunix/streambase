@@ -5,7 +5,7 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * none_compressor.cpp for compressor without compress.
+ * none_compressor.cc for compressor without compress.
  *
  * Authors:
  *   huating <huating.zmq@taobao.com>

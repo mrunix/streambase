@@ -5,7 +5,7 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_record_header.cpp for record header.
+ * ob_record_header.cc for record header.
  *
  * Authors:
  *    fanggang <fanggang@taobao.com>

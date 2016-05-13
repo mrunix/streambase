@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * nb_query_res.cpp
+ * nb_query_res.cc
  *
  * Authors:
  *   Junquan Chen <jianming.cjq@taobao.com>

@@ -263,7 +263,7 @@ bool ObObj::operator!=(const ObObj& other) const {
 int ObObj::apply(const ObObj& mutation) {
   int err = OB_SUCCESS;
   int org_type = get_type();
-  int org_ext = get_ext();
+  int org_ext = (int)get_ext();
   int mut_type = mutation.get_type();
   ObCreateTime create_time = 0;
   ObModifyTime modify_time = 0;

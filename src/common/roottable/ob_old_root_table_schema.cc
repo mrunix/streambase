@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_old_root_table_schema.cpp
+ * ob_old_root_table_schema.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>

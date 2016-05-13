@@ -96,7 +96,7 @@ void ObProfileLogger::printlog(LogLevel level, const char* file, int line, const
   iov[0].iov_len = size;
   iov[1].iov_base = log;
   iov[1].iov_len = written + 1;
-  writev(log_fd_, iov, 2);
+  ssize_t __attribute__((unused)) ret = writev(log_fd_, iov, 2);
 }
 
 void ObProfileLogger::printlog(LogLevel level, const char* file, int line, const char* function, pthread_t tid,
@@ -122,6 +122,6 @@ void ObProfileLogger::printlog(LogLevel level, const char* file, int line, const
   iov[0].iov_len = size;
   iov[1].iov_base = log;
   iov[1].iov_len = written + 1;
-  writev(log_fd_, iov, 2);
+  ssize_t __attribute__((unused)) ret = writev(log_fd_, iov, 2);
 }
 

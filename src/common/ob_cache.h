@@ -766,7 +766,7 @@ class ObVarCache: public ObCacheBase {
   /// @property initialize LRUMemBlockHead
   void init_lru_mem_block_head(LRUMemBlockHead& block_head, int64_t block_size) {
     memset(&block_head, 0x00, sizeof(block_head));
-    oceanbase::common::ObDLink* link = NULL;
+    oceanbase::common::ObDLink* __attribute__((unused)) link = NULL;
     link = new(&block_head.lru_list_link_)oceanbase::common::ObDLink;
     block_head.block_size_ = block_size;
   }
@@ -774,7 +774,7 @@ class ObVarCache: public ObCacheBase {
   /// @fn initialize CacheItemHead
   void init_cache_item_head(CacheItemHead& head, const int32_t key_size,
                             const int32_t value_size, LRUMemBlockHead& mother_block) {
-    oceanbase::common::ObDLink* link = NULL;
+    oceanbase::common::ObDLink* __attribute__((unused)) link = NULL;
     link = new(&head.hash_list_link_)oceanbase::common::ObDLink;
     head.key_size_ = key_size;
     head.magic_ = CACHE_ITEM_MAGIC;

@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * nb_table_row.cpp
+ * nb_table_row.cc
  *
  * Authors:
  *   Junquan Chen <jianming.cjq@taobao.com>

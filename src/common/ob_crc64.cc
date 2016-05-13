@@ -5,7 +5,7 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_crc64.cpp is for what ...
+ * ob_crc64.cc is for what ...
  *
  *   The method to compute the CRC64 is referred to as
  *      CRC-64-ISO:

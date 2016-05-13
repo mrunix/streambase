@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_obj_cast.cpp
+ * ob_obj_cast.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>
@@ -760,9 +760,9 @@ static int bool_varchar(const ObObjCastParams& params, const ObExprObj& in, ObEx
   OB_ASSERT(in.get_type() == ObBoolType);
   ObString varchar;
   if (in.get_bool()) {
-    varchar.assign_ptr(const_cast<char*>("true"), sizeof("true") - 1);
+    varchar.assign_ptr(const_cast<char*>("true"), (ObString::obstr_size_t)(sizeof("true") - 1));
   } else {
-    varchar.assign_ptr(const_cast<char*>("false"), sizeof("false") - 1);
+    varchar.assign_ptr(const_cast<char*>("false"), (ObString::obstr_size_t)(sizeof("false") - 1));
   }
   out.set_varchar(varchar);
   return OB_SUCCESS;

@@ -7,7 +7,7 @@
  *
  * Time-stamp: <2013-11-04 13:55:50 fufeng.syd>
  * Version: $Id$
- * Filename: ob_config_manager.cpp
+ * Filename: ob_config_manager.cc
  *
  * Authors:
  *   Yudi Shi <fufeng.syd@alipay.com>

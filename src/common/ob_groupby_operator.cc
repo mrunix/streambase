@@ -5,7 +5,7 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_groupby_operator.cpp for group by operator.
+ * ob_groupby_operator.cc for group by operator.
  *
  * Authors:
  *   wushi <wushi.ly@taobao.com>

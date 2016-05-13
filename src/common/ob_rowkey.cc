@@ -5,9 +5,9 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- *         ob_rowkey.cpp is for what ...
+ *         ob_rowkey.cc is for what ...
  *
- *  Version: $Id: ob_rowkey.cpp 11/28/2011 04:27:31 PM qushan Exp $
+ *  Version: $Id: ob_rowkey.cc 11/28/2011 04:27:31 PM qushan Exp $
  *
  *  Authors:
  *     qushan < qushan@taobao.com >

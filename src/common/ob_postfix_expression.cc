@@ -5,9 +5,9 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * ob_postfix_expression.cpp is for what ...
+ * ob_postfix_expression.cc is for what ...
  *
- * Version: $id: ob_postfix_expression.cpp, v 0.1 7/29/2011 14:39 xiaochu Exp $
+ * Version: $id: ob_postfix_expression.cc, v 0.1 7/29/2011 14:39 xiaochu Exp $
  *
  * Authors:
  *   xiaochu <xiaochu.yh@taobao.com>

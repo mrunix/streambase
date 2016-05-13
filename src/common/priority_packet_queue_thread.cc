@@ -7,7 +7,7 @@
  *
  *
  *
- * Version: 0.1: priority_packet_queue_thread.cpp,v 0.1 2011/03/16 10:00:00 chuanhui Exp $
+ * Version: 0.1: priority_packet_queue_thread.cc,v 0.1 2011/03/16 10:00:00 chuanhui Exp $
  *
  * Authors:
  *   chuanhui <rizhao.ych@taobao.com>
@@ -200,7 +200,7 @@ void PriorityPacketQueueThread::run(tbsys::CThread*, void*) {
   // 把queue中所有的task做完
   if (_waitFinish) {
     for (int64_t priority = NORMAL_PRIV; priority <= LOW_PRIV; ++priority) {
-      bool ret = true;
+      bool __attribute__((unused)) ret = true;
       _cond[priority].lock();
       while (_queues[priority].size() > 0) {
         packet = _queues[priority].pop();

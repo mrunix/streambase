@@ -1,6 +1,6 @@
 ////===================================================================
 //
-// ob_row_compaction.cpp common / Oceanbase
+// ob_row_compaction.cc common / Oceanbase
 //
 // Copyright (C) 2010 Taobao.com, Inc.
 //

@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_privilege_type.cpp
+ * ob_privilege_type.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>

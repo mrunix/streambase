@@ -5,9 +5,9 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * ob_cell_array.cpp is for what ...
+ * ob_cell_array.cc is for what ...
  *
- * Version: $id: ob_cell_array.cpp,v 0.1 9/16/2010 4:29p wushi Exp $
+ * Version: $id: ob_cell_array.cc,v 0.1 9/16/2010 4:29p wushi Exp $
  *
  * Authors:
  *   wushi <wushi.ly@taobao.com>

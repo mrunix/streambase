@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_easy_log.cpp
+ * ob_easy_log.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>

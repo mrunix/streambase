@@ -5,7 +5,7 @@
  *  it under the terms of the GNU General Public License version 2 as
  *  published by the Free Software Foundation.
  *
- *         ????.cpp is for what ...
+ *         ????.cc is for what ...
  *
  *  Version: $Id: ipvsadm.c,v 1.27 2005/12/10 16:00:07 wensong Exp $
  *

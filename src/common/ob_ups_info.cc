@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_rs_ms_message.cpp
+ * ob_rs_ms_message.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>

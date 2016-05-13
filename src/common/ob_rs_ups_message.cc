@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_rs_ups_message.cpp
+ * ob_rs_ups_message.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>

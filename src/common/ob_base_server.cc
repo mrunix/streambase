@@ -150,7 +150,7 @@ int ObBaseServer::set_dev_name(const char* dev_name) {
   if (dev_name != NULL) {
     TBSYS_LOG(INFO, "set interface name to [%s]", dev_name);
     strncpy(dev_name_, dev_name, DEV_NAME_LENGTH);
-    int end = sizeof(dev_name_) - 1;
+    size_t end = sizeof(dev_name_) - 1;
     dev_name_[end] = '\0';
     rc = OB_SUCCESS;
   } else {

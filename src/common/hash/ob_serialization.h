@@ -1,6 +1,6 @@
 ////===================================================================
 //
-// ob_serialization.cpp / hash / common / Oceanbase
+// ob_serialization.cc / hash / common / Oceanbase
 //
 // Copyright (C) 2010 Taobao.com, Inc.
 //

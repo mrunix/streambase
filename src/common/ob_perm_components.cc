@@ -1,6 +1,6 @@
 ////===================================================================
 //
-// ob_perm_components.cpp common / Oceanbase
+// ob_perm_components.cc common / Oceanbase
 //
 // Copyright (C) 2010 Taobao.com, Inc.
 //

@@ -476,7 +476,7 @@ const int64_t OB_NEWEST_DATA_VERSION = -2;
 
 const int32_t OB_CONNECTION_FREE_TIME_S = 900;
 
-/// @see ob_object.cpp and ob_expr_obj.cpp
+/// @see ob_object.cc and ob_expr_obj.cc
 static const float FLOAT_EPSINON = static_cast<float>(1e-6);
 static const double DOUBLE_EPSINON = 1e-14;
 

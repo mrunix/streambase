@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_extra_tables_schema.cpp
+ * ob_extra_tables_schema.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>

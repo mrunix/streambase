@@ -5,7 +5,7 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_return_operator.cpp for implementation of return operator.
+ * ob_return_operator.cc for implementation of return operator.
  *
  * Authors:
  *   huating <huating.zmq@taobao.com>

@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 #include "key_btree.h"
-#include "key_btree.cpp"
+#include "key_btree.cc"
 
 class TestKey {
  public:

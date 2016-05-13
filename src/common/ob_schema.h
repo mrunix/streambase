@@ -600,7 +600,7 @@ class ObSchemaManagerV2 {
 
 class ObSchemaSortByIdHelper {
  public:
-  explicit ObSchemaSortByIdHelper(const ObSchemaManagerV2* schema_manager) {
+  explicit ObSchemaSortByIdHelper(const ObSchemaManagerV2* schema_manager) : table_nums_(0) {
     init(schema_manager);
   }
   ~ObSchemaSortByIdHelper() {

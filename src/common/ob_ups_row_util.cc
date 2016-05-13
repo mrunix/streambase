@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_ups_row_util.cpp
+ * ob_ups_row_util.cc
  *
  * Authors:
  *   Junquan Chen <jianming.cjq@taobao.com>

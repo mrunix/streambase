@@ -7,7 +7,7 @@
  *
  *
  *
- * Version: $Id: file_directory_utils.cpp,v 0.1 2010/07/22 16:58:07 duanfei Exp $
+ * Version: $Id: file_directory_utils.cc,v 0.1 2010/07/22 16:58:07 duanfei Exp $
  *
  * Authors:
  *   duanfei <duanfei@taobao.com>

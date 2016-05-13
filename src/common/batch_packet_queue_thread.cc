@@ -8,7 +8,7 @@
  *
  *
  *
- * Version: 0.1: batch_packet_queue_thread.cpp,v 0.1 2010/09/30 10:00:00 chuanhui Exp $
+ * Version: 0.1: batch_packet_queue_thread.cc,v 0.1 2010/09/30 10:00:00 chuanhui Exp $
  *
  * Authors:
  *   chuanhui <rizhao.ych@taobao.com>
@@ -188,7 +188,7 @@ void BatchPacketQueueThread::run(tbsys::CThread*, void*) {
       _pushcond.unlock();
     }
 
-    bool ret = true;
+    bool __attribute__((unused)) ret = true;
     if (_handler && batch_num > 0) {
       for (int64_t i = 0; i < batch_num; ++i) {
         // 忽略log自带的trace id和chid字段
@@ -205,7 +205,7 @@ void BatchPacketQueueThread::run(tbsys::CThread*, void*) {
     // }
   }
   if (_waitFinish) { // 把queue中所有的task做完
-    bool ret = true;
+    bool __attribute__((unused)) ret = true;
     _cond.lock();
     while (_queue.size() > 0) {
       tmp_packet = (ObPacket*) _queue.pop();

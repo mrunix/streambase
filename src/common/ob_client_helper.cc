@@ -5,7 +5,7 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * ob_client_helper.cpp is for what ...
+ * ob_client_helper.cc is for what ...
  *
  * Version: $id$
  *

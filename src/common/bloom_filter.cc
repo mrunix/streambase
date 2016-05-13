@@ -5,9 +5,9 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- *         bloom_filter.cpp is for what ...
+ *         bloom_filter.cc is for what ...
  *
- *  Version: $Id: bloom_filter.cpp 05/07/2013 10:44:18 AM qushan Exp $
+ *  Version: $Id: bloom_filter.cc 05/07/2013 10:44:18 AM qushan Exp $
  *
  *  Authors:
  *     qushan < qushan@taobao.com >

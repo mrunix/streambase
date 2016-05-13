@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * nb_scan_cond.cpp
+ * nb_scan_cond.cc
  *
  * Authors:
  *   Junquan Chen <jianming.cjq@taobao.com>

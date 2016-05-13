@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_first_tablet_entry.cpp
+ * ob_first_tablet_entry.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>

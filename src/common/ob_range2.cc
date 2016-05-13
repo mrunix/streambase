@@ -5,9 +5,9 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- *         ob_range2.cpp is for what ...
+ *         ob_range2.cc is for what ...
  *
- *  Version: $Id: ob_range2.cpp 03/27/2012 10:45:11 AM qushan Exp $
+ *  Version: $Id: ob_range2.cc 03/27/2012 10:45:11 AM qushan Exp $
  *
  *  Authors:
  *     qushan < qushan@taobao.com >

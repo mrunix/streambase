@@ -7,7 +7,7 @@
  *
  *
  *
- * Version: 0.1: ob_lease_common.cpp,v 0.1 2010/12/01 09:30:33 chuanhui Exp $
+ * Version: 0.1: ob_lease_common.cc,v 0.1 2010/12/01 09:30:33 chuanhui Exp $
  *
  * Authors:
  *   chuanhui <rizhao.ych@taobao.com>

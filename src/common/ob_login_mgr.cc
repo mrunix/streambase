@@ -1,6 +1,6 @@
 ////===================================================================
 //
-// ob_login_mgr.cpp common / Oceanbase
+// ob_login_mgr.cc common / Oceanbase
 //
 // Copyright (C) 2010 Taobao.com, Inc.
 //

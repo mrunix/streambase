@@ -1,0 +1,213 @@
+
+ADD_SUBDIRECTORY(btree)
+ADD_SUBDIRECTORY(compress)
+ADD_SUBDIRECTORY(roottable)
+ADD_SUBDIRECTORY(timezone)
+
+SET(common_sources
+	base_main.cc
+	batch_packet_queue_thread.cc
+	bloom_filter.cc
+	dlist.cc
+	file_directory_utils.cc
+	file_utils.cc
+	futex_sem.cc
+	ob_fifo_allocator.cc
+	ob_packet_lighty_queue.cc
+	murmur_hash.cc
+	ob_array_lock.cc
+	ob_base_client.cc
+	ob_base_server.cc
+	ob_bypass_task_info.cc
+	ob_cache.cc
+	ob_cell_array.cc
+	ob_check_runnable.cc
+	ob_client_helper.cc
+	ob_client_manager.cc
+	ob_client_proxy.cc
+	ob_client_wait_obj.cc
+	ob_common_param.cc
+	ob_common_rpc_stub.cc
+	ob_compact_cell_iterator.cc
+	ob_compact_cell_util.cc
+	ob_compact_cell_writer.cc
+	ob_compose_operator.cc
+	ob_composite_column.cc
+	ob_cond_info.cc
+	ob_counter.cc
+	ob_crc64.cc
+	ob_cur_time.cc
+	ob_decimal_helper.cc
+	ob_direct_log_reader.cc
+	ob_easy_log.cc
+	ob_encrypt.cc
+	ob_expr_obj.cc
+	ob_extra_tables_schema.cc
+	ob_fetch_runnable.cc
+	ob_file.cc
+	ob_file_client.cc
+	ob_file_service.cc
+	ob_flag.cc
+	ob_get_param.cc
+	ob_groupby.cc
+	ob_groupby_operator.cc
+	ob_hint.cc
+	ob_infix_expression.cc
+	ob_lease_common.cc
+	ob_lighty_queue.cc
+	ob_log_cursor.cc
+	ob_log_dir_scanner.cc
+	ob_log_entry.cc
+	ob_log_generator.cc
+	ob_log_reader.cc
+	ob_log_replay_runnable.cc
+	ob_log_writer.cc
+	ob_log_writer2.cc
+	ob_log_data_writer.cc
+	ob_login_mgr.cc
+	ob_malloc.cc
+	ob_memory_pool.cc
+	ob_merger.cc
+	ob_meta_cache.cc
+	ob_mod_define.cc
+	ob_ms_list.cc
+	ob_mutator.cc
+	ob_mutator_helper.cc
+	ob_mutex_task.cc
+	ob_new_scanner.cc
+	ob_new_scanner_helper.cc
+	ob_number.cc
+	ob_obi_role.cc
+	ob_obj_cast.cc
+	ob_object.cc
+	ob_obj_type.cc
+	ob_packet.cc
+	ob_packet_queue.cc
+	ob_packet_queue_thread.cc
+	ob_perm_components.cc
+	ob_pool.ipp
+	ob_postfix_expression.cc
+	ob_privilege.cc
+	ob_privilege_manager.cc
+	ob_privilege_type.cc
+	ob_probability_random.cc
+	ob_range.cc
+	ob_range2.cc
+	ob_raw_row.cc
+	ob_record_header.cc
+	ob_record_header_v2.cc
+	ob_regex.cc
+	ob_repeated_log_reader.cc
+	ob_return_operator.cc
+	ob_ring_buffer.cc
+	ob_row.cc
+	ob_row_compaction.cc
+	ob_row_desc.cc
+	ob_row_desc_ext.cc
+	ob_row_fuse.cc
+	ob_row_store.cc
+	ob_row_util.cc
+	ob_rowkey.cc
+	ob_rowkey_helper.cc
+	ob_rs_ups_message.cc
+	ob_scan_param.cc
+	ob_scanner.cc
+	ob_schema.cc
+	ob_schema_helper.cc
+	ob_schema_manager.cc
+	ob_schema_service.cc
+	ob_schema_service_impl.cc
+	ob_schema_table.cc
+	ob_seq_queue.cc
+	ob_server.cc
+	ob_server_ext.cc
+	ob_server_getter.cc
+	ob_session_mgr.cc
+	ob_shadow_server.cc
+	ob_simple_condition.cc
+	ob_simple_filter.cc
+	ob_single_log_reader.cc
+	ob_single_server.cc
+	ob_slab.cc
+	ob_slave_mgr.cc
+	ob_spop_spush_queue.cc
+	ob_tsi_utils.cc
+	ob_stack_allocator.cc
+	ob_ack_queue.cc
+	ob_ticket_queue.cc
+	ob_statistics.cc
+	ob_common_stat.cc
+	ob_string_buf.ipp
+	ob_string_search.cc
+	ob_strings.cc
+	ob_table_id_name.cc
+	ob_tablet_info.cc
+	ob_tbnet_callback.cc
+	ob_thread_mempool.cc
+	ob_timer.cc
+	ob_token.cc
+	ob_trace_log.cc
+	ob_tsi_factory.cc
+	ob_ups_info.cc
+	ob_ups_row.cc
+	ob_ups_row_util.cc
+	ob_vector.ipp
+	priority_packet_queue_thread.cc
+	thread_buffer.cc
+	utility.cc
+	ob_rpc_stub.cc
+	ob_general_rpc_stub.cc
+	ob_general_rpc_proxy.cc
+	ob_tsi_block_allocator.cc
+	ob_pcap.cc
+	ob_iterator_adaptor.cc
+	ob_transaction.cc
+	nb_accessor/ob_nb_accessor.cc
+	nb_accessor/nb_scan_cond.cc
+	nb_accessor/nb_query_res.cc
+	ob_profile_log.cc										
+	ob_trace_id.cc
+	nb_accessor/nb_table_row.cc
+	ob_trigger_msg.cc
+	ob_trigger_event_util.cc
+	ob_inner_table_operator.cc
+	ob_encrypted_helper.cc
+	ob_server_config.cc
+	ob_system_config.cc
+	ob_system_config_key.cc
+	ob_config_manager.cc
+	ob_config.cc
+	ob_config_helper.cc
+	ob_version.cc
+	ob_profile_fill_log.cc
+	ob_queue_thread.cc
+	ob_libeasy_mem_pool.cc
+	ob_balance_filter.cc
+	ob_data_source_desc.cc
+	ob_fifo_stream.cc
+	ob_multi_wakeup.cc
+	ob_errno.cc
+)
+
+SET(location_sources
+	location/ob_tablet_location_list.cc
+	location/ob_tablet_location_cache_proxy.cc
+	location/ob_tablet_location_range_iterator.cc
+	location/ob_tablet_location_cache.cc
+)
+
+
+CLEAR_VARS()
+SET(LOCAL_MODULE     "common")
+SET(LOCAL_C_FLAGS    "${COMMON_CFLAGS} -Wno-error=psabi")	# ob_priority_scheduler.h:34:33: error: AVX vector return without AVX enabled changes the ABI [-Werror=psabi]
+SET(LOCAL_CXX_FLAGS  "${COMMON_CXXFLAGS} -Wno-error=psabi")	# ob_priority_scheduler.h:34:33: error: AVX vector return without AVX enabled changes the ABI [-Werror=psabi]
+SET(LOCAL_CXX_FILES  ${common_sources} ${location_sources})
+SET(LOCAL_LIBRARIES
+	${SYSLIBS}
+	${EASYLIB}
+	tbsys.static
+	btree.static
+	sql.static
+)
+BUILD_STATIC_LIBRARY()
+

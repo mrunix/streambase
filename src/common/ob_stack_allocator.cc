@@ -47,7 +47,7 @@ const int64_t DefaultBlockAllocator::get_allocated() const {
 }
 
 void* DefaultBlockAllocator::alloc(const int64_t size) {
-  int err = OB_SUCCESS;
+  int __attribute__((unused)) err = OB_SUCCESS;
   void* p = NULL;
   int64_t alloc_size = size + sizeof(alloc_size);
   if (0 >= size) {
@@ -371,7 +371,7 @@ int TSIStackAllocator::reserve(const int64_t size) {
 }
 
 void* TSIStackAllocator::alloc(const int64_t size) {
-  int err = OB_SUCCESS;
+  int __attribute__((unused)) err = OB_SUCCESS;
   StackAllocator* allocator = NULL;
   void* p = NULL;
   if (NULL == (allocator = get())) {
@@ -385,7 +385,7 @@ void* TSIStackAllocator::alloc(const int64_t size) {
 }
 
 void TSIStackAllocator::free(void* p) {
-  int err = OB_SUCCESS;
+  int __attribute__((unused)) err = OB_SUCCESS;
   StackAllocator* allocator = NULL;
   if (NULL == (allocator = get())) {
     err = OB_MEM_OVERFLOW;

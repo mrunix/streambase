@@ -5,7 +5,7 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * snappy_compressor.cpp is for what ...
+ * snappy_compressor.cc is for what ...
  *
  * Authors:
  *   Author fangji.hcm <fangji.hcm@taobao.com>

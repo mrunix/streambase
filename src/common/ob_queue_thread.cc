@@ -1,6 +1,6 @@
 ////===================================================================
 //
-// ob_queue_thread.cpp common / Oceanbase
+// ob_queue_thread.cc common / Oceanbase
 //
 // Copyright (C) 2010 Taobao.com, Inc.
 //

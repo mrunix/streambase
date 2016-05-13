@@ -1,6 +1,6 @@
 ////===================================================================
 //
-// ob_hashset.cpp / hash / common / Oceanbase
+// ob_hashset.cc / hash / common / Oceanbase
 //
 // Copyright (C) 2010, 2013 Taobao.com, Inc.
 //

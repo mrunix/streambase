@@ -1,6 +1,6 @@
 ////===================================================================
 //
-// ob_trace_log.cpp / hash / common / Oceanbase
+// ob_trace_log.cc / hash / common / Oceanbase
 //
 // Copyright (C) 2010, 2013 Taobao.com, Inc.
 //
@@ -70,7 +70,7 @@ int TraceLog::inc_log_level() {
 
 int TraceLog::set_log_level(const char* log_level_str) {
   if (NULL != log_level_str) {
-    int level_num = sizeof(level_strs_) / sizeof(const char*);
+    int level_num = (int)(sizeof(level_strs_) / sizeof(const char*));
     for (int i = 0; i < level_num; ++i) {
       if (0 == strcasecmp(level_strs_[i], log_level_str)) {
         log_level_ = i;

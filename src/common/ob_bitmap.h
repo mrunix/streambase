@@ -217,10 +217,14 @@ int ObBitmap<Block, Allocator>::set(const size_type pos, const bool value) {
   size_type inner_pos = pos;
   MemBlock* mem_block = expand_block(pos, inner_pos);
   if (NULL != mem_block) {
+    // May a gcc bug, that would be a error:
+    //  conversion to 'oceanbase::common::ObBitmap<char, oceanbase::common::PageArena<char, oceanbase::common::ModulePageAllocator> >::block_type {aka char}' from 'int' may alter its value [-Werror=conversion])
+    //    mem_block->bits_[block_index(inner_pos)] |= bit_mask(inner_pos)
+    //    mem_block->bits_[block_index(inner_pos)] &= static_cast<block_type>(~bit_mask(inner_pos))
     if (value) {
-      mem_block->bits_[block_index(inner_pos)] |= bit_mask(inner_pos);
+      mem_block->bits_[block_index(inner_pos)] = mem_block->bits_[block_index(inner_pos)] | bit_mask(inner_pos);
     } else {
-      mem_block->bits_[block_index(inner_pos)] &= static_cast<block_type>(~bit_mask(inner_pos));
+      mem_block->bits_[block_index(inner_pos)] = mem_block->bits_[block_index(inner_pos)] & static_cast<block_type>(~bit_mask(inner_pos));
     }
   } else {
     ret = OB_ALLOCATE_MEMORY_FAILED;

@@ -5,9 +5,9 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * ob_string_search.cpp is for what ...
+ * ob_string_search.cc is for what ...
  *
- * Version: ***: ob_string_search.cpp  Thu Mar 24 10:47:24 2011 fangji.hcm Exp $
+ * Version: ***: ob_string_search.cc  Thu Mar 24 10:47:24 2011 fangji.hcm Exp $
  *
  * Authors:
  *   Author fangji.hcm <fangji.hcm@taobao.com>

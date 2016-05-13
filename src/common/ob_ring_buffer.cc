@@ -7,7 +7,7 @@
  *
  *
  *
- * Version: 0.1: ob_ring_buffer.cpp,v 0.1 2011/04/26 10:40:58 ruohai Exp $
+ * Version: 0.1: ob_ring_buffer.cc,v 0.1 2011/04/26 10:40:58 ruohai Exp $
  *
  * Authors:
  *   ruohai <ruohai@taobao.com>

@@ -700,7 +700,7 @@ inline int fast_encode(char* buf, int64_t& pos, int64_t val, bool is_add = false
     first_byte |= static_cast<int8_t>(val);
     buf[pos++] = first_byte;
   } else {
-    first_byte |= OB_MAX_INT_1B;
+    first_byte |= (int8_t)OB_MAX_INT_1B;
     if ((uint64_t)val <= OB_MAX_INT_4B) {
       if ((uint64_t)val <= OB_MAX_INT_2B) {
         first_byte = static_cast<int8_t>(first_byte + 1);

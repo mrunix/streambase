@@ -13,7 +13,7 @@
  *   yanran <yanran.hfs@taobao.com> 2010-10-27
  *     - new serialization format(ObObj composed, extented version)
  *   xiaochu.yh <xiaochu.yh@taobao.com> 2012-6-14
- *     - derived from ob_scanner.cpp and make it row interface only
+ *     - derived from ob_scanner.cc and make it row interface only
  */
 
 #include "ob_new_scanner.h"

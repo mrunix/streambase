@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_number.cpp
+ * ob_number.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>

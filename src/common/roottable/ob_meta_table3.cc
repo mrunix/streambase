@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_meta_table3.cpp
+ * ob_meta_table3.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>
@@ -480,7 +480,7 @@ ObMetaTable3::~ObMetaTable3() {
 
 void ObMetaTable3::reset(ConstIterator* meta_it, const uint64_t tid, const ObString& tname,
                          const uint64_t indexed_tid, const ObString& indexed_tname) {
-  int ret = OB_SUCCESS;
+  int __attribute__((unused)) ret = OB_SUCCESS;
   if (OB_INVALID_ID == tid
       || OB_FIRST_META_VIRTUAL_TID == tid
       || OB_FIRST_TABLET_ENTRY_TID == tid) {

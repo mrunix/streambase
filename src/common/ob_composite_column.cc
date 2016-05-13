@@ -5,9 +5,9 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * ob_composite_column.cpp is for what ...
+ * ob_composite_column.cc is for what ...
  *
- * Version: $id: ob_composite_column.cpp, v 0.1 7/29/2011 14:39 xiaochu Exp $
+ * Version: $id: ob_composite_column.cc, v 0.1 7/29/2011 14:39 xiaochu Exp $
  *
  * Authors:
  *   xiaochu <xiaochu.yh@taobao.com>

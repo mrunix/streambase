@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_errno.cpp
+ * ob_errno.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>

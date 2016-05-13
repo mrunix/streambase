@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_compact_cell_util.cpp
+ * ob_compact_cell_util.cc
  *
  * Authors:
  *   Junquan Chen <jianming.cjq@taobao.com>

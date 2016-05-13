@@ -7,7 +7,7 @@
  *
  *
  *
- * Version: 0.1: ob_merger.cpp,v 0.1 2010/09/20 14:11:41 chuanhui Exp $
+ * Version: 0.1: ob_merger.cc,v 0.1 2010/09/20 14:11:41 chuanhui Exp $
  *
  * Authors:
  *   chuanhui <rizhao.ych@taobao.com>

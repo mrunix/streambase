@@ -170,7 +170,7 @@ int BtreeThreadStore<Type, Initializer, Alloc>::SyncVector::for_each(Function& f
 
 template <class Type, class Initializer, class Alloc>
 void BtreeThreadStore<Type, Initializer, Alloc>::SyncVector::destroy() {
-  int ret = ERROR_CODE_OK;
+  int __attribute__((unused)) ret = ERROR_CODE_OK;
   int err = ERROR_CODE_OK;
   err = mutex_.lock();
   if (UNLIKELY(ERROR_CODE_OK != err)) {

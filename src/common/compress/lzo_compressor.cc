@@ -5,7 +5,7 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * lzo_compressor.cpp is for what ...
+ * lzo_compressor.cc is for what ...
  *
  * Authors:
  *   huating <huating.zmq@taobao.com>

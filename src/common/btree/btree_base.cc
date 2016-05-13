@@ -29,7 +29,7 @@ BtreeBase::BtreeBase(BtreeAlloc* allocator) {
 
   // 锁初始化
   pthread_mutexattr_t mta;
-  int32_t rc = pthread_mutexattr_init(&mta);
+  int32_t __attribute__((unused)) rc = pthread_mutexattr_init(&mta);
   rc = pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_RECURSIVE);
   pthread_mutex_init(&mutex_, &mta);
   pthread_mutexattr_destroy(&mta);
@@ -1031,7 +1031,7 @@ void BtreeBase::update_parent_first_key(BtreeWriteHandle& handle, BtreeWritePara
   BtreeNode* parent = NULL;
   BtreeKeyValuePair* first_key = NULL;
   BtreeKeyValuePair* old_key = NULL;
-  int32_t ret = 0;
+  int32_t __attribute__((unused)) ret = 0;
 
   node = param.node_[level];
   parent = param.node_[level - 1];

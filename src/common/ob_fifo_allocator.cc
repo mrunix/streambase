@@ -1,6 +1,6 @@
 ////===================================================================
 //
-// ob_fifo_allocator.cpp updateserver / Oceanbase
+// ob_fifo_allocator.cc updateserver / Oceanbase
 //
 // Copyright (C) 2010 Taobao.com, Inc.
 //

@@ -7,7 +7,7 @@
  *
  *
  *
- * Version: 0.1: ob_simple_filter.cpp,v 0.1 2011/03/17 15:39:30 zhidong Exp $
+ * Version: 0.1: ob_simple_filter.cc,v 0.1 2011/03/17 15:39:30 zhidong Exp $
  *
  * Authors:
  *   chuanhui <xielun.szd@taobao.com>

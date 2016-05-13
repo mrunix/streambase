@@ -31,9 +31,9 @@ class ObConfigItem {
  public:
   ObConfigItem()
     : ck_(NULL), type_(OB_CONFIG_DYNAMIC) {
-    memset(value_str_, sizeof(value_str_), 0);
-    memset(name_str_, sizeof(name_str_), 0);
-    memset(info_str_, sizeof(info_str_), 0);
+    memset(value_str_, 0, sizeof(value_str_));
+    memset(name_str_, 0, sizeof(name_str_));
+    memset(info_str_, 0, sizeof(info_str_));
   }
   virtual ~ObConfigItem() {
     if (NULL != ck_)

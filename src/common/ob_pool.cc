@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_pool.cpp
+ * ob_pool.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>

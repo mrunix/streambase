@@ -1,0 +1,45 @@
+
+SET(OBSQL_DEMO_CXX_FLAGS  "${COMMON_CXXFLAGS}")
+SET(OBSQL_DEMO_LIBRARIES
+	${SYSLIBS}
+	tbsys.static
+	mysqlclient
+)
+
+SET(sqldemo_sources
+	ob_sql_demo.cc
+)
+
+CLEAR_VARS()
+SET(LOCAL_MODULE     "sqldemo")
+SET(LOCAL_CXX_FLAGS  "${OBSQL_DEMO_CXX_FLAGS}")
+SET(LOCAL_CXX_FILES  ${sqldemo_sources})
+SET(LOCAL_LIBRARIES  ${OBSQL_DEMO_LIBRARIES})
+BUILD_EXECUTABLE()
+
+
+SET(mtsqldemo_sources
+	ob_sql_demo_mt.cc
+)
+
+CLEAR_VARS()
+SET(LOCAL_MODULE     "mtsqldemo")
+SET(LOCAL_CXX_FLAGS  "${OBSQL_DEMO_CXX_FLAGS}")
+SET(LOCAL_CXX_FILES  ${mtsqldemo_sources})
+SET(LOCAL_LIBRARIES  ${OBSQL_DEMO_LIBRARIES})
+BUILD_EXECUTABLE()
+
+
+SET(trxdemo_sources
+	ob_sql_demo_transaction.cc
+)
+
+CLEAR_VARS()
+SET(LOCAL_MODULE     "trxdemo")
+SET(LOCAL_CXX_FLAGS  "${OBSQL_DEMO_CXX_FLAGS}")
+SET(LOCAL_CXX_FILES  ${trxdemo_sources})
+SET(LOCAL_LIBRARIES  ${OBSQL_DEMO_LIBRARIES})
+BUILD_EXECUTABLE()
+
+
+

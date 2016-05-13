@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_row.cpp
+ * ob_row.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>

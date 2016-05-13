@@ -1,6 +1,6 @@
 ////===================================================================
 //
-// ob_regex.cpp common / Oceanbase
+// ob_regex.cc common / Oceanbase
 //
 // Copyright (C) 2010 Taobao.com, Inc.
 //

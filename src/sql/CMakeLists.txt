@@ -1,0 +1,180 @@
+SET(sql_parser_sources
+	build_plan.cc
+	dml_build_plan.cc
+	ob_alter_table_stmt.cc
+	ob_alter_sys_cnf_stmt.cc
+	ob_create_table_stmt.cc
+	ob_deallocate_stmt.cc
+	ob_delete_stmt.cc
+	ob_drop_table_stmt.cc
+	ob_dual_table_scan.cc
+	ob_execute_stmt.cc
+	ob_explain_stmt.cc
+	ob_insert_stmt.cc
+	ob_logical_plan.cc
+	ob_multi_logic_plan.cc
+	ob_multi_phy_plan.cc
+	ob_physical_plan.cc
+	ob_prepare_stmt.cc
+	ob_raw_expr.cc
+	ob_schema_checker.cc
+	ob_select_stmt.cc
+	ob_show_schema_manager.cc
+	ob_show_stmt.cc
+	ob_stmt.cc
+	ob_sys_params_mgr.cc
+	ob_transformer.cc
+	ob_update_stmt.cc
+	ob_variable_set_stmt.cc
+	ob_kill_stmt.cc
+	parse_malloc.cc
+
+	priv_build_plan.cc
+	ob_drop_user_stmt.cc
+	ob_set_password_stmt.cc
+	ob_rename_user_stmt.cc
+	ob_lock_user_stmt.cc
+	ob_grant_stmt.cc
+	ob_revoke_stmt.cc
+
+	ob_priv_executor.cc
+	ob_change_obi_stmt.cc
+)
+
+SET(sql_parser_c_sources
+	parse_node.c
+	sql_parser.lex.c	
+	sql_parser.tab.c
+	type_name.c
+
+	ob_non_reserved_keywords.c
+)
+	
+SET(operators_sources
+	ob_add_project.cc
+	ob_aggregate_function.cc
+	ob_alter_sys_cnf.cc
+	ob_alter_table.cc
+	ob_column_group_scanner.cc
+	ob_create_table.cc
+	ob_create_user_stmt.cc
+	ob_deallocate.cc
+	ob_delete.cc
+	ob_double_children_phy_operator.cc
+	ob_drop_table.cc
+	ob_execute.cc
+	ob_explain.cc
+	ob_filter.cc
+	ob_groupby.cc
+	ob_in_memory_sort.cc
+	ob_insert.cc
+	ob_join.cc
+	ob_limit.cc
+	ob_merge_distinct.cc
+	ob_merge_except.cc
+	ob_merge_groupby.cc
+	ob_merge_intersect.cc
+	ob_merge_join.cc
+	ob_merge_sort.cc
+	ob_merge_union.cc
+	ob_multi_cg_scanner.cc
+	ob_phy_operator.cc
+	ob_postfix_expression.cc
+	ob_prepare.cc
+	ob_project.cc
+	ob_rename.cc
+	ob_result_set.cc
+	ob_rowkey_phy_operator.cc
+	ob_rpc_scan.cc
+	ob_run_file.cc
+	ob_scalar_aggregate.cc
+	ob_set_operator.cc
+	ob_single_child_phy_operator.cc
+	ob_sort.cc
+	ob_sql.cc
+	ob_sql_expression.cc
+	ob_sql_read_param.cc
+	ob_sql_scan_param.cc
+	ob_sql_get_param.cc
+	ob_sql_session_info.cc
+	ob_sql_session_mgr.cc
+	ob_sql_session_info_traversal.cc
+	ob_sstable_block_scanner.cc
+	ob_sstable_scan.cc
+	ob_sstable_scanner.cc
+	ob_table_mem_scan.cc
+	ob_table_rename.cc
+	ob_table_rpc_scan.cc
+	ob_tablet_join.cc
+	ob_tablet_cache_join.cc
+	ob_tablet_direct_join.cc
+	ob_tablet_scan.cc
+	ob_ups_multi_get.cc
+	ob_ups_scan.cc
+	ob_values.cc
+	ob_variable_set.cc
+	ob_ups_modify.cc
+	ob_inc_scan.cc
+	ob_update.cc
+	ob_phy_operator_type.cc
+	ob_mem_sstable_scan.cc
+	ob_multiple_merge.cc
+	ob_inc_scan.cc
+	ob_insert_dbsem_filter.cc
+	ob_cs_create_plan.cc
+	ob_phy_operator_factory.cc
+	ob_lock_filter.cc
+	ob_ups_executor.cc
+	ob_start_trans.cc
+	ob_end_trans.cc
+	ob_expr_values.cc
+	ob_sstable_get.cc
+	ob_tablet_get_fuse.cc
+	ob_tablet_scan_fuse.cc
+	ob_tablet_read.cc
+	ob_tablet_get.cc
+	ob_sql_read_param.cc
+	ob_multiple_scan_merge.cc
+	ob_multiple_get_merge.cc
+	ob_empty_row_filter.cc
+	ob_sql_read_strategy.cc
+	ob_tablet_join_cache.cc
+	ob_direct_trigger_event_util.cc
+	ob_multi_children_phy_operator.cc
+	ob_row_count.cc
+	ob_when_filter.cc
+	ob_get_cur_time_phy_operator.cc
+	ob_kill_session.cc
+	ob_sql_id_mgr.cc
+	ob_change_obi.cc
+	ob_sql_query_cache.cc
+	ob_sql_id_mgr.cc
+	ob_ps_store_item.cc
+	ob_ps_store.cc
+	ob_sql_character_set.cc
+)
+
+SET(misc_sources						
+	ob_ups_result.cc		
+	ob_sql_result_set.cc	
+	ob_sys_params_mgr.cc
+)
+
+
+CLEAR_VARS()
+SET(LOCAL_MODULE     "sql")
+SET(LOCAL_C_FLAGS    "${COMMON_CFLAGS} -Wno-error=format-security")	# tblog.h error: format not a string literal and no format arguments [-Werror=format-security]
+SET(LOCAL_CXX_FLAGS  "${COMMON_CXXFLAGS} -Wno-error=format-security") # tblog.h error: format not a string literal and no format arguments [-Werror=format-security]
+SET(LOCAL_C_FILES    ${sql_parser_c_sources})
+SET(LOCAL_CXX_FILES  ${sql_parser_sources} ${operators_sources} ${misc_sources})
+SET(LOCAL_LIBRARIES
+	${SYSLIBS}
+	${EASYLIB}
+	tbsys.static
+	common.static
+	compactsstablev2.static
+	mergeserver.static
+)
+BUILD_STATIC_LIBRARY()
+
+

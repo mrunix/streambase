@@ -151,7 +151,7 @@ int ObMergerSchemaManager::release_schema(const ObSchemaManagerV2* schema) {
     TBSYS_LOG(WARN, "check input param schema failed");
     ret = OB_INVALID_ARGUMENT;
   } else if (schema != &(sys_schema_.schema)) {
-    bool find = false;
+    bool __attribute__((unused)) find = false;
     tbsys::CThreadGuard lock(&lock_);
     for (uint64_t i = 0; i < MAX_VERSION_COUNT; ++i) {
       // 0 is empty, 1 is not used

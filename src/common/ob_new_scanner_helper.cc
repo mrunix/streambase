@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_new_scanner_helper.cpp
+ * ob_new_scanner_helper.cc
  *
  * Authors:
  *   Junquan Chen <jianming.cjq@taobao.com>

@@ -5,9 +5,9 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * ob_groupby.cpp is for what ...
+ * ob_groupby.cc is for what ...
  *
- * Version: $id: ob_groupby.cpp,v 0.1 3/24/2011 11:51a wushi Exp $
+ * Version: $id: ob_groupby.cc,v 0.1 3/24/2011 11:51a wushi Exp $
  *
  * Authors:
  *   wushi <wushi.ly@taobao.com>
@@ -977,7 +977,7 @@ int oceanbase::common::ObGroupByParam::serialize(char* buf, const int64_t buf_le
               return_infos_.get_array_index(), column_num_);
     err = OB_INVALID_ARGUMENT;
   } else {
-    err = serialize_helper(buf, buf_len, pos);
+    err = (int)serialize_helper(buf, buf_len, pos);
     if (0 <= err) {
       err = OB_SUCCESS;
     }
@@ -1675,20 +1675,20 @@ int64_t oceanbase::common::ObGroupByParam::serialize_helper(char* buf, const int
     TBSYS_LOG(WARN, "there is only composite column, cannot calculate");
   }
   if (OB_SUCCESS == err) {
-    err = groupby_columns_serialize_helper(buf, buf_len, pos);
+    err = (int)groupby_columns_serialize_helper(buf, buf_len, pos);
     if (0 <= err) {
       need_size += err;
       err = OB_SUCCESS;
     }
     if (OB_SUCCESS == err) {
-      err = return_columns_serialize_helper(buf, buf_len, pos);
+      err = (int)return_columns_serialize_helper(buf, buf_len, pos);
       if (0 <= err) {
         need_size += err;
         err = OB_SUCCESS;
       }
     }
     if (OB_SUCCESS == err) {
-      err = aggregate_columns_serialize_helper(buf, buf_len, pos);
+      err = (int)aggregate_columns_serialize_helper(buf, buf_len, pos);
       if (0 <= err) {
         need_size += err;
         err = OB_SUCCESS;

@@ -1,6 +1,6 @@
 ////===================================================================
 //
-// ob_file.cpp / common / Oceanbase
+// ob_file.cc / common / Oceanbase
 //
 // Copyright (C) 2010 Taobao.com, Inc.
 //
@@ -1261,7 +1261,7 @@ void ObFileAsyncAppender::close() {
       // Fatal error
       TBSYS_LOG(ERROR, "fsync fail fd=%d, will set fd=-1, and the fd will leek", fd_);
     } else {
-      ftruncate(fd_, file_pos_);
+      int __attribute__((unused)) ret = ftruncate(fd_, file_pos_);
       ::close(fd_);
     }
     fd_ = -1;

@@ -5,7 +5,7 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * ob_slab.cpp is for what ...
+ * ob_slab.cc is for what ...
  *
  * Version: $id$
  *

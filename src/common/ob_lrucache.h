@@ -1,6 +1,6 @@
 ////===================================================================
 //
-// ob_lrucache.cpp / hash / common / Oceanbase
+// ob_lrucache.cc / hash / common / Oceanbase
 //
 // Copyright (C) 2010, 2013 Taobao.com, Inc.
 //

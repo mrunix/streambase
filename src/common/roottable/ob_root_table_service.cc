@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_root_table_service.cpp
+ * ob_root_table_service.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>

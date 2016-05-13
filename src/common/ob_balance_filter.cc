@@ -1,6 +1,6 @@
 ////===================================================================
 //
-// ob_balance_filter.cpp common / Oceanbase
+// ob_balance_filter.cc common / Oceanbase
 //
 // Copyright (C) 2010, 2013 Taobao.com, Inc.
 //

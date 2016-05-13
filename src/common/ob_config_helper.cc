@@ -7,7 +7,7 @@
  *
  * Time-stamp: <2013-02-20 17:20:32 fufeng.syd>
  * Version: $Id$
- * Filename: ob_config_helper.cpp
+ * Filename: ob_config_helper.cc
  *
  * Authors:
  *   Yudi Shi <fufeng.syd@alipay.com>

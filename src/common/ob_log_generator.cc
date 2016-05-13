@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_log_generator.cpp
+ * ob_log_generator.cc
  *
  * Authors:
  *   yuanqi.xhf <yuanqi.xhf@taobao.com>

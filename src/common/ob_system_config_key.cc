@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * Filename: ob_system_config_key.cpp
+ * Filename: ob_system_config_key.cc
  *
  * Authors:
  *   Yudi Shi <fufeng.syd@taobao.com>

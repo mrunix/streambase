@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_scan_helper.cpp
+ * ob_scan_helper.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>

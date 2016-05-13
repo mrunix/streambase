@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_meta_table_schema.cpp
+ * ob_meta_table_schema.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>

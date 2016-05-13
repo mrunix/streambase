@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_version.cpp
+ * ob_version.cc
  *
  * Authors:
  *   Liangjie Li <liangjie.li@alipay.com>

@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_compact_cell_iterator.cpp
+ * ob_compact_cell_iterator.cc
  *
  * Authors:
  *   Junquan Chen <jianming.cjq@taobao.com>

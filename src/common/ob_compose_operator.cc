@@ -5,7 +5,7 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_compose_operator.cpp for implementation of compose
+ * ob_compose_operator.cc for implementation of compose
  * operator.
  *
  * Authors:

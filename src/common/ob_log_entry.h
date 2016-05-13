@@ -138,7 +138,7 @@ struct ObLogEntry {
    */
   int check_data_integrity(const char* log_data, const bool dump_content = true) const;
 
-  static int get_header_size() {return sizeof(ObRecordHeader) + sizeof(uint64_t) + sizeof(LogCommand);}
+  static size_t get_header_size() {return sizeof(ObRecordHeader) + sizeof(uint64_t) + sizeof(LogCommand);}
 
   NEED_SERIALIZE_AND_DESERIALIZE;
 };

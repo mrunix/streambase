@@ -5,7 +5,7 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_rpc_stub.cpp for rpc among chunk server, update server and
+ * ob_rpc_stub.cc for rpc among chunk server, update server and
  * root server.
  *
  * Authors:

@@ -5,9 +5,9 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * ob_meta_cache.cpp is for what ...
+ * ob_meta_cache.cc is for what ...
  *
- * Version: ***: ob_meta_cache.cpp  Thu Aug 18 14:44:57 2011 fangji.hcm Exp $
+ * Version: ***: ob_meta_cache.cc  Thu Aug 18 14:44:57 2011 fangji.hcm Exp $
  *
  * Authors:
  *   Author fangji.hcm <fangji.hcm@taobao.com>

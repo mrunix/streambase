@@ -5,9 +5,9 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * ob_cache.cpp is for what ...
+ * ob_cache.cc is for what ...
  *
- * Version: $id: ob_cache.cpp,v 0.1 8/19/2010 3:20p wushi Exp $
+ * Version: $id: ob_cache.cc,v 0.1 8/19/2010 3:20p wushi Exp $
  *
  * Authors:
  *   wushi <wushi.ly@taobao.com>

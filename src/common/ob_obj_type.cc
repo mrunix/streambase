@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_obj_type.cpp
+ * ob_obj_type.cc
  *
  * Authors:
  *   zhidong<xielun.szd@alipay.com>

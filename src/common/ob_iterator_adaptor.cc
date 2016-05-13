@@ -1,6 +1,6 @@
 ////===================================================================
 //
-// ob_iterator_adaptor.cpp common / Oceanbase
+// ob_iterator_adaptor.cc common / Oceanbase
 //
 // Copyright (C) 2010, 2013 Taobao.com, Inc.
 //

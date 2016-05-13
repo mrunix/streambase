@@ -5,7 +5,7 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_counter.cpp for
+ * ob_counter.cc for
  *
  * Authors:
  *   wushi <wushi.ly@taobao.com>

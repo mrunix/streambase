@@ -7,7 +7,7 @@
  *
  * Version: $Id$
  *
- * ob_tablet_meta_table_row.cpp
+ * ob_tablet_meta_table_row.cc
  *
  * Authors:
  *   Zhifeng YANG <zhuweng.yzf@taobao.com>

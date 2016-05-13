@@ -145,7 +145,7 @@
     databuff_printf(ObProfileFillLog::get_log_buf(), 1024, pos, "sql_queue_size=[%d] ",profile_data.sql_queue_size_);\
     databuff_printf(ObProfileFillLog::get_log_buf(), 1024, pos, "print_time=[%ld]",print_time);\
     ObProfileFillLog::get_log_buf()[pos] = '\n';\
-    ::write(ObProfileFillLog::log_fd_, ObProfileFillLog::get_log_buf(), pos + 1);\
+    ssize_t __attribute__((unused)) ret = ::write(ObProfileFillLog::log_fd_, ObProfileFillLog::get_log_buf(), pos + 1);\
   }\
 }
 
@@ -166,7 +166,7 @@
       databuff_printf(ObProfileFillLog::get_log_buf(), 1024, pos, "rpc:channel_id=[%ld] rpc_start=[%ld] latency=[%ld] pcode=[%ld] ", profile_data.rpc_latency_arr_[i].channel_id_,  profile_data.rpc_latency_arr_[i].rpc_start_, profile_data.rpc_latency_arr_[i].rpc_end_ - profile_data.rpc_latency_arr_[i].rpc_start_, profile_data.rpc_latency_arr_[i].pcode_);\
     }\
     ObProfileFillLog::get_log_buf()[pos] = '\n';\
-    ::write(ObProfileFillLog::log_fd_, ObProfileFillLog::get_log_buf(), pos + 1);\
+    ssize_t __attribute__((unused)) ret = ::write(ObProfileFillLog::log_fd_, ObProfileFillLog::get_log_buf(), pos + 1);\
   }\
 }
 
