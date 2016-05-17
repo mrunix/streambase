@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# CMake build script for OceanBase.
+# CMake build script for StreamBase.
 # -----------------------------------------------------------------------------
 
 # BUILD_LIB_TYPE  : STATIC/SHARED/BOTH, build static/shared or both, default static
@@ -9,7 +9,7 @@
 # P_PROFILE       : unittest
 # WITH_TEST       : ON/OFF
 
-PROJECT(OceanBase)
+PROJECT(StreamBase)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.0)
 
@@ -57,14 +57,14 @@ SET(COMMON_CXXFLAGS "${COMMON_CXXFLAGS} -D_LARGE_FILE -D_LARGEFILE_SOURCE -D_LAR
 SET(COMMON_CXXFLAGS "${COMMON_CXXFLAGS} -Wno-ignored-qualifiers -fPIC")
 
 # Set COMMON DEFINES
-ADD_DEFINITIONS(-DPACKAGE_NAME="OceanBase" -DPACKAGE_TARNAME="oceanbase")
-ADD_DEFINITIONS(-DPACKAGE_VERSION="0.4.2.9" -DPACKAGE_STRING="OceanBase 0.4.2.9")
-ADD_DEFINITIONS(-DPACKAGE_BUGREPORT="qushan@taobao.com" -DPACKAGE_URL="http://oceanbase.taobao.org/")
+ADD_DEFINITIONS(-DPACKAGE_NAME="StreamBase" -DPACKAGE_TARNAME="streambase")
+ADD_DEFINITIONS(-DPACKAGE_VERSION="0.0.0.1" -DPACKAGE_STRING="streambase 0.0.0.1")
+ADD_DEFINITIONS(-DPACKAGE_BUGREPORT="311155@qq.com" -DPACKAGE_URL="https://github.com/mrunix/streambase")
 ADD_DEFINITIONS(-DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1)
 ADD_DEFINITIONS(-DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1)
 ADD_DEFINITIONS(-DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1)
-ADD_DEFINITIONS(-DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DPACKAGE="oceanbase")
-ADD_DEFINITIONS(-DVERSION="0.4.2.9" -DRELEASEID="")
+ADD_DEFINITIONS(-DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DPACKAGE="streambase")
+ADD_DEFINITIONS(-DVERSION="0.0.0.1" -DRELEASEID="")
 
 # Set local include path
 INCLUDE_DIRECTORIES(
