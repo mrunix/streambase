@@ -73,7 +73,7 @@ INCLUDE_DIRECTORIES(
 	# include libeasy header
 	${PROJECT_SOURCE_DIR}/external/libeasy/include/easy
 	# include libtbsys header
-	${PROJECT_SOURCE_DIR}/external/tb-common-utils/include/tbsys
+	${PROJECT_SOURCE_DIR}/external/tb-common-utils/tbsys/src
 )
 
 SET(JAVA_HOME_PATH "$ENV{JAVA_HOME}")

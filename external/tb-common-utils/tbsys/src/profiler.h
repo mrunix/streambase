@@ -130,10 +130,10 @@ class Entry {
 
   double getPercentage() {
     double pd = 0;
-    double d = (double)getMyDuration();
+    double d = static_cast<double>(getMyDuration());
 
     if (!subEntries.empty())
-      pd = getDuration();
+      pd = static_cast<double>(getDuration());
     else if (parent && parent->isReleased())
       pd = static_cast<double>(parent->getDuration());
 
@@ -145,7 +145,7 @@ class Entry {
 
   double getPercentageOfTotal() {
     double fd = 0;
-    double d = getDuration();
+    double d = static_cast<double>(getDuration());
 
     if (first && first->isReleased())
       fd = static_cast<double>(first->getDuration());
