@@ -65,7 +65,7 @@ BUILD_STATIC_LIBRARY()
 
 
 SET(rootserver_sources
-	${PROJECT_SOURCE_DIR}/svn_version.cc
+	${PROJECT_SOURCE_DIR}/version.cc
 	ob_root_main.cc
 	main.cc
 )
@@ -85,7 +85,7 @@ BUILD_EXECUTABLE()
 
 
 SET(schema_reader_sources
-	${PROJECT_SOURCE_DIR}/svn_version.cc
+	${PROJECT_SOURCE_DIR}/version.cc
 	ob_schema_reader.cc
 )
 
@@ -104,7 +104,7 @@ BUILD_EXECUTABLE()
 
 
 SET(checkpoint2str_sources
-	${PROJECT_SOURCE_DIR}/svn_version.cc
+	${PROJECT_SOURCE_DIR}/version.cc
 	ob_check_point2str.cc
 )
 
@@ -123,7 +123,7 @@ BUILD_EXECUTABLE()
 
 
 SET(str2checkpoint_sources
-	${PROJECT_SOURCE_DIR}/svn_version.cc
+	${PROJECT_SOURCE_DIR}/version.cc
 	ob_str2check_point.cc
 )
 
@@ -142,7 +142,7 @@ BUILD_EXECUTABLE()
 
 
 SET(rs_admin_sources
-	${PROJECT_SOURCE_DIR}/svn_version.cc
+	${PROJECT_SOURCE_DIR}/version.cc
 	ob_root_admin2.cc
 	ob_root_admin2_main.cc
 )
@@ -162,7 +162,7 @@ BUILD_EXECUTABLE()
 
 
 SET(rs_stress_sources
-	${PROJECT_SOURCE_DIR}/svn_version.cc
+	${PROJECT_SOURCE_DIR}/version.cc
 	ob_rs_stress.cc
 )
 

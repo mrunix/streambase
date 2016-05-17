@@ -1,6 +1,6 @@
 
 SET(chunkserver_lib_sources
-	${PROJECT_SOURCE_DIR}/svn_version.cc
+	${PROJECT_SOURCE_DIR}/version.cc
 	ob_block_cache_loader.cc
 	ob_block_cache_reader.cc
 	ob_cell_array_helper.cc

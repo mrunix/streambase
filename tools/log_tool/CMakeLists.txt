@@ -16,7 +16,7 @@ SET(log_tool_sources
 	log_tool.cc
 	ob_utils.cc
 	${PROJECT_SOURCE_DIR}/src/updateserver/ob_ups_stat.cc
-	${PROJECT_SOURCE_DIR}/svn_version.cc
+	${PROJECT_SOURCE_DIR}/version.cc
 )
 
 CLEAR_VARS()
@@ -31,7 +31,7 @@ SET(client_sources
 	ob_client2.cc
 	ob_utils.cc
 	${PROJECT_SOURCE_DIR}/src/updateserver/ob_ups_stat.cc
-	${PROJECT_SOURCE_DIR}/svn_version.cc
+	${PROJECT_SOURCE_DIR}/version.cc
 )
 
 CLEAR_VARS()

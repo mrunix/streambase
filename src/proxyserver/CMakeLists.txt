@@ -32,7 +32,7 @@ BUILD_STATIC_LIBRARY()
 
 
 SET(proxyserver_sources
-	${PROJECT_SOURCE_DIR}/svn_version.cc
+	${PROJECT_SOURCE_DIR}/version.cc
 	main.cc
 )
 

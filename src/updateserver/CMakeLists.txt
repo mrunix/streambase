@@ -2,7 +2,7 @@
 SET(UPDATESERVER_FLAGS  "${COMMON_CXXFLAGS} -D__VERSION_ID__=\"updateserver 1.0.0.0\" -D_BTREE_ENGINE_ -Wno-error=psabi")
 
 SET(updateserver_lib_sources
-	${PROJECT_SOURCE_DIR}/svn_version.cc
+	${PROJECT_SOURCE_DIR}/version.cc
 	ob_async_log_applier.cc
 	ob_btree_engine_alloc.cc
 	ob_cached_pos_log_reader.cc
@@ -102,7 +102,7 @@ BUILD_EXECUTABLE()
 
 
 SET(ob_ping_sources
-	${PROJECT_SOURCE_DIR}/svn_version.cc
+	${PROJECT_SOURCE_DIR}/version.cc
 	ups_mon.cc
 )
 

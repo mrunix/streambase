@@ -28,7 +28,7 @@ SET(oblog_cxx_sources
 
 SET(oblog_c_sources
 	ob_log_main.c
-	${PROJECT_SOURCE_DIR}/svn_version.c
+	${PROJECT_SOURCE_DIR}/version.c
 )
 
 

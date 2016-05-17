@@ -29,7 +29,7 @@ BUILD_STATIC_LIBRARY()
 
 
 SET(lsyncserver_sources
-	${PROJECT_SOURCE_DIR}/svn_version.cc
+	${PROJECT_SOURCE_DIR}/version.cc
 	main.cc
 	ob_lsync_server_main.cc
 	ob_lsync_server_param.cc
