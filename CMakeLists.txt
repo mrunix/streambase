@@ -2,7 +2,7 @@
 # CMake build script for StreamBase.
 # -----------------------------------------------------------------------------
 
-# BUILD_LIB_TYPE  : STATIC/SHARED/BOTH, build static/shared or both, default static
+# BUILD_LIB_TYPE  : STATIC/SHARED/BOTH, build STATIC/SHARED or both, default BOTH
 # COMPILER_PATH   : Compiler root path
 # COMPILER_PREFIX : Compiler prefix
 # TARGET_ARCH     : ppc/ppc64/arm/x86_64/i386/ia64
