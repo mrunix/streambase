@@ -1,4 +1,4 @@
-# streambase
+# StreamBase
 A distributed, streaming data store.
 
 # Notice
