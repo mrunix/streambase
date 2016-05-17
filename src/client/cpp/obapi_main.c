@@ -31,7 +31,6 @@ const char my_interp[] __attribute__((section(".interp")))
 #define GCC_VERSION_FMT      "GCC Version: "
 #define BUILD_ENV_FMT        ""
 
-const char* svn_version();
 const char* build_date();
 const char* build_time();
 
@@ -43,10 +42,6 @@ void print_so_version() {
 #ifdef OBAPI_SO_VERSION
   printf(SO_VERSION_FMT "%s\n", OBAPI_SO_VERSION);
 #endif
-}
-
-void print_svn_revision() {
-  printf(SVN_REVISION_FMT "%s\n", svn_version());
 }
 
 void print_build_time() {
@@ -63,7 +58,6 @@ void print_build_env() {
 int so_main() {
   print_intro();
   print_so_version();
-  print_svn_revision();
   print_build_time();
   print_gcc_version();
   print_build_env();

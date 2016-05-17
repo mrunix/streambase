@@ -111,13 +111,11 @@ ssize_t pwrite(int fd, const void* buf, size_t count, off_t offset) {
   return real_pwrite(fd, buf, count, offset);
 }
 
-const char* svn_version();
 const char* build_date();
 const char* build_time();
 
 int so_main() {
   printf(INTRODUCTION);
-  printf("SVN Revision: %s\n", svn_version());
   printf("SO Build Time: %s %s\n", build_date(), build_time());
   printf("GCC Version: %s\n", __VERSION__);
   printf("\n");

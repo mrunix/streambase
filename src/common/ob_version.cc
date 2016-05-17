@@ -18,8 +18,8 @@
 #include "tblog.h"
 
 void get_package_and_svn(char* server_version, int64_t buf_len) {
-  const char* server_version_template = "%s_%s(%s %s)";
+  const char* server_version_template = "%s(%s %s)";
   snprintf(server_version, buf_len, server_version_template, PACKAGE_VERSION,
-           svn_version(), build_date(), build_time());
+           build_date(), build_time());
 }
 

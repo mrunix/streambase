@@ -30,9 +30,7 @@ common::BaseMain* ObRootMain::get_instance() {
 
 void ObRootMain::print_version() {
   fprintf(stderr, "rootserver (%s %s)\n", PACKAGE_STRING, RELEASEID);
-  fprintf(stderr, "SVN_VERSION: %s\n", svn_version());
-  fprintf(stderr, "BUILD_TIME: %s %s\n", build_date(), build_time());
-  fprintf(stderr, "BUILD_FLAGS: %s\n\n", build_flags());
+  fprintf(stderr, "BUILD_TIME: %s %s\n\n", build_date(), build_time());
   fprintf(stderr, "Copyright (c) 2007-2013 Taobao Inc.\n");
 }
 
@@ -50,9 +48,8 @@ int ObRootMain::do_work() {
   int ret = OB_SUCCESS;
   char dump_config_path[OB_MAX_FILE_NAME_LENGTH];
 
-  TBSYS_LOG(INFO, "oceanbase-root start svn_version=[%s] "
-            "build_date=[%s] build_time=[%s]", svn_version(), build_date(),
-            build_time());
+  TBSYS_LOG(INFO, "oceanbase-root "
+            "build_date=[%s] build_time=[%s]", build_date(), build_time());
 
   rs_reload_config_.set_root_server(worker.get_root_server());
 

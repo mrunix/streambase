@@ -495,7 +495,6 @@ int ObBootstrap::init_all_sys_stat() {
   return ret;
 }
 
-extern const char* svn_version();
 extern const char* build_date();
 extern const char* build_time();
 
@@ -594,8 +593,8 @@ int ObBootstrap::init_all_sys_param() {
       "3",
       "read consistency level:4=STRONG, 3=WEAK, 2=FROZEN, 1=STATIC, 0=NONE");
     char version_comment[256];
-    snprintf(version_comment, 256, "OceanBase %s (r%s) (Built %s %s)",
-             PACKAGE_VERSION, svn_version(), build_date(), build_time());
+    snprintf(version_comment, 256, "OceanBase %s (Built %s %s)",
+             PACKAGE_VERSION, build_date(), build_time());
     INSERT_ALL_SYS_PARAM_ROW(
       ret,
       acc,

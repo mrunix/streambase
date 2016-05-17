@@ -62,9 +62,8 @@ int ObMergeServerMain::do_work() {
   int ret = OB_SUCCESS;
   char dump_config_path[OB_MAX_FILE_NAME_LENGTH];
 
-  TBSYS_LOG(INFO, "oceanbase-mergeserver start svn_version=[%s] "
-            "build_data=[%s] build_time=[%s]", svn_version(), build_date(),
-            build_time());
+  TBSYS_LOG(INFO, "oceanbase-mergeserver "
+            "build_data=[%s] build_time=[%s]", build_date(), build_time());
 
   ms_reload_config_.set_merge_server(server_);
 
@@ -146,9 +145,7 @@ int ObMergeServerMain::do_work() {
 
 void ObMergeServerMain::print_version() {
   fprintf(stderr, "mergeserver (%s %s)\n", PACKAGE_STRING, RELEASEID);
-  fprintf(stderr, "SVN_VERSION: %s\n", svn_version());
-  fprintf(stderr, "BUILD_TIME: %s %s\n", build_date(), build_time());
-  fprintf(stderr, "BUILD_FLAGS: %s\n\n", build_flags());
+  fprintf(stderr, "BUILD_TIME: %s %s\n\n", build_date(), build_time());
   fprintf(stderr, "Copyright (c) 2007-2012 Taobao Inc.\n");
 }
 

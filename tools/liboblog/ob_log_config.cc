@@ -45,10 +45,8 @@
 
 #define DEFAULT_LOG_FPATH     "./log/liboblog.log"
 
-const char* svn_version();
 const char* build_date();
 const char* build_time();
-const char* build_flags();
 
 namespace oceanbase {
 using namespace common;
@@ -163,9 +161,7 @@ int ObLogConfig::load_config_(const char* fpath) {
     TBSYS_LOGGER.setLogLevel("info");
     TBSYS_LOG(INFO, "logger=%p", &(TBSYS_LOGGER));
     TBSYS_LOG(INFO, "====================liboblog start====================");
-    TBSYS_LOG(INFO, "SVN_VERSION: %s", svn_version());
     TBSYS_LOG(INFO, "BUILD_TIME: %s %s", build_date(), build_time());
-    TBSYS_LOG(INFO, "BUILD_FLAGS: %s", build_flags());
     TBSYS_LOG(INFO, "config fpath=[%s]", fpath);
 
     if (NULL == (cluster_url = format_url_(config_.getString(LOG_CONFIG_SECTION, LOG_CONFIG_OB_URL)))) {

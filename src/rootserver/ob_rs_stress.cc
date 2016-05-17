@@ -101,7 +101,6 @@ void MyMain::usage() {
 
 void MyMain::version() {
   printf("%s (%s %s)\n", PROG_NAME, PACKAGE_STRING, RELEASEID);
-  printf("SVN_VERSION: %s\n", svn_version());
   printf("BUILD_TIME: %s %s\n\n", build_date(), build_time());
   printf("Copyright (c) 2007-2011 Taobao Inc.\n");
 }

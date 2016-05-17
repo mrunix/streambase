@@ -18,10 +18,8 @@
 
 #include <stdint.h>
 
-const char* svn_version();
 const char* build_date();
 const char* build_time();
-const char* build_flags();
 
 void get_package_and_svn(char* server_version, int64_t buf_len);
 

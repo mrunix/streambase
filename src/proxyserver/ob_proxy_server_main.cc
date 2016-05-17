@@ -137,14 +137,11 @@ void ObProxyServerMain::do_signal(const int sig) {
 
 void ObProxyServerMain::print_version() {
   fprintf(stderr, "proxyserver (%s %s)\n", PACKAGE_STRING, RELEASEID);
-  fprintf(stderr, "SVN_VERSION: %s\n", svn_version());
-  fprintf(stderr, "BUILD_TIME: %s %s\n", build_date(), build_time());
-  fprintf(stderr, "BUILD_FLAGS: %s\n\n", build_flags());
+  fprintf(stderr, "BUILD_TIME: %s %s\n\n", build_date(), build_time());
   fprintf(stderr, "Copyright (c) 2007-2011 Taobao Inc.\n");
 
-  TBSYS_LOG(INFO, "oceanbase-chunk start svn_version=[%s] "
-            "build_data=[%s] build_time=[%s]", svn_version(), build_date(),
-            build_time());
+  TBSYS_LOG(INFO, "oceanbase-chunk "
+            "build_data=[%s] build_time=[%s]", build_date(), build_time());
 }
 
 } // end namespace proxyserver

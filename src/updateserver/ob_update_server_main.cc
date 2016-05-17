@@ -137,9 +137,7 @@ void ObUpdateServerMain::do_signal(const int sig) {
 
 void ObUpdateServerMain::print_version() {
   fprintf(stderr, "updateserver (%s %s)\n", PACKAGE_STRING, RELEASEID);
-  fprintf(stderr, "SVN_VERSION: %s\n", svn_version());
-  fprintf(stderr, "BUILD_TIME: %s %s\n", build_date(), build_time());
-  fprintf(stderr, "BUILD_FLAGS: %s\n\n", build_flags());
+  fprintf(stderr, "BUILD_TIME: %s %s\n\n", build_date(), build_time());
 #ifdef _BTREE_ENGINE_
   fprintf(stderr, "Using Btree Key-Value Engine.\n");
 #else

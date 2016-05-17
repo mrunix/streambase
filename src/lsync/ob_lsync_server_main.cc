@@ -19,7 +19,6 @@
 
 using namespace oceanbase::common;
 
-const char* svn_version();
 const char* build_date();
 const char* build_time();
 
@@ -155,7 +154,7 @@ void ObLsyncServerMain::print_usage(const char* prog_name) {
   BaseMain::print_usage(prog_name);
 }
 void ObLsyncServerMain::print_version() {
-  fprintf(stderr, "LsyncServer.\nsvn version: %s\nBuild time: %s %s\n", svn_version(), build_date(), build_time());
+  fprintf(stderr, "LsyncServer.\nBuild time: %s %s\n", build_date(), build_time());
 }
 }
 }
