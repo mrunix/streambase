@@ -11,6 +11,7 @@
  ================================================================*/
 #ifndef OCEANBASE_ROOTSERVER_ROOT_WORKER_H_
 #define OCEANBASE_ROOTSERVER_ROOT_WORKER_H_
+
 #include "common/ob_define.h"
 #include "common/ob_base_server.h"
 #include "common/thread_buffer.h"
@@ -48,8 +49,11 @@ class ObTimer;
 class MsList;
 class ObGeneralRpcStub;
 }
+
 using common::ObConfigManager;
+
 namespace rootserver {
+
 class ObRootWorker : public common::ObBaseServer, public common::ObPacketQueueHandler {
  public:
   ObRootWorker(ObConfigManager& config_mgr, ObRootServerConfig& rs_config);
@@ -95,6 +99,7 @@ class ObRootWorker : public common::ObBaseServer, public common::ObPacketQueueHa
   int64_t get_network_timeout();
   common::ObServer get_rs_master();
   common::ThreadSpecificBuffer* get_thread_buffer();
+
  private:
   int start_as_master();
   int start_as_slave();
@@ -212,6 +217,7 @@ class ObRootWorker : public common::ObBaseServer, public common::ObPacketQueueHa
   int rt_get_master_ups_config(const int32_t version, common::ObDataBuffer& in_buff, easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff);
   int rt_set_master_ups_config(const int32_t version, common::ObDataBuffer& in_buff, easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff);
   int rt_get_master_obi_rs(const int32_t version, common::ObDataBuffer& in_buff, easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff);
+
  protected:
   const static int64_t ASYNC_TASK_TIME_INTERVAL = 5000 * 1000;
   ObConfigManager& config_mgr_;
@@ -245,6 +251,7 @@ class ObRootWorker : public common::ObBaseServer, public common::ObPacketQueueHa
 inline ObRootServer2& ObRootWorker::get_root_server() {
   return root_server_;
 }
+
 inline ObConfigManager& ObRootWorker::get_config_mgr() {
   return config_mgr_;
 }
@@ -265,3 +272,4 @@ inline ObGeneralRpcStub& ObRootWorker::get_general_rpc_stub() {
 }
 
 #endif
+

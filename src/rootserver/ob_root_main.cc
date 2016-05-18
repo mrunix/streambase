@@ -118,6 +118,7 @@ int ObRootMain::do_work() {
     worker.set_io_thread_count((int32_t)rs_config_.io_thread_count);
     ret = worker.start(false);
   }
+
   return ret;
 }
 

@@ -28,8 +28,10 @@ namespace {
 const char* DEFAULT_PID_DIR = "./run";
 const char* DEFAULT_LOG_DIR = "./log";
 }
+
 namespace oceanbase {
 namespace common {
+
 BaseMain* BaseMain::instance_ = NULL;
 bool BaseMain::restart_ = false;
 bool PACKET_RECORDER_FLAG = false;
@@ -50,8 +52,10 @@ BaseMain::BaseMain(const bool daemon)
   memset(cmd_extra_config_, 0, sizeof(cmd_extra_config_));
   memset(cmd_ms_type_, 0, sizeof(cmd_ms_type_));
 }
+
 BaseMain::~BaseMain() {
 }
+
 void BaseMain::destroy() {
   signal(SIGTERM, SIG_IGN);
   signal(SIGINT, SIG_IGN);
@@ -60,6 +64,7 @@ void BaseMain::destroy() {
     instance_ = NULL;
   }
 }
+
 void BaseMain::sign_handler(const int sig) {
   TBSYS_LOG(WARN, "receive signal sig=%d", sig);
   switch (sig) {
@@ -122,13 +127,16 @@ void BaseMain::sign_handler(const int sig) {
   }
   if (instance_ != NULL) instance_->do_signal(sig);
 }
+
 void BaseMain::do_signal(const int sig) {
   UNUSED(sig);
   return;
 }
+
 void BaseMain::add_signal_catched(const int sig) {
   signal(sig, BaseMain::sign_handler);
 }
+
 void BaseMain::parse_cmd_line(const int argc,  char* const argv[]) {
   int opt = 0;
   const char* opt_string = "r:R:p:i:C:c:n:m:o:z:D:P:hNVt:f:";
@@ -226,6 +234,7 @@ void BaseMain::parse_cmd_line(const int argc,  char* const argv[]) {
       break;
     }
   }
+
   for (int64_t del = 0; del < OB_IP_STR_BUFF; del++) {
     if (':' == cmd_master_rs_ip_[del]) {
       cmd_master_rs_ip_[del++] = '\0';
@@ -241,6 +250,7 @@ void BaseMain::parse_cmd_line(const int argc,  char* const argv[]) {
     }
   }
 }
+
 void BaseMain::print_usage(const char* prog_name) {
   if (0 == strcmp("rootserver", prog_name)) {
     fprintf(stderr, "rootserver\n"
@@ -301,6 +311,7 @@ void BaseMain::print_usage(const char* prog_name) {
     fprintf(stderr, "what SERVER are you run?? [%s]\n", prog_name);
   }
 }
+
 void BaseMain::print_version() {
   fprintf(stderr, "BUILD_TIME: %s %s\n\n", __DATE__, __TIME__);
 }
@@ -439,3 +450,4 @@ bool BaseMain::restart_server(int argc, char* argv[]) {
 
 }
 }
+

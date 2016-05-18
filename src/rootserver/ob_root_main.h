@@ -21,6 +21,7 @@
 
 namespace oceanbase {
 namespace rootserver {
+
 class ObRootMain : public common::BaseMain {
  public:
   static common::BaseMain* get_instance();
@@ -34,6 +35,8 @@ class ObRootMain : public common::BaseMain {
   common::ObConfigManager config_mgr_;
   ObRootWorker worker;
 };
+
 }
 }
 #endif
+
