@@ -88,7 +88,7 @@ void HttpServer::stop() {
 }
 
 HttpServer* _httpServer;
-void singalHandler(int seg) {
+void singalHandler(int __attribute__((unused))seg) {
   _httpServer->stop();
 }
 

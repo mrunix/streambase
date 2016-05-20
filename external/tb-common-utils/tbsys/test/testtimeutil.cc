@@ -19,7 +19,7 @@
 
 using namespace tbsys;
 
-int main(int argc, char* argv[]) {
+int main(int __attribute__((unused))argc, char __attribute__((unused))* argv[]) {
   int i = 0;
   printf("i:%d\n", i);
   i = CTimeUtil::strToTime("20090101121212");

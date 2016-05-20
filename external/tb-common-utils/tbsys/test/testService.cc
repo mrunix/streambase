@@ -29,7 +29,10 @@ class testService : public Service {
   testService() {}
   ~testService() {}
  public:
-  virtual int run(int argc, char* argv[], const std::string& config, std::string& errMsg) {
+  virtual int run(int __attribute__((unused))argc,
+                  char __attribute__((unused))* argv[],
+                  const std::string __attribute__((unused))& config,
+                  std::string __attribute__((unused))&errMsg) {
     //errMsg += "[ERROR]: this is test\r\n";
     return 0;
   }

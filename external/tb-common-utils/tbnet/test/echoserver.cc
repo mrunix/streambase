@@ -69,7 +69,7 @@ class EchoPacket : public Packet {
 
 class EchoPacketFactory : public IPacketFactory {
  public:
-  Packet* createPacket(int pcode) {
+  Packet* createPacket(int __attribute__((unused))pcode) {
     return new EchoPacket();
   }
 };

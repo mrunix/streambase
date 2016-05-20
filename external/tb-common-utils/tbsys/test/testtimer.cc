@@ -127,7 +127,7 @@ class DestroyTask : public TimerTask, Monitor<Mutex> {
 };
 typedef Handle<DestroyTask> DestroyTaskPtr;
 
-int main(int argc, char* argv[]) {
+int main(int __attribute__((unused))argc, char __attribute__((unused))* argv[]) {
   tbutil::Time t = tbutil::Time::now();
   cout << " time string : " << t.toDateTime() << endl << " time : " << t.toDuration() << endl;
   cout << "testing timer... " << flush;

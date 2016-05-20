@@ -74,6 +74,8 @@ INCLUDE_DIRECTORIES(
 	${PROJECT_SOURCE_DIR}/external/libeasy/include/easy
 	# include libtbsys header
 	${PROJECT_SOURCE_DIR}/external/tb-common-utils/tbsys/src
+	# include libtbnet header
+	${PROJECT_SOURCE_DIR}/external/tb-common-utils/tbnet/src
 )
 
 SET(JAVA_HOME_PATH "$ENV{JAVA_HOME}")
@@ -97,7 +99,11 @@ ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(tools)
 
 IF(WITH_TEST)
-	ADD_SUBDIRECTORY(tests)
+	#ADD_SUBDIRECTORY(tests)
+ENDIF()
+
+IF(WITH_PROFILE)
+	INCLUDE(CodeCoverage)
 ENDIF()
 
 MESSAGE(STATUS "CMake ${CMAKE_VERSION} successfully configured ${PROJECT_NAME} using ${CMAKE_GENERATOR} generator")

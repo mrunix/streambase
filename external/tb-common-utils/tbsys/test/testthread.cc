@@ -312,7 +312,7 @@ using namespace tbutil;
 std::list<testBasePtr> allTests;
 
 int main() {
-  cout << (2 << 31 - 1) << endl;
+  cout << ((2 << 31) - 1) << endl;
   allTests.push_back(new AliveTest());
   allTests.push_back(new MonitorMutxTest());
   allTests.push_back(new RecMutexTest());

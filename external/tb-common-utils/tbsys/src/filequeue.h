@@ -70,7 +70,7 @@ class CFileUtil;
  */
 class CFileQueue {
  public:
-  CFileQueue(char* rootPath, char* queueName, int maxFileSize = TBFQ_MAX_FILE_SIZE);
+  CFileQueue(const char* rootPath, char* queueName, int maxFileSize = TBFQ_MAX_FILE_SIZE);
   ~CFileQueue(void);
   // 写入一数据
   int push(void* data, int len);

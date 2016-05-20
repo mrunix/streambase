@@ -17,7 +17,7 @@
 
 using namespace tbsys;
 
-int main(int argc, char* argv[]) {
+int main(int __attribute__((unused))argc, char __attribute__((unused))* argv[]) {
 
   char s[100];
   for (int i = 0; i < 10; i++) {

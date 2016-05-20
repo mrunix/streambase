@@ -18,7 +18,7 @@
 
 using namespace tbsys;
 
-int main(int argc, char* argv[]) {
+int main(int __attribute__((unused))argc, char __attribute__((unused))* argv[]) {
   TBSYS_LOG(INFO, "xxx: %s:%d", "xxxx", 1);
   TBSYS_LOG(ERROR, "xxx: %s:%d", "xxxx", 1);
 

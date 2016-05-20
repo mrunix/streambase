@@ -57,11 +57,11 @@ char* CTimeUtil::timeToStr(time_t t, char* dest) {
 /**
  * 把字节串转成时间(当地时间)
  */
-int CTimeUtil::strToTime(char* str) {
+int CTimeUtil::strToTime(const char* str) {
   if (str == NULL || strlen(str) != 14) {
     return 0;
   }
-  char* p = str;
+  const char* p = str;
   while ((*p)) {
     if ((*p) < '0' || (*p) > '9') return 0;
     p ++;

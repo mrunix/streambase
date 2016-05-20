@@ -21,7 +21,7 @@ namespace tbsys {
  * queueName:
  * maxFileSize: 最大文件大小
  */
-CFileQueue::CFileQueue(char* rootPath, char* queueName, int maxFileSize) {
+CFileQueue::CFileQueue(const char* rootPath, char* queueName, int maxFileSize) {
   char tmp[256];
   sprintf(tmp, "%s/%s", rootPath, queueName);
   m_queuePath = strdup(tmp);

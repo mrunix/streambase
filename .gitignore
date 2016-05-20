@@ -1,2 +1,3 @@
 # Ignore subversion meta directories
 .svn/
+out/

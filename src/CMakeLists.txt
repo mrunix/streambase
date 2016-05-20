@@ -14,3 +14,4 @@ ADD_SUBDIRECTORY(client)
 ADD_SUBDIRECTORY(proxyserver)
 ADD_SUBDIRECTORY(importserver)
 
+ADD_SUBDIRECTORY(nameserver)

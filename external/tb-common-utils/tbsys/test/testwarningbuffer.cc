@@ -22,7 +22,7 @@
 using namespace tbsys;
 using namespace std;
 
-void check_init_state(WarningBuffer& buffer) {
+void check_init_state(WarningBuffer __attribute__((unused))& buffer) {
   assert(0 == buffer.get_readable_warning_count());
   assert(0 == buffer.get_total_warning_count());
   assert(NULL == buffer.get_warning(0));
@@ -53,7 +53,7 @@ void tsi_basic_check() {
 
 WarningBuffer* bug_buffer;
 
-void* thread(void* para) {
+void* thread(void __attribute__((unused))* para) {
   para = NULL;
   pthread_t t = pthread_self();
   WarningBuffer* b1 = get_tsi_warning_buffer();
@@ -77,7 +77,7 @@ void tsi_multi_thread_check() {
   fprintf(stderr, "multi_thread_check ok\n");
 }
 
-int main(int argc, char* argv[]) {
+int main(int __attribute__((unused))argc, char __attribute__((unused))* argv[]) {
   tsi_basic_check();
   tsi_multi_thread_check();
   // basic random test

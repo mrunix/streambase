@@ -69,7 +69,7 @@ class ScheduleTask: public TimerTask {
 };
 typedef Handle<ScheduleTask> ScheduleTaskPtr;
 
-int main(int argc, char* argv[]) {
+int main(int __attribute__((unused))argc, char __attribute__((unused))* argv[]) {
   gStart = tbutil::Time::now();
   pool = new ThreadPool(2, 4, 3);
   TimerPtr timer = new tbutil::Timer();

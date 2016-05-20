@@ -23,7 +23,10 @@ CFileQueueThread* mQueueThread = NULL;
 
 class CMyHandler : public IQueueHandler {
  public:
-  bool handleQueue(void* data, int len, int threadIndex, void* arg) {
+  bool handleQueue(void __attribute__((unused))* data,
+                   int __attribute__((unused))len,
+                   int __attribute__((unused))threadIndex,
+                   void __attribute__((unused))* arg) {
     //printf("TEST==> read_thread: %lu(%d) %d (%s)\n", pthread_self(), threadIndex, len, (char*)data);
     fflush(stdout);
     if (mWriteCount == atomic_add_return(1, &mReadCount) && mQueueThread) {

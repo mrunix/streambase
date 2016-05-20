@@ -86,7 +86,7 @@ class ClientEchoPacket : public Packet {
 
 class ClientEchoPacketFactory : public IPacketFactory {
  public:
-  Packet* createPacket(int pcode) {
+  Packet* createPacket(int __attribute__((unused))pcode) {
     return new ClientEchoPacket();
   }
 };
@@ -113,10 +113,10 @@ class ClientEchoPacketHandler : public IPacketHandler {
     _recvlen += ((ClientEchoPacket*)packet)->getRecvLen();
     //int index = (int)args;
     if (_count.counter == gsendcount) {
-      TBSYS_LOG(INFO, "INDEX: %d OK=>_count: %d gsendlen: %lld==%lld, _timeoutCount: %d", echoPacket->getIndex(), _count.counter, gsendlen, _recvlen, _timeoutCount);
+      TBSYS_LOG(INFO, "INDEX: %d OK=>_count: %d gsendlen: %ld==%ld, _timeoutCount: %d", echoPacket->getIndex(), _count.counter, gsendlen, _recvlen, _timeoutCount);
       transport.stop();
     } else {
-      TBSYS_LOG(INFO, "INDEX: %d _count: %d gsendlen: %lld==%lld, _timeoutCount: %d", echoPacket->getIndex(), _count.counter, gsendlen, _recvlen, _timeoutCount);
+      TBSYS_LOG(INFO, "INDEX: %d _count: %d gsendlen: %ld==%ld, _timeoutCount: %d", echoPacket->getIndex(), _count.counter, gsendlen, _recvlen, _timeoutCount);
     }
     delete echoPacket;
     delete packet;
@@ -187,7 +187,7 @@ void EchoClient::start(int conncount) {
   free(cons);
 }
 
-void singalHandler(int seg) {
+void singalHandler(int __attribute__((unused))seg) {
   transport.stop();
 }
 
