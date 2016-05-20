@@ -25,7 +25,7 @@
 #include "ob_memtable_rowiter.h"
 #include "ob_update_server_main.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 using namespace common;
 using namespace hash;

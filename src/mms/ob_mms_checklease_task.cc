@@ -16,7 +16,7 @@
 #include "ob_node.h"
 #include "ob_mms_checklease_task.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace mms;
 
 ObMMSCheckleaseTask::ObMMSCheckleaseTask(ObNode* node) {

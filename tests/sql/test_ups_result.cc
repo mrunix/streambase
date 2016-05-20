@@ -7,7 +7,7 @@
 #include "sql/ob_ups_result.h"
 #include "gtest/gtest.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sql;
 

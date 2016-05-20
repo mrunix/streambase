@@ -2,9 +2,9 @@
 #include "common/ob_define.h"
 #include "../ob_mysql_util.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 ObMySQLSPRPacket::ObMySQLSPRPacket(): status_(0), statement_id_(0),
   column_num_(0), param_num_(0),

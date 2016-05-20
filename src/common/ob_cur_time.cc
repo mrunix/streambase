@@ -16,10 +16,10 @@
 
 #include "ob_cur_time.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 volatile int64_t g_cur_time = 0;
 

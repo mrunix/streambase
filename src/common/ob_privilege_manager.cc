@@ -11,7 +11,7 @@
  */
 #include "ob_privilege_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObPrivilegeManager::ObPrivilegeManager()
   : newest_version_index_(-1), newest_privilege_version_(0) {
@@ -82,4 +82,4 @@ int ObPrivilegeManager::get_newest_privilege(const ObPrivilege**& pp_privilege) 
 
 }//namespace common
 
-}// namespace oceanbase
+}// namespace sb

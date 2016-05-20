@@ -4,8 +4,8 @@
 #include "common/ob_schema.h"
 #include "test_mock_root_server.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 int MockRootServer::initialize() {
   set_dev_name("bond0");

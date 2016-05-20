@@ -18,7 +18,7 @@
 #include "sstable/ob_sstable_merger.h"
 #include "ob_tablet.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObTabletManager;
 
@@ -66,7 +66,7 @@ class ObMultiTabletMerger {
 
   sstable::ObSSTableMerger sstable_merger_;
 };
-} // namespace oceanbase::chunkserver
+} // namespace sb::chunkserver
 } // namespace Oceanbase
 
 #endif // OCEANBASE_CHUNKSERVER_OB_MULTI_TALBET_MERGER_H_

@@ -2,8 +2,8 @@
 #include "common/ob_packet.h"
 #include "common/ob_scanner.h"
 #include "common/data_buffer.h"
-using namespace oceanbase::mergeserver;
-using namespace oceanbase::common;
+using namespace sb::mergeserver;
+using namespace sb::common;
 
 MockMergeServer::MockMergeServer() {
 }

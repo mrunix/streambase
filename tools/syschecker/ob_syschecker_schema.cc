@@ -16,7 +16,7 @@
 #include "common/ob_define.h"
 #include "ob_syschecker_schema.h"
 
-namespace oceanbase {
+namespace sb {
 namespace syschecker {
 using namespace common;
 
@@ -457,4 +457,4 @@ bool ObSyscheckerSchema::is_prefix_column(const uint64_t table_id, const uint64_
 }
 
 } // end namespace syschecker
-} // end namespace oceanbase
+} // end namespace sb

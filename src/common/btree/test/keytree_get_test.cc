@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include "test_key_str.h"
 
-namespace oceanbase {
+namespace sb {
 
 namespace common {
 

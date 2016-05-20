@@ -18,7 +18,7 @@
 #define OB_PACKET_QUEUE_HANDLER_H_
 
 #include "ob_packet.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObPacketQueueHandler {
  public:

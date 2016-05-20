@@ -1,7 +1,7 @@
 #include "ob_seekable_log_reader.h"
 #include "Time.h"
 
-namespace oceanbase {
+namespace sb {
 namespace lsync {
 // @pre: reader_ != NULL && reader_.is_opened()
 static int seek_within_one_file_(ObSingleLogReader& reader, uint64_t last_log_seq_id) {
@@ -231,5 +231,5 @@ int ObSeekableLogReader:: get_log_entry(uint64_t& log_file_id, uint64_t& log_seq
   return ret;
 }
 } // end namespace lsync
-} // end namespace oceanbase
+} // end namespace sb
 

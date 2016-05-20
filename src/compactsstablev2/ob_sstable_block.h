@@ -6,7 +6,7 @@
 #include "common/ob_compact_cell_iterator.h"
 #include "ob_sstable_block_builder.h"
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 class ObSSTableBlock {
  public:

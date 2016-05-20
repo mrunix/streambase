@@ -18,7 +18,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 class ObRandom {
  public:
@@ -78,6 +78,6 @@ class ObRandom {
   unsigned short xsubi[3];
 };
 } // end namespace test
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_TEST_OB_RANDOM_H_

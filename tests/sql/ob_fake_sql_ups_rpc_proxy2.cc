@@ -17,7 +17,7 @@
 #include "ob_fake_sql_ups_rpc_proxy2.h"
 #include "common/ob_new_scanner_helper.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sql::test;
 

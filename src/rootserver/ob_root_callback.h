@@ -18,7 +18,7 @@
 #define OB_ROOT_CALLBACK_H_
 #include "easy_io_struct.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootCallback {
  public:

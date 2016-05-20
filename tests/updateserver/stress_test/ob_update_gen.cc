@@ -20,8 +20,8 @@
 #include "ob_schema_proxy.h"
 #include "ob_row_dis.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::test;
+using namespace sb::common;
+using namespace sb::test;
 
 ObUpdateGen::ObUpdateGen(int64_t max_cell_no) {
   ran_.initt();

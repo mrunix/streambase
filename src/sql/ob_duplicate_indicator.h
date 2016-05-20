@@ -20,7 +20,7 @@
 #include "common/hash/ob_hashset.h"
 #include "common/ob_rowkey.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObDuplicateIndicator {
  public:

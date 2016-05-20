@@ -20,7 +20,7 @@
 #include "common/ob_define.h"
 #include "common/ob_malloc.h"
 #include "common/ob_mod_define.h"
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 class ObScanColumnIndexes {
  public:
@@ -266,6 +266,6 @@ class ObSimpleColumnIndexes {
 };
 
 } // end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_SSTABLE_SCAN_COLUMN_INDEXES_H_

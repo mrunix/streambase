@@ -5,7 +5,7 @@
 #include "common/ob_define.h"
 #include "tblog.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 TEST(TestServerExt, get_host_name) {
   ObServerExt serverExt;

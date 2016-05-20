@@ -24,7 +24,7 @@
 #include "ob_mms_checklease_task.h"
 #include "common/ob_result.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mms {
 
 /**************************************
@@ -189,7 +189,7 @@ class ObNode : public tbnet::IPacketQueueHandler {
 };
 
 } // end namespace mms
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_MMS_OB_MONITOR_H_
 

@@ -15,9 +15,9 @@
 #include "ob_mutator_reader.h"
 #include "common/ob_schema.h"
 
-using namespace oceanbase::updateserver;
+using namespace sb::updateserver;
 
-namespace oceanbase {
+namespace sb {
 namespace msync {
 static bool is_normal_ups_mutator(ObUpsMutator& ups_mutator) {
   return ups_mutator.is_normal_mutator();
@@ -280,4 +280,4 @@ int ObMutatorReader::read_single_mutator_(ObMutator*& mutator, uint64_t& seq, in
   return err;
 }
 } // end namespace msync
-} // end namespace oceanbase
+} // end namespace sb

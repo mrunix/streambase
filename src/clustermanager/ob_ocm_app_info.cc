@@ -19,9 +19,9 @@
 #include "ob_define.h"
 #include "tblog.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace clustermanager {
 ObOcmAppInfo::ObOcmAppInfo() {
   // memset(app_name_, '\0', OB_MAX_APP_NAME_LENGTH);

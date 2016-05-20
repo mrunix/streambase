@@ -7,10 +7,10 @@
 #include "ob_malloc.h"
 #include <string>
 
-using namespace oceanbase::common;
+using namespace sb::common;
 using namespace std;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace common {
 class TestObRoleMgr: public ::testing::Test {

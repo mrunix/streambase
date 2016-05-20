@@ -1,7 +1,7 @@
 
 #include "ob_restart_server.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace rootserver;
 
 ObRestartServer::ObRestartServer()

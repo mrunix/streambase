@@ -19,7 +19,7 @@
 #include "ob_define.h"
 #include "ob_malloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct LightyQueueItem;
 class LightyQueue {
@@ -46,6 +46,6 @@ class LightyQueue {
   int queued_item_;
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_LIGHTY_QUEUE_H__ */

@@ -21,7 +21,7 @@
 #include "common/ob_obj_cast.h"
 #include "ob_log_formator.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace liboblog {
 #ifdef __SPARSE_AVAILABLE__

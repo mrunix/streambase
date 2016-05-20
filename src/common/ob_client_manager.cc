@@ -28,7 +28,7 @@
 #include "ob_trace_id.h"
 #include "ob_profile_type.h"
 #include "ob_profile_fill_log.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 ObClientManager::ObClientManager()
@@ -498,4 +498,4 @@ void* ObClientManager::send_session(easy_session_t* s) const {
   return packet;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

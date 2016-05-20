@@ -4,7 +4,7 @@
 #include "common/ob_fetch_runnable.h"
 #include "rootserver/ob_root_log_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootFetchThread : public common::ObFetchRunnable {
   const static int64_t WAIT_INTERVAL;

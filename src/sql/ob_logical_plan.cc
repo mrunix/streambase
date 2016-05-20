@@ -9,10 +9,10 @@
 #include "ob_sql_session_info.h"
 #include "parse_malloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObLogicalPlan::ObLogicalPlan(ObStringBuf* name_pool)
   : name_pool_(name_pool) {

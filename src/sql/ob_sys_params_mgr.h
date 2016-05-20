@@ -22,7 +22,7 @@
 #include "ob_multi_logic_plan.h"
 #include "common/ob_list.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 const char* STR_SYS_PAREAMS = "sys_params";
 const char* STR_SORT_MEM_SIZE_LIMIT = "sort_mem_size_limit";
@@ -82,7 +82,7 @@ void ObSysParamsMgr::set_gorup_mem_size_limit(const int64_t size) {
   }
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* OCEANBASE_SQL_SYS_PARAMS_MGR_H_ */
 

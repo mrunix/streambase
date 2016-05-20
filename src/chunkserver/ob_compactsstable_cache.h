@@ -23,7 +23,7 @@
 #include "ob_tablet.h"
 #include "ob_scan_cell_stream.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObTabletManager;
 
@@ -98,6 +98,6 @@ class ObCompactSSTableMemThread : public tbsys::CDefaultRunnable {
   int64_t                  data_version_;
 };
 } //end namespace chunkserver
-} //end namespace oceanbase
+} //end namespace sb
 
 #endif

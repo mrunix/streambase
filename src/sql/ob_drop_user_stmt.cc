@@ -14,8 +14,8 @@
  *
  */
 #include "ob_drop_user_stmt.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 
 ObDropUserStmt::ObDropUserStmt(const ObDropUserStmt& other)

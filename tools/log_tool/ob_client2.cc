@@ -34,8 +34,8 @@
 #include "updateserver/ob_clog_stat.h"
 #endif
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
 const int64_t MAX_BUF_SIZE = 1 << 20;
 const int64_t MAX_N_COLUMNS = 1 << 12;

@@ -21,7 +21,7 @@
 #include "common/ob_malloc.h"
 #include "common/ob_rowkey.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 struct ObSSTableBlockIndexItem {
   int16_t  rowkey_column_count_; //rowkey column count with table, used by v0.2.1
@@ -128,5 +128,5 @@ class ObSSTableBlockIndexBuffer {
   int64_t data_size_;
 };
 }//namespace sstable
-}//namespace oceanbase
+}//namespace sb
 #endif

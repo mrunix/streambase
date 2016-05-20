@@ -1,10 +1,10 @@
 #include "ob_ocm_meta.h"
 #include "gtest/gtest.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::clustermanager;
+using namespace sb::common;
+using namespace sb::clustermanager;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace clustermanager {
 class TestObOcmMeta : public ObOcmMeta {
@@ -17,7 +17,7 @@ class TestObOcmMeta : public ObOcmMeta {
     return ObOcmMeta::set_location(location);
   }
 
-  int set_ocm_server(char* host_name, oceanbase::common::ObServer server) {
+  int set_ocm_server(char* host_name, sb::common::ObServer server) {
     return ObOcmMeta::set_ocm_server(host_name, server);
   }
   int add_app(ObOcmAppInfo& app_info) {

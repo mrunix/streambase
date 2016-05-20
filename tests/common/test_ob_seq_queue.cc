@@ -16,9 +16,9 @@
 #include "gtest/gtest.h"
 #include "common/ob_seq_queue.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 struct Config {
   static int64_t MAX_N_DATA_ITEMS;
@@ -126,9 +126,9 @@ TEST_F(ObSeqQueueTest, Replay) {
   ASSERT_EQ(0, n_err);
 }
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 
-using namespace oceanbase::test;
+using namespace sb::test;
 int main(int argc, char** argv) {
   int err = OB_SUCCESS;
   int n_data_items_shift = 0;

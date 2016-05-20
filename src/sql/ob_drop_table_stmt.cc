@@ -16,8 +16,8 @@
 #include "ob_drop_table_stmt.h"
 #include "ob_schema_checker.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObDropTableStmt::ObDropTableStmt(ObStringBuf* name_pool)
   : ObBasicStmt(ObBasicStmt::T_DROP_TABLE) {

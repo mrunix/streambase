@@ -19,7 +19,7 @@
 
 #include "ob_ocm_meta.h"
 
-namespace oceanbase {
+namespace sb {
 namespace clustermanager {
 ObOcmMeta::ObOcmMeta() {
   app_count_ = 0;

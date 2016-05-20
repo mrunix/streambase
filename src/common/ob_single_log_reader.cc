@@ -15,7 +15,7 @@
 #include "ob_single_log_reader.h"
 #include "ob_log_dir_scanner.h"
 #include "ob_log_generator.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 const int64_t ObSingleLogReader::LOG_BUFFER_MAX_LENGTH = 1 << 21;
 

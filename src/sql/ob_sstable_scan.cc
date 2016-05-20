@@ -21,9 +21,9 @@
 #include "compactsstablev2/ob_sstable_block_index_cache.h"
 #include "compactsstablev2/ob_sstable_block_cache.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
-using namespace oceanbase::chunkserver;
+using namespace sb::common;
+using namespace sb::sql;
+using namespace sb::chunkserver;
 
 ObSSTableScan::ObSSTableScan()
   : iterator_(NULL), last_rowkey_(NULL), sstable_version_(0), row_counter_(0) {
@@ -55,7 +55,7 @@ int ObSSTableScan::set_child(int32_t child_idx, ObPhyOperator& child_operator) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObSSTableScan, PHY_SSTABLE_SCAN);
 }

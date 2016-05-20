@@ -19,7 +19,7 @@
 #include "common/compress/ob_compressor.h"
 #include "ob_memtank.h"
 
-using namespace oceanbase::updateserver;
+using namespace sb::updateserver;
 
 ObUpdateServerConfig::ObUpdateServerConfig()
   : total_memory_limit_bk_(0) {

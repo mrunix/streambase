@@ -18,7 +18,7 @@
 #include "ob_string.h"
 #include "ob_string_buf.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObBorderFlag {
  public:
@@ -216,6 +216,6 @@ struct ObVersionRange {
   }
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_COMMON_OB_RANGE_H_

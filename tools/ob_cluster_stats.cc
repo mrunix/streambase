@@ -20,8 +20,8 @@
 #include "ob_cluster_stats.h"
 #include "client_rpc.h"
 #include "cs_admin.h"
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 
 namespace {
 const char* SERVER_SECTION = "app";
@@ -29,7 +29,7 @@ const int64_t UPS_MASTER_START_INDEX = 3;
 const int64_t UPS_MASTER_END_INDEX = 10;
 };
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 
 int32_t ObClusterStats::refresh() {

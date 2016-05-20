@@ -19,7 +19,7 @@
 #include <gtest/gtest.h>
 #include "common/ob_row.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 #define OK(value) ASSERT_EQ(OB_SUCCESS, (value))

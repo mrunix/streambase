@@ -17,7 +17,7 @@
 
 #include "ob_lz_query.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 class ObSeveralCreativeEffect : public ObLzQuery {
  public:
@@ -36,6 +36,6 @@ class ObSeveralCreativeEffect : public ObLzQuery {
   DISALLOW_COPY_AND_ASSIGN(ObSeveralCreativeEffect);
 };
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_OLAPDRIVE_SEVERAL_CREATIVE_EFFECT_H

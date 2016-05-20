@@ -19,7 +19,7 @@
 #include "common/ob_rowkey.h"
 #include "common/ob_range2.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 enum SearchMode {
   OB_SEARCH_MODE_MIN_VALUE = 1,
@@ -167,7 +167,7 @@ class ObSSTableBlockIndexV2 {
    */
   int search_batch_blocks_by_key(const uint64_t table_id,
                                  const uint64_t column_group_id,
-                                 const oceanbase::common::ObRowkey& key,
+                                 const sb::common::ObRowkey& key,
                                  const SearchMode mode,
                                  ObBlockPositionInfos& pos_info) const;
 
@@ -186,7 +186,7 @@ class ObSSTableBlockIndexV2 {
    */
   int search_one_block_by_key(const uint64_t table_id,
                               const uint64_t column_group_id,
-                              const oceanbase::common::ObRowkey& key,
+                              const sb::common::ObRowkey& key,
                               const SearchMode mode,
                               ObBlockPositionInfo& pos_info) const;
 
@@ -263,7 +263,7 @@ class ObSSTableBlockIndexV2 {
 
   int find_by_key(const uint64_t table_id,
                   const uint64_t column_group_id,
-                  const oceanbase::common::ObRowkey& key,
+                  const sb::common::ObRowkey& key,
                   const SearchMode mode,
                   const Bound& bond,
                   const_iterator& find) const;
@@ -303,6 +303,6 @@ class ObSSTableBlockIndexV2 {
   int64_t block_index_count_; // block index entry count
 };
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif

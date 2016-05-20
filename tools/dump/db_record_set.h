@@ -23,7 +23,7 @@
 #include "common/utility.h"
 #include "db_record.h"
 
-namespace oceanbase {
+namespace sb {
 using common::OB_SUCCESS;
 namespace api {
 const int kDefaultRecordSetSize = 2 * 1024 * 1024;

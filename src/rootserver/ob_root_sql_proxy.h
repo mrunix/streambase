@@ -17,7 +17,7 @@
 
 #include "ob_root_ms_provider.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObString;
 }

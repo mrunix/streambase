@@ -22,7 +22,7 @@
 #include "common/ob_define.h"
 #include "load_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 struct SourceParam {
   char file_[MAX_FILE_LEN];

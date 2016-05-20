@@ -4,7 +4,7 @@
 #include "btree_read_param.h"
 #include "btree_base_handle.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * 用于读的时候用, 用于范围查找
@@ -60,7 +60,7 @@ class BtreeReadHandle : public BtreeBaseHandle {
   char buffer[CONST_KEY_MAX_LENGTH * 2];
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif
 

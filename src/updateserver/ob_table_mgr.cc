@@ -28,7 +28,7 @@
 #include "ob_ups_utils.h"
 
 #define UPS ObUpdateServerMain::get_instance()->get_update_server()
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 using namespace common;
 using namespace hash;

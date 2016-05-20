@@ -18,8 +18,8 @@
 #include "common/ob_scanner.h"
 #include "ob_test_bomb.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::test;
+using namespace sb::common;
+using namespace sb::test;
 
 ObExecutor::ObExecutor() {
 }

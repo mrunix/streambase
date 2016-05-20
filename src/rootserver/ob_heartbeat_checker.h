@@ -19,7 +19,7 @@
 
 #include "tbsys.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootServer2;
 class ObHeartbeatChecker : public tbsys::CDefaultRunnable {

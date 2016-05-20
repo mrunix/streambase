@@ -18,7 +18,7 @@
 #include "common/utility.h"
 #include "common/ob_trace_log.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace sql;
 
 ObUpsMultiGet::ObUpsMultiGet()
@@ -64,7 +64,7 @@ int ObUpsMultiGet::set_child(int32_t child_idx, ObPhyOperator& child_operator) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObUpsMultiGet, PHY_UPS_MULTI_GET);
 }

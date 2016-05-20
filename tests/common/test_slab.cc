@@ -23,8 +23,8 @@
 #include "common/ob_memory_pool.h"
 #include "common/ob_slab.h"
 #include "common/ob_malloc.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 TEST(ObSlab, create) {
   ObSlabCacheManager slab_manager;

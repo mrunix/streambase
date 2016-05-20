@@ -19,7 +19,7 @@
 
 #include "ob_schema_service_impl.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /////////////////////////////////////////////////////////
 // WARNING: the sys table schema can not modified      //
@@ -53,6 +53,6 @@ class ObExtraTablesSchema {
   ObExtraTablesSchema();
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_EXTRA_TABLES_SCHEMA_H */

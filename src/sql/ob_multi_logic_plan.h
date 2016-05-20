@@ -3,9 +3,9 @@
 #include "ob_logical_plan.h"
 #include "common/ob_vector.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
-class ObMultiLogicPlan : public oceanbase::common::ObVector<ObLogicalPlan*> {
+class ObMultiLogicPlan : public sb::common::ObVector<ObLogicalPlan*> {
  public:
   ObMultiLogicPlan();
   ~ObMultiLogicPlan();

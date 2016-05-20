@@ -16,7 +16,7 @@
 #include "sstable/ob_sstable_block_builder.h"
 #include "compactsstablev2/ob_compact_sstable_writer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 //class sstable::ObSSTableSchema;
 class ObGenSSTable {

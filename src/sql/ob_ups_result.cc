@@ -17,7 +17,7 @@
 #include "common/ob_define.h"
 #include "common/serialization.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 using namespace common::serialization;
 namespace sql {
@@ -400,4 +400,4 @@ DEFINE_GET_SERIALIZE_SIZE(ObUpsResult) {
   return ret;
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb

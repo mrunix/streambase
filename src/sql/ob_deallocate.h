@@ -18,7 +18,7 @@
 #include "sql/ob_no_children_phy_operator.h"
 #include "ob_sql_session_info.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObDeallocate: public ObNoChildrenPhyOperator {
  public:
@@ -60,6 +60,6 @@ inline int ObDeallocate::get_next_row(const common::ObRow*& row) {
   return common::OB_ITER_END;
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* OCEANBASE_SQL_OB_DEALLOCATE_H_ */

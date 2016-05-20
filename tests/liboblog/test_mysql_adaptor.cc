@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "liboblog/ob_log_mysql_adaptor.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace updateserver;
 using namespace liboblog;

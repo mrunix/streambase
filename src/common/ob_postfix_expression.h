@@ -27,7 +27,7 @@
 #include "ob_result.h"
 #include "common/ob_string_buf.h"
 #include "ob_expr_obj.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 /*

@@ -18,7 +18,7 @@
 #include "sql/ob_single_child_phy_operator.h"
 #include "ob_sql_session_info.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObExecute: public ObSingleChildPhyOperator {
  public:
@@ -56,6 +56,6 @@ inline int ObExecute::add_param_name(const common::ObString& name) {
   return param_names_.push_back(name);
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* OCEANBASE_SQL_OB_EXECUTE_H_ */

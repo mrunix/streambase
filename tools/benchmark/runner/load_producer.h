@@ -22,7 +22,7 @@
 #include "load_param.h"
 #include "common/ob_fifo_stream.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 struct QueryInfo;
 class LoadFilter;

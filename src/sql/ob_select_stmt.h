@@ -8,7 +8,7 @@
 #include "common/ob_array.h"
 #include "common/ob_vector.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 struct SelectItem {
   uint64_t   expr_id_;
@@ -57,30 +57,30 @@ struct FromItem {
 
 namespace common {
 template <>
-struct ob_vector_traits<oceanbase::sql::SelectItem> {
-  typedef oceanbase::sql::SelectItem* pointee_type;
-  typedef oceanbase::sql::SelectItem value_type;
-  typedef const oceanbase::sql::SelectItem const_value_type;
+struct ob_vector_traits<sb::sql::SelectItem> {
+  typedef sb::sql::SelectItem* pointee_type;
+  typedef sb::sql::SelectItem value_type;
+  typedef const sb::sql::SelectItem const_value_type;
   typedef value_type* iterator;
   typedef const value_type* const_iterator;
   typedef int32_t difference_type;
 };
 
 template <>
-struct ob_vector_traits<oceanbase::sql::OrderItem> {
-  typedef oceanbase::sql::OrderItem* pointee_type;
-  typedef oceanbase::sql::OrderItem value_type;
-  typedef const oceanbase::sql::OrderItem const_value_type;
+struct ob_vector_traits<sb::sql::OrderItem> {
+  typedef sb::sql::OrderItem* pointee_type;
+  typedef sb::sql::OrderItem value_type;
+  typedef const sb::sql::OrderItem const_value_type;
   typedef value_type* iterator;
   typedef const value_type* const_iterator;
   typedef int32_t difference_type;
 };
 
 template <>
-struct ob_vector_traits<oceanbase::sql::FromItem> {
-  typedef oceanbase::sql::FromItem* pointee_type;
-  typedef oceanbase::sql::FromItem value_type;
-  typedef const oceanbase::sql::FromItem const_value_type;
+struct ob_vector_traits<sb::sql::FromItem> {
+  typedef sb::sql::FromItem* pointee_type;
+  typedef sb::sql::FromItem value_type;
+  typedef const sb::sql::FromItem const_value_type;
   typedef value_type* iterator;
   typedef const value_type* const_iterator;
   typedef int32_t difference_type;

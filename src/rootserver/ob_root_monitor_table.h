@@ -23,7 +23,7 @@
 #include "common/ob_vector.h"
 #include "common/ob_cluster_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObObj;
 class ObRowkey;

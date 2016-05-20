@@ -23,7 +23,7 @@
 #include "common/ob_server.h"
 #include "common/ob_rowkey.h"
 
-using namespace oceanbase;
+using namespace sb;
 
 enum {
   CMD_MIN,
@@ -97,24 +97,24 @@ class GFactory {
  public:
   GFactory();
   ~GFactory();
-  int initialize(const oceanbase::common::ObServer& chunk_server, const int64_t timeout);
+  int initialize(const sb::common::ObServer& chunk_server, const int64_t timeout);
   int stop();
   static GFactory& get_instance() { return instance_; }
   inline ObClientRpcStub& get_rpc_stub() { return rpc_stub_; }
-  inline oceanbase::common::ObBaseClient& get_base_client() { return client_; }
+  inline sb::common::ObBaseClient& get_base_client() { return client_; }
   inline const std::map<std::string, int>& get_cmd_map() const { return cmd_map_; }
  private:
   void init_cmd_map();
   static GFactory instance_;
   ObClientRpcStub rpc_stub_;
-  oceanbase::common::ObBaseClient client_;
+  sb::common::ObBaseClient client_;
   std::map<std::string, int> cmd_map_;
   int64_t timeout_;
 };
 
 
 struct Param {
-  oceanbase::common::ObServer chunk_server;
+  sb::common::ObServer chunk_server;
   int type;
 };
 

@@ -1,8 +1,8 @@
 #include "common/ob_define.h"
 #include "task_output.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 TaskOutput::TaskOutput() {
 }

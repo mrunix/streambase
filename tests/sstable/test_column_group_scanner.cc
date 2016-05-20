@@ -27,10 +27,10 @@
 #include "sstable/ob_sstable_reader.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace sstable {
 
@@ -276,7 +276,7 @@ class TestObColumnGroupScanner : public ::testing::Test {
   }
 
   virtual void SetUp() {
-    oceanbase::common::ModuleArena* arena = GET_TSI_MULT(oceanbase::common::ModuleArena, TSI_SSTABLE_MODULE_ARENA_1);
+    sb::common::ModuleArena* arena = GET_TSI_MULT(sb::common::ModuleArena, TSI_SSTABLE_MODULE_ARENA_1);
     arena->set_page_size(1024 * 1024 * 2);
     arena->reuse();
     scanner_.initialize(
@@ -295,7 +295,7 @@ class TestObColumnGroupScanner : public ::testing::Test {
     //common::ModuleArena * arena = GET_TSI(common::ModuleArena);
   }
 
-  oceanbase::sstable::ObColumnGroupScanner scanner_;
+  sb::sstable::ObColumnGroupScanner scanner_;
 };
 
 
@@ -423,7 +423,7 @@ TEST_F(TestObColumnGroupScanner, test_query_case_min_max_value_random_columns) {
 
 } // end namespace sstable
 } // end namespace tests
-} // end namespace oceanbase
+} // end namespace sb
 
 
 int main(int argc, char** argv) {

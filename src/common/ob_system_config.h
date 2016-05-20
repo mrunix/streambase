@@ -24,12 +24,12 @@
 #include "common/ob_system_config_value.h"
 #include "sql/ob_result_set.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 class TestSystemConfig;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObConfigItem;
 class ObSystemConfig {

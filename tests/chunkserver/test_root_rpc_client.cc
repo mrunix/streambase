@@ -21,9 +21,9 @@
 #include "ob_result.h"
 #include "ob_root_server_rpc.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
-using namespace oceanbase::common::serialization;
+using namespace sb::common;
+using namespace sb::chunkserver;
+using namespace sb::common::serialization;
 
 class BaseClient {
  public:

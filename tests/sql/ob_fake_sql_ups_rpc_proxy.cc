@@ -17,7 +17,7 @@
 #include "ob_fake_sql_ups_rpc_proxy.h"
 #include "common/utility.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 ObFakeSqlUpsRpcProxy::ObFakeSqlUpsRpcProxy()

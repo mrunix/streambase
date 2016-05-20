@@ -21,10 +21,10 @@
 #include "key.h"
 #include "sstable/ob_sstable_block_builder.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace sstable {
 class TestObSSTableBlockBuilder: public ::testing::Test {
@@ -485,7 +485,7 @@ TEST_F(TestObSSTableBlockBuilder, test_build_blocks) {
 }
 }//end namespace sstable
 }//end namespace tests
-}//end namespace oceanbase
+}//end namespace sb
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();

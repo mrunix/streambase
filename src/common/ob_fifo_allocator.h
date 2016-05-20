@@ -25,7 +25,7 @@
 #include "ob_allocator.h"
 #include "ob_id_map.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class FIFOAllocator : public common::ObIAllocator {
   struct Page {

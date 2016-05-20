@@ -19,9 +19,9 @@
 #include "ob_physical_plan.h"
 #include "common/ob_vector.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
-class ObMultiPhyPlan : public oceanbase::common::ObVector<ObPhysicalPlan*> {
+class ObMultiPhyPlan : public sb::common::ObVector<ObPhysicalPlan*> {
  public:
   ObMultiPhyPlan();
   ~ObMultiPhyPlan();

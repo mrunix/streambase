@@ -17,7 +17,7 @@
 #include "ob_tablet_info_manager.h"
 #include "common/ob_schema.h"
 #include "ob_root_server_config.h"
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootTableOperation {
  public:

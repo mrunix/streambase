@@ -19,7 +19,7 @@
 #include "client/ob_client.h"
 #include "ob_olapdrive_schema.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 static const int64_t KEY_META_ROWKEY_SIZE = 8;
 static const int64_t CAMPAIGN_ROWKEY_SIZE = 16;
@@ -184,6 +184,6 @@ class ObOlapdriveMeta {
 void hex_dump_rowkey(const void* data, const int32_t size,
                      const bool char_type);
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_OLAPDRIVE_META_H

@@ -21,7 +21,7 @@
 #include "ob_log_fetcher.h"
 #include "ob_log_utils.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace liboblog {
 ObLogFetcher::ObLogFetcher() : mod_(ObModIds::OB_MUTATOR),

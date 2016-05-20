@@ -38,12 +38,12 @@
 #include <vector>
 
 const char* g_sstable_directory = NULL;
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
-using namespace oceanbase::compactsstablev2;
+using namespace sb::common;
+using namespace sb::sstable;
+using namespace sb::compactsstablev2;
 const int64_t MICRO_PER_SEC = 1000000;
 const int64_t FIR_MULTI = 256;
 const int64_t SEC_MULTI = 100;
@@ -1171,8 +1171,8 @@ void usage(const char* program_name) {
 }
 
 using namespace std;
-using namespace oceanbase;
-using namespace oceanbase::chunkserver;
+using namespace sb;
+using namespace sb::chunkserver;
 
 
 int main(int argc, char* argv[]) {

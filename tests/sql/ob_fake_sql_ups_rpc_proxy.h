@@ -21,7 +21,7 @@
 #include "ob_fake_ups_scan.h"
 #include "ob_fake_ups_multi_get.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace sql::test;
 
 namespace common {

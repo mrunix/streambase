@@ -11,8 +11,8 @@
 #include "test_utils.h"
 #include "olap_client.h"
 using namespace std;
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 static bool g_stopped = false;
 static MockClient g_client;

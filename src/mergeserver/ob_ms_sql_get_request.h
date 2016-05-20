@@ -23,7 +23,7 @@
 #include "common/page_arena.h"
 #include "common/hash/ob_placement_hashmap.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMsSqlGetRequest: public ObMsSqlRequest {
  public:
@@ -48,7 +48,7 @@ class ObMsSqlGetRequest: public ObMsSqlRequest {
   /// callback by working thread when one of the rpc event finish
   virtual int process_result(const int64_t timeout_us, ObMsSqlRpcEvent* rpc_event, bool& finish);
   /// row stream interface
-  int get_next_row(oceanbase::common::ObRow& row);
+  int get_next_row(sb::common::ObRow& row);
 
   void set_max_req_process_cs_timeout_percent(double max_req_process_cs_timeout_percent);
   double get_max_req_process_cs_timeout_percent();

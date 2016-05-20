@@ -22,7 +22,7 @@
 #include "common/ob_range2.h"
 #include "ob_sstable_block_builder.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRowkeyInfo;
 }

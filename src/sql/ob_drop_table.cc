@@ -17,8 +17,8 @@
 #include "common/utility.h"
 #include "mergeserver/ob_rs_rpc_proxy.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 ObDropTable::ObDropTable()
   : if_exists_(false), rpc_(NULL) {
 }
@@ -63,7 +63,7 @@ int ObDropTable::close() {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObDropTable, PHY_DROP_TABLE);
 }

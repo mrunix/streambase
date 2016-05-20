@@ -17,7 +17,7 @@
 #define _OB_SCHEMA_SERVICE_UPS_PROVIDER_H 1
 #include "common/roottable/ob_ups_provider.h"
 #include "ob_ups_manager.h"
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 /// thread-safe ups provider for schema_service
 class ObSchemaServiceUpsProvider: public common::ObUpsProvider {
@@ -35,7 +35,7 @@ class ObSchemaServiceUpsProvider: public common::ObUpsProvider {
   const ObUpsManager& ups_manager_;
 };
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_SCHEMA_SERVICE_UPS_PROVIDER_H */
 

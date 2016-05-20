@@ -17,7 +17,7 @@
 #include "ob_multiple_get_merge.h"
 #include "common/ob_row_fuse.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace sql;
 
 void ObMultipleGetMerge::reset() {
@@ -121,7 +121,7 @@ int ObMultipleGetMerge::get_next_row(const ObRow*& row) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObMultipleGetMerge, PHY_MULTIPLE_GET_MERGE);
 }

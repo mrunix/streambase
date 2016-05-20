@@ -1,6 +1,6 @@
 #include "ob_mutator_helper.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 kv_pair::kv_pair()

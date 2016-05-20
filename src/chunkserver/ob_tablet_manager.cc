@@ -62,10 +62,10 @@
               manager->get_unserving_block_cache().size());             \
   } while(0);
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
 ObTabletManager::ObTabletManager()
   : is_init_(false),

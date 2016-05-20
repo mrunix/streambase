@@ -21,7 +21,7 @@
 #include "ob_sessionctx_factory.h"
 #include "ob_update_server_main.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 RWSessionCtx::v4si RWSessionCtx::v4si_zero = {0, 0, 0, 0};
 

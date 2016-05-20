@@ -24,10 +24,10 @@
 #include "common/ob_object.h"
 #include "sstable/ob_disk_path.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
-using namespace oceanbase::compactsstable;
-namespace oceanbase {
+using namespace sb::common;
+using namespace sb::sstable;
+using namespace sb::compactsstable;
+namespace sb {
 namespace compactsstable {
 class TestCompactSSTableMem: public ::testing::Test {
  public:

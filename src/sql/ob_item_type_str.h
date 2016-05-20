@@ -17,7 +17,7 @@
 #define _OB_ITEM_TYPE_STR_H 1
 #include "ob_item_type.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 inline const char* ob_aggr_func_str(ObItemType aggr_func) {
   const char* ret = "UNKNOWN_AGGR";
@@ -90,6 +90,6 @@ inline const char* ob_op_func_str(ObItemType item_type) {
 
 
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ITEM_TYPE_STR_H */

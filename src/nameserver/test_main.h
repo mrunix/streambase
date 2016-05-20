@@ -3,7 +3,7 @@
 
 #include "base_main.h"
 
-class BaseMainTest : public oceanbase::common::BaseMain {
+class BaseMainTest : public sb::common::BaseMain {
  public:
   static BaseMain* get_instance();
   int do_work();

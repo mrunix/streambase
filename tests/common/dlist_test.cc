@@ -16,7 +16,7 @@
 #include "common/dlist.h"
 #include "common/ob_malloc.h"
 #include <gtest/gtest.h>
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class DListTest: public ::testing::Test {
  public:

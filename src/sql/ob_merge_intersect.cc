@@ -18,8 +18,8 @@
 #include "common/utility.h"
 #include "common/ob_row_util.h"
 #include "common/ob_expr_obj.h"
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
 
 ObMergeIntersect::ObMergeIntersect()
@@ -375,7 +375,7 @@ int ObMergeIntersect::get_row_desc(const common::ObRowDesc*& row_desc) const {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObMergeIntersect, PHY_MERGE_INTERSECT);
 }

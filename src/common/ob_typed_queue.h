@@ -17,7 +17,7 @@
 
 #ifndef __OB_COMMON_OB_TYPED_QUEUE_H__
 #define __OB_COMMON_OB_TYPED_QUEUE_H__
-namespace oceanbase {
+namespace sb {
 namespace common {
 template<typename T>
 class TypedQueue {
@@ -98,5 +98,5 @@ class TypedQueue {
   LightyQueue queue_;
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 #endif /* __OB_COMMON_OB_TYPED_QUEUE_H__ */

@@ -22,7 +22,7 @@
 #include "common/ob_scanner.h"
 #include "common/ob_cell_array.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 /**
  * merge operator, it does the actual merge work, it uses

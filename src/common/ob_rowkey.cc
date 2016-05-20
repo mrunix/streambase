@@ -22,7 +22,7 @@
 #include "serialization.h"
 #include "ob_schema.h"
 #include "ob_obj_cast.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 ObObj ObRowkey::MIN_OBJECT(ObExtendType, 0, 0, ObObj::MIN_OBJECT_VALUE);

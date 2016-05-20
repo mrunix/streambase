@@ -17,7 +17,7 @@
 #define _OB_FAKE_TABLE_H 1
 #include "sql/ob_phy_operator.h"
 #include "common/ob_array.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 namespace test {
 // fake table to feed input for testing
@@ -73,6 +73,6 @@ inline void ObFakeTable::set_table_id(const uint64_t tid) {
 }
 } // end namespace test
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_FAKE_TABLE_H */

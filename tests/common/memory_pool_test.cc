@@ -3,8 +3,8 @@
 #include "common/ob_define.h"
 #include "common/ob_memory_pool.h"
 #include "common/ob_malloc.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 using namespace testing;
 
 

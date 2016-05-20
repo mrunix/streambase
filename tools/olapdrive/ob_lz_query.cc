@@ -19,7 +19,7 @@
 #include "common/ob_action_flag.h"
 #include "ob_lz_query.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 using namespace tbsys;
 using namespace common;
@@ -1061,4 +1061,4 @@ const char* ObLzQuery::get_test_name() {
   return "INVALID_NAME";
 }
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb

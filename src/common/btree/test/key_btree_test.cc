@@ -6,7 +6,7 @@
 /**
  * 测试key_btree
  */
-namespace oceanbase {
+namespace sb {
 namespace common {
 #define TEST_COUNT 10000
 static int stop_ = 0;
@@ -435,4 +435,4 @@ TEST(KeyBtreeTest, put_overwrite) {
   }
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

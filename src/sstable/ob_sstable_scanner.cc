@@ -23,9 +23,9 @@
 #include "ob_sstable_writer.h"
 #include "ob_blockcache.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 ObSSTableScanner::ObSSTableScanner()
   : block_index_cache_(NULL),
@@ -395,4 +395,4 @@ int reset_query_thread_local_buffer() {
   return err;
 }
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb

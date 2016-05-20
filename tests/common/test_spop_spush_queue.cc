@@ -14,7 +14,7 @@
 #include "common/ob_scan_param.h"
 #include "common/ob_spop_spush_queue.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 using namespace testing;
 using namespace std;
 

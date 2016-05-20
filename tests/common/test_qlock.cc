@@ -20,10 +20,10 @@
 #include "common/thread_buffer.h"
 #include "qlock.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 struct Config {
   static int64_t MAX_N_DATA_ITEMS;
@@ -217,9 +217,9 @@ TEST_F(ObQLockTest, CoCurrent) {
   ASSERT_EQ(0, node.n_err_);
 }
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 
-using namespace oceanbase::test;
+using namespace sb::test;
 
 int main(int argc, char** argv) {
   int err = OB_SUCCESS;

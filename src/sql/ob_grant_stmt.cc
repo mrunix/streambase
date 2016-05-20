@@ -14,8 +14,8 @@
  *
  */
 #include "ob_grant_stmt.h"
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 ObGrantStmt::ObGrantStmt(const ObGrantStmt& other)
   : ObBasicStmt(other.get_stmt_type(), other.get_query_id()) {
   *this = other;

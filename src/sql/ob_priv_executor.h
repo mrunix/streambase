@@ -19,7 +19,7 @@
 #include "sql/ob_basic_stmt.h"
 #include "sql/ob_result_set.h"
 #include "sql/ob_no_children_phy_operator.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObPrivExecutor : public ObNoChildrenPhyOperator {
  public:
@@ -77,5 +77,5 @@ class ObPrivExecutor : public ObNoChildrenPhyOperator {
   int rollback();
 };
 }// namespace sql
-} // namespace oceanbase
+} // namespace sb
 #endif

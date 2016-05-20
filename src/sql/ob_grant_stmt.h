@@ -19,7 +19,7 @@
 #include "ob_basic_stmt.h"
 #include "common/ob_privilege_type.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObGrantStmt: public ObBasicStmt {
  public:
@@ -46,6 +46,6 @@ class ObGrantStmt: public ObBasicStmt {
   common::ObStrings users_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_GRANT_STMT_H */

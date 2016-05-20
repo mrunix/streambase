@@ -1,8 +1,8 @@
 #include "common/ob_result.h"
 #include "rpc_stub.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 RpcStub::RpcStub(ObClientManager* client, ThreadSpecificBuffer* buffer) {
   server_ = NULL;

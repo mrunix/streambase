@@ -14,7 +14,7 @@
 #ifndef __OB_COMMON_QLOCK_H__
 #define __OB_COMMON_QLOCK_H__
 #include "ob_define.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct QLock {
   enum State {
@@ -290,6 +290,6 @@ class QLockGuard {
   uint32_t uid_;
 } __attribute__((aligned(8)));
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_QLOCK_H__ */

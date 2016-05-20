@@ -1,7 +1,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 namespace testing {
 
@@ -44,4 +44,4 @@ class MockObRootRpcStub : public ObRootRpcStub {
 };
 } // namespace testing
 }  // namespace rootserver
-}  // namespace oceanbase
+}  // namespace sb

@@ -23,7 +23,7 @@
 #include "ob_in_memory_sort.h"
 #include "ob_sort_helper.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 // on-disk merge sort, used by ObSort
 class ObMergeSort: public ObSortHelper {
@@ -61,7 +61,7 @@ class ObMergeSort: public ObSortHelper {
   const common::ObRowDesc* row_desc_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_MERGE_SORT_H */
 

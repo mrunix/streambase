@@ -17,7 +17,7 @@
 
 #include "common/ob_timer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootWorker;
 class ObRootOperationDuty : public common::ObTimerTask {

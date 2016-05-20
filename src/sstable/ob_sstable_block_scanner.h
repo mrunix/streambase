@@ -25,7 +25,7 @@
 #include "ob_sstable_block_reader.h"
 #include "ob_scan_column_indexes.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 class ObSSTableScanParam;
 class ObSSTableReader;
@@ -51,11 +51,11 @@ class ObSSTableBlockScanner {
    * copy %cell_info 's content to its own buffer. once call
    * next_cell again, current cell_info will be overwrited.
    */
-  inline int get_cell(oceanbase::common::ObCellInfo** cell) {
+  inline int get_cell(sb::common::ObCellInfo** cell) {
     return get_cell(cell, NULL);
   }
 
-  inline int get_cell(oceanbase::common::ObCellInfo** cell, bool* is_row_changed) {
+  inline int get_cell(sb::common::ObCellInfo** cell, bool* is_row_changed) {
     int ret = common::OB_SUCCESS;
     if (NULL == cell) {
       TBSYS_LOG(ERROR, "invalid argument, cell=%p", cell);
@@ -148,6 +148,6 @@ class ObSSTableBlockScanner {
   ObSSTableBlockReader reader_;
 };
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif //OCEANBASE_SSTABLE_OB_SSTABLE_BLOCK_SCANNER_V2_H_

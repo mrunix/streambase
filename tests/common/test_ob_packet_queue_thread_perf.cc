@@ -8,8 +8,8 @@
 #include <ob_packet_queue_thread.h>
 
 using namespace std;
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 int push_thread_count = 8;
 int pop_thread_count = 100;

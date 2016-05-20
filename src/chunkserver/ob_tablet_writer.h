@@ -20,7 +20,7 @@
 #include "common/ob_server.h"
 #include "ob_tablet_reader.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObSSTableWriterUtil {
  public:

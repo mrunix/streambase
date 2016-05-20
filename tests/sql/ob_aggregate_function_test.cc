@@ -16,8 +16,8 @@
 #include "sql/ob_aggregate_function.h"
 #include "ob_fake_table.h"
 #include <gtest/gtest.h>
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
 class ObAggregateFunctionTest: public ::testing::Test {
  public:

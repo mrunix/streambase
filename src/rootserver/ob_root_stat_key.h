@@ -16,7 +16,7 @@
 #ifndef _OB_ROOT_STAT_KEY_H
 #define _OB_ROOT_STAT_KEY_H
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 enum ObRootStatKey {
   OB_RS_STAT_RESERVE = 0,
@@ -65,7 +65,7 @@ enum ObRootStatKey {
 extern const char* OB_RS_STAT_KEYSTR[];
 
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ROOT_STAT_KEY_H */
 

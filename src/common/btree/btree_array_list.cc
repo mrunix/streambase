@@ -3,7 +3,7 @@
 #include "btree_array_list.h"
 #include "btree_node.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 const int32_t BtreeArrayList::NODE_SIZE = (int32_t)(CONST_NODE_OBJECT_COUNT* sizeof(BtreeKeyValuePair) + sizeof(BtreeNode));
 const int32_t BtreeArrayList::NODE_COUNT_PRE_PAGE = (int32_t)(NODE_SIZE / sizeof(void*) - 1);
@@ -223,4 +223,4 @@ int32_t BtreeArrayList::get_copy_node_count() {
   return copy_node_count_;
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

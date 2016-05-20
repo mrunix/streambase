@@ -3,8 +3,8 @@
 #include "gtest/gtest.h"
 #include "thread.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::common::cmbtree;
+using namespace sb::common;
+using namespace sb::common::cmbtree;
 
 class Number {
  public:

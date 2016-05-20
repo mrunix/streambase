@@ -18,7 +18,7 @@
 #include "ob_log_entry.h"
 #include "file_directory_utils.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 const char* ObFetchRunnable::DEFAULT_FETCH_OPTION = "-e \"ssh -oStrictHostKeyChecking=no\" -avz --inplace";
 

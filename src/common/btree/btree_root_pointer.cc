@@ -3,7 +3,7 @@
 #include "btree_node.h"
 #include "btree_root_pointer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * 初始化
@@ -311,4 +311,4 @@ bool BtreeRootPointerList::empty() {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

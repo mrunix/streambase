@@ -22,7 +22,7 @@
 #include "ob_postfix_expression.h"
 #include "ob_infix_expression.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObScanParam;
 class ObCellArray;

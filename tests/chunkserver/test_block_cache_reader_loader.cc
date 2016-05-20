@@ -29,17 +29,17 @@
 #include "chunkserver/ob_chunk_server_config.h"
 #include "../common/test_rowkey_helper.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
-using namespace oceanbase::chunkserver;
+using namespace sb::common;
+using namespace sb::sstable;
+using namespace sb::chunkserver;
 
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 }
 }
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace chunkserver {
 static const int64_t table_id = 100;
@@ -446,7 +446,7 @@ TEST_F(TestObBlockCacheReaderLoader, test_block_cache_load_one_file) {
 
 }//end namespace common
 }//end namespace tests
-}//end namespace oceanbase
+}//end namespace sb
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();

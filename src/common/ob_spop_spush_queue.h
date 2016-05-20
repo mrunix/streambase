@@ -16,7 +16,7 @@
 #include <pthread.h>
 #include "ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObSPopSPushQueue {
  public:

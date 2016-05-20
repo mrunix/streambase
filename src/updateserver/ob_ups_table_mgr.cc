@@ -22,9 +22,9 @@
 //#include "ob_client_wrapper.h"
 //#include "ob_client_wrapper_tsi.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 int set_state_as_fatal() {
   int ret = OB_SUCCESS;
   ObUpdateServerMain* main = ObUpdateServerMain::get_instance();

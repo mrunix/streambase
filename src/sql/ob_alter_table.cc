@@ -19,8 +19,8 @@
 #include "mergeserver/ob_rs_rpc_proxy.h"
 #include "sql/ob_result_set.h"
 #include "sql/ob_sql.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObAlterTable::ObAlterTable() {
 }
@@ -138,7 +138,7 @@ int ObAlterTable::close() {
   return OB_SUCCESS;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObAlterTable, PHY_ALTER_TABLE);
 }

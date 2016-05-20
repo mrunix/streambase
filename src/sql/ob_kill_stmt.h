@@ -20,7 +20,7 @@
 #include "sql/ob_basic_stmt.h"
 #include "common/ob_string.h"
 #include "common/ob_string_buf.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObKillStmt : public ObBasicStmt {
  public:

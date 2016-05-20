@@ -3,7 +3,7 @@
 
 #include <libaio.h>
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 class ObAIOBufferInterface;
 class ObAIOEventMgr {
@@ -25,6 +25,6 @@ class ObAIOEventMgr {
   struct iocb iocb_;
 };
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif //OCEANBASE_SSTABLE_OB_AIO_EVENT_MGR_H_

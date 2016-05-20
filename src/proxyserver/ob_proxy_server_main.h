@@ -17,7 +17,7 @@
 #include "ob_proxy_server.h"
 #include "ob_proxy_server_config.h"
 
-namespace oceanbase {
+namespace sb {
 namespace proxyserver {
 class ObProxyServerMain : public common::BaseMain {
  protected:
@@ -41,7 +41,7 @@ class ObProxyServerMain : public common::BaseMain {
 #define THE_PROXY_SERVER ObProxyServerMain::get_instance()->get_proxy_server()
 
 } // end namespace proxyserver
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #endif

@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 #include <string>
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace mergeserver;
 using namespace mergeserver::test;

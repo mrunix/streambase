@@ -19,7 +19,7 @@
 #include <gtest/gtest.h>
 #include "common/ob_common_param.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 /*

@@ -18,7 +18,7 @@
 #include "ob_single_child_phy_operator.h"
 #include "ob_sql_expression.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObLimit: public ObSingleChildPhyOperator {
  public:
@@ -54,6 +54,6 @@ class ObLimit: public ObSingleChildPhyOperator {
   int64_t output_count_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_LIMIT_H */

@@ -20,7 +20,7 @@
 #include "sql/ob_phy_operator.h"
 #include "sql/ob_double_children_phy_operator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObJoin: public ObDoubleChildrenPhyOperator {
  public:
@@ -56,6 +56,6 @@ class ObJoin: public ObDoubleChildrenPhyOperator {
   ObExpressionArray other_join_conds_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_JOIN_H */

@@ -25,7 +25,7 @@
 #include "common/ob_string.h"
 #include "sql/ob_sql_session_info.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 class ObMySQLServer;
 union ObMySQLClientCapability {

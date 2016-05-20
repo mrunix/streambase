@@ -22,7 +22,7 @@
 class TestCompactSSTableReader_construct_Test;
 class TestCompactSSTableReader_init_Test;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 class ObCompactSSTableReader : public sstable::SSTableReader {
   class ObFileInfo : public common::IFileInfo {
@@ -278,6 +278,6 @@ class ObCompactSSTableReader : public sstable::SSTableReader {
   common::ModuleArena arena_;
 };//end class ObCompactSSTableReader
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif

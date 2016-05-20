@@ -3,7 +3,7 @@
 
 #include "btree_base.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * 以不同类型的key的BTree
@@ -549,6 +549,6 @@ int64_t IdKeyBtree<K, V>::id_compare_func(const char* a, const char* b) {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif

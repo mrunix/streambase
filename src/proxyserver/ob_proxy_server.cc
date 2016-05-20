@@ -19,9 +19,9 @@
 #include "common/ob_profile_fill_log.h"
 #include "ob_proxy_callback.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace proxyserver {
 
 ObProxyServer::ObProxyServer(ObProxyServerConfig& config)
@@ -202,5 +202,5 @@ int ObProxyServer::do_request(ObPacket* base_packet) {
   return ret;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb
 

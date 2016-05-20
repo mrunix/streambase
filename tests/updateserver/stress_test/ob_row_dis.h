@@ -17,7 +17,7 @@
 
 #include <stdint.h>
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 class ObRowDis {
  public:
@@ -72,6 +72,6 @@ class ObRowDis {
   int64_t interval_p2_;
 };
 } // end namespace test
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_TEST_OB_ROW_DIS_H_

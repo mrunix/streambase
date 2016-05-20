@@ -24,9 +24,9 @@
 #include <cassert>
 #include "../common/test_rowkey_helper.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
-using namespace oceanbase;
+using namespace sb::common;
+using namespace sb::rootserver;
+using namespace sb;
 static CharArena allocator_;
 
 struct BalanceTestParams {
@@ -95,7 +95,7 @@ struct MigrateMsg {
   }
 };
 
-class BalanceTestRpc : public oceanbase::rootserver::ObRootRpcStub, public tbsys::CDefaultRunnable {
+class BalanceTestRpc : public sb::rootserver::ObRootRpcStub, public tbsys::CDefaultRunnable {
  public:
   BalanceTestRpc(): msg_head_(NULL), msg_count_(0), server_(NULL) {}
   virtual ~BalanceTestRpc() {}

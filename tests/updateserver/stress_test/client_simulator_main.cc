@@ -1,7 +1,7 @@
 
 #include "client_simulator.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 void sig_handler(int) {
   if (NULL != GI::instance().runnable())

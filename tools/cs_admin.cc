@@ -32,12 +32,12 @@
 
 
 using namespace std;
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::common::serialization;
-using namespace oceanbase::chunkserver;
-using namespace oceanbase::sstable;
-using namespace oceanbase::tools;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::common::serialization;
+using namespace sb::chunkserver;
+using namespace sb::sstable;
+using namespace sb::tools;
 
 static char g_config_file_name[OB_MAX_FILE_NAME_LENGTH];
 

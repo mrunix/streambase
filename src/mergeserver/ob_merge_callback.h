@@ -20,9 +20,9 @@
 #include "common/ob_packet_factory.h"
 #include "easy_io_struct.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 class ObMergeCallback {
  public:
 

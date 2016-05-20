@@ -14,7 +14,7 @@
 #include "ob_sstable_block_getter.h"
 #include "sstable/ob_sstable_row_cache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 class ObCompactSSTableGetter {
  public:
@@ -162,6 +162,6 @@ class ObCompactSSTableGetter {
   common::ObMemBuf row_buf_;
 };
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif  // OCEANBASE_SSTABLE_OB_SSTABLE_GETTER_H_

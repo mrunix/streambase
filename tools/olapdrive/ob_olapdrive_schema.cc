@@ -15,7 +15,7 @@
 #include "common/ob_define.h"
 #include "ob_olapdrive_schema.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 using namespace common;
 
@@ -134,4 +134,4 @@ const ObString ObOlapdriveSchema::get_column_name(const ObColumnSchemaV2& column
   return column_name;
 }
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb

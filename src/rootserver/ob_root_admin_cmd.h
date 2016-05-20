@@ -16,7 +16,7 @@
 #ifndef _OB_ROOT_ADMIN_CMD_H
 #define _OB_ROOT_ADMIN_CMD_H 1
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 static const int OB_RS_ADMIN_CHECKPOINT = 1;
 static const int OB_RS_ADMIN_RELOAD_CONFIG = 2;
@@ -39,7 +39,7 @@ static const int OB_RS_ADMIN_INIT_CLUSTER = 19;
 static const int OB_RS_ADMIN_CLEAN_ROOT_TABLE = 20;
 static const int OB_RS_ADMIN_CHECK_SCHEMA = 21;
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ROOT_ADMIN_CMD_H */
 

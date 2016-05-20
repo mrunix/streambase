@@ -13,7 +13,7 @@
  */
 #include "base_client.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obsql {
 using namespace common;
 
@@ -41,4 +41,4 @@ int BaseClient::wait() {
   return (transport_.wait() ? OB_SUCCESS : OB_ERROR);
 }
 } // end namespace client
-} // end namespace oceanbase
+} // end namespace sb

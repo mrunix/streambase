@@ -17,8 +17,8 @@
 #include "common/hash/ob_hashutils.h"
 #include "ob_merger_groupby_operator.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 ObMergerGroupByOperator::ObMergerGroupByOperator() {
   scan_param_ = NULL;

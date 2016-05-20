@@ -1,6 +1,6 @@
 #include "ob_mysql_row_packet.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 ObMySQLRowPacket::ObMySQLRowPacket(const ObMySQLRow* row): row_(row) {
 

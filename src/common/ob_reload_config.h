@@ -20,7 +20,7 @@
 #include "tbsys.h"
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObReloadConfig {
  public:
@@ -30,6 +30,6 @@ class ObReloadConfig {
   }
 };
 } // end of namespace common
-} // end of namespace oceanbase
+} // end of namespace sb
 
 #endif /* _OB_RELOAD_CONFIG_H_ */

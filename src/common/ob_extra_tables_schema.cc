@@ -18,7 +18,7 @@
 #include "ob_schema_macro_define.h"
 #include "ob_extra_tables_schema.h"
 #include "common/roottable/ob_first_tablet_entry_schema.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ////////////////////////////////////////////////////////////////////////////
 //                        OCEANBASE CORE TABLES                           //

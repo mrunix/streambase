@@ -20,10 +20,10 @@
 #include "key.h"
 #include "test_helper.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace sstable {
 class TestObSSTableRow: public ::testing::Test {
@@ -727,7 +727,7 @@ TEST_F(TestObSSTableRow, test_serialize_and_deserialize_varRK) {
 }
 }//end namespace sstable
 }//end namespace tests
-}//end namespace oceanbase
+}//end namespace sb
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();

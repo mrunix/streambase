@@ -20,7 +20,7 @@
 #include <key_btree.h>
 #include <gtest/gtest.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class TestKey {
  public:

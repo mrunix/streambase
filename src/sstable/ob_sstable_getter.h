@@ -26,7 +26,7 @@
 #include "ob_sstable_block_getter.h"
 #include "ob_sstable_row_cache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 class ObSSTableGetter : public common::ObIterator {
  public:
@@ -223,6 +223,6 @@ class ObSSTableGetter : public common::ObIterator {
   common::ObRowkeyInfo rowkey_info_; // for deserialize old fashion binary rowkey
 };
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif  // OCEANBASE_SSTABLE_OB_SSTABLE_GETTER_H_

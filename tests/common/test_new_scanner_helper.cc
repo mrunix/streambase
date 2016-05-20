@@ -20,7 +20,7 @@
 #include "common/ob_string_buf.h"
 #include <gtest/gtest.h>
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 #define OK(value) ASSERT_EQ(OB_SUCCESS, (value))

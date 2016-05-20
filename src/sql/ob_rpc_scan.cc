@@ -26,10 +26,10 @@
 #include "common/ob_profile_type.h"
 #include "common/ob_profile_log.h"
 #include "mergeserver/ob_insert_cache.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
-using namespace oceanbase::mergeserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::sql;
+using namespace sb::mergeserver;
 
 ObRpcScan::ObRpcScan() :
   timeout_us_(0),
@@ -259,7 +259,7 @@ int ObRpcScan::fill_read_param(ObSqlReadParam& dest_param) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObRpcScan, PHY_RPC_SCAN);
 }

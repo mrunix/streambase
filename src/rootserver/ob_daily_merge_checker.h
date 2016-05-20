@@ -22,7 +22,7 @@
 #include "common/ob_timer.h"
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 struct ObRowChecksumInfo {
   uint64_t table_id_;

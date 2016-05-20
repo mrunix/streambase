@@ -19,7 +19,7 @@
 
 #include "ob_schema_mgr.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 using namespace common;
 using namespace common::hash;

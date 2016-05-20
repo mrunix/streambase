@@ -20,9 +20,9 @@
 #include "mock_chunk_server.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
-using namespace oceanbase::mergeserver::test;
+using namespace sb::common;
+using namespace sb::mergeserver;
+using namespace sb::mergeserver::test;
 
 const uint64_t timeout = 5000000;
 const char* addr = "localhost";

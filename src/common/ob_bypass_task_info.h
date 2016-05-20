@@ -21,7 +21,7 @@
 #include "ob_array.h"
 #include "tblog.h"
 #include "ob_string_buf.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 enum OperationType {
   INVALID_TYPE = -1,

@@ -21,7 +21,7 @@
 #include "ob_cell_array.h"
 
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 class ObCellReaderUtil {

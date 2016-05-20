@@ -19,7 +19,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace cmbtree {
 class BtreeTID {
@@ -35,6 +35,6 @@ class BtreeTID {
 
 } // end namespace cmbtree
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_CMBTREE_BTREE_TID_H_

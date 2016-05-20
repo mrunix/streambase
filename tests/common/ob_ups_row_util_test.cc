@@ -20,7 +20,7 @@
 #include "common/utility.h"
 #include "common/ob_compact_cell_writer.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 #define TABLE_ID 1000

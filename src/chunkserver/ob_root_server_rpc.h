@@ -35,7 +35,7 @@
     }
 
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObClientManager;
 class ObScanParam;

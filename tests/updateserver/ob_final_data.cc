@@ -24,8 +24,8 @@
 #include "common/ob_action_flag.h"
 #include "tbsys.h"
 using namespace std;
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 bool ObRowInfo::operator <(const ObRowInfo& other) const {
   bool result = false;
   if (table_name_ < other.table_name_) {
@@ -43,7 +43,7 @@ bool ObRowInfo::operator ==(const ObRowInfo& other) const {
 }
 
 ObFinalResult::ObFinalResult() {
-  row_infos_ = new std::map<ObRowInfo, std::vector<oceanbase::common::ObCellInfo> >();
+  row_infos_ = new std::map<ObRowInfo, std::vector<sb::common::ObCellInfo> >();
   cell_array_ = new ObCellArray();
 }
 
@@ -55,8 +55,8 @@ ObFinalResult::~ObFinalResult() {
 }
 
 int ObFinalResult::apply_join(ObSchemaManager& schema_mgr,
-                              oceanbase::common::ObCellInfo& left_cell,
-                              const oceanbase::common::ObJoinInfo& join_info) {
+                              sb::common::ObCellInfo& left_cell,
+                              const sb::common::ObJoinInfo& join_info) {
   int err = OB_SUCCESS;
   ObCellInfo get_cell;
   const ObSchema* right_schema = NULL;

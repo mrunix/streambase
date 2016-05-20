@@ -3,10 +3,10 @@
 #include "utils.h"
 #include "mutator_builder.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::common::hash;
-using namespace oceanbase::updateserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::common::hash;
+using namespace sb::updateserver;
 
 MutatorBuilder::MutatorBuilder() {
   memset(cb_array_, 0, sizeof(CellinfoBuilder*) * OB_MAX_TABLE_NUMBER);

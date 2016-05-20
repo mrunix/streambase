@@ -16,7 +16,7 @@
 
 #include "ob_multiple_merge.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace sql;
 
 ObMultipleMerge::ObMultipleMerge()

@@ -1,9 +1,9 @@
 #include "ob_mysql_field.h"
 #include "ob_mysql_result_set.h"
 #include "common/ob_array.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 int ObMySQLResultSet::next_field(ObMySQLField& obmf) {
   int ret = OB_SUCCESS;

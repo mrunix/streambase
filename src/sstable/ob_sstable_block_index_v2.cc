@@ -20,9 +20,9 @@
 #include "ob_sstable_writer.h"
 #include "ob_sstable_schema.h"
 #include "ob_sstable_block_index_buffer.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 ObSSTableBlockIndexV2::ObSSTableBlockIndexV2(const int64_t serialize_size,
                                              const bool deserialized)
@@ -248,7 +248,7 @@ int ObSSTableBlockIndexV2::check_border(
 int ObSSTableBlockIndexV2::find_by_key(
   const uint64_t table_id,
   const uint64_t column_group_id,
-  const oceanbase::common::ObRowkey& key,
+  const sb::common::ObRowkey& key,
   const SearchMode mode,
   const Bound& bound,
   const_iterator& find) const {
@@ -333,7 +333,7 @@ int ObSSTableBlockIndexV2::trans_range_to_search_key(
 int ObSSTableBlockIndexV2::search_batch_blocks_by_key(
   const uint64_t table_id,
   const uint64_t column_group_id,
-  const oceanbase::common::ObRowkey& key,
+  const sb::common::ObRowkey& key,
   const SearchMode mode,
   ObBlockPositionInfos& pos_info) const {
   int iret = OB_SUCCESS;
@@ -359,7 +359,7 @@ int ObSSTableBlockIndexV2::search_batch_blocks_by_key(
 int ObSSTableBlockIndexV2::search_batch_blocks_by_range(
   const uint64_t table_id,
   const uint64_t column_group_id,
-  const oceanbase::common::ObNewRange& range,
+  const sb::common::ObNewRange& range,
   const bool is_reverse_scan,
   ObBlockPositionInfos& pos_info) const {
   int iret = OB_SUCCESS;
@@ -395,7 +395,7 @@ int ObSSTableBlockIndexV2::search_batch_blocks_by_range(
 int ObSSTableBlockIndexV2::search_one_block_by_key(
   const uint64_t table_id,
   const uint64_t column_group_id,
-  const oceanbase::common::ObRowkey& key,
+  const sb::common::ObRowkey& key,
   const SearchMode mode,
   ObBlockPositionInfo& pos_info) const {
   int iret = OB_SUCCESS;
@@ -823,4 +823,4 @@ int ObSSTableBlockIndexV2::find_pos_helper(const IndexEntryType& entry,
 }
 
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb

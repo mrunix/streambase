@@ -23,7 +23,7 @@
 #include "common/ob_general_rpc_stub.h"
 #include "ob_chunk_server_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootTriggerUtil: public ObTriggerEventUtil {
  private:

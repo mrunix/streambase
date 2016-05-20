@@ -18,7 +18,7 @@
 #include "ob_rowkey_helper.h"
 #include "utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObMutator :: ObMutator() : mod_(ObModIds::OB_MUTATOR),
   local_page_arena_(ALLOCATOR_PAGE_SIZE, mod_),

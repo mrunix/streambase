@@ -9,7 +9,7 @@
 #include <list>
 #include <algorithm>
 
-using namespace oceanbase::common;
+using namespace sb::common;
 using namespace tbsys;
 
 const int kMaxRowkeysInMem = 1000000;

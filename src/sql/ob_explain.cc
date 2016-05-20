@@ -16,8 +16,8 @@
 #include "ob_explain.h"
 #include "common/utility.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObExplain::ObExplain()
   : verbose_(false), been_read_(false) {
@@ -111,7 +111,7 @@ int64_t ObExplain::to_string(char* buf, const int64_t buf_len) const {
 }
 
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObExplain, PHY_EXPLAIN);
 }

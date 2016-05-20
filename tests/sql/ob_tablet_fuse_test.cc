@@ -24,9 +24,9 @@
 
 #define OK(value) ASSERT_EQ(OB_SUCCESS, (value))
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
-using namespace oceanbase::sql::test;
+using namespace sb::sql;
+using namespace sb::common;
+using namespace sb::sql::test;
 
 class ObTabletFuseTest: public ::testing::Test {
  public:

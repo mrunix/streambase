@@ -19,7 +19,7 @@
 #include "common/ob_server.h"
 #include "common/ob_data_source_desc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 
 class ObTabletReader {

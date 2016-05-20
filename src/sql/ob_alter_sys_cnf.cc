@@ -19,8 +19,8 @@
 #include "common/ob_define.h"
 #include "common/ob_obj_cast.h"
 
-using namespace oceanbase;
-using namespace oceanbase::sql;
+using namespace sb;
+using namespace sb::sql;
 
 #define START_TRANSACTION 0
 #define COMMIT 1
@@ -237,7 +237,7 @@ int ObAlterSysCnf::execute_transaction_stmt(const int& trans_type) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObAlterSysCnf, PHY_ALTER_SYS_CNF);
 }

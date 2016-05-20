@@ -28,8 +28,8 @@
 #include "../common/test_rowkey_helper.h"
 
 using namespace std;
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 const int64_t TIMEOUT =  50000000L;
 static const int64_t MAX_ROW_KEY = 1024ll * 1024ll * 16ll - 1ll;
 static const uint64_t MAX_COLUMN_ID = 255;
@@ -56,7 +56,7 @@ struct CParam {
   const ObTableSchema* left_schema_;
   const ObTableSchema* right_schema_;
   char* operation_;
-  oceanbase::common::ObSchemaManagerV2* schema_mgr_;
+  sb::common::ObSchemaManagerV2* schema_mgr_;
   int64_t cur_version_;
 };
 

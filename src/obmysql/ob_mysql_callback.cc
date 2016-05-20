@@ -9,9 +9,9 @@
 #include "obmysql/packet/ob_mysql_error_packet.h"
 #include "common/base_main.h"
 #include <sys/uio.h>
-using namespace oceanbase::common;
-using namespace oceanbase::common::hash;
-namespace oceanbase {
+using namespace sb::common;
+using namespace sb::common::hash;
+namespace sb {
 namespace obmysql {
 int ObMySQLCallback::encode(easy_request_t* r, void* packet) {
   int ret = EASY_OK;

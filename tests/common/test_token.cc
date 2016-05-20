@@ -5,8 +5,8 @@
 #include "common/ob_encrypt.h"
 #include "common/ob_string.h"
 #include "common/ob_define.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 using namespace std;
 
 int main(int argc, char** argv) {

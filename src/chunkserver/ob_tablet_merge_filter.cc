@@ -18,7 +18,7 @@
 #include "sql/ob_item_type.h"
 #include "ob_tablet_merge_filter.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 using namespace common;
 using namespace common::hash;
@@ -849,5 +849,5 @@ int ObTabletMergerFilter::adjust_scan_param(sql::ObSqlScanParam& scan_param) {
 }
 
 
-} // namespace oceanbase::chunkserver
+} // namespace sb::chunkserver
 } // namespace Oceanbase

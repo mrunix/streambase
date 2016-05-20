@@ -53,7 +53,7 @@
 #include "common/ob_define.h"
 #include "ob_mysql_dtoa.h"
 
-using oceanbase::common::OB_SIZE_OVERFLOW;
+using sb::common::OB_SIZE_OVERFLOW;
 
 #ifndef max
 #define max( a, b ) ( ((a) > (b)) ? (a) : (b) )

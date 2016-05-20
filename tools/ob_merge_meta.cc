@@ -7,11 +7,11 @@
 #include "common/ob_malloc.h"
 #include "ob_tablet_meta.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 using namespace common;
 
-using oceanbase::obsolete::chunkserver::ObTabletMeta;
+using sb::obsolete::chunkserver::ObTabletMeta;
 
 class ObMergeMeta {
  public:
@@ -163,9 +163,9 @@ int ObMergeMeta::parse(const char* idx_file) {
 } /* oceanbase */
 
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::chunkserver;
 
 int main(int argc, char** argv) {
   if (argc != 3) {

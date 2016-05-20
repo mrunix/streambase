@@ -41,17 +41,17 @@ inline int64_t gen_usec() {
 }
 
 
-int transform_date_to_time(const char* str, int len, oceanbase::common::ObDateTime& t);
+int transform_date_to_time(const char* str, int len, sb::common::ObDateTime& t);
 
 int ObDateTime2MySQLDate(int64_t ob_time, int time_type, char* outp, int size);
 
-int serialize_cell(oceanbase::common::ObCellInfo* cell, oceanbase::common::ObDataBuffer& buff);
+int serialize_cell(sb::common::ObCellInfo* cell, sb::common::ObDataBuffer& buff);
 
-int append_header_delima(oceanbase::common::ObDataBuffer& buff);
+int append_header_delima(sb::common::ObDataBuffer& buff);
 
-int append_delima(oceanbase::common::ObDataBuffer& buff);
+int append_delima(sb::common::ObDataBuffer& buff);
 
-int append_end_rec(oceanbase::common::ObDataBuffer& buff);
+int append_end_rec(sb::common::ObDataBuffer& buff);
 
 const char* get_op_string(int action);
 
@@ -61,6 +61,6 @@ void encode_int32(char* buf, uint32_t value);
 
 int32_t decode_int32(const char* buf);
 
-int append_obj(const oceanbase::common::ObObj& obj, oceanbase::common::ObDataBuffer& buff);
+int append_obj(const sb::common::ObObj& obj, sb::common::ObDataBuffer& buff);
 #endif   /* ----- #ifndef db_utils_INC  ----- */
 

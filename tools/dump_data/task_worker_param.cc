@@ -6,8 +6,8 @@
 #include <vector>
 #include <string>
 
-using namespace oceanbase::tools;
-using namespace oceanbase::common;
+using namespace sb::tools;
+using namespace sb::common;
 using namespace std;
 
 static const char* kSysConfig = "sys";

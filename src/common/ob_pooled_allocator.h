@@ -17,7 +17,7 @@
 #define _OB_POOLED_ALLOCATOR_H 1
 
 #include "ob_pool.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 // @note thread-safe depends on LockT
 template <typename T, typename BlockAllocatorT = ObMalloc, typename LockT = ObNullLock>
@@ -71,6 +71,6 @@ void ObPooledAllocator<T, BlockAllocatorT, LockT>::free(T* obj) {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_POOLED_ALLOCATOR_H */

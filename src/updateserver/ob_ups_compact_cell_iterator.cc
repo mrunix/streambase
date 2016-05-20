@@ -1,6 +1,6 @@
 #include "ob_ups_compact_cell_iterator.h"
 
-using namespace oceanbase::updateserver;
+using namespace sb::updateserver;
 
 int ObUpsCompactCellIterator::parse_varchar(ObBufferReader& buf_reader, ObObj& value) const {
   int ret = OB_SUCCESS;

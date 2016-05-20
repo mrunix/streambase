@@ -14,8 +14,8 @@
  *
  */
 #include "ob_deallocate.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObDeallocate::ObDeallocate()
   : stmt_id_(OB_INVALID_ID) {
@@ -57,7 +57,7 @@ int ObDeallocate::delete_plan_from_session() {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObDeallocate, PHY_DEALLOCATE);
 }

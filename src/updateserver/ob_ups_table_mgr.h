@@ -38,7 +38,7 @@
 #include "ob_sessionctx_factory.h"
 #include "common/ob_new_scanner.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 // UpsTableMgr manages the active and frozen memtable of UpdateServer.
 // It also acts as an entry point for apply/replay/get/scan operation.

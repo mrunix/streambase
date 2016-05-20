@@ -1,8 +1,8 @@
 #include "ob_sstable_schema_cache.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObSSTableSchemaCache::clear() {
   int ret = OB_SUCCESS;
@@ -175,4 +175,4 @@ int64_t ObSSTableSchemaCache::upper_bound_index(
   return left;
 }
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb

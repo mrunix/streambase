@@ -16,7 +16,7 @@
 #include "ob_malloc.h"
 #include "utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 DefaultBlockAllocator::DefaultBlockAllocator(): mod_(ObModIds::BLOCK_ALLOC), limit_(INT64_MAX), allocated_(0)
 {}
@@ -424,4 +424,4 @@ StackAllocator* TSIStackAllocator::get() {
   return (idx >= 0 && idx < (int64_t)ARRAYSIZEOF(allocator_array_)) ? allocator_array_ + idx : NULL;
 }
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb

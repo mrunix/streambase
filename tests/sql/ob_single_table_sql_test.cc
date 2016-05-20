@@ -15,8 +15,8 @@
  */
 #include "sql/ob_sql.h"
 #include <gtest/gtest.h>
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
 class ObSingleTableSQLTest: public ::testing::Test {
  public:

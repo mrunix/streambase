@@ -22,13 +22,13 @@
 #include "ob_sstable_scan.h"
 #include "ob_ups_scan.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 
 namespace sql {
 class ObTabletFuse: public ObPhyOperator, public ObLastRowkeyInterface {
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_TABLET_FUSE_H */

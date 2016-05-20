@@ -17,9 +17,9 @@
 #include "ob_ups_blacklist.h"
 #include "common/utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObUpsBlackList::ObUpsBlackList() {
   max_fail_count_ = DEFAULT_COUNT;
@@ -105,4 +105,4 @@ int32_t ObUpsBlackList::get_valid_count(void) const {
   return count;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

@@ -25,7 +25,7 @@
 #include "sql/ob_physical_plan.h"
 #include "sql/ob_ups_result.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObMutator;
 class ObScanParam;

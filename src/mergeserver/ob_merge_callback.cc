@@ -11,7 +11,7 @@
 #include "common/utility.h"
 #include "common/ob_profile_fill_log.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 ObPacketFactory ObMergeCallback::packet_factory_;
 int ObMergeCallback::process(easy_request_t* r) {
@@ -111,4 +111,4 @@ int ObMergeCallback::sql_process(easy_request_t* r) {
   return EASY_OK;
 }
 }//namespace mergeserver
-}//namespace oceanbase
+}//namespace sb

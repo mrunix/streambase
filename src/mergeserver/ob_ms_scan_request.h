@@ -25,7 +25,7 @@
 #include "ob_ms_scan_param.h"
 #include "common/location/ob_tablet_location_range_iterator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObTabletLocationCacheProxy;
 }

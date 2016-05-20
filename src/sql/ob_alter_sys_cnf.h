@@ -21,7 +21,7 @@
 #include "ob_sql_context.h"
 #include "common/ob_array.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObAlterSysCnf : public ObNoChildrenPhyOperator {
  public:

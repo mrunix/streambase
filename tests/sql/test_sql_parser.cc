@@ -9,9 +9,9 @@
 #include "sql/ob_multi_logic_plan.h"
 #include "sql/ob_schema_checker.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::sql;
 
 const char* STR_SQL_TEST = "SQL_TEST";
 const char* STR_SQL_FILE = "sql_file.sql";
@@ -30,7 +30,7 @@ int32_t runSqlTestFile(const char* pFileName) {
   char    cmd[OB_MAX_FETCH_CMD_LENGTH];
   memset(cwd, 0, OB_MAX_FILE_NAME_LENGTH);
   memset(cmd, 0, OB_MAX_FILE_NAME_LENGTH);
-  oceanbase::common::ObStringBuf obStringBuf;
+  sb::common::ObStringBuf obStringBuf;
   ObSchemaChecker schema_checker;
 
   // It is for test only, no more questions about this usage.

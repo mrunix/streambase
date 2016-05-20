@@ -1,6 +1,6 @@
 #include "test_utils2.h"
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 bool check_buf(const char* buf, const int64_t len, int64_t pos) {
   return NULL != buf && 0 <= len && 0 <= pos && pos <= len;
@@ -79,4 +79,4 @@ int64_t get_file_len(const char* path) {
   return len;
 }
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb

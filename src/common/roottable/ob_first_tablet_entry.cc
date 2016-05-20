@@ -20,7 +20,7 @@
 #include "ob_first_tablet_entry.h"
 #include "ob_first_tablet_entry_schema.h"
 #include "ob_meta_table_schema.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 struct ObFirstTabletEntryTable::MyIterator: public ObTabletMetaTableRowIterator {
  public:

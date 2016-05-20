@@ -3,7 +3,7 @@
 #include <btree_node.h>
 #include <gtest/gtest.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 int64_t key_compare_func_test(const char* a, const char* b) {
   return strcmp(a, b);
@@ -215,4 +215,4 @@ TEST(BtreeNodeTest, key_refcount) {
   free(node);
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

@@ -7,7 +7,7 @@
 #include "updateserver/ob_table_engine.h"
 #include "gtest/gtest.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace updateserver;
 
 static const int64_t NODE_SIZE = 1 << 21;

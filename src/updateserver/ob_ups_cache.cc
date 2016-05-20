@@ -22,7 +22,7 @@
 #include "common/ob_action_flag.h"
 #include "ob_ups_utils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 using namespace common;
 

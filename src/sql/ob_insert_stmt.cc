@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
-ObInsertStmt::ObInsertStmt(oceanbase::common::ObStringBuf* name_pool)
+ObInsertStmt::ObInsertStmt(sb::common::ObStringBuf* name_pool)
   : ObStmt(name_pool, T_INSERT) {
   sub_query_id_ = OB_INVALID_ID;
   is_replace_ = false;

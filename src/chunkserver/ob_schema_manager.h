@@ -20,7 +20,7 @@
 #include "tbsys.h"
 #include "common/ob_schema.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 /**
  * warning: the schema manager contain MAX_VERSION_COUNT schema

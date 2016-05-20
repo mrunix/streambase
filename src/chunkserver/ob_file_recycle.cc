@@ -5,7 +5,7 @@
 #include "ob_chunk_server_main.h"
 #include "common/file_directory_utils.h"
 #include <tbsys.h>
-namespace oceanbase {
+namespace sb {
 using namespace common;
 using namespace tbsys;
 using namespace sstable;

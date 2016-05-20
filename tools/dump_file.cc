@@ -30,11 +30,11 @@
 #include "chunkserver/ob_tablet_image.h"
 #include "chunkserver/ob_disk_manager.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
-using namespace oceanbase::chunkserver;
+using namespace sb::common;
+using namespace sb::sstable;
+using namespace sb::chunkserver;
 
-using oceanbase::obsolete::chunkserver::ObTabletMeta;
+using sb::obsolete::chunkserver::ObTabletMeta;
 
 
 static void hex_dump_nice(const void* data, const int32_t size, const bool char_type) {

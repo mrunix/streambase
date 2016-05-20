@@ -20,7 +20,7 @@
 #include "common/ob_rowkey.h"
 #include "common/ob_object.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 class Key {
  public:
@@ -169,8 +169,8 @@ inline bool operator>=(const Key& k1, const Key& k2) {
   return k1.compare(k2) >= 0;
 }
 
-} // namespace oceanbase::sstable
-} // namespace oceanbase
+} // namespace sb::sstable
+} // namespace sb
 
 #endif // OCEANBASE_SSTABLE_KEY_H_
 

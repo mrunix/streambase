@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "limit_array.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 TEST(LimitTest, basicTest) {
   LimitArray<int, 10> limit_array;
   int a[4];

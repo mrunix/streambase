@@ -44,11 +44,11 @@
 #include "ob_tablet_writer.h"
 #include "ob_tablet_reader.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
-using namespace oceanbase::compactsstable;
+using namespace sb::common;
+using namespace sb::sstable;
+using namespace sb::compactsstable;
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 ObChunkService::ObChunkService()
   : chunk_server_(NULL), inited_(false),
@@ -3800,4 +3800,4 @@ int ObChunkService::schedule_report_tablet() {
 }
 
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

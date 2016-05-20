@@ -18,7 +18,7 @@
 #include "ob_test_bomb.h"
 #include "mock_client.h"
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 class ObExecutor {
  public:
@@ -36,6 +36,6 @@ class ObExecutor {
   MockClient apply_client_;
 };
 } // end namespace test
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_TEST_OB_EXECUTOR_H_

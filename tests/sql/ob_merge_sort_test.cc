@@ -16,8 +16,8 @@
 #include "sql/ob_merge_sort.h"
 #include <gtest/gtest.h>
 #include "ob_fake_table.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 class ObMergeSortTest: public ::testing::Test {
  public:

@@ -2,7 +2,7 @@
 #include "common/utility.h"
 #include "common/ob_common_param.h"
 #include "common/serialization.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 bool TableSchema::is_valid() const {
   int err = OB_SUCCESS;

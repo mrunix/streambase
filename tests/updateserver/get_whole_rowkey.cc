@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "mock_client.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace updateserver;
 

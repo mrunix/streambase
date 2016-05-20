@@ -14,9 +14,9 @@
  */
 #include "ob_merge_join_operator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObMergeJoinOperator::ObMergeJoinOperator(ObMergerRpcProxy& rpc_proxy)
   : merge_operator_(rpc_proxy) {
@@ -189,4 +189,4 @@ bool ObMergeJoinOperator::is_unchanged() const {
   return merge_operator_.is_unchanged();
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

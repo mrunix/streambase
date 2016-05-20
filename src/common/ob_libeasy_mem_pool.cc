@@ -13,7 +13,7 @@
 
 #include "common/ob_libeasy_mem_pool.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 

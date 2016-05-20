@@ -44,7 +44,7 @@
   }                                                                                                 \
 }
 
-namespace oceanbase {
+namespace sb {
 namespace api {
 const int TSI_GET_ID = 1001;
 const int TSI_SCAN_ID = 1002;

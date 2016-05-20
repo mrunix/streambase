@@ -19,7 +19,7 @@
 
 #include "common/ob_mutator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 // ObUpsMutator is the internal mutator class used by Update Server.
 // It may be the mutator received from client API, and it can also be FREEZE_MEMTABLE

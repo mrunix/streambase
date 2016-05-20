@@ -3,8 +3,8 @@
 #include "common/ob_mutator.h"
 #include "common/ob_scanner.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 const char* ob_server_to_string(const ObServer& server) {
   const int SIZE = 32;

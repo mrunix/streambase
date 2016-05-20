@@ -25,7 +25,7 @@ namespace test {
 class ObRowFuseTest_apply_row_test_Test;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRowFuse {
   friend class test::ObRowFuseTest_apply_row_test_Test;

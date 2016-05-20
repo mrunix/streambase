@@ -16,7 +16,7 @@
 #include "ob_yunti_proxy.h"
 #include "common/ob_file.h"
 
-namespace oceanbase {
+namespace sb {
 namespace proxyserver {
 const char* YuntiMeta::TABLE_INFO_FILE_NAME = "_table_info";
 const char* YuntiMeta::PARTITION_FILE_NAME = "_partition_file";

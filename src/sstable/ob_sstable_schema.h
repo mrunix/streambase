@@ -20,7 +20,7 @@
 #include "common/hash/ob_hashutils.h"
 #include "common/hash/ob_hashmap.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObSchemaManagerV2;
 class ObTableSchema;
@@ -375,7 +375,7 @@ int build_sstable_schema(const uint64_t table_id,
  * trsanlate all tables to sstable schema
  */
 int build_sstable_schema(const common::ObSchemaManagerV2& schema, ObSSTableSchema& sstable_schema, bool binary_format = false);
-} // namespace oceanbase::sstable
+} // namespace sb::sstable
 } // namespace Oceanbase
 
 #endif // OCEANBASE_SSTABLE_OB_SSTABLE_SCHEMA_H_

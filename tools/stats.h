@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 
 

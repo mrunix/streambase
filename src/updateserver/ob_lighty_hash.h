@@ -25,7 +25,7 @@
 #include "common/ob_atomic.h"
 #include "ob_bit_lock.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 namespace lightyhash {
 template <typename T>

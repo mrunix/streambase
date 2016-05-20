@@ -43,7 +43,7 @@
 #include <list>
 
 OB_ERR_CODE err_code_map(int err);
-const char* ob_server_to_string(const oceanbase::common::ObServer& server);
+const char* ob_server_to_string(const sb::common::ObServer& server);
 
 struct ObInnerReq {
   OB_REQ req;
@@ -51,7 +51,7 @@ struct ObInnerReq {
   int64_t submit_time;
 };
 
-namespace oceanbase {
+namespace sb {
 namespace client {
 using namespace common;
 
@@ -414,6 +414,6 @@ class ObClient : public tbnet::IPacketHandler {
 };
 
 } // end namespace client
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // _OB_CLIENT_H__

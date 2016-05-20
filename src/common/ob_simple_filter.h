@@ -22,7 +22,7 @@
 #include "ob_string_buf.h"
 #include "ob_simple_condition.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObCellArray;
 // the container of all logic and conditions using for logic calculate

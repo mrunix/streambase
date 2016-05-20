@@ -16,7 +16,7 @@
 
 #include <gtest/gtest.h>
 #include "common/ob_obi_role.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 TEST(ObObiRoleTest, test_serialization) {
   ObiRole obi_role;

@@ -20,9 +20,9 @@
 #include <map>
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::common::hash;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::common::hash;
+using namespace sb::updateserver;
 
 #define DATE_MAX 31
 #define THREAD_MAX 4

@@ -25,7 +25,7 @@
 #include "ob_update_server_main.h"
 #include "ob_multi_file_utils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 using namespace common;
 using namespace hash;

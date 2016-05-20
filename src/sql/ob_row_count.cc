@@ -17,9 +17,9 @@
 #include "ob_ups_modify.h"
 #include "common/serialization.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
-using namespace oceanbase::common::serialization;
+using namespace sb::sql;
+using namespace sb::common;
+using namespace sb::common::serialization;
 
 ObRowCount::ObRowCount()
   : table_id_(OB_INVALID_ID), column_id_(OB_INVALID_ID)
@@ -131,7 +131,7 @@ int ObRowCount::get_next_row(const common::ObRow*& row) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObRowCount, PHY_ROW_COUNT);
 }

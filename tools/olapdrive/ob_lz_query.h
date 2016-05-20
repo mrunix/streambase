@@ -23,7 +23,7 @@
 #include "ob_olapdrive_schema.h"
 #include "ob_lz_common.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 static const int64_t BATCH_SCAN_COUNT = 5;
 static const int64_t FILTER_BUF_SIZE = 512;
@@ -268,6 +268,6 @@ class ObLzQuery {
   int64_t log_level_;
 };
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_OLAPDRIVE_LZ_QUERY_H

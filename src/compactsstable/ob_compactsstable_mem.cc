@@ -20,7 +20,7 @@
 #include "ob_compactsstable_mem.h"
 #include "ob_compact_row.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 
 namespace compactsstable {
@@ -496,4 +496,4 @@ int ObCompactSSTableMemIterator::load_row(const char* row) {
   return ret;
 }
 } //end namespace compactsstable
-} //end namespace oceanbase
+} //end namespace sb

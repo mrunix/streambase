@@ -23,7 +23,7 @@
 #include "ob_get_cell_stream.h"
 #include "ob_scan_cell_stream.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObGetCellStreamWrapper {
  public:

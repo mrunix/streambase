@@ -11,7 +11,7 @@
 #include "ob_result.h"
 #include "utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObFileClient {
  public:

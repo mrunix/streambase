@@ -16,7 +16,7 @@
 #define __OCEANBASE_COMMON_OB_ATOMIC_TYPE_H__
 #include "ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // 支持并发读写
 template<typename T>
@@ -58,6 +58,6 @@ struct ObAtomicType {
   }
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif //__OCEANBASE_COMMON_OB_ATOMIC_TYPE_H__

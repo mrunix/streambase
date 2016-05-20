@@ -12,7 +12,7 @@
 #include "rootserver/ob_root_main.h"
 #include "common/ob_version.h"
 
-namespace oceanbase {
+namespace sb {
 using common::OB_SUCCESS;
 using common::OB_ERROR;
 namespace rootserver {

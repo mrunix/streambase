@@ -18,7 +18,7 @@
 #include "common/ob_string.h"
 #include "updateserver/ob_ups_utils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 class ObSchemaProxy { // : public updateserver::ObSchemaManagerWrapper
  public:
@@ -46,6 +46,6 @@ class ObSchemaProxy { // : public updateserver::ObSchemaManagerWrapper
   common::ObString table_name_;
 };
 } // end namespace test
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_TEST_OB_SCHEMA_PROXY_H_

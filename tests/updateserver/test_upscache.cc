@@ -19,11 +19,11 @@
 #include "updateserver/ob_ups_cache.h"
 #include "gtest/gtest.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace updateserver;
 using namespace common;
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 namespace test {
 class TestBlockCacheHelper : public ObUpsCache {

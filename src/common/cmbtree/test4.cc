@@ -7,9 +7,9 @@
 #include "gtest/gtest.h"
 #include "ob_buffer.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::common::cmbtree;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::common::cmbtree;
+using namespace sb::updateserver;
 
 int64_t g_ObjectNumber = 10000000;
 int64_t g_RunningTime  = 60;

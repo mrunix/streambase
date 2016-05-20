@@ -39,11 +39,11 @@
 #include "tbsys.h"
 #include <string>
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 using namespace std;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace updateserver {
 class TestObUpsFetchRunnable: public ::testing::Test {

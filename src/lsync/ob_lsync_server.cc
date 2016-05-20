@@ -19,7 +19,7 @@
 #include "common/ob_tbnet_callback.h"
 #include "ob_lsync_callback.h"
 
-namespace oceanbase {
+namespace sb {
 #ifndef NO_STAT
 namespace sstable {
 void set_stat(const uint64_t table_id, const int32_t index, const int64_t value) {
@@ -400,5 +400,5 @@ int ObLsyncServer::send_response_packet(int packet_code, int version, ObLsyncPac
 }
 
 } // end namespace lsync
-} // end namespace oceanbase
+} // end namespace sb
 

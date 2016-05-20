@@ -15,7 +15,7 @@
 #include "rootserver/ob_root_timer_task.h"
 #include "rootserver/ob_root_worker.h"
 #include  "common/ob_define.h"
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 int ObRootOperationDuty::init(ObRootWorker* worker) {
   int ret = OB_SUCCESS;

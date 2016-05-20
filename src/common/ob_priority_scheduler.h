@@ -11,7 +11,7 @@
  *   yuanqi <yuanqi.xhf@taobao.com>
  *     - some work details if you want
  */
-namespace oceanbase {
+namespace sb {
 namespace common {
 typedef int64_t v4si __attribute__((vector_size(32)));
 inline int64_t v4si_max(v4si x_) __attribute__((always_inline));
@@ -69,4 +69,4 @@ class ObPriorityScheduler {
   int64_t last_selected_idx_;
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb

@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "common/ob_login_mgr.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 static const char* nil = NULL;

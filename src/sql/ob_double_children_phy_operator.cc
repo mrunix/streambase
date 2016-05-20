@@ -16,8 +16,8 @@
  */
 #include "ob_double_children_phy_operator.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObDoubleChildrenPhyOperator::ObDoubleChildrenPhyOperator()
   : left_op_(NULL), right_op_(NULL) {

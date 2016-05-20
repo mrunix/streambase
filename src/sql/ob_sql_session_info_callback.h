@@ -20,7 +20,7 @@
 #include "ob_sql_session_info.h"
 #include "common/hash/ob_hashmap.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 typedef int32_t ObSQLSessionKey;
 class ObSQLSessionInfoRead {

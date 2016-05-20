@@ -11,7 +11,7 @@
 #include "common/ob_compact_cell_writer.h"
 #include "common/ob_rowkey.h"
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 static const int64_t SSTABLE_BLOOMFILTER_HASH_COUNT = 2;
 static const int64_t SSTABLE_BLOOMFILTER_SIZE = 2 * 1024 * 1024;

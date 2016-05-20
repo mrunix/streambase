@@ -22,8 +22,8 @@
 #include "common/ob_define.h"
 #include "tbsys.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 
 int ObRootTriggerUtil::slave_boot_strap(ObTriggerEvent& trigger) {
   int err = ObTriggerEventUtil::execute(SLAVE_BOOT_STRAP_TRIGGER, DEFAULT_PARAM, trigger);

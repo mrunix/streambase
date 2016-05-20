@@ -1,7 +1,7 @@
 #include <algorithm>
 #include "ob_server_stats.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 /*
 static char* root_server_stats_str[] =
@@ -115,7 +115,7 @@ static char** stats_info_str[] =
 //static int stats_size[5] = {0, 4, 14, 14, 26};
 static const char* server_name[] = {"unknown", "rs:table", "cs:table", "ms:table", "ups:table", "dailymerge"};
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 
 //---------------------------------------------------------------
@@ -270,7 +270,7 @@ int32_t ObServerStats::refresh() {
   return ret;
 }
 
-int ObServerStats::calc_hit_ratio(oceanbase::common::ObStat& stat_item,
+int ObServerStats::calc_hit_ratio(sb::common::ObStat& stat_item,
                                   const int ratio, const int hit, const int miss) {
   int64_t hit_num = stat_item.get_value(hit);
   int64_t miss_num = stat_item.get_value(miss);
@@ -279,7 +279,7 @@ int ObServerStats::calc_hit_ratio(oceanbase::common::ObStat& stat_item,
   return stat_item.set_value(ratio, ratio_num);
 }
 
-int ObServerStats::calc_div_value(oceanbase::common::ObStat& stat_item,
+int ObServerStats::calc_div_value(sb::common::ObStat& stat_item,
                                   const int div, const int count, const int time) {
   int64_t count_value = stat_item.get_value(count);
   int64_t time_value = stat_item.get_value(time);

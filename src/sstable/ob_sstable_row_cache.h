@@ -19,7 +19,7 @@
 #include "common/ob_rowkey.h"
 #include "common/ob_kv_storecache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 struct ObSSTableRowCacheValue {
   int64_t size_;

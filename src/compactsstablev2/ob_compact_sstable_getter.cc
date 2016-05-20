@@ -1,9 +1,9 @@
 #include "common/ob_common_stat.h"
 #include "ob_compact_sstable_getter.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObCompactSSTableGetter::next_row() {
   int ret = OB_SUCCESS;
@@ -772,4 +772,4 @@ int ObCompactSSTableGetter::get_block_data(const char*& buf,
   return ret;
 }
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb

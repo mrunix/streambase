@@ -17,7 +17,7 @@
 #include "ob_hashutils.h"
 #include <common/ob_bit_set.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace hash {
 template <class K, class V, uint64_t N = 1031>
@@ -165,4 +165,4 @@ int ObPlacementHashMap<K, V, N>::search_(const K& key, uint64_t& pos) const {
 
 } // namespace hash
 } // namespace common
-} // namespace oceanbase
+} // namespace sb

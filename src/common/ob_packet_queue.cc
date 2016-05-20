@@ -1,6 +1,6 @@
 #include "ob_packet_queue.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObPacketQueue::ObPacketQueue() {
   head_ = NULL;

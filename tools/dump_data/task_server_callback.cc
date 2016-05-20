@@ -1,7 +1,7 @@
 #include "task_server_callback.h"
 #include "common/ob_packet.h"
 #include "task_server.h"
-using namespace oceanbase::tools;
+using namespace sb::tools;
 
 int TaskServerCallback::process(easy_request_t* r) {
   int ret = EASY_OK;

@@ -17,9 +17,9 @@
 #include "ob_sstable_reader.h"
 #include "ob_blockcache.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 ObColumnGroupScanner::ObColumnGroupScanner()
   : block_index_cache_(NULL), block_cache_(NULL), rowkey_info_(NULL),
@@ -636,4 +636,4 @@ int ObColumnGroupScanner::load_current_block_and_advance() {
   return iret;
 }
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb

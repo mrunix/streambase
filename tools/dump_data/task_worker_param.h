@@ -5,7 +5,7 @@
 #include "hdfs_env.h"
 #include "task_table_conf.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 
 class TaskWorkerParam {

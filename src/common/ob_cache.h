@@ -28,7 +28,7 @@
 #include "ob_range2.h"
 #include "ob_spin_lock.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObCacheBase;
 /// @class  <key,value> cache pair handler
@@ -40,15 +40,15 @@ class ObCachePair {
   /// @fn destructor
   ~ObCachePair();
   /// @fn get key
-  oceanbase::common::ObString& get_key();
+  sb::common::ObString& get_key();
   /// @fn get key
   /// @warning 由于ObString没有支持深拷贝，因此这里返回const引用是无效的，仅仅作为提示
-  const oceanbase::common::ObString& get_key() const;
+  const sb::common::ObString& get_key() const;
   /// @fn get value
-  oceanbase::common::ObString& get_value();
+  sb::common::ObString& get_value();
   /// @fn get value
   /// @warning 由于ObString没有支持深拷贝，因此这里返回const引用是无效的，仅仅作为提示
-  const oceanbase::common::ObString& get_value() const;
+  const sb::common::ObString& get_value() const;
  public:
   /// @fn initialize properties
   void init();
@@ -137,7 +137,7 @@ class ObCacheBase {
 /// @struct  lru item head
 struct LRUMemBlockHead {
   /// @property link memory block into lru list
-  oceanbase::common::ObDLink lru_list_link_;
+  sb::common::ObDLink lru_list_link_;
   /// @property the number of item on this block
   volatile int32_t item_num_;
   /// @property reference number
@@ -174,7 +174,7 @@ struct CacheItemHead {
   /// @property mother block offset (in bytes) relative to self
   int32_t  mother_block_offset_;
   /// @property link item into hash table
-  oceanbase::common::ObDLink  hash_list_link_;
+  sb::common::ObDLink  hash_list_link_;
   /// @property size of key
   int32_t key_size_;
   /// @property size of value
@@ -225,25 +225,25 @@ class ObCHashTable {
     if (hash_slot_num <= 0) {
       TBSYS_LOG(WARN, "hash slot number must be greater than 0 [hash_slot_num:%d]",
                 hash_slot_num);
-      err = oceanbase::common::OB_INVALID_ARGUMENT;
+      err = sb::common::OB_INVALID_ARGUMENT;
     }
     if (hash_slot_array_ != NULL) {
       TBSYS_LOG(WARN, "hash table has been already initialized [hash_slot_array:%p]",
                 hash_slot_array_);
-      err = oceanbase::common::OB_INIT_TWICE;
+      err = sb::common::OB_INIT_TWICE;
     }
     if (OB_SUCCESS ==  err) {
-      hash_slot_buffer_.malloc(hash_slot_num * sizeof(oceanbase::common::ObDLink));
+      hash_slot_buffer_.malloc(hash_slot_num * sizeof(sb::common::ObDLink));
       hash_slot_mutex_buffer_.malloc(hash_slot_num * sizeof(pthread_mutex_t));
       if (hash_slot_buffer_.get_buffer() != NULL && hash_slot_mutex_buffer_.get_buffer() != NULL) {
-        hash_slot_array_ = new(hash_slot_buffer_.get_buffer())oceanbase::common::ObDLink[hash_slot_num];
+        hash_slot_array_ = new(hash_slot_buffer_.get_buffer())sb::common::ObDLink[hash_slot_num];
         hash_slot_mutex_array_ = reinterpret_cast<pthread_mutex_t*>(hash_slot_mutex_buffer_.get_buffer());
         hash_slot_num_ = hash_slot_num;
         for (int32_t slot_idx = 0; slot_idx < hash_slot_num_; slot_idx ++) {
           pthread_mutex_init(hash_slot_mutex_array_ + slot_idx, NULL);
         }
       } else {
-        err = oceanbase::common::OB_ALLOCATE_MEMORY_FAILED;
+        err = sb::common::OB_ALLOCATE_MEMORY_FAILED;
       }
     }
     return err;
@@ -253,12 +253,12 @@ class ObCHashTable {
   ///     if key already exist, delete and return old one
   int add(CacheItemHead& item, CacheItemHead*& old_item) {
     int err = OB_SUCCESS;
-    oceanbase::common::ObString key;
+    sb::common::ObString key;
     int32_t hash_slot_index = -1;
     old_item = NULL;
     key.assign(item.key_, item.key_size_);
     if (hash_slot_array_ == NULL) {
-      err = oceanbase::common::OB_NOT_INIT;
+      err = sb::common::OB_NOT_INIT;
       TBSYS_LOG(WARN, "hashtable not initialized");
     }
     if (OB_SUCCESS == err) {
@@ -266,7 +266,7 @@ class ObCHashTable {
       pthread_mutex_lock(hash_slot_mutex_array_ + hash_slot_index);
       old_item = get(key, hash_slot_index);
       if (&item == old_item) {
-        err = oceanbase::common::OB_ENTRY_EXIST;
+        err = sb::common::OB_ENTRY_EXIST;
         TBSYS_LOG(WARN, "add an exist item [item:%p]", old_item);
         old_item = NULL;
       } else if (old_item != NULL) {
@@ -282,11 +282,11 @@ class ObCHashTable {
   }
 
   /// @fn get an item in the hash table
-  CacheItemHead* get(const oceanbase::common::ObString& key) {
+  CacheItemHead* get(const sb::common::ObString& key) {
     int err = OB_SUCCESS;
     CacheItemHead* result = NULL;
     if (hash_slot_array_ == NULL) {
-      err = oceanbase::common::OB_NOT_INIT;
+      err = sb::common::OB_NOT_INIT;
       TBSYS_LOG(WARN, "hashtable not initialized");
     }
     if (OB_SUCCESS ==  err) {
@@ -302,11 +302,11 @@ class ObCHashTable {
   }
 
   /// @fn remove an item from hash table
-  CacheItemHead* remove(const oceanbase::common::ObString& key) {
+  CacheItemHead* remove(const sb::common::ObString& key) {
     int err = OB_SUCCESS;
     CacheItemHead* result = NULL;
     if (hash_slot_array_ == NULL) {
-      err = oceanbase::common::OB_NOT_INIT;
+      err = sb::common::OB_NOT_INIT;
       TBSYS_LOG(WARN, "hashtable not initialized");
     }
     if (err == OB_SUCCESS) {
@@ -327,7 +327,7 @@ class ObCHashTable {
   void remove(CacheItemHead& item) {
     int err = OB_SUCCESS;
     if (hash_slot_array_ == NULL) {
-      err = oceanbase::common::OB_NOT_INIT;
+      err = sb::common::OB_NOT_INIT;
       TBSYS_LOG(WARN, "hashtable not initialized");
     }
 
@@ -360,15 +360,15 @@ class ObCHashTable {
  private:
   /// @fn caculate hash slot index
   uint32_t get_slot_idx(const CacheItemHead& item) {
-    return oceanbase::common::murmurhash2(item.key_, item.key_size_, 0) % hash_slot_num_;
+    return sb::common::murmurhash2(item.key_, item.key_size_, 0) % hash_slot_num_;
   }
 
-  uint32_t get_slot_idx(const oceanbase::common::ObString& key) {
-    return oceanbase::common::murmurhash2(key.ptr(), key.length(), 0) % hash_slot_num_;
+  uint32_t get_slot_idx(const sb::common::ObString& key) {
+    return sb::common::murmurhash2(key.ptr(), key.length(), 0) % hash_slot_num_;
   }
   /// @fn get an from an given hash slot
-  CacheItemHead* get(const oceanbase::common::ObString& key, int32_t hash_slot_idx) {
-    oceanbase::common::ObDLink* item_it = NULL;
+  CacheItemHead* get(const sb::common::ObString& key, int32_t hash_slot_idx) {
+    sb::common::ObDLink* item_it = NULL;
     CacheItemHead* cur_item = NULL;
     CacheItemHead* result_item = NULL;
     item_it = hash_slot_array_[hash_slot_idx].next();
@@ -385,12 +385,12 @@ class ObCHashTable {
     return result_item;
   }
   /// @property memory buffer for hash slot
-  oceanbase::common::ObMemBuffer  hash_slot_buffer_;
-  oceanbase::common::ObMemBuffer  hash_slot_mutex_buffer_;
+  sb::common::ObMemBuffer  hash_slot_buffer_;
+  sb::common::ObMemBuffer  hash_slot_mutex_buffer_;
   /// @property hash桶的数量
   int32_t                         hash_slot_num_;
   /// @property hash桶数组
-  oceanbase::common::ObDLink*    hash_slot_array_;
+  sb::common::ObDLink*    hash_slot_array_;
   /// @property slot mutex array
   pthread_mutex_t*               hash_slot_mutex_array_;
   /// @property item的数量
@@ -406,7 +406,7 @@ template <class key_ = int, class value_ = int,
 class ObVarCache: public ObCacheBase {
  public:
   /// @fn constructor
-  ObVarCache(int64_t cache_mod_id = oceanbase::common::ObModIds::OB_VARCACHE):
+  ObVarCache(int64_t cache_mod_id = sb::common::ObModIds::OB_VARCACHE):
     ObCacheBase(cache_mod_id) {
     allocated_memory_size_ = 0;
     available_mem_size_ = 0;
@@ -437,7 +437,7 @@ class ObVarCache: public ObCacheBase {
   inline int set_max_mem_size(const int64_t max_mem_size) {
     int err = OB_SUCCESS;
     if (max_mem_size <= 0) {
-      err = oceanbase::common::OB_INVALID_ARGUMENT;
+      err = sb::common::OB_INVALID_ARGUMENT;
       TBSYS_LOG(WARN, "check max memory size failed:size[%ld]", max_mem_size);
     } else {
       available_mem_size_ = max_mem_size;
@@ -450,7 +450,7 @@ class ObVarCache: public ObCacheBase {
     int err = OB_SUCCESS;
     if ((max_no_active_usec >= 0 && cache_mem_size <= 0)
         || hash_slot_num <= 0) {
-      err = oceanbase::common::OB_INVALID_ARGUMENT;
+      err = sb::common::OB_INVALID_ARGUMENT;
       TBSYS_LOG(WARN, "param error [cache_mem_size:%ld,max_no_active_usec:%ld,"
                 "hash_slot_num:%d]",
                 cache_mem_size, max_no_active_usec, hash_slot_num);
@@ -459,7 +459,7 @@ class ObVarCache: public ObCacheBase {
     tbsys::CThreadGuard guard(&mutex_);
     if (OB_SUCCESS == err && inited_) {
       TBSYS_LOG(WARN, "cache has already been initialized");
-      err = oceanbase::common::OB_INIT_TWICE;
+      err = sb::common::OB_INIT_TWICE;
     }
     if (OB_SUCCESS == err) {
       available_mem_size_ = cache_mem_size;
@@ -488,19 +488,19 @@ class ObVarCache: public ObCacheBase {
     CacheItemHead* item = NULL;
     if (key_size <= 0 || value_size <= 0) {
       TBSYS_LOG(WARN, "param error [key_size:%d,value_size:%d]", key_size, value_size);
-      err = oceanbase::common::OB_INVALID_ARGUMENT;
+      err = sb::common::OB_INVALID_ARGUMENT;
     }
     /// @warning 这里必须调用revert，否则会发生死锁
     cache_pair.revert();
     tbsys::CThreadGuard guard(&mutex_);
     if (OB_SUCCESS == err && !inited_) {
       TBSYS_LOG(WARN, "cache not initialized yet");
-      err = oceanbase::common::OB_NOT_INIT;
+      err = sb::common::OB_NOT_INIT;
     }
     if (OB_SUCCESS == err) {
       item = allocate_cache_item(key_size, value_size);
       if (item == NULL) {
-        err = oceanbase::common::OB_ALLOCATE_MEMORY_FAILED;
+        err = sb::common::OB_ALLOCATE_MEMORY_FAILED;
       } else {
         cache_pair.init(*this, item->key_, key_size, item->key_ + item->key_size_, value_size, item);
       }
@@ -512,22 +512,22 @@ class ObVarCache: public ObCacheBase {
     int err = OB_SUCCESS;
     CacheItemHead* item = NULL;
     CacheItemHead* old_item = NULL;
-    oceanbase::common::ObString& key = cache_pair.get_key();
+    sb::common::ObString& key = cache_pair.get_key();
     if (key.ptr() == NULL) {
-      err = oceanbase::common::OB_INVALID_ARGUMENT;
+      err = sb::common::OB_INVALID_ARGUMENT;
       TBSYS_LOG(WARN, "ObCachePair is empty [key:%p]", key.ptr());
     } else {
       item = reinterpret_cast<CacheItemHead*>(key.ptr() - sizeof(CacheItemHead));
       if (item->magic_ != CACHE_ITEM_MAGIC) {
         TBSYS_LOG(ERROR, "cache memory overflow [item_ptr:%p]", item);
-        err = oceanbase::common::OB_MEM_OVERFLOW;
+        err = sb::common::OB_MEM_OVERFLOW;
       }
     }
     /// @warning 这里必须调用revert，否则会发生死锁
     old_pair.revert();
     if (OB_SUCCESS == err && !inited_) {
       TBSYS_LOG(WARN, "cache not initialized yet");
-      err = oceanbase::common::OB_NOT_INIT;
+      err = sb::common::OB_NOT_INIT;
     }
     if (OB_SUCCESS == err) {
       /// this block has already been recycled
@@ -535,7 +535,7 @@ class ObVarCache: public ObCacheBase {
       if (item->get_mother_block()->get_item_num() == 0) {
         CacheItemHead* new_item = allocate_cache_item(item->key_size_, item->value_size_);
         if (new_item == NULL) {
-          err = oceanbase::common::OB_ALLOCATE_MEMORY_FAILED;
+          err = sb::common::OB_ALLOCATE_MEMORY_FAILED;
         } else {
           memcpy(new_item->key_, item->key_, item->key_size_ + item->value_size_);
           new_item->get_mother_block()->dec_ref();
@@ -569,19 +569,19 @@ class ObVarCache: public ObCacheBase {
     if (key.ptr() == NULL || key.length() <= 0)
     {
       TBSYS_LOG(WARN, "argument error [key.ptr:%p,key.length:%d]",key.ptr(), key.length());
-      err = oceanbase::common::OB_INVALID_ARGUMENT;
+      err = sb::common::OB_INVALID_ARGUMENT;
     }
     */
     /// @warning 这里必须调用revert，否则会发生死锁
     cache_pair.revert();
     if (OB_SUCCESS == err && !inited_) {
       TBSYS_LOG(WARN, "cache not initialized yet");
-      err = oceanbase::common::OB_NOT_INIT;
+      err = sb::common::OB_NOT_INIT;
     }
     if (OB_SUCCESS == err) {
       item = hash_table_.get(key);
       if (item == NULL) {
-        err = oceanbase::common::OB_ENTRY_NOT_EXIST;
+        err = sb::common::OB_ENTRY_NOT_EXIST;
       } else {
         /// item->get_mother_block()-> inc_ref();
         inc_ref();
@@ -603,20 +603,20 @@ class ObVarCache: public ObCacheBase {
   virtual int revert(ObCachePair& cache_pair) {
     int err = OB_SUCCESS;
     CacheItemHead* item = NULL;
-    oceanbase::common::ObString& key = cache_pair.get_key();
+    sb::common::ObString& key = cache_pair.get_key();
     if (key.ptr() == NULL) {
-      err = oceanbase::common::OB_INVALID_ARGUMENT;
+      err = sb::common::OB_INVALID_ARGUMENT;
       TBSYS_LOG(WARN, "ObCachePair is empty [key:%p]", key.ptr());
     } else {
       item = reinterpret_cast<CacheItemHead*>(key.ptr() - sizeof(CacheItemHead));
       if (item->magic_ != CACHE_ITEM_MAGIC) {
         TBSYS_LOG(ERROR, "cache memory overflow [item_ptr:%p]", item);
-        err = oceanbase::common::OB_MEM_OVERFLOW;
+        err = sb::common::OB_MEM_OVERFLOW;
       }
     }
     if (OB_SUCCESS == err && !inited_) {
       TBSYS_LOG(WARN, "cache not initialized yet");
-      err = oceanbase::common::OB_NOT_INIT;
+      err = sb::common::OB_NOT_INIT;
     }
     if (OB_SUCCESS == err) {
       cache_pair.init();
@@ -633,20 +633,20 @@ class ObVarCache: public ObCacheBase {
   ///   if (key.ptr() == NULL || key.length() <= 0)
   ///   {
   ///     TBSYS_LOG(WARN, "argument error [key.ptr:%p,key.length:%d]",key.ptr(), key.length());
-  ///     err = oceanbase::common::OB_INVALID_ARGUMENT;
+  ///     err = sb::common::OB_INVALID_ARGUMENT;
   ///   }
   ///   ObSpinLockGuard guard(lock_);
   ///   if (OB_SUCCESS == err && !inited_)
   ///   {
   ///     TBSYS_LOG(WARN, "cache not initialized yet");
-  ///     err = oceanbase::common::OB_NOT_INIT;
+  ///     err = sb::common::OB_NOT_INIT;
   ///   }
   ///   if ( OB_SUCCESS == err)
   ///   {
   ///     item = hash_table_.get(key);
   ///     if (item == NULL)
   ///     {
-  ///       err = oceanbase::common::OB_ENTRY_NOT_EXIST;
+  ///       err = sb::common::OB_ENTRY_NOT_EXIST;
   ///     }
   ///     else
   ///     {
@@ -667,17 +667,17 @@ class ObVarCache: public ObCacheBase {
     if (key.ptr() == NULL || key.length() <= 0)
     {
       TBSYS_LOG(WARN, "argument error [key.ptr:%p,key.length:%d]",key.ptr(), key.length());
-      err = oceanbase::common::OB_INVALID_ARGUMENT;
+      err = sb::common::OB_INVALID_ARGUMENT;
     }
     */
     if (OB_SUCCESS == err && !inited_) {
       TBSYS_LOG(WARN, "cache not initialized yet");
-      err = oceanbase::common::OB_NOT_INIT;
+      err = sb::common::OB_NOT_INIT;
     }
     if (OB_SUCCESS == err) {
       item = hash_table_.remove(key);
       if (item == NULL) {
-        err = oceanbase::common::OB_ENTRY_NOT_EXIST;
+        err = sb::common::OB_ENTRY_NOT_EXIST;
       } else {
         /// @warning 这个地方item的引用计数可能不为0，但是没有关系，这里并没有
         ///          从内存中删除
@@ -691,10 +691,10 @@ class ObVarCache: public ObCacheBase {
     int err = OB_SUCCESS;
     tbsys::CThreadGuard guard(&mutex_);
     if (OB_SUCCESS == err && !inited_) {
-      err = oceanbase::common::OB_NOT_INIT;
+      err = sb::common::OB_NOT_INIT;
     }
     if (OB_SUCCESS == err) {
-      oceanbase::common::ObDLink* block_it = NULL;
+      sb::common::ObDLink* block_it = NULL;
       block_it = lru_list_.next();
       while (OB_SUCCESS == err && block_it != &lru_list_) {
         LRUMemBlockHead* block = CONTAINING_RECORD(block_it, LRUMemBlockHead, lru_list_link_);
@@ -766,16 +766,16 @@ class ObVarCache: public ObCacheBase {
   /// @property initialize LRUMemBlockHead
   void init_lru_mem_block_head(LRUMemBlockHead& block_head, int64_t block_size) {
     memset(&block_head, 0x00, sizeof(block_head));
-    oceanbase::common::ObDLink* __attribute__((unused)) link = NULL;
-    link = new(&block_head.lru_list_link_)oceanbase::common::ObDLink;
+    sb::common::ObDLink* __attribute__((unused)) link = NULL;
+    link = new(&block_head.lru_list_link_)sb::common::ObDLink;
     block_head.block_size_ = block_size;
   }
 
   /// @fn initialize CacheItemHead
   void init_cache_item_head(CacheItemHead& head, const int32_t key_size,
                             const int32_t value_size, LRUMemBlockHead& mother_block) {
-    oceanbase::common::ObDLink* __attribute__((unused)) link = NULL;
-    link = new(&head.hash_list_link_)oceanbase::common::ObDLink;
+    sb::common::ObDLink* __attribute__((unused)) link = NULL;
+    link = new(&head.hash_list_link_)sb::common::ObDLink;
     head.key_size_ = key_size;
     head.magic_ = CACHE_ITEM_MAGIC;
     head.mother_block_offset_ = static_cast<int32_t>(reinterpret_cast<int64_t>(&mother_block)
@@ -822,7 +822,7 @@ class ObVarCache: public ObCacheBase {
       else if (max_no_active_usec_ == 0) {
         tbsys::CThreadGuard guard(&mutex_);
         LRUMemBlockHead* block = NULL;
-        oceanbase::common::ObDLink* block_it = NULL;
+        sb::common::ObDLink* block_it = NULL;
         block_it = lru_list_.prev();
         int32_t traversed_item_num = -1;
         int64_t memory_size_handled = 0;
@@ -875,7 +875,7 @@ class ObVarCache: public ObCacheBase {
       cur_mem_block_offset_ = 0;
       cur_mem_block_ = reinterpret_cast<LRUMemBlockHead*>(ob_malloc(block_size, static_cast<int32_t>(cache_mod_id_)));
       if (NULL == cur_mem_block_) {
-        err = oceanbase::common::OB_ALLOCATE_MEMORY_FAILED;
+        err = sb::common::OB_ALLOCATE_MEMORY_FAILED;
       } else {
         init_lru_mem_block_head(*cur_mem_block_, block_size);
         allocated_memory_size_ += block_size;
@@ -904,7 +904,7 @@ class ObVarCache: public ObCacheBase {
   /// @property plugin search engine index
   SearchEngine<key_, value_> hash_table_;
 
-  oceanbase::common::ObDLink lru_list_;
+  sb::common::ObDLink lru_list_;
   int64_t     allocated_memory_size_;
   int64_t     max_no_active_usec_;
   int64_t     available_mem_size_;

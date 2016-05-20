@@ -9,10 +9,10 @@
 namespace msolap {
 static const uint64_t target_table_id = 1001;
 extern const char* target_table_name_cstr;
-extern oceanbase::common::ObString target_table_name;
+extern sb::common::ObString target_table_name;
 static const uint64_t ups_sst_block_size = 64 * 1024;
 static const char* ups_sst_compressor_name = "snappy_1.0";
-static const int ups_sst_store_type = oceanbase::sstable::OB_SSTABLE_STORE_DENSE;
+static const int ups_sst_store_type = sb::sstable::OB_SSTABLE_STORE_DENSE;
 static const int64_t ups_sst_version = 2;
 static const int64_t ups_sst_column_group_id = 0;
 
@@ -49,7 +49,7 @@ inline uint32_t olap_get_column_val(const uint64_t column_id, const uint32_t big
 
 
 
-inline uint32_t olap_get_column_val(const oceanbase::common::ObString column_name, const uint32_t big_endian_row_key) {
+inline uint32_t olap_get_column_val(const sb::common::ObString column_name, const uint32_t big_endian_row_key) {
   uint32_t val = 0;
   assert((column_name.length() == 1)
          && (column_name.ptr()[0] <= max_column_name)
@@ -69,7 +69,7 @@ inline uint32_t olap_get_column_val(const oceanbase::common::ObString column_nam
   return val;
 }
 
-inline bool olap_check_cell(const oceanbase::common::ObCellInfo& cell) {
+inline bool olap_check_cell(const sb::common::ObCellInfo& cell) {
   bool res = true;
   if (res && (cell.row_key_.length() != sizeof(uint32_t))) {
     TBSYS_LOG(WARN, "rowkey size error [size:%ld]",  cell.row_key_.length());
@@ -80,7 +80,7 @@ inline bool olap_check_cell(const oceanbase::common::ObCellInfo& cell) {
   if (res) {
     big_endian_row_key = *(uint32_t*)cell.row_key_.ptr();
   }
-  if (res && (oceanbase::common::OB_SUCCESS != cell.value_.get_int(val))) {
+  if (res && (sb::common::OB_SUCCESS != cell.value_.get_int(val))) {
     res = false;
     TBSYS_LOG(WARN, "fail to get int val from cell");
   }
@@ -91,7 +91,7 @@ inline bool olap_check_cell(const oceanbase::common::ObCellInfo& cell) {
   return res;
 }
 
-int init_scan_param(oceanbase::common::ObScanParam& param, const uint32_t min_key_include, const uint32_t max_key_include);
+int init_scan_param(sb::common::ObScanParam& param, const uint32_t min_key_include, const uint32_t max_key_include);
 
 void gen_key_range(OlapConf& conf, uint32_t& start_key, uint32_t& end_key);
 }

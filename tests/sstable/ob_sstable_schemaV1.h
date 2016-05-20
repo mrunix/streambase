@@ -16,7 +16,7 @@
 
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 struct ObSSTableSchemaHeaderV1 {
   int16_t column_count_;    //column count
@@ -88,7 +88,7 @@ class ObSSTableSchemaV1 {
   ObSSTableSchemaColumnDefV1 column_def_[common::OB_MAX_COLUMN_NUMBER];
   ObSSTableSchemaHeaderV1 schema_header_;
 };
-} // namespace oceanbase::sstable
+} // namespace sb::sstable
 } // namespace Oceanbase
 
 #endif // OCEANBASE_SSTABLE_OB_SSTABLE_SCHEMAV1_H_

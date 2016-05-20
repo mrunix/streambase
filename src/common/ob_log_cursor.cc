@@ -4,7 +4,7 @@
 #include "ob_log_entry.h"
 #include "ob_log_cursor.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObLogCursor::ObLogCursor(): file_id_(0), log_id_(0), offset_(0)
 {}
@@ -138,4 +138,4 @@ int ObAtomicLogCursor::set_cursor(ObLogCursor& cursor) {
   return err;
 }
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb

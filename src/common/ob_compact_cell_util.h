@@ -21,7 +21,7 @@
 #include "ob_object.h"
 #include "ob_cell_meta.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /* 计算ObObj转换成紧凑格式占空间大小 */
 int get_compact_cell_size(const ObObj& value);

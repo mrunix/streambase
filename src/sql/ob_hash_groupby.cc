@@ -14,7 +14,7 @@
  *
  */
 #include "ob_hash_groupby.h"
-using namespace oceanbase::sql;
+using namespace sb::sql;
 /*
 int ObHashGroupBy::open()
 {
@@ -63,7 +63,7 @@ int ObHashGroupBy::get_next_row(const common::ObRow *&row)
 
 */
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObHashGroupBy, PHY_HASH_GROUP_BY);
 }

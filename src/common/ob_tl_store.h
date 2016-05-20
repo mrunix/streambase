@@ -23,7 +23,7 @@
 #include <Mutex.h>
 #include "ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 inline int get_tc_tid() {
   static __thread int tid = -1;
@@ -297,6 +297,6 @@ int ObTlStore<Type, Initializer, Alloc>::for_each_item_ptr(Function& f) const {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_OB_TL_STORE_H__

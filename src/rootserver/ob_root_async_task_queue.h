@@ -21,7 +21,7 @@
 #include "common/ob_server.h"
 #include "common/ob_single_pop_queue.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 // meta data change
 enum ObTaskType {

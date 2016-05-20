@@ -16,7 +16,7 @@
 #ifndef _OB_FIRST_TABLET_ENTRY_SCHEMA_H
 #define _OB_FIRST_TABLET_ENTRY_SCHEMA_H 1
 #include "ob_tablet_meta_table_row.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObFirstTabletEntryColumnSchema: public ObTabletMetaTableColumnSchema {
  public:
@@ -119,6 +119,6 @@ static const uint64_t REPLICA6_SIZE = REPLICA1_SIZE + 50;
 static const uint64_t REPLICA6_CHECKSUM = REPLICA1_CHECKSUM + 50;
 } // end namespace first_tablet_entry_schema
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_FIRST_TABLET_ENTRY_SCHEMA_H */

@@ -8,8 +8,8 @@
 #include "common/ob_scanner.h"
 #include "common/ob_version.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
+using namespace sb::common;
+using namespace sb::chunkserver;
 
 ObRootServerRpcStub::ObRootServerRpcStub() {
   init_ = false;

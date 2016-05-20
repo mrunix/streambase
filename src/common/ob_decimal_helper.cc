@@ -1,6 +1,6 @@
 #include "ob_decimal_helper.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ///@fn 求出宽度为width的最大整数，比如width = 4，那么返回值是9999
 ///@param[out] 返回宽度为width的最大整数

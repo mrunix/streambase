@@ -4,8 +4,8 @@
 #include "common/ob_define.h"
 #include "common/ob_timer.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 class voidTask : public ObTimerTask {
  public:

@@ -18,7 +18,7 @@
 #include "ob_file.h"
 #include "sys/vfs.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObLogDataWriter::AppendBuffer::AppendBuffer(): file_pos_(-1), buf_(NULL), buf_end_(0), buf_limit_(DEFAULT_BUF_SIZE)
 {}
@@ -482,4 +482,4 @@ int ObLogDataWriter::get_cursor(ObLogCursor& cursor) const {
   return err;
 }
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb

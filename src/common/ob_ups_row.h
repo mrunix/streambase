@@ -4,7 +4,7 @@
 
 #include "common/ob_row.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObUpsRow : public ObRow {
  public:

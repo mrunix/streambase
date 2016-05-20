@@ -18,7 +18,7 @@
 #include "mergeserver/ob_ms_rpc_proxy.h"
 #include "sql/ob_logical_plan.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 /**
  * this class is use in ms to get cur time from ups
@@ -57,6 +57,6 @@ class ObGetCurTimePhyOperator: public ObNoChildrenPhyOperator {
   ObCurTimeType cur_time_fun_type_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_GET_CUR_TIME_PHY_OPERATOR_H */

@@ -5,8 +5,8 @@
 #include "ob_schema_checker.h"
 #include "common/utility.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObStmt::ObStmt(ObStringBuf* name_pool, StmtType type)
   : ObBasicStmt(type), name_pool_(name_pool), when_number_(OB_INVALID_INDEX) {
@@ -238,8 +238,8 @@ int ObStmt::add_column_item(const ColumnItem& column_item) {
 
 int ObStmt::add_column_item(
   ResultPlan& result_plan,
-  const oceanbase::common::ObString& column_name,
-  const oceanbase::common::ObString* table_name,
+  const sb::common::ObString& column_name,
+  const sb::common::ObString* table_name,
   ColumnItem** col_item) {
   int& ret = result_plan.err_stat_.err_code_ = OB_SUCCESS;
   ColumnItem column_item;

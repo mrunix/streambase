@@ -21,8 +21,8 @@
 #include "common/ob_common_stat.h"
 #include <tbsys.h>
 
-using namespace oceanbase::common;
-using namespace oceanbase::common::serialization;
+using namespace sb::common;
+using namespace sb::common::serialization;
 
 uint64_t ObRowDesc::HASH_COLLISIONS_COUNT = 0;
 

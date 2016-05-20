@@ -21,7 +21,7 @@
 #include "common/ob_define.h"
 #include "ob_mysql_packet.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 class TestObMySQLResheaderPacket;
 }

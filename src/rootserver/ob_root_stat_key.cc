@@ -17,7 +17,7 @@
 #include "rootserver/ob_root_stat_key.h"
 #include <cstdlib>
 
-const char* oceanbase::rootserver::OB_RS_STAT_KEYSTR[] = {
+const char* sb::rootserver::OB_RS_STAT_KEYSTR[] = {
   "reserve",                    // 0
   "common",                     // 1
   "start_time",                 // 2

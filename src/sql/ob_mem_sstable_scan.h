@@ -22,7 +22,7 @@
 #include "common/ob_row_store.h"
 #include "ob_phy_operator.h"
 #include "ob_values.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObMemSSTableScan : public ObPhyOperator {
  public:

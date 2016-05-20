@@ -26,7 +26,7 @@
 #include "ob_adapter_allocator.h"
 #include "ob_kv_storecache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 /**

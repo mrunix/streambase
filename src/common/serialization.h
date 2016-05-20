@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include "ob_define.h"
 #include "tbsys.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace serialization {
 const uint64_t OB_MAX_V1B = (__UINT64_C(1) << 7) - 1;

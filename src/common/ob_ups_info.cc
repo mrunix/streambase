@@ -16,7 +16,7 @@
 #include "ob_ups_info.h"
 #include "utility.h"
 #include <tbsys.h>
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int ObUpsInfo::serialize(char* buf, const int64_t buf_len, int64_t& pos) const {
   int ret = OB_SUCCESS;

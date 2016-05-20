@@ -14,8 +14,8 @@
  *
  */
 #include "ob_ups_check_runnable.h"
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
 ObUpsCheckRunnable::ObUpsCheckRunnable(ObUpsManager& ups_manager)
   : ups_manager_(ups_manager) {

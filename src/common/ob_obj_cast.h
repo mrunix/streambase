@@ -18,7 +18,7 @@
 #include "ob_object.h"
 #include "ob_expr_obj.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObObjCastParams {
   // add params when necessary
@@ -32,6 +32,6 @@ int obj_cast(const ObObj& orig_cell, const ObObj& expected_type,
 int obj_cast(ObObj& cell, const ObObjType expected_type, char* buf, int64_t buf_size, int64_t& used_buf_len);
 int obj_cast(ObObj& cell, const ObObjType expected_type, ObString& cast_buffer);
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_OBJ_CAST_H */

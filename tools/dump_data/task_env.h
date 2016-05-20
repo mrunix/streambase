@@ -4,7 +4,7 @@
 #include <string>
 #include "common/data_buffer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class WritableFile {
  public:

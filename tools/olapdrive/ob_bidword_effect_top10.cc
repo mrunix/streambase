@@ -15,7 +15,7 @@
 
 #include "ob_bidword_effect_top10.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 using namespace tbsys;
 using namespace common;
@@ -153,4 +153,4 @@ int ObBidwordEffectTop10::add_special_column(
   return ret;
 }
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb

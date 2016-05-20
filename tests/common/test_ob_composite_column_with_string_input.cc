@@ -19,7 +19,7 @@
 #include "common/ob_composite_column.h"
 
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 

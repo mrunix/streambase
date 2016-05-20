@@ -28,7 +28,7 @@
 #include "common/utility.h"
 
 
-using namespace oceanbase;
+using namespace sb;
 using namespace chunkserver;
 using namespace common;
 

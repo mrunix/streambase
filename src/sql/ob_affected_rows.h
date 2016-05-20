@@ -17,7 +17,7 @@
 #define OCEANBASE_SQL_OB_AFFECTED_ROWS_H_
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObAffectedRows {
  public:
@@ -27,7 +27,7 @@ class ObAffectedRows {
   virtual int get_affected_rows(int64_t& row_count) = 0;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* OCEANBASE_SQL_OB_AFFECTED_ROWS_H_ */
 

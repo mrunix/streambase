@@ -14,7 +14,7 @@
 
 #include "ob_direct_log_reader.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObDirectLogReader::ObDirectLogReader() {
 }

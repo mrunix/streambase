@@ -1,8 +1,8 @@
 #include "ob_sstable_block_builder.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObSSTableBlockBuilder::reset() {
   int ret = OB_SUCCESS;
@@ -308,5 +308,5 @@ int ObSSTableBlockBuilder::alloc_mem(char*& buf, const int64_t size) {
   return ret;
 }
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 

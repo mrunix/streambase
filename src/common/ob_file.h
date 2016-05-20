@@ -35,7 +35,7 @@
 #include "ob_fileinfo_manager.h"
 #include "utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class IFileBuffer {
  public:

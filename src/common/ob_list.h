@@ -26,7 +26,7 @@
 #include <new>
 #include "hash/ob_hashutils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template <class T, class Allocator>
 class ObList;

@@ -14,7 +14,7 @@
 #include "ob_transaction.h"
 #include "utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // Transaction Isolcation Levels: READ-UNCOMMITTED READ-COMMITTED REPEATABLE-READ SERIALIZABLE
 int ObTransReq::set_isolation_by_name(const ObString& isolation) {
@@ -178,4 +178,4 @@ int64_t ObEndTransReq::get_serialize_size(void) const {
   return trans_id_.get_serialize_size() + serialization::encoded_length_bool(rollback_);
 }
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb

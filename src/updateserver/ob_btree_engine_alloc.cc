@@ -3,7 +3,7 @@
 #include <string.h>
 #include "ob_btree_engine_alloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 const int32_t UpsBtreeEngineAlloc::MALLOC_SIZE = (2 * 1024 * 1024);
 
@@ -148,5 +148,5 @@ int32_t UpsBtreeEngineAlloc::get_malloc_count() {
 }
 
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 

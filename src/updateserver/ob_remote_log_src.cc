@@ -17,8 +17,8 @@
 #include "ob_fetched_log.h"
 #include "ob_ups_rpc_stub.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace updateserver {
 int get_log_from_fetch_server(ObUpsRpcStub* rpc_stub, const ObServer& server, int64_t fetch_timeout, ObFetchLogReq& req,
                               const int64_t start_id, int64_t& end_id, char* buf, const int64_t len, int64_t& read_count) {
@@ -343,4 +343,4 @@ int ObRemoteLogSrc::get_log(const ObLogCursor& start_cursor, ObLogCursor& end_cu
   return err;
 }
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb

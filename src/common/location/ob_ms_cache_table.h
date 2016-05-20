@@ -9,7 +9,7 @@
 #include "common/ob_define.h"
 
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // Search Engine for ob_cache replacement of ObCHashTable
 // Waring must be a template class as the cache template param
@@ -234,7 +234,7 @@ int ObCBtreeTable<_key, _value>::construct_mapkey(const common::ObNewRange& key,
   //{
   int64_t size = key.get_serialize_size();
   local = (common::CacheItemHead*)common::ob_tc_malloc(sizeof(common::CacheItemHead) + size,
-                                                       oceanbase::common::ObModIds::OB_MS_LOCATION_CACHE);
+                                                       sb::common::ObModIds::OB_MS_LOCATION_CACHE);
   if (NULL == local) {
     TBSYS_LOG(ERROR, "ob_tc_malloc failed:size[%ld]", size);
     ret = common::OB_ALLOCATE_MEMORY_FAILED;

@@ -19,9 +19,9 @@
 #include "common/utility.h"
 #include "compactsstable/ob_block_membuf.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::compactsstable;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::compactsstable;
 
 
 TEST(ObBlockMemBuf, test_basic) {

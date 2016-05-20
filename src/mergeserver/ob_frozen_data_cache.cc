@@ -17,9 +17,9 @@
 #include "ob_frozen_data_cache.h"
 #include "sql/ob_sql_read_param.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::mergeserver;
+using namespace sb::sql;
 
 ObFrozenDataKey::ObFrozenDataKey()
   : param_buf(NULL), len(0) {

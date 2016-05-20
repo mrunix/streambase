@@ -15,8 +15,8 @@
 #include "ob_chunk_server_main.h"
 #include "easy_pool.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
+using namespace sb::common;
+using namespace sb::chunkserver;
 
 namespace {
 // tc malloc allocate memory with 65K and 2M+1K, and the kernel allocate memory

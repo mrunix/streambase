@@ -23,7 +23,7 @@
 #include "ob_log_entry.h"
 #include "ob_file.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 const int64_t DEFAULT_LOG_SIZE = 2 * 1024 * 1024;
 class ObSingleLogReader {
@@ -130,6 +130,6 @@ class ObSingleLogReader {
   bool dio_;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_OB_SINGLE_LOG_READER_H_

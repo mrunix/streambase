@@ -28,7 +28,7 @@
 #include "ob_row.h"
 #include "ob_row_store.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObNewScanner : public ObRowIterator {
  public:

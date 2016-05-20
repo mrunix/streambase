@@ -15,8 +15,8 @@
  */
 #include "ob_root_ms_provider.h"
 #include "common/ob_scan_param.h"
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
 ObRootMsProvider::ObRootMsProvider(ObChunkServerManager& server_manager): server_manager_(server_manager) {
   init_ = false;

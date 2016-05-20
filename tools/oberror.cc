@@ -17,7 +17,7 @@
 #include "common/ob_define.h"
 #include <cstdio>
 #include <cstdlib>
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int main(int argc, char* argv[]) {
   if (2 != argc) {

@@ -19,7 +19,7 @@
 
 #include "ob_malloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct RingBlock {
   uint32_t magic;

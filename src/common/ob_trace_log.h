@@ -31,61 +31,61 @@
 #include "tbtimeutil.h"
 
 #define GETTID() syscall(__NR_gettid)
-#define INC_TRACE_LOG_LEVEL() oceanbase::common::TraceLog::inc_log_level()
-#define DEC_TRACE_LOG_LEVEL() oceanbase::common::TraceLog::dec_log_level()
-#define SET_TRACE_LOG_LEVEL(level) oceanbase::common::TraceLog::set_log_level(level)
-#define SET_FORCE_TRACE_LOG(force) oceanbase::common::TraceLog::get_logbuffer().set_force_log(force)
+#define INC_TRACE_LOG_LEVEL() sb::common::TraceLog::inc_log_level()
+#define DEC_TRACE_LOG_LEVEL() sb::common::TraceLog::dec_log_level()
+#define SET_TRACE_LOG_LEVEL(level) sb::common::TraceLog::set_log_level(level)
+#define SET_FORCE_TRACE_LOG(force) sb::common::TraceLog::get_logbuffer().set_force_log(force)
 
-#define CLEAR_TRACE_LOG() oceanbase::common::TraceLog::clear_log(oceanbase::common::TraceLog::get_logbuffer())
+#define CLEAR_TRACE_LOG() sb::common::TraceLog::clear_log(sb::common::TraceLog::get_logbuffer())
 #define FILL_TRACE_LOG(_fmt_, args...) \
-    if (oceanbase::common::TraceLog::get_log_level() <= TBSYS_LOGGER._level || oceanbase::common::TraceLog::get_logbuffer().force_log_) \
+    if (sb::common::TraceLog::get_log_level() <= TBSYS_LOGGER._level || sb::common::TraceLog::get_logbuffer().force_log_) \
     { \
-      oceanbase::common::TraceLog::fill_log(oceanbase::common::TraceLog::get_logbuffer(), "f=[%s] " _fmt_, __FUNCTION__, ##args); \
+      sb::common::TraceLog::fill_log(sb::common::TraceLog::get_logbuffer(), "f=[%s] " _fmt_, __FUNCTION__, ##args); \
     }
 #define FORCE_PRINT_TRACE_LOG()                                         \
   {                                                                     \
     TBSYS_LOGGER.logMessage(TBSYS_LOG_NUM_LEVEL(TBSYS_LOGGER._level), "[%ld][%ld][%ld][%ld] %stotal_timeu=%ld", \
                             pthread_self(), GETTID(), tbsys::CLogger::get_cur_tv().tv_sec, tbsys::CLogger::get_cur_tv().tv_usec, \
-                            oceanbase::common::TraceLog::get_logbuffer().buffer, \
-                            tbsys::CTimeUtil::getTime() - oceanbase::common::TraceLog::get_logbuffer().start_timestamp); \
+                            sb::common::TraceLog::get_logbuffer().buffer, \
+                            tbsys::CTimeUtil::getTime() - sb::common::TraceLog::get_logbuffer().start_timestamp); \
     CLEAR_TRACE_LOG();                                                  \
   }
 #define PRINT_TRACE_LOG() \
   { \
-    if (oceanbase::common::TraceLog::get_log_level() <= TBSYS_LOGGER._level) \
+    if (sb::common::TraceLog::get_log_level() <= TBSYS_LOGGER._level) \
     { \
-      TBSYS_LOGGER.logMessage(TBSYS_LOG_NUM_LEVEL(oceanbase::common::TraceLog::get_log_level()), "[%ld][%ld][%ld][%ld] %stotal_timeu=%ld", \
+      TBSYS_LOGGER.logMessage(TBSYS_LOG_NUM_LEVEL(sb::common::TraceLog::get_log_level()), "[%ld][%ld][%ld][%ld] %stotal_timeu=%ld", \
                             pthread_self(), GETTID(), tbsys::CLogger::get_cur_tv().tv_sec, tbsys::CLogger::get_cur_tv().tv_usec, \
-                            oceanbase::common::TraceLog::get_logbuffer().buffer, \
-                            tbsys::CTimeUtil::getTime() - oceanbase::common::TraceLog::get_logbuffer().start_timestamp); \
+                            sb::common::TraceLog::get_logbuffer().buffer, \
+                            tbsys::CTimeUtil::getTime() - sb::common::TraceLog::get_logbuffer().start_timestamp); \
     }\
     CLEAR_TRACE_LOG(); \
   }
-#define GET_TRACE_TIMEU() (tbsys::CTimeUtil::getTime() - oceanbase::common::TraceLog::get_logbuffer().start_timestamp)
+#define GET_TRACE_TIMEU() (tbsys::CTimeUtil::getTime() - sb::common::TraceLog::get_logbuffer().start_timestamp)
 #define TBSYS_TRACE_LOG(_fmt_, args...) \
-    if (oceanbase::common::TraceLog::get_log_level() <= TBSYS_LOGGER._level) \
+    if (sb::common::TraceLog::get_log_level() <= TBSYS_LOGGER._level) \
     { \
-      TBSYS_LOGGER.logMessage(TBSYS_LOG_NUM_LEVEL(oceanbase::common::TraceLog::get_log_level()), "[%ld][%ld][%ld][%ld] " _fmt_, \
+      TBSYS_LOGGER.logMessage(TBSYS_LOG_NUM_LEVEL(sb::common::TraceLog::get_log_level()), "[%ld][%ld][%ld][%ld] " _fmt_, \
                              pthread_self(), GETTID(), tbsys::CLogger::get_cur_tv().tv_sec, tbsys::CLogger::get_cur_tv().tv_usec, ##args); \
     }
 
-#define CLEAR_TRACE_BUF(log_buffer) oceanbase::common::TraceLog::clear_log(log_buffer)
+#define CLEAR_TRACE_BUF(log_buffer) sb::common::TraceLog::clear_log(log_buffer)
 #define FILL_TRACE_BUF(log_buffer, _fmt_, args...) \
-    if (oceanbase::common::TraceLog::get_log_level() <= TBSYS_LOGGER._level) \
+    if (sb::common::TraceLog::get_log_level() <= TBSYS_LOGGER._level) \
     { \
-      oceanbase::common::TraceLog::fill_log(log_buffer, "f=[%s] " _fmt_, __FUNCTION__, ##args); \
+      sb::common::TraceLog::fill_log(log_buffer, "f=[%s] " _fmt_, __FUNCTION__, ##args); \
     }
 #define FILL_OBJ_TO_TRACE_BUF(log_buffer, obj) \
-    if (oceanbase::common::TraceLog::get_log_level() <= TBSYS_LOGGER._level) \
+    if (sb::common::TraceLog::get_log_level() <= TBSYS_LOGGER._level) \
     { \
-      oceanbase::common::TraceLog::fill_log(log_buffer, "f=[%s] ", __FUNCTION__); \
-      oceanbase::common::TraceLog::fill_obj(log_buffer, obj); \
+      sb::common::TraceLog::fill_log(log_buffer, "f=[%s] ", __FUNCTION__); \
+      sb::common::TraceLog::fill_obj(log_buffer, obj); \
     }
 #define PRINT_TRACE_BUF(log_buffer) \
   { \
-    if (oceanbase::common::TraceLog::get_log_level() <= TBSYS_LOGGER._level) \
+    if (sb::common::TraceLog::get_log_level() <= TBSYS_LOGGER._level) \
     { \
-      TBSYS_LOGGER.logMessage(TBSYS_LOG_NUM_LEVEL(oceanbase::common::TraceLog::get_log_level()), "[%ld][%ld][%ld][%ld] %stotal_timeu=%ld", \
+      TBSYS_LOGGER.logMessage(TBSYS_LOG_NUM_LEVEL(sb::common::TraceLog::get_log_level()), "[%ld][%ld][%ld][%ld] %stotal_timeu=%ld", \
                             pthread_self(), GETTID(), tbsys::CLogger::get_cur_tv().tv_sec, tbsys::CLogger::get_cur_tv().tv_usec, \
                             log_buffer.buffer, \
                             tbsys::CTimeUtil::getTime() - log_buffer.start_timestamp); \
@@ -94,7 +94,7 @@
   }
 #define GET_BUF_TRACE_TIMEU(log_buffer) (tbsys::CTimeUtil::getTime() - log_buffer.start_timestamp)
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class TraceLog {
   static const char* const LOG_LEVEL_ENV_KEY;

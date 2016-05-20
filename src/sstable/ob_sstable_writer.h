@@ -30,7 +30,7 @@
 #include "ob_sstable_block_builder.h"
 
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 /**
  * the class is used to write a sstable, the format of sstable
@@ -339,7 +339,7 @@ class ObSSTableWriter {
   int64_t frozen_time_;                      //frozen time
   int64_t row_checksum_;                     //sum of the row checksum
 };
-} // namespace oceanbase::sstable
+} // namespace sb::sstable
 } // namespace Oceanbase
 
 #endif // OCEANBASE_SSTABLE_OB_SSTABLE_WRITER_H_

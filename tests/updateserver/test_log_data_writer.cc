@@ -14,9 +14,9 @@
 #include "test_base.h"
 #include "common/ob_log_data_writer.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
-namespace oceanbase {
+using namespace sb::common;
+using namespace sb::updateserver;
+namespace sb {
 namespace test {
 struct Config {
   const char* log_dir;

@@ -17,7 +17,7 @@
 #define _OB_SCALAR_AGGREGATE_H
 #include "sql/ob_merge_groupby.h"
 #include "sql/ob_single_child_phy_operator.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObScalarAggregate: public ObSingleChildPhyOperator {
  public:
@@ -59,6 +59,6 @@ inline void ObScalarAggregate::set_phy_plan(ObPhysicalPlan* the_plan) {
   merge_groupby_.set_phy_plan(the_plan);
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_SCALAR_AGGREGATE_H */

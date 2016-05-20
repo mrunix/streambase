@@ -6,9 +6,9 @@
 #include "common/ob_obi_config.h"
 #include "common/ob_schema.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class ObRootServerClient : public ObServerClient {
   // declare all the handlers here
@@ -49,6 +49,6 @@ class ObRootServerClient : public ObServerClient {
   int64_t timeout_;
 };
 } // end of namespace tools
-}   // end of namespace oceanbase
+}   // end of namespace sb
 
 #endif /* _OCEANBASE_TOOLS_RS_CLIENT_RPC_H_ */

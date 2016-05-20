@@ -23,7 +23,7 @@
 #include "ob_ups_table_mgr.h"
 #include "ob_ups_utils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 template <class T>
 class MemTableModifyTmpl : public T, public RowkeyInfoCache {
@@ -152,7 +152,7 @@ int64_t MemTableModifyTmpl<T>::to_string(char* buf, const int64_t buf_len) const
 typedef MemTableModifyTmpl<sql::ObUpsModify> MemTableModify;
 typedef MemTableModifyTmpl<sql::ObUpsModifyWithDmlType> MemTableModifyWithDmlType;
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* OCEANBASE_UPDATESERVER_MEMTABLE_MODIFY_H_ */
 

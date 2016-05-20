@@ -19,7 +19,7 @@
 #include "common/ob_cell_array.h"
 #include "common/ob_read_common_data.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObCellArrayHelper {
  public:

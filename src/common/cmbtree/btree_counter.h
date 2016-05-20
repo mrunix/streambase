@@ -21,7 +21,7 @@
 #include "btree_recycle_node.h"
 #include "btree_recycle_pool.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace cmbtree {
 template <class Alloc>
@@ -151,6 +151,6 @@ void BtreeCounter<Alloc>::ValueReseter::operator()(void* ptr) {
 
 } // end namespace cmbtree
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_CMBTREE_BTREE_COUNTER_H_

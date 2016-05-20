@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "common/utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template <int32_t N = 256>
 class ObBitSet {

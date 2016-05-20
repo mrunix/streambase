@@ -26,8 +26,8 @@
 #include "../common/test_rowkey_helper.h"
 
 using namespace std;
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 const int64_t TIMEOUT =  10000000L;
 static CharArena allocator_;
 
@@ -40,7 +40,7 @@ struct CParam {
   int64_t end_key_;
   int64_t count_;
   int64_t fail_base_;
-  oceanbase::common::ObSchemaManagerV2* schema_mgr_;
+  sb::common::ObSchemaManagerV2* schema_mgr_;
 };
 
 

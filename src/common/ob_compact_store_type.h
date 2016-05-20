@@ -17,7 +17,7 @@
 #ifndef _OB_COMPACT_STORE_TYPE_H
 #define _OB_COMPACT_STORE_TYPE_H 1
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * 用于区分紧凑格式的四种存储类型

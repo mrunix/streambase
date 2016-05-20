@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace oceanbase {
+namespace sb {
 namespace api {
 using namespace common;
 

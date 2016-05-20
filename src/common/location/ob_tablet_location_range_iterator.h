@@ -10,9 +10,9 @@
 #include "ob_tablet_location_cache_proxy.h"
 #include "ob_tablet_location_list.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // get all the tablet according to given scan param
 class ObTabletLocationRangeIterator {

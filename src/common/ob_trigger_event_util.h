@@ -23,7 +23,7 @@
 #include "common/ob_server.h"
 #include "common/ob_trigger_msg.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObTriggerEvent;
 class ObTriggerEventUtil {

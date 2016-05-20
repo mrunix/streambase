@@ -13,7 +13,7 @@
 #include "ob_chunk_server_main.h"
 #include "common/ob_malloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 
 // ----------------------------------------------------------
@@ -111,4 +111,4 @@ void ObChunkServerMain::print_version() {
 }
 
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

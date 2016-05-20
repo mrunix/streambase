@@ -21,7 +21,7 @@
 
 #define FUNC_BLOCK() if (true) \
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 TEST(TestObRange, trim) {

@@ -13,9 +13,9 @@
 #include "obmysql/packet/ob_mysql_packet.h"
 #include "obmysql/ob_mysql_util.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
-using namespace oceanbase::obmysql;
+using namespace sb::obmysql;
 
 int ObMySQLPacket::encode(char* buffer, int64_t length, int64_t& pos) {
   int ret = OB_SUCCESS;

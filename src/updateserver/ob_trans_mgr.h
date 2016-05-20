@@ -26,7 +26,7 @@
 #include "common/ob_id_map.h"
 #include "ob_table_engine.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ITableEngine {
  public:

@@ -22,9 +22,9 @@
 #include "ob_ocm_instance.h"
 #include "common/ob_define.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace clustermanager {
 class TestObOcmMeta;

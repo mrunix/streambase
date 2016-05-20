@@ -21,8 +21,8 @@
 #include "rootserver/ob_tablet_info_manager.h"
 #include "rootserver/ob_root_meta2.h"
 #include "../common/test_rowkey_helper.h"
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 static CharArena allocator_;
 namespace {
 void build_range(ObNewRange& r, int64_t tid, int8_t flag, const char* sk, const char* ek) {

@@ -18,8 +18,8 @@
 #include "common/utility.h"
 #include "common/ob_obj_cast.h"
 #include "common/hash/ob_hashmap.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 ObExprValues::ObExprValues()
   : values_(OB_TC_MALLOC_BLOCK_SIZE, ModulePageAllocator(ObModIds::OB_SQL_ARRAY)),
     from_deserialize_(false),
@@ -115,7 +115,7 @@ int ObExprValues::get_row_desc(const common::ObRowDesc*& row_desc) const {
   return OB_SUCCESS;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObExprValues, PHY_EXPR_VALUES);
 }

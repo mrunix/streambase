@@ -19,7 +19,7 @@
 
 #include "ob_trans_buffer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 using namespace common;
 using namespace hash;

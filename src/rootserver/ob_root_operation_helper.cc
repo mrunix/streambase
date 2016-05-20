@@ -14,7 +14,7 @@
 #include "rootserver/ob_root_server2.h"
 #include "common/ob_bypass_task_info.h"
 #include "rootserver/ob_root_operation_helper.h"
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 ObRootOperationHelper::ObRootOperationHelper()
   : process_(INIT), root_server_(NULL),

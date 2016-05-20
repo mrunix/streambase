@@ -20,7 +20,7 @@
 #include "ob_string.h"
 
 #define ESCAPE '\\'
-namespace oceanbase {
+namespace sb {
 namespace common {
 void ObStringSearch::check_if_do_opt(const char* pattern, const int32_t len, bool& is_simple_pattern, bool& is_special_pattern, int& start, int& end, int& real_len, bool& all_percent) {
   real_len = 0;
@@ -503,4 +503,4 @@ int64_t ObStringSearch::fast_search(const char* pattern, const int64_t pat_len,
   return -1;
 }
 }//namespace common
-}//namespace oceanbase
+}//namespace sb

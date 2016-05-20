@@ -17,7 +17,7 @@
 #include "common/utility.h"
 #include "ob_chunk_server_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 using namespace common;
 ObBalanceInfo::ObBalanceInfo()

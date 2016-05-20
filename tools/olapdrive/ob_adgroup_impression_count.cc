@@ -15,7 +15,7 @@
 
 #include "ob_adgroup_impression_count.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 using namespace tbsys;
 using namespace common;
@@ -140,4 +140,4 @@ int ObAdgroupImpressionCount::prepare(ObScanParam& scan_param) {
   return ret;
 }
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb

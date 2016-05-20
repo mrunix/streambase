@@ -17,7 +17,7 @@
 #include "ob_mem_sstable_scan.h"
 #include "ob_table_rpc_scan.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sql;
 
@@ -78,7 +78,7 @@ int ObMemSSTableScan::set_child(int32_t child_idx, ObPhyOperator& child_operator
   return OB_NOT_IMPLEMENT;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObMemSSTableScan, PHY_MEM_SSTABLE_SCAN);
 }

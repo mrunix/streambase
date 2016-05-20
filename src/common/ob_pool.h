@@ -17,7 +17,7 @@
 #define _OB_SIMPLE_POOL_H 1
 #include "ob_spin_lock.h"
 #include "ob_allocator.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * fixed size objects pool
@@ -138,7 +138,7 @@ class ObWrapperAllocator: public ObIAllocator {
   ObIAllocator* alloc_;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #include "ob_pool.ipp"
 

@@ -6,11 +6,11 @@
 #include "common/ob_define.h"
 #include "common/ob_scan_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obsql {
 
 using namespace std;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int32_t SelectStmt::query() {
   Stmt::query();

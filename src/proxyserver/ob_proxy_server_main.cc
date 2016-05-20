@@ -13,7 +13,7 @@
 #include "ob_proxy_server_main.h"
 #include "common/ob_malloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace proxyserver {
 
 // ----------------------------------------------------------
@@ -145,5 +145,5 @@ void ObProxyServerMain::print_version() {
 }
 
 } // end namespace proxyserver
-} // end namespace oceanbase
+} // end namespace sb
 

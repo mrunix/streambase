@@ -17,7 +17,7 @@
 #define OCEANBASE_SQL_OB_EXPLAIN_H_
 #include "sql/ob_single_child_phy_operator.h"
 #include "common/ob_mutator.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObExplain: public ObSingleChildPhyOperator {
  public:
@@ -60,7 +60,7 @@ inline int ObExplain::get_row_desc(const common::ObRowDesc*& row_desc) const {
 }
 
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* OCEANBASE_SQL_OB_EXPLAIN_H_ */
 

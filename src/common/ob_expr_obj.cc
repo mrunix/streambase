@@ -21,7 +21,7 @@
 #include "ob_string_search.h"
 #include "ob_malloc.h"
 #include "ob_obj_cast.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 void ObExprObj::assign(const ObObj& obj) {
   type_ = obj.get_type();

@@ -17,8 +17,8 @@
 #include "common/file_directory_utils.h"
 #include "ob_store_mgr.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
 int64_t ObSlaveInfo::get_serialize_size(void) const {
   int64_t size = 0;

@@ -18,8 +18,8 @@
 #include "common/ob_tsi_block_allocator.h"
 #include "../updateserver/rwt.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace test {
 #define _cfg(k, v) getenv(k)?:v
 #define _cfgi(k, v) atoll(getenv(k)?:v)
@@ -94,7 +94,7 @@ TEST_F(ObBlockAllocatorTest, Alloc) {
 }
 }
 }
-using namespace oceanbase::test;
+using namespace sb::test;
 
 int main(int argc, char** argv) {
   int err = OB_SUCCESS;

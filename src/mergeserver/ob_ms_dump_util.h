@@ -18,7 +18,7 @@
 #ifndef OCEANBASE_MERGER_DUMP_UTIL_H_
 #define OCEANBASE_MERGER_DUMP_UTIL_H_
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObObj;
 class ObRange;

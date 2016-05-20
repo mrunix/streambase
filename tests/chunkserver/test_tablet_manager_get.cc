@@ -27,13 +27,13 @@
 #include "../common/test_rowkey_helper.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::chunkserver;
+using namespace sb::sstable;
 
 static CharArena allocator_;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace chunkserver {
 static const int64_t table_id = 100;
@@ -874,7 +874,7 @@ TEST_F(TestObTabletManagerGet, DISABLED_test_switch_cache) {
 }
 }//end namespace common
 }//end namespace tests
-}//end namespace oceanbase
+}//end namespace sb
 
 int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);

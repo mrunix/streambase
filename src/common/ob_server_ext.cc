@@ -18,7 +18,7 @@
 #include "tblog.h"
 #include "ob_server_ext.h"
 #include "ob_define.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObServerExt::ObServerExt() {
   //memset(hostname_, '\0', OB_MAX_HOST_NAME_LENGTH);

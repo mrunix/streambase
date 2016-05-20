@@ -20,7 +20,7 @@
 #include "common/ob_string.h"
 #include "common/ob_array.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObExecuteStmt : public ObBasicStmt {
  public:

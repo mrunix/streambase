@@ -17,7 +17,7 @@
 #include "config.h"
 #include "ob_lsync_server_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace lsync {
 const static char* LSYNC_SECTION = "lsync_server";
 const static char* DEV_NAME_KEY = "dev_name";
@@ -79,5 +79,5 @@ bool ObLsyncServerParam::check() {
   return dev_name_is_set() && port_is_set() && convert_switch_log_is_set() && commit_log_dir_is_set() && log_file_start_id_is_set() && timeout_is_set() && lsync_retry_wait_time_us_is_set();
 }
 } // end namespace lsync
-} // end namespace oceanbase
+} // end namespace sb
 

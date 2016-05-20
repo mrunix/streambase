@@ -20,14 +20,14 @@
 #include "ob_query_agent.h"
 #include "../common/test_rowkey_helper.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
-using namespace oceanbase::common::ObExpression;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::chunkserver;
+using namespace sb::common::ObExpression;
 using namespace testing;
 using namespace std;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace chunkserver {
 static const int64_t table_id = 100;
@@ -806,7 +806,7 @@ TEST_F(TestQueryAgent, test_filter_aggreate_compose_orderby) {
 }
 }//end namespace common
 }//end namespace tests
-}//end namespace oceanbase
+}//end namespace sb
 
 int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);

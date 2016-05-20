@@ -15,7 +15,7 @@
 
 #include "ob_several_creative_effect.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 using namespace tbsys;
 using namespace common;
@@ -110,4 +110,4 @@ int ObSeveralCreativeEffect::add_special_column(ObScanParam& scan_param) {
   return ret;
 }
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb

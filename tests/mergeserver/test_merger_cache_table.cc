@@ -10,7 +10,7 @@
 #include "../common/test_rowkey_helper.h"
 
 using namespace std;
-using namespace oceanbase::common;
+using namespace sb::common;
 static CharArena allocator_;
 
 int main(int argc, char** argv) {

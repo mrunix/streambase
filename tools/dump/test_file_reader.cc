@@ -3,7 +3,7 @@
 #include "db_utils.h"
 #include <vector>
 
-using namespace oceanbase::common;
+using namespace sb::common;
 using namespace std;
 
 TEST(file_reader, coding) {

@@ -15,7 +15,7 @@
 #define __OB_COMMON_OB_SEQ_QUEUE_H__
 #include "ob_malloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct BufHolder {
   BufHolder(): buf_(NULL) {}
@@ -68,6 +68,6 @@ class ObSeqQueue {
   tbsys::CThreadCond cond_[N_COND] CACHE_ALIGNED;
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_SEQ_QUEUE_H__ */

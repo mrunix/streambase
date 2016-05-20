@@ -16,9 +16,9 @@
  */
 #include "ob_ups_mutator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObUpsMutator :: ObUpsMutator() {
   version_ = 0;

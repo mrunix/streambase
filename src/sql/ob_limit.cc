@@ -16,8 +16,8 @@
 #include "ob_limit.h"
 #include "common/utility.h"
 #include "common/ob_obj_cast.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObLimit::ObLimit()
   : is_instantiated_(false), limit_(-1), offset_(0), input_count_(0), output_count_(0) {
@@ -158,7 +158,7 @@ int ObLimit::get_next_row(const common::ObRow*& row) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObLimit, PHY_LIMIT);
 }

@@ -11,8 +11,8 @@
 #include "common/ob_schema.h"
 #include "common/ob_mutator.h"
 
-const char* ob_server_to_string(const oceanbase::common::ObServer& server);
-namespace oceanbase {
+const char* ob_server_to_string(const sb::common::ObServer& server);
+namespace sb {
 namespace tools {
 class RpcStub {
  public:

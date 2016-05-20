@@ -16,7 +16,7 @@
 
 #include "ob_lz_query.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 class ObCampaignEffect : public ObLzQuery {
  public:
@@ -34,6 +34,6 @@ class ObCampaignEffect : public ObLzQuery {
   DISALLOW_COPY_AND_ASSIGN(ObCampaignEffect);
 };
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_OLAPDRIVE_CAMPAIGN_EFFECT_H

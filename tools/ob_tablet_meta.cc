@@ -19,11 +19,11 @@
 #include <errno.h>
 #include <map>
 
-namespace oceanbase {
+namespace sb {
 namespace obsolete {
 namespace chunkserver {
-using namespace oceanbase::common;
-using namespace oceanbase::common::hash;
+using namespace sb::common;
+using namespace sb::common::hash;
 
 const uint64_t DISK_NO_MASK = ((1UL << 8) - 1);
 

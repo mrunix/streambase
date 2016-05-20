@@ -15,8 +15,8 @@
  */
 #include "ob_ups_heartbeat_runnable.h"
 #include <sys/types.h>
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
 ObUpsHeartbeatRunnable::ObUpsHeartbeatRunnable(ObUpsManager& ups_manager)
   : ups_manager_(ups_manager) {

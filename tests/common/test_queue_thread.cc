@@ -13,7 +13,7 @@
 #define THREAD_NUM 12
 #define TASK_NUM_PER_THREAD 1000000
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 pid_t gettid() {

@@ -16,7 +16,7 @@
 #include "ob_define.h"
 #include "BR.h"
 
-namespace oceanbase {
+namespace sb {
 namespace liboblog {
 
 struct BRInfo;

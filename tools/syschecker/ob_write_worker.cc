@@ -15,7 +15,7 @@
 #include "common/ob_mutator.h"
 #include "ob_write_worker.h"
 
-namespace oceanbase {
+namespace sb {
 namespace syschecker {
 using namespace tbsys;
 using namespace common;
@@ -309,4 +309,4 @@ void ObWriteWorker::run(CThread* thread, void* arg) {
   }
 }
 } // end namespace syschecker
-} // end namespace oceanbase
+} // end namespace sb

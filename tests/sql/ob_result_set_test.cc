@@ -23,8 +23,8 @@
 #include "common/ob_string_buf.h"
 #include <gtest/gtest.h>
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 TEST(ObResultSetTest, logical_plan_return) {
   int ret = OB_SUCCESS;

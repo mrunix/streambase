@@ -19,7 +19,7 @@
 
 #include "ob_btree_engine.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 using namespace common;
 

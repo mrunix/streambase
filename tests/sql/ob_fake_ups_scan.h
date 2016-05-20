@@ -21,7 +21,7 @@
 #include "sql/ob_ups_scan.h"
 #include "ob_ups_file_table.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 
 namespace sql {

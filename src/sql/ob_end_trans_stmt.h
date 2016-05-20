@@ -16,7 +16,7 @@
 #ifndef _OB_END_TRANS_STMT_H
 #define _OB_END_TRANS_STMT_H 1
 #include "ob_basic_stmt.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObEndTransStmt: public ObBasicStmt {
  public:
@@ -46,6 +46,6 @@ inline void ObEndTransStmt::print(FILE* fp, int32_t level, int32_t index) {
   fprintf(fp, "</ObEndTransStmt>\n");
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_END_TRANS_STMT_H */

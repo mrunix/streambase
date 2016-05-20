@@ -19,7 +19,7 @@
 #include "common/ob_server.h"
 #include "common/ob_array.h"
 
-namespace oceanbase {
+namespace sb {
 namespace syschecker {
 
 class ObSyscheckerParam {
@@ -153,6 +153,6 @@ class ObSyscheckerParam {
   int64_t update_row_cnt_;
 };
 } // end namespace syschecker
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_SYSCHECKER_PARAM_H_

@@ -26,7 +26,7 @@
 #include <string>
 #include <map>
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class DbLogMonitor;
 class DbCheckpoint;

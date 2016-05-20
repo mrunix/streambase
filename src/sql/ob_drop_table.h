@@ -17,7 +17,7 @@
 #define _OB_DROP_TABLE_H 1
 #include "sql/ob_no_children_phy_operator.h"
 #include "common/ob_strings.h"
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMergerRootRpcProxy;
 } // end namespace mergeserver
@@ -74,6 +74,6 @@ inline void ObDropTable::set_rpc_stub(mergeserver::ObMergerRootRpcProxy* rpc) {
 }
 
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_DROP_TABLE_H */

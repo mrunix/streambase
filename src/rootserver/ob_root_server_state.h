@@ -20,8 +20,8 @@
 #include "common/utility.h"
 #include "common/ob_define.h"
 #include "ob_chunk_server_manager.h"
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace rootserver {
 class ObRootServer2;
 enum CsTabletExistState {
@@ -200,6 +200,6 @@ class ObRootServerState {
   ObChunkServerManager* server_manager_;
 };
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_OB_ROLE_MGR_H_

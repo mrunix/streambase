@@ -20,7 +20,7 @@
 #include "easy/easy_io.h"
 #include "tbsys.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 using namespace tbsys;
 
 enum BigqueryTestError {

@@ -19,7 +19,7 @@
 
 #include "ob_single_child_phy_operator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObEmptyRowFilter : public ObSingleChildPhyOperator {
  public:

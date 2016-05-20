@@ -16,7 +16,7 @@
 #include "ob_merger_sorted_operator.h"
 #include "common/ob_cell_array.h"
 #include "common/ob_scan_param.h"
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace mergeserver;
 

@@ -26,9 +26,9 @@
 #include "sstable/ob_block_index_cache.h"
 #include "sstable/ob_blockcache.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObChunkServerConfig
   : public common::ObServerConfig {

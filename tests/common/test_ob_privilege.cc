@@ -8,8 +8,8 @@
 #include "common/ob_privilege.h"
 #include "common/ob_privilege_type.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 TEST(ObPrivilege, test) {
   ObPrivilege privilege;

@@ -19,7 +19,7 @@
 #include "ob_packet.h"
 #include "ob_base_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObShadowServer : public ObBaseServer {
  public:

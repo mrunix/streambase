@@ -19,7 +19,7 @@
 #include "ob_token.h"
 #include "ob_define.h"
 #include "ob_encrypt.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObToken::ObToken() {
   timestamp_ = 0;

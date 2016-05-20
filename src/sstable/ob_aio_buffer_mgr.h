@@ -18,7 +18,7 @@
 #include "common/ob_fileinfo_manager.h"
 #include "ob_aio_event_mgr.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 struct ObBlockPositionInfos;
 class ObBlockCache;
@@ -521,6 +521,6 @@ class ObThreadAIOBufferMgrArray {
 int wait_aio_buffer();
 void add_io_stat(const ObIOStat& stat);
 const char* get_io_stat_str();
-} // namespace oceanbase::sstable
+} // namespace sb::sstable
 } // namespace Oceanbase
 #endif //OCEANBASE_SSTABLE_OB_AIO_BUFFER_MGR_H_

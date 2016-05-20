@@ -2,8 +2,8 @@
 #include "mock_node_server.h"
 #include "mock_monitor_server.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace mms {
 namespace tests {
 MockMonitorServer::MockMonitorServer(int32_t port, int64_t retry_time, int64_t timeout, int64_t lease_interval, int64_t renew_interval) {

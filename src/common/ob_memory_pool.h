@@ -25,7 +25,7 @@
 #include "ob_link.h"
 #include "ob_tsi_utils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /// @class  define module names need to allocate memory from memory pool
 /// @author wushi(wushi.ly@taobao.com)  (11/23/2010)

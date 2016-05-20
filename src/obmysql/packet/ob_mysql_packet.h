@@ -19,7 +19,7 @@
 
 #include "ob_mysql_packet_header.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 // StatusFlags http://dev.mysql.com/doc/internals/en/status-flags.html
 static const uint16_t SERVER_STATUS_IN_TRANS = 0x0001; // a transaction is active

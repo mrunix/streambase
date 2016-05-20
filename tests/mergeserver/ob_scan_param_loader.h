@@ -6,9 +6,9 @@
 #include "common/ob_string.h"
 #include "common/ob_scan_param.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 namespace test {
 class ObScanParamLoader {

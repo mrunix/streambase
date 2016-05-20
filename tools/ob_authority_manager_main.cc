@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include "ob_authority_manager.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 void print_usage() {
   fprintf(stderr, "\nUsage: authority_management <-u rootname> <-h ip> <-p port>\n"

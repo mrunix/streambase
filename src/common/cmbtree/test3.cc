@@ -10,7 +10,7 @@
 #include <stdlib.h>
 
 
-using namespace oceanbase::common::cmbtree;
+using namespace sb::common::cmbtree;
 
 int64_t microseconds() {
   struct timeval tv;

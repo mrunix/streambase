@@ -18,7 +18,7 @@
 #include "sql/ob_basic_stmt.h"
 #include "common/ob_schema.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObShowSchemaManager {
  public:

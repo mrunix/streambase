@@ -16,17 +16,17 @@
 #include "common/utility.h"
 #include <algorithm>
 using namespace std;
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
-using namespace oceanbase::mergeserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::sql;
+using namespace sb::mergeserver;
 
 ObMsSqlSubGetRequest::ObMsSqlSubGetRequest()
   : rowkey_buf_(ObModIds::OB_MS_GET_EVENT) {
   reset();
 }
 
-void ObMsSqlSubGetRequest::init(PageArena<int64_t, oceanbase::common::ModulePageAllocator>& mem_allocator) {
+void ObMsSqlSubGetRequest::init(PageArena<int64_t, sb::common::ModulePageAllocator>& mem_allocator) {
   //ObVector的内存分配器使用大get param的page_arena_
   row_idx_in_org_param_.set_allocator(mem_allocator);
   //这个成员存放收到的rpc event的ObNewScanner的指针
@@ -125,13 +125,13 @@ int ObMsSqlSubGetRequest::get_next_param_(ObSqlGetParam& get_param)const {
   return err;
 }
 
-int  ObMsSqlSubGetRequest::get_next_row(oceanbase::common::ObRow*& row, int64_t& org_row_idx) {
+int  ObMsSqlSubGetRequest::get_next_row(sb::common::ObRow*& row, int64_t& org_row_idx) {
   row = &cur_row_;
   return get_next_row(cur_row_, org_row_idx);
 }
 
 
-int  ObMsSqlSubGetRequest::get_next_row(oceanbase::common::ObRow& row, int64_t& org_row_idx) {
+int  ObMsSqlSubGetRequest::get_next_row(sb::common::ObRow& row, int64_t& org_row_idx) {
   int err = OB_SUCCESS;
   if (NULL == pget_param_) {
     TBSYS_LOG(WARN, "set ObSqlGetParam first [pget_param_:%p]", pget_param_);

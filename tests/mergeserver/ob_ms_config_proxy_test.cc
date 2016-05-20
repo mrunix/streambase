@@ -10,9 +10,9 @@
 #include "mock_ob_nb_accessor.h"
 
 using namespace std;
-using namespace oceanbase::mergeserver;
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb::mergeserver;
+using namespace sb;
+using namespace sb::common;
 using namespace testing;
 
 int main(int argc, char** argv) {

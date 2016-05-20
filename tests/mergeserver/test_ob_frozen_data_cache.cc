@@ -9,10 +9,10 @@
 #include <sql/ob_sql_read_param.h>
 
 using namespace std;
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
-using namespace oceanbase::sql;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::mergeserver;
+using namespace sb::sql;
 
 TEST(TestObFrozenDataCache, basic) {
   ObFrozenDataCache  cache;

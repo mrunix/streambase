@@ -26,7 +26,7 @@
 #include "load_query.h"
 #include "load_statics.h"
 #include "packet_queue.h"
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class LoadManager {
  public:

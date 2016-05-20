@@ -7,8 +7,8 @@
 #include "task_worker_param.h"
 #include "hdfs_env.h"
 
-using namespace oceanbase::tools;
-using namespace oceanbase::common;
+using namespace sb::tools;
+using namespace sb::common;
 
 static const int64_t TIMEOUT = 1000 * 1000 * 20;  // 20s
 static const int64_t RETRY_TIME = 2000 * 1000;    // 2s

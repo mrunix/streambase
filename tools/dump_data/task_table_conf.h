@@ -9,7 +9,7 @@
 
 #define kNullColumn  "__null_column__"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 using namespace common;
 

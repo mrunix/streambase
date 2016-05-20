@@ -18,8 +18,8 @@
 #include "common/ob_profile_fill_log.h"
 #include "tblog.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 int ObProfileFillLog::is_open_ = false;
 char* ObProfileFillLog::log_dir_ = strdup("./");

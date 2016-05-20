@@ -16,7 +16,7 @@
 #include "ob_rs_ups_message.h"
 #include <tbsys.h>
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int ObMsgUpsHeartbeat::serialize(char* buf, const int64_t buf_len, int64_t& pos) const {
   int ret = OB_SUCCESS;

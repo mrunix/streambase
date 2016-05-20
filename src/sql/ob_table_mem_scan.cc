@@ -17,12 +17,12 @@
 #include "common/utility.h"
 
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObTableMemScan, PHY_TABLE_MEM_SCAN);
 }
 }
-namespace oceanbase {
+namespace sb {
 namespace sql {
 ObTableMemScan::ObTableMemScan() :
   rename_(), project_(), filter_(), limit_(),
@@ -312,4 +312,4 @@ ObPhyOperatorType ObTableMemScan::get_type() const {
   return PHY_TABLE_MEM_SCAN;
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb

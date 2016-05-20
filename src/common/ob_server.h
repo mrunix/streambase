@@ -22,7 +22,7 @@
 #include "ob_define.h"
 #include "serialization.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObServer {
  public:
@@ -85,7 +85,7 @@ class ObServer {
   } ip;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_COMMON_OB_SERVER_H_
 

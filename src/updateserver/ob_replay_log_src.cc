@@ -12,8 +12,8 @@
  *     - some work details if you want
  */
 #include "ob_replay_log_src.h"
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace updateserver {
 ObReplayLogSrc::ObReplayLogSrc(): read_pos_(0), log_buffer_(NULL), prefetch_log_task_submitter_(NULL)
 {}
@@ -189,5 +189,5 @@ int ObReplayLogSrc::prefetch_log() {
   return err;
 }
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 

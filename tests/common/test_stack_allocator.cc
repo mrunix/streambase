@@ -19,9 +19,9 @@
 #include "common/thread_buffer.h"
 #include "common/utility.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 #define cfg(k, v) getenv(k)?:v
 #define cfgi(k, v) atoll(cfg(k ,v))
@@ -141,9 +141,9 @@ TEST_F(ObStackAllocatorTest, AllocAndClear) {
   ASSERT_EQ(0, block_allocator.get_allocated());
 }
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 
-using namespace oceanbase::test;
+using namespace sb::test;
 int main(int argc, char** argv) {
   int err = OB_SUCCESS;
   int n_data_items_shift = 0;

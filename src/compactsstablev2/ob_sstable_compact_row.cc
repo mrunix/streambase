@@ -1,4 +1,4 @@
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 ObCompactRow::ObCompactRow()
   : buf_(NULL),
@@ -258,4 +258,4 @@ int ObCompactRow::get_follow_size(const ObCompactObjMeta* meta, int32_t& follow_
   return ret;
 }
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb

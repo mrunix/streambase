@@ -2,7 +2,7 @@
 #include "ob_ms_rpc_event.h"
 #include "ob_read_param_modifier.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 ObMergerSubScanRequest::ObMergerSubScanRequest() {
   inited_ = false;

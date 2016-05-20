@@ -2,8 +2,8 @@
 #include "common/ob_packet.h"
 #include "common/ob_fifo_stream.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 LoadFilter::LoadFilter() {
   enable_read_master_ = true;

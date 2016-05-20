@@ -20,7 +20,7 @@
 #include "ob_define.h"
 #include "ob_string.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 const static int64_t REFRESH_NEW_SCHEMA_TRIGGER = 1;
 const static int64_t UPDATE_PRIVILEGE_TIMESTAMP_TRIGGER = 2;

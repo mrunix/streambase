@@ -17,9 +17,9 @@
 #include "common/serialization.h"
 #include "common/ob_tsi_factory.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
-using namespace oceanbase::common::serialization;
+using namespace sb::sql;
+using namespace sb::common;
+using namespace sb::common::serialization;
 
 ObWhenFilter::ObWhenFilter()
   : could_do_next_(false), child_num_(0) {
@@ -190,7 +190,7 @@ int ObWhenFilter::get_next_row(const common::ObRow*& row) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObWhenFilter, PHY_WHEN_FILTER);
 }

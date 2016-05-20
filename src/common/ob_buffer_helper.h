@@ -19,7 +19,7 @@
 #include "common/ob_define.h"
 #include "common/ob_string.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 #define INVALID_BUF_SIZE -1024

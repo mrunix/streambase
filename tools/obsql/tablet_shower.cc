@@ -3,7 +3,7 @@
 #include "chunkserver/ob_tablet_image.h"
 #include "client_rpc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obsql {
 using namespace common;
 using namespace chunkserver;

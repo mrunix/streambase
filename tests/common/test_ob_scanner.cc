@@ -5,7 +5,7 @@
 #include "common/ob_action_flag.h"
 #include <string>
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace std;
 

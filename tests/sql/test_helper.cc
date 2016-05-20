@@ -19,9 +19,9 @@
 #include "common/file_directory_utils.h"
 #include "chunkserver/ob_tablet.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
-using namespace oceanbase::chunkserver;
+using namespace sb::common;
+using namespace sb::sstable;
+using namespace sb::chunkserver;
 
 
 void check_string(const ObString& expected, const ObString& real) {

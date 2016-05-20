@@ -25,7 +25,7 @@
 #include "ob_join_cache.h"
 #include "ob_row_cell_vec.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 /**
  * ObCellStream class is a virtual class as the interface, this

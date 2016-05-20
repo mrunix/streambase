@@ -23,10 +23,10 @@
 #include "sstable/ob_sstable_scan_param.h"
 #include "ob_sstable_block_scanner.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 ObSSTableBlockScanner::ObSSTableBlockScanner(const ObSimpleColumnIndexes& column_indexes)
   : initialize_status_(OB_NOT_INIT), sstable_data_store_style_(OB_SSTABLE_STORE_DENSE),
@@ -322,7 +322,7 @@ int ObSSTableBlockScanner::get_row_desc(const common::ObRowDesc*& row_desc) cons
 }
 
 }//end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb
 
 
 

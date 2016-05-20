@@ -29,8 +29,8 @@
 #include "common/ob_server_ext.h"
 #include "ob_ocm_param.h"
 
-using namespace oceanbase::clustermanager;
-using namespace oceanbase::common;
+using namespace sb::clustermanager;
+using namespace sb::common;
 
 class ObOcmParam;
 

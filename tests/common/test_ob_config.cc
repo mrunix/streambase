@@ -17,8 +17,8 @@
 #include <gtest/gtest.h>
 #include "common/ob_config.h"
 
-using namespace oceanbase::common;
-/* using namespace oceanbase::common::hash; */
+using namespace sb::common;
+/* using namespace sb::common::hash; */
 
 class TestServerConfig
   : public ::testing::Test {

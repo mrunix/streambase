@@ -16,7 +16,7 @@
 #include "common/ob_obj_cast.h"
 #include "common/ob_malloc.h"
 #include <gtest/gtest.h>
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class ObObjCastTest: public ::testing::Test {
  public:

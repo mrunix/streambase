@@ -5,9 +5,9 @@
 #include "ob_scanner_loader.h"
 #include <unistd.h>
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
-using namespace oceanbase::mergeserver::test;
+using namespace sb::common;
+using namespace sb::mergeserver;
+using namespace sb::mergeserver::test;
 
 namespace {
 //const char* OB_SCANNER_SECTION = "scanner";

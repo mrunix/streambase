@@ -20,9 +20,9 @@
 #include "ob_ups_rpc_stub.h"
 #include "common/ob_role_mgr.h"
 #include "ob_ups_log_mgr.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObUpsLeaseTask : public common::ObTimerTask {
  public:

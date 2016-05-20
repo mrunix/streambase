@@ -24,7 +24,7 @@
   int64_t target##_start_; \
   int64_t target##_end_;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 //POD type
 struct ObRequestProfileData {

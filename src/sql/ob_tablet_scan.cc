@@ -19,9 +19,9 @@
 #include "common/ob_cur_time.h"
 #include "common/ob_profile_log.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
-using namespace oceanbase::common::serialization;
+using namespace sb::sql;
+using namespace sb::common;
+using namespace sb::common::serialization;
 
 ObTabletScan::ObTabletScan() {
 }
@@ -203,7 +203,7 @@ bool ObTabletScan::check_inner_stat() const {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObTabletScan, PHY_TABLET_SCAN);
 }

@@ -33,7 +33,7 @@
 #include "ob_log_replay_worker.h"
 #include "ob_ups_stat.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace updateserver {
 // forward decleration
@@ -240,6 +240,6 @@ class ObUpsLogMgr : public common::ObLogWriter {
   bool is_started_;
 };
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_UPDATESERVER_OB_UPS_LOG_MGR_H_

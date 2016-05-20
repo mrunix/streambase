@@ -17,9 +17,9 @@
 
 #include "tbsys.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace chunkserver {
 class TestRootServerRpcStub: public ::testing::Test {
@@ -218,7 +218,7 @@ TEST_F(TestRootServerRpcStub, test_report_tablets) {
   ObGeneralRpcStub rs_rpc;
   ThreadSpecificBuffer buffer;
 
-  oceanbase::common::ObBaseClient client;
+  sb::common::ObBaseClient client;
 
   // tablets to be reported
   ObTabletReportInfoList tablets;

@@ -15,7 +15,7 @@
 #include "common/page_arena.h"
 #include "common/ob_array.h"
 #include "common/ob_tablet_info.h"
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObTabletInfoManager;
 class ObTabletCrcHistoryHelper {

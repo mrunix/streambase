@@ -17,7 +17,7 @@
 #include "ob_table_list_query.h"
 #include "ob_ups_utils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObRowDescPrepare : public RowkeyInfoCache {
  public:
@@ -114,6 +114,6 @@ class ObUpsIncScan: public sql::ObIncScan {
   ObIncScanIter scan_iter_;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_UPDATESERVER_OB_INC_SCAN_IMPL_H__ */

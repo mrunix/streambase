@@ -28,7 +28,7 @@
 #include "ob_define.h"
 #include "ob_malloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct DefaultAllocator {
   void* malloc(const int32_t nbyte) { return ob_malloc(nbyte, ObModIds::OB_THREAD_MEM_POOL); };

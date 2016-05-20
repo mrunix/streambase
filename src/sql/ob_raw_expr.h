@@ -7,7 +7,7 @@
 #include "common/ob_string.h"
 #include "common/ob_string_buf.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObTransformer;
 class ObLogicalPlan;
@@ -51,12 +51,12 @@ class ObConstRawExpr : public ObRawExpr {
  public:
   ObConstRawExpr() {
   }
-  ObConstRawExpr(oceanbase::common::ObObj& val, ObItemType expr_type = T_INVALID)
+  ObConstRawExpr(sb::common::ObObj& val, ObItemType expr_type = T_INVALID)
     : ObRawExpr(expr_type), value_(val) {
   }
   virtual ~ObConstRawExpr() {}
-  const oceanbase::common::ObObj& get_value() const { return value_; }
-  void set_value(const oceanbase::common::ObObj& val) { value_ = val; }
+  const sb::common::ObObj& get_value() const { return value_; }
+  void set_value(const sb::common::ObObj& val) { value_ = val; }
   int set_value_and_type(const common::ObObj& val);
   virtual int fill_sql_expression(
     ObSqlExpression& inter_expr,
@@ -66,7 +66,7 @@ class ObConstRawExpr : public ObRawExpr {
   void print(FILE* fp, int32_t level) const;
 
  private:
-  oceanbase::common::ObObj value_;
+  sb::common::ObObj value_;
 };
 
 class ObCurTimeExpr : public ObRawExpr {
@@ -229,7 +229,7 @@ class ObMultiOpRawExpr : public ObRawExpr {
   void print(FILE* fp, int32_t level) const;
 
  private:
-  oceanbase::common::ObVector<ObRawExpr*> exprs_;
+  sb::common::ObVector<ObRawExpr*> exprs_;
 };
 
 class ObCaseOpRawExpr : public ObRawExpr {
@@ -268,8 +268,8 @@ class ObCaseOpRawExpr : public ObRawExpr {
 
  private:
   ObRawExpr* arg_expr_;
-  oceanbase::common::ObVector<ObRawExpr*> when_exprs_;
-  oceanbase::common::ObVector<ObRawExpr*> then_exprs_;
+  sb::common::ObVector<ObRawExpr*> when_exprs_;
+  sb::common::ObVector<ObRawExpr*> then_exprs_;
   ObRawExpr* default_expr_;
 };
 
@@ -331,8 +331,8 @@ class ObSqlRawExpr {
   ObSqlRawExpr();
   ObSqlRawExpr(
     uint64_t expr_id,
-    uint64_t table_id = oceanbase::common::OB_INVALID_ID,
-    uint64_t column_id = oceanbase::common::OB_INVALID_ID,
+    uint64_t table_id = sb::common::OB_INVALID_ID,
+    uint64_t column_id = sb::common::OB_INVALID_ID,
     ObRawExpr* expr = NULL);
   virtual ~ObSqlRawExpr() {}
   uint64_t get_expr_id() const { return expr_id_; }

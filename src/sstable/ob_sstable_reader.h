@@ -23,7 +23,7 @@
 #include "ob_sstable_trailer.h"
 #include "ob_disk_path.h" // for ObSSTableId;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class FileUtils;
 class ObRecordHeader;
@@ -141,7 +141,7 @@ class ObSSTableReader : public SSTableReader {
   common::IFileInfoMgr& fileinfo_cache_;
 };
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif
 

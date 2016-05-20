@@ -7,7 +7,7 @@
 #include "utility.h"
 #include "tblog.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObSingleServer::ObSingleServer() : thread_count_(0), task_queue_size_(100), min_left_time_(0), drop_packet_count_(0), host_() {
 }

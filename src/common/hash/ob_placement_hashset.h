@@ -16,7 +16,7 @@
 
 #include "ob_placement_hashmap.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace hash {
 template <class K, uint64_t N = 1031>
@@ -57,4 +57,4 @@ void ObPlacementHashSet<K, N>::clear() {
 
 } // namespace hash
 } // namespace common
-} // namespace oceanbase
+} // namespace sb

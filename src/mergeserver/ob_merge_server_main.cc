@@ -1,7 +1,7 @@
 #include "ob_merge_server_main.h"
 #include "common/ob_privilege_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 ObMergeServerMain::ObMergeServerMain()
   :  config_mgr_(ms_config_, ms_reload_config_), server_(config_mgr_, ms_config_) {

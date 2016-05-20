@@ -1,8 +1,8 @@
 #include "ob_sstable_block_scanner.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObSSTableBlockScanner::set_scan_param(
   const common::ObNewRange& range,
@@ -229,4 +229,4 @@ int ObSSTableBlockScanner::load_current_row(
   return ret;
 }
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb

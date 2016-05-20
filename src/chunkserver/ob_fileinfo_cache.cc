@@ -15,7 +15,7 @@
 #include "sstable/ob_disk_path.h"
 #include "ob_fileinfo_cache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 using namespace common;
 using namespace sstable;

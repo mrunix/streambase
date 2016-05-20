@@ -19,7 +19,7 @@
 #include "ob_stmt.h"
 #include "common/ob_string.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObShowStmt : public ObStmt {
  public:

@@ -6,7 +6,7 @@
 /**
  * 测试BtreeReadHandle
  */
-namespace oceanbase {
+namespace sb {
 namespace common {
 TEST(BtreeReadHandleTest, construct) {
   BtreeBaseHandle handle;
@@ -19,4 +19,4 @@ TEST(BtreeReadHandleTest, construct) {
   handle1.set_to_key_range(buffer, size, 0);
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

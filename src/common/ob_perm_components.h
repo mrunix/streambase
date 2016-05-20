@@ -32,7 +32,7 @@
 #include "common/ob_meta_cache.h"
 #include "common/ob_mutator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 static const int64_t SKEY_UPDATE_PERIOD = 3L * 60L * 1000L * 1000L; // 3min
 static const int64_t PERM_CACHE_TIMEOUT = 1L * 60L * 1000L * 1000L; // 1min

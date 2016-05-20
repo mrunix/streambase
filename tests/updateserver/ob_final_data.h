@@ -24,8 +24,8 @@
 #include "common/ob_scanner.h"
 #include "common/ob_schema.h"
 struct ObRowInfo {
-  oceanbase::common::ObString table_name_;
-  oceanbase::common::ObString row_key_;
+  sb::common::ObString table_name_;
+  sb::common::ObString row_key_;
 
   bool operator <(const ObRowInfo& other)const;
   bool operator ==(const ObRowInfo& other)const;
@@ -38,24 +38,24 @@ class ObFinalResult {
 
  public:
   int parse_from_file(const char* filename, const char* schema_fname);
-  int add_cell(const oceanbase::common::ObCellInfo& cell);
-  bool row_exist(const oceanbase::common::ObCellInfo& add_cell);
+  int add_cell(const sb::common::ObCellInfo& cell);
+  bool row_exist(const sb::common::ObCellInfo& add_cell);
 
  public:
-  int get(const oceanbase::common::ObGetParam& get_param, oceanbase::common::ObScanner& scanner,
+  int get(const sb::common::ObGetParam& get_param, sb::common::ObScanner& scanner,
           bool ret_null = true);
-  int scan(const oceanbase::common::ObScanParam& scan_param, oceanbase::common::ObScanner& scanner);
+  int scan(const sb::common::ObScanParam& scan_param, sb::common::ObScanner& scanner);
 
  private:
-  int apply_join(oceanbase::common::ObSchemaManager& schema_mgr,
-                 oceanbase::common::ObCellInfo& cur_cell,
-                 const oceanbase::common::ObJoinInfo& join_info);
-  mutable std::map<ObRowInfo, std::vector<oceanbase::common::ObCellInfo> >* row_infos_;
-  oceanbase::common::ObCellArray* cell_array_;
+  int apply_join(sb::common::ObSchemaManager& schema_mgr,
+                 sb::common::ObCellInfo& cur_cell,
+                 const sb::common::ObJoinInfo& join_info);
+  mutable std::map<ObRowInfo, std::vector<sb::common::ObCellInfo> >* row_infos_;
+  sb::common::ObCellArray* cell_array_;
 };
 
-bool check_result(const oceanbase::common::ObGetParam& get_param,
-                  oceanbase::common::ObScanner& ob_result, ObFinalResult& local_result);
+bool check_result(const sb::common::ObGetParam& get_param,
+                  sb::common::ObScanner& ob_result, ObFinalResult& local_result);
 
-bool check_result(const oceanbase::common::ObScanParam& scan_param,
-                  oceanbase::common::ObScanner& ob_result, ObFinalResult& local_result);
+bool check_result(const sb::common::ObScanParam& scan_param,
+                  sb::common::ObScanner& ob_result, ObFinalResult& local_result);

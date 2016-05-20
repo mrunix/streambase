@@ -3,8 +3,8 @@
 #include "task_manager.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 static const int CS_HIST_VERSION = 2;
 

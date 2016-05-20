@@ -21,10 +21,10 @@
 #include "common/thread_buffer.h"
 #include "test_utils2.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 struct Config {
   static int64_t MAX_N_DATA_ITEMS;
@@ -181,9 +181,9 @@ TEST_F(ObLogReplayWorkerTest, Replay) {
   ASSERT_EQ(OB_SUCCESS, replay_log(max_num_items));
 }
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 
-using namespace oceanbase::test;
+using namespace sb::test;
 int main(int argc, char** argv) {
   int err = OB_SUCCESS;
   int n_data_items_shift = 0;

@@ -17,9 +17,9 @@
 #include "common/ob_schema.h"
 #include "ob_schema_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObMergerSchemaManager::ObMergerSchemaManager() {
   init_ = false;
@@ -186,4 +186,4 @@ int ObMergerSchemaManager::print_info(void) const {
   return ret;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

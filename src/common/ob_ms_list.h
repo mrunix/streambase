@@ -28,7 +28,7 @@
 #include "common/ob_result.h"
 // #include "rootserver/ob_chunk_server_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 /**

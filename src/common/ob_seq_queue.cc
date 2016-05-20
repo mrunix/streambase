@@ -13,7 +13,7 @@
  */
 #include "ob_seq_queue.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObSeqQueue::ObSeqQueue(): seq_(0), items_(NULL), limit_(0)
 {}
@@ -160,4 +160,4 @@ int ObSeqQueue::update(const int64_t seq) {
   return err;
 }
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb

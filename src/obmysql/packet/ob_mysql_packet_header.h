@@ -21,7 +21,7 @@
 #include "common/ob_define.h"
 #include "tblog.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 class ObMySQLPacketHeader {
  public:

@@ -21,7 +21,7 @@
 #include "sql/ob_sql_get_param.h"
 #include "rootserver/ob_chunk_server_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace client {
 class ObServerRpc : public common::ObGeneralRpcStub {
  public:
@@ -37,7 +37,7 @@ class ObServerRpc : public common::ObGeneralRpcStub {
   int rs_get_data_servers(const int64_t timeout, const common::ObServer& root_server,
                           const int32_t pcode, common::ObArray<common::ObServer>& chunk_servers);
 };
-} // namespace oceanbase::client
+} // namespace sb::client
 } // namespace Oceanbase
 
 #endif // OCEANBASE_CLIENT_OB_SERVER_RPC_H_

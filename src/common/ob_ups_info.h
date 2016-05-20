@@ -17,7 +17,7 @@
 #define _OB_RS_MS_MESSAGE_H 1
 
 #include "ob_server.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 enum ObUpsStat {
   UPS_SLAVE = 0,       ///< slave
@@ -105,7 +105,7 @@ inline int32_t ObUpsList::get_sum_percentage(const ObServerType type/*= MERGE_SE
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_RS_MS_MESSAGE_H */
 

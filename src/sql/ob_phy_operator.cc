@@ -16,7 +16,7 @@
 
 #include "ob_phy_operator.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace sql;
 
 DEFINE_SERIALIZE(ObPhyOperator) {

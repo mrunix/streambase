@@ -18,7 +18,7 @@
 #ifndef  OCEANBASE_COMMON_HINT_H_
 #define OCEANBASE_COMMON_HINT_H_
 #include "utility.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 enum ObConsistencyLevel {
   NO_CONSISTENCY = 0,

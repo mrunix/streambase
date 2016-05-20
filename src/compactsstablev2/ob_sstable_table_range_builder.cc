@@ -1,8 +1,8 @@
 #include "ob_sstable_table_range_builder.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObSSTableTableRangeBuilder::add_item_border_flag(
   const ObBorderFlag& flag) {
@@ -55,4 +55,4 @@ int ObSSTableTableRangeBuilder::add_item(const common::ObRowkey& row_key) {
   return ret;
 }
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb

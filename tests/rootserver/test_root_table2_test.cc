@@ -22,10 +22,10 @@
 #include "rootserver/ob_root_table2.h"
 #include "../common/test_rowkey_helper.h"
 using namespace std;
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 namespace rootserver {
 static CharArena allocator_;

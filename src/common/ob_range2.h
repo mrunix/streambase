@@ -20,7 +20,7 @@
 #include "ob_malloc.h"
 #include "common/utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObNewRange : public RowkeyInfoHolder {
   uint64_t table_id_;
@@ -262,7 +262,7 @@ inline int deep_copy_range(Allocator& start_key_allocator,
   return ret;
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_COMMON_OB_RANGE_H_
 

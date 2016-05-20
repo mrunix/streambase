@@ -19,7 +19,7 @@
 #include "btree_define.h"
 #include "btree_node.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace cmbtree {
 template<class K, class V>
@@ -182,6 +182,6 @@ int64_t BtreeRecycleNode<K, V>::get_node_num() {
 
 } // end namespace cmbtree
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_CMBTREE_BTREE_RECYCLE_NODE_H_

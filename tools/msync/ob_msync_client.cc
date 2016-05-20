@@ -14,7 +14,7 @@
 #include "common/ob_result.h"
 #include "ob_msync_client.h"
 
-namespace oceanbase {
+namespace sb {
 namespace msync {
 const char* server_to_str(ObServer svr) {
   static char buf[64];
@@ -71,4 +71,4 @@ int ObMsyncClient::send_mutator_may_need_retry_(ObDataBuffer mut) {
   return err;
 }
 } //end namespace msync
-} // end namespace oceanbase
+} // end namespace sb

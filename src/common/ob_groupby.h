@@ -27,7 +27,7 @@
 #include "ob_simple_filter.h"
 #include <vector>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 extern const char* GROUPBY_CLAUSE_HAVING_COND_AS_CNAME_PREFIX;
 /// we do not implement avg, because avg can be calculated by client using SUM and COUNT
@@ -67,16 +67,16 @@ class ObAggregateColumn {
   int to_str(char* buf, int64_t buf_size, int64_t& pos)const;
 
   /// calculage aggregate value
-  int calc_aggregate_val(oceanbase::common::ObObj& aggregated_val, const oceanbase::common::ObObj& new_val)const;
+  int calc_aggregate_val(sb::common::ObObj& aggregated_val, const sb::common::ObObj& new_val)const;
 
   bool operator==(const ObAggregateColumn& other)const;
 
-  int get_first_aggregate_obj(const oceanbase::common::ObObj& first_obj,
-                              oceanbase::common::ObObj& agg_obj)const;
-  int init_aggregate_obj(oceanbase::common::ObObj& agg_obj)const;
+  int get_first_aggregate_obj(const sb::common::ObObj& first_obj,
+                              sb::common::ObObj& agg_obj)const;
+  int init_aggregate_obj(sb::common::ObObj& agg_obj)const;
  private:
-  oceanbase::common::ObString org_column_name_;
-  oceanbase::common::ObString as_column_name_;
+  sb::common::ObString org_column_name_;
+  sb::common::ObString as_column_name_;
   int64_t                     org_column_idx_;
   int64_t                     as_column_idx_;
   ObAggregateFuncType         func_type_;
@@ -118,7 +118,7 @@ class ObGroupKey {
   inline const ObGroupByParam* get_groupby_param() const {
     return group_by_param_;
   }
-  inline const oceanbase::common::ObCellArray* get_cell_array() const {
+  inline const sb::common::ObCellArray* get_cell_array() const {
     return cell_array_;
   }
 
@@ -131,7 +131,7 @@ class ObGroupKey {
   uint32_t hash_val_;
   int32_t  key_type_;
   const ObGroupByParam* group_by_param_;
-  const oceanbase::common::ObCellArray* cell_array_;
+  const sb::common::ObCellArray* cell_array_;
   int64_t row_beg_;
   int64_t row_end_;
 };
@@ -145,18 +145,18 @@ class ObGroupByParam {
   void reset(bool deep_copy_args = true);
 
   /// groupby columns were used to divide groups, if column_name is NULL, means all result is a single group, e.x. count(*)
-  int add_groupby_column(const oceanbase::common::ObString& column_name, bool is_return = true);
+  int add_groupby_column(const sb::common::ObString& column_name, bool is_return = true);
   /// column_idx == -1 means all result is a single group, e.x. count(*)
   int add_groupby_column(const int64_t column_idx, bool is_return = true);
 
   /// the return columns' values of a group were only decided by first row fetched belong to this group
-  int add_return_column(const oceanbase::common::ObString& column_name, bool is_return = true);
+  int add_return_column(const sb::common::ObString& column_name, bool is_return = true);
   int add_return_column(const int64_t column_idx, bool is_return = true);
 
   /// add an aggregate column
-  static oceanbase::common::ObString COUNT_ROWS_COLUMN_NAME;
-  int add_aggregate_column(const oceanbase::common::ObString& org_column_name,
-                           const oceanbase::common::ObString& as_column_name, const ObAggregateFuncType  aggregate_func,
+  static sb::common::ObString COUNT_ROWS_COLUMN_NAME;
+  int add_aggregate_column(const sb::common::ObString& org_column_name,
+                           const sb::common::ObString& as_column_name, const ObAggregateFuncType  aggregate_func,
                            bool is_return = true);
   int add_aggregate_column(const int64_t org_column_idx, const ObAggregateFuncType  aggregate_func, bool is_return = true);
 
@@ -182,8 +182,8 @@ class ObGroupByParam {
   /// calculate aggregate result
   /// org_cells [in] result after merge & join  [org_row_beg, org_row_end]
   /// aggregate_cells [in/out] aggregate result row of current group [aggregate_row_beg,aggregate_row_end]
-  int aggregate(const oceanbase::common::ObCellArray& org_cells,  const int64_t org_row_beg,
-                const int64_t org_row_end, oceanbase::common::ObCellArray& aggregate_cells,
+  int aggregate(const sb::common::ObCellArray& org_cells,  const int64_t org_row_beg,
+                const int64_t org_row_end, sb::common::ObCellArray& aggregate_cells,
                 const int64_t aggregate_row_beg, const int64_t aggregate_row_end)const;
 
   int serialize(char* buf, const int64_t buf_len, int64_t& pos) const;
@@ -199,7 +199,7 @@ class ObGroupByParam {
   int64_t get_returned_column_num();
 
   struct ColumnInfo {
-    oceanbase::common::ObString column_name_;
+    sb::common::ObString column_name_;
     int64_t                     org_column_idx_;
     int64_t                     as_column_idx_;
     ColumnInfo() {
@@ -232,23 +232,23 @@ class ObGroupByParam {
     }
   };
 
-  inline const oceanbase::common::ObArrayHelper<ColumnInfo>& get_groupby_columns(void)const {
+  inline const sb::common::ObArrayHelper<ColumnInfo>& get_groupby_columns(void)const {
     return group_by_columns_;
   }
 
-  inline const oceanbase::common::ObArrayHelper<ColumnInfo>& get_return_columns(void)const {
+  inline const sb::common::ObArrayHelper<ColumnInfo>& get_return_columns(void)const {
     return return_columns_;
   }
 
-  inline const oceanbase::common::ObArrayHelper<ObAggregateColumn>& get_aggregate_columns(void)const {
+  inline const sb::common::ObArrayHelper<ObAggregateColumn>& get_aggregate_columns(void)const {
     return aggregate_columns_;
   }
 
-  inline const oceanbase::common::ObArrayHelper<ObCompositeColumn>& get_composite_columns(void)const {
+  inline const sb::common::ObArrayHelper<ObCompositeColumn>& get_composite_columns(void)const {
     return groupby_comp_columns_;
   }
 
-  inline const oceanbase::common::ObArrayHelpers<bool>& get_return_infos(void)const {
+  inline const sb::common::ObArrayHelpers<bool>& get_return_infos(void)const {
     return return_infos_;
   }
 
@@ -261,7 +261,7 @@ class ObGroupByParam {
   }
 
 
-  int64_t find_column(const oceanbase::common::ObString& column_name)const;
+  int64_t find_column(const sb::common::ObString& column_name)const;
 
   int  get_aggregate_column_name(const int64_t column_idx, ObString& column_name)const;
 

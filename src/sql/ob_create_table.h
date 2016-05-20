@@ -20,7 +20,7 @@
 #include "common/ob_schema_service.h"
 #include "sql/ob_sql_context.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMergerRootRpcProxy;
 } // end namespace mergeserver
@@ -77,6 +77,6 @@ inline int ObCreateTable::get_row_desc(const common::ObRowDesc*& row_desc) const
 }
 
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* OCEANBASE_SQL_OB_CREATE_TABLE_H_ */

@@ -36,11 +36,11 @@
 #define __ms_debug__
 #include "common/debug.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 static const int32_t MAX_ERROR_MSG_LEN = 256;
 ObMergeServerService::ObMergeServerService() {

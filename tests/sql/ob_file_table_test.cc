@@ -21,9 +21,9 @@
 #include "common/ob_row.h"
 #include "common/ob_ups_row.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::sql::test;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::sql::test;
+using namespace sb::common;
 
 #define OK(value) ASSERT_EQ(OB_SUCCESS, (value))
 

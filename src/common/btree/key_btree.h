@@ -3,7 +3,7 @@
 
 #include "btree_base.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * 以不同类型的key的BTree
@@ -509,6 +509,6 @@ char* KeyBtree<K, V>::set_key_to_buf(char* tmpkey, const K& key) {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif

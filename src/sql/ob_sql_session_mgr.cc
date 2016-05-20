@@ -3,8 +3,8 @@
 #include "common/hash/ob_hashutils.h"
 #include "ob_sql_session_info_traversal.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common::hash;
+using namespace sb::sql;
+using namespace sb::common::hash;
 
 ObSQLSessionMgr::ObSQLSessionMgr(): sql_server_(NULL) {
 

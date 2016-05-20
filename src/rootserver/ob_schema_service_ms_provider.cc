@@ -15,8 +15,8 @@
  */
 #include "ob_schema_service_ms_provider.h"
 #include "common/utility.h"
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
 ObSchemaServiceMsProvider::ObSchemaServiceMsProvider(const ObChunkServerManager& server_manager)
   : server_manager_(server_manager), count_(0) {

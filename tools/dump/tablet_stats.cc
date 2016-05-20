@@ -28,8 +28,8 @@
 #include "common/ob_string.h"
 #include "db_parse_log.h"
 
-using namespace oceanbase::api;
-using namespace oceanbase::common;
+using namespace sb::api;
+using namespace sb::common;
 using namespace std;
 using namespace tbsys;
 

@@ -20,9 +20,9 @@
 #include "test_rowkey_helper.h"
 
 using namespace std;
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace common {
 static const int64_t table_id = 100;
@@ -569,7 +569,7 @@ TEST_F(TestObGetParam, deep_copy_args) {
 }
 }//end namespace common
 }//end namespace tests
-}//end namespace oceanbase
+}//end namespace sb
 
 int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);

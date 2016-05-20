@@ -19,7 +19,7 @@
 
 #include "common/ob_config_helper.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 enum ObConfigItemType {
   OB_CONFIG_DYNAMIC = 1,   /* for which works immediately */

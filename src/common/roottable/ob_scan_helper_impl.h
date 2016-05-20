@@ -22,7 +22,7 @@
 #include "ob_ms_provider.h"
 #include "ob_ups_provider.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // thread-safe if ms_provider and ups_provider is thread-safe
 class ObScanHelperImpl: public ObScanHelper {
@@ -82,7 +82,7 @@ inline void ObScanHelperImpl::set_scan_retry_times(const int64_t retry_times) {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_SCAN_HELPER_IMPL_H */
 

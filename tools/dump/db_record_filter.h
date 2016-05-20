@@ -22,7 +22,7 @@
 #include <string>
 #include "db_record.h"
 
-using namespace oceanbase::api;
+using namespace sb::api;
 
 class DbRowFilter {
  public:

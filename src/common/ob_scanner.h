@@ -25,7 +25,7 @@
 #include "ob_range2.h"
 #include "page_arena.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObSchemaManagerV2;
 class ObScanner : public ObIterator, public ObInnerIterator {
@@ -275,10 +275,10 @@ class ObScanner : public ObIterator, public ObInnerIterator {
   /// @retval OB_SUCCESS go to the next cell succ
   int next_cell();
 
-  int get_cell(oceanbase::common::ObCellInfo** cell);
-  int get_cell(oceanbase::common::ObCellInfo** cell, bool* is_row_changed);
-  int get_cell(oceanbase::common::ObInnerCellInfo** cell);
-  int get_cell(oceanbase::common::ObInnerCellInfo** cell, bool* is_row_changed);
+  int get_cell(sb::common::ObCellInfo** cell);
+  int get_cell(sb::common::ObCellInfo** cell, bool* is_row_changed);
+  int get_cell(sb::common::ObInnerCellInfo** cell);
+  int get_cell(sb::common::ObInnerCellInfo** cell, bool* is_row_changed);
 
   int next_row();
   int get_row(ObCellInfo** cell_info, int64_t* num);

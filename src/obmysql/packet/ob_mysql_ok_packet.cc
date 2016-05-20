@@ -1,9 +1,9 @@
 #include "ob_mysql_ok_packet.h"
 #include "../ob_mysql_util.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 
 ObMySQLOKPacket::ObMySQLOKPacket()

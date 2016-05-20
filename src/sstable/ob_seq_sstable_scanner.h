@@ -20,7 +20,7 @@
 #include "common/ob_array_helper.h"
 #include "ob_sstable_scanner.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObScanParam;
 class ObCellInfo;
@@ -69,7 +69,7 @@ class ObSeqSSTableScanner : public common::ObIterator {
 };
 
 } // end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #endif //OCEANBASE_SSTABLE_SEQ_SSTABLE_SCANNER_H_

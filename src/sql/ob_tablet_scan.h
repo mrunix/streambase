@@ -35,7 +35,7 @@
 #include "sql/ob_sql_scan_param.h"
 #include "sql/ob_tablet_read.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 namespace test {
 class ObTabletScanTest_create_plan_not_join_Test;
@@ -127,6 +127,6 @@ void ObTabletScan::set_sql_scan_param(const ObSqlScanParam& sql_scan_param) {
   sql_scan_param_ = &sql_scan_param;
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_TABLET_SCAN_H */

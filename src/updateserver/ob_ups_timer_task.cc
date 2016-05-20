@@ -14,7 +14,7 @@
 
 #include "ob_ups_timer_task.h"
 #include "ob_update_server_main.h"
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 ObUpsCheckKeepAliveTask::ObUpsCheckKeepAliveTask() {
 }

@@ -18,7 +18,7 @@
 #include "ob_array.h"
 #include "page_arena.h"         // for ModulePageAllocator
 #include "ob_iarray.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 template <typename T, int64_t LOCAL_ARRAY_SIZE, typename BlockAllocatorT = ModulePageAllocator, typename CallBack = ObArrayDefaultCallBack<T> >
 class ObSEArray : public ObIArray<T> {
@@ -382,6 +382,6 @@ template<typename T, int64_t LOCAL_ARRAY_SIZE, typename BlockAllocatorT>
   }
   */
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_SE_ARRAY_H */

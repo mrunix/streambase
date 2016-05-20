@@ -16,7 +16,7 @@
 #include "ob_define.h"
 #include "ob_server.h"
 #include "ob_string.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 enum IsolationLevel {
   NO_LOCK = 1,
@@ -71,6 +71,6 @@ struct ObEndTransReq {
   bool   rollback_;
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_TRANSACTION_H__ */

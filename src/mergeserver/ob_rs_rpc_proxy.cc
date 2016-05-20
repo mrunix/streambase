@@ -5,8 +5,8 @@
 #include "common/ob_general_rpc_stub.h"
 #include "ob_rs_rpc_proxy.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 
 ObMergerRootRpcProxy::ObMergerRootRpcProxy(const int64_t retry_times,
@@ -155,7 +155,7 @@ int ObMergerRootRpcProxy::scan_root_table(ObTabletLocationCache* cache,
     bool row_change = false;
     TBSYS_LOG(DEBUG, "root server get rpc return succeed, cell num=%ld",
               scanner.get_cell_num());
-    oceanbase::common::dump_scanner(scanner, TBSYS_LOG_LEVEL_DEBUG, 0);
+    sb::common::dump_scanner(scanner, TBSYS_LOG_LEVEL_DEBUG, 0);
     ObScannerIterator iter = scanner.begin();
     // all return cell in a row must be same as root table's columns
     ++iter;

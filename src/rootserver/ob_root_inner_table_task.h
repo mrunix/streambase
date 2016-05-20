@@ -18,7 +18,7 @@
 #include "common/ob_timer.h"
 #include "ob_root_async_task_queue.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootSQLProxy;
 class ObRootInnerTableTask: public common::ObTimerTask {

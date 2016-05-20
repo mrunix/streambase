@@ -19,7 +19,7 @@
 #include "common/ob_read_common_data.h"
 #include "ob_cell_stream.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 /**
  * this is one of ObCellStream subclasses, it can provide cell

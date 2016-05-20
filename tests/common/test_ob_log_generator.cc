@@ -4,7 +4,7 @@
 #include "common/utility.h"
 #include "../updateserver/rwt.h"
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 static int parse_log_buffer(const char* log_data, int64_t data_len, const ObLogCursor& start_cursor, ObLogCursor& end_cursor) {
   int err = OB_SUCCESS;
@@ -145,7 +145,7 @@ TEST_F(ObLogGeneratorTest, GenLog) {
 }
 }
 }
-using namespace oceanbase::test;
+using namespace sb::test;
 
 int main(int argc, char** argv) {
   int err = OB_SUCCESS;

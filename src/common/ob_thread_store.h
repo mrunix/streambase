@@ -18,7 +18,7 @@
 
 #include <pthread.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template <int ModId = ObModIds::OB_THREAD_STORE>
 class DfltThreadStoreAlloc {

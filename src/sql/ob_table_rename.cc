@@ -17,11 +17,11 @@
 #include "ob_table_rename.h"
 #include "ob_sql_expression.h"
 #include "common/utility.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObTableRename, PHY_TABLE_RENAME);
 }

@@ -3,7 +3,7 @@
 
 #include "btree_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * BTree搜索过程的辅助结构
@@ -39,6 +39,6 @@ class BtreeReadParam {
   int16_t node_pos_[CONST_MAX_DEPTH];
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif

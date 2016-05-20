@@ -24,9 +24,9 @@
 #include "sstable/ob_sstable_row.h"
 #include "sstable/ob_sstable_trailer.h"
 #include "sstable/ob_sstable_block_builder.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::sstable;
 
 
 

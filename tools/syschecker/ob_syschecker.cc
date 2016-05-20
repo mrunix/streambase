@@ -16,7 +16,7 @@
 #include "common/ob_mutator.h"
 #include "common/utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace syschecker {
 using namespace common;
 
@@ -527,4 +527,4 @@ int ObSyschecker::write_rowkey_range() {
   return ret;
 }
 } // end namespace syschecker
-} // end namespace oceanbase
+} // end namespace sb

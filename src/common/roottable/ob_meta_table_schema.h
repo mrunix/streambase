@@ -17,7 +17,7 @@
 #define _OB_META_TABLE_SCHEMA_H 1
 #include "common/ob_string.h"
 #include "ob_tablet_meta_table_row.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct TableSchema;
 struct ObMetaTableColumnSchema: public ObTabletMetaTableColumnSchema {
@@ -56,7 +56,7 @@ extern const ObString STARTKEY_OBJ_PREFIX;
 extern const ObString ENDKEY_OBJ_PREFIX;
 } // end namespace meta_table_columns_name
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_META_TABLE_SCHEMA_H */
 

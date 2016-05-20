@@ -11,7 +11,7 @@
 #include "ob_allocator.h"
 
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // convenient function for memory alignment
 inline size_t get_align_offset(void* p) {
@@ -526,6 +526,6 @@ class ObArenaAllocator: public ObIAllocator {
     while (0)
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // end if OCEANBASE_COMMON_PAGE_ARENA_H_

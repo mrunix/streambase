@@ -15,8 +15,8 @@
  */
 #include "ob_values.h"
 #include "common/utility.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObValues::ObValues() {
 }
@@ -82,7 +82,7 @@ int ObValues::get_row_desc(const common::ObRowDesc*& row_desc) const {
   return OB_SUCCESS;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObValues, PHY_VALUES);
 }

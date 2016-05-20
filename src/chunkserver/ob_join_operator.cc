@@ -20,9 +20,9 @@
 #include "ob_get_param_cell_iterator.h"
 #include <poll.h>
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 void ObJoinOperator::initialize() {
   schema_mgr_ = NULL;
@@ -538,4 +538,4 @@ int ObJoinOperator::get_cell(ObInnerCellInfo** cell, bool* is_row_changed) {
   return result_array_->get_cell(cell, is_row_changed);
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

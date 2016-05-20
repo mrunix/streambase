@@ -24,11 +24,11 @@
 #include "ob_malloc.h"
 
 using namespace std;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 static int __init_memory_pool__ = ob_init_memory_pool();
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace common {
 
@@ -274,7 +274,7 @@ TEST_F(TestRingBuffer, test_pre_process_large_task) {
 
 } // end namespace common
 } // end namespace tests
-} // end namespace oceanbase
+} // end namespace sb
 
 
 int main(int argc, char** argv) {

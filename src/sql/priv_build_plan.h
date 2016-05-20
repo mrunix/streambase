@@ -23,17 +23,17 @@
 
 #define PARSER_LOG(...) snprintf(result_plan->err_stat_.err_msg_, MAX_ERROR_MSG, __VA_ARGS__)
 
-inline oceanbase::sql::ObLogicalPlan* get_logical_plan(ResultPlan* result_plan) {
-  oceanbase::sql::ObLogicalPlan* ret = NULL;
+inline sb::sql::ObLogicalPlan* get_logical_plan(ResultPlan* result_plan) {
+  sb::sql::ObLogicalPlan* ret = NULL;
   if (result_plan->plan_tree_ == NULL) {
-    void* ptr = parse_malloc(sizeof(oceanbase::sql::ObLogicalPlan), result_plan->name_pool_);
+    void* ptr = parse_malloc(sizeof(sb::sql::ObLogicalPlan), result_plan->name_pool_);
     if (NULL != ptr) {
-      oceanbase::common::ObStringBuf* name_pool = static_cast<oceanbase::common::ObStringBuf*>(result_plan->name_pool_);
-      ret = new(ptr) oceanbase::sql::ObLogicalPlan(name_pool);
+      sb::common::ObStringBuf* name_pool = static_cast<sb::common::ObStringBuf*>(result_plan->name_pool_);
+      ret = new(ptr) sb::sql::ObLogicalPlan(name_pool);
       result_plan->plan_tree_ = ret;
     }
   } else {
-    ret = static_cast<oceanbase::sql::ObLogicalPlan*>(result_plan->plan_tree_);
+    ret = static_cast<sb::sql::ObLogicalPlan*>(result_plan->plan_tree_);
   }
   return ret;
 }
@@ -57,7 +57,7 @@ int prepare_resolve_stmt(ResultPlan* result_plan,
   OB_ASSERT(result_plan);
   int& ret = result_plan->err_stat_.err_code_ = OB_SUCCESS;
   query_id = OB_INVALID_ID;
-  oceanbase::sql::ObLogicalPlan* logical_plan = NULL;
+  sb::sql::ObLogicalPlan* logical_plan = NULL;
   stmt = NULL;
   if (NULL == (logical_plan = get_logical_plan(result_plan))) {
     ret = OB_ERR_PARSER_MALLOC_FAILED;

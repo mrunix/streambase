@@ -40,7 +40,7 @@ OB_LOG_CPP_END
 #include "ob_log_filter.h"
 #include "ob_log_meta_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace liboblog {
 class IObLogPartitioner {
  public:

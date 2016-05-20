@@ -36,7 +36,7 @@
 #include "common/ob_simple_tpl.h"
 #include "common/ob_stack_allocator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class IExternMemTotal {
  public:

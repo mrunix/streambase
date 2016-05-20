@@ -7,7 +7,7 @@
 #include "common/ob_fifo_allocator.h"
 #include "gtest/gtest.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 TEST(TestFIFOAllocator, init) {

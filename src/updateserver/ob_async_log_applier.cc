@@ -18,7 +18,7 @@
 #include "ob_session_guard.h"
 #include "ob_ups_utils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 int64_t ReplayTaskProfile::to_string(char* buf, int64_t len) const {
   return snprintf(buf, len, "log: %ld[%s], submit: %ld, aqueue: %ld, apply: %ld, cqueue: %ld, commit: %ld, flush: %ld",
@@ -316,4 +316,4 @@ int ObAsyncLogApplier::on_destroy(ObLogTask& task) {
   return err;
 }
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb

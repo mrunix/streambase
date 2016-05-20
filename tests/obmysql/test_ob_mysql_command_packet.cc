@@ -21,10 +21,10 @@
 #include "common/ob_malloc.h"
 #include "obmysql/packet/ob_mysql_command_packet.h"
 #include "gtest/gtest.h"
-using namespace oceanbase::obmysql;
-using namespace oceanbase::common;
+using namespace sb::obmysql;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 class TestObMySQLCommandPacket: public ::testing::Test {
 

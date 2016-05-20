@@ -19,9 +19,9 @@
 #include "common/ob_schema.h"
 #include "common/ob_string_buf.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 ObSqlGetParam::ObSqlGetParam() :
   max_row_capacity_(MAX_ROW_CAPACITY),

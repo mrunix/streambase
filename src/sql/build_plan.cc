@@ -35,8 +35,8 @@
 #include "ob_change_obi_stmt.h"
 #include <stdint.h>
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
 int resolve_multi_stmt(ResultPlan* result_plan, ParseNode* node);
 int resolve_explain_stmt(

@@ -29,7 +29,7 @@
 #include "common/ob_scanner.h"
 #include "common/ob_mutator.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class BaseClient {
  public:

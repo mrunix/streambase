@@ -18,7 +18,7 @@
 #include "common/ob_crc64.h"
 #include "ob_sstable_block_builder.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 using namespace common;
 using namespace common::serialization;
@@ -418,4 +418,4 @@ int ObSSTableBlockBuilder::set_column_group_id(const uint64_t column_group_id) {
   return ret;
 }
 } // end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb

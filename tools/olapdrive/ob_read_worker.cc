@@ -19,7 +19,7 @@
 #include "common/ob_tsi_factory.h"
 #include "ob_read_worker.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 using namespace tbsys;
 using namespace common;
@@ -93,4 +93,4 @@ void ObReadWorker::run(CThread* thread, void* arg) {
   }
 }
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb

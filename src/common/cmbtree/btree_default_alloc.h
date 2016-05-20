@@ -16,7 +16,7 @@
 #ifndef OCEANBASE_COMMON_CMBTREE_BTREE_DEFAULT_ALLOC_H_
 #define OCEANBASE_COMMON_CMBTREE_BTREE_DEFAULT_ALLOC_H_
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace cmbtree {
 class BtreeDefaultAlloc {
@@ -31,6 +31,6 @@ class BtreeDefaultAlloc {
 };
 } // end namespace cmbtree
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_CMBTREE_BTREE_DEFAULT_ALLOC_H_

@@ -9,9 +9,9 @@
 #include "mergeserver/ob_ms_tablet_location.h"
 #include "mergeserver/ob_tablet_location_range_iterator.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::mergeserver;
 using namespace testing;
 
 #define FUNC_BLOCK() if (true) \

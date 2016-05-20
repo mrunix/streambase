@@ -23,8 +23,8 @@
 #include "easy_io.h"
 #include "common/ob_tbnet_callback.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
 const char* UpsMon::DEFAULT_LOG_LEVEL = "WARN";
 UpsMon* UpsMon::instance_ = NULL;

@@ -16,8 +16,8 @@
 
 #include "common/utility.h"
 #include "ob_sstable_scan_param.h"
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace sstable {
 ObSSTableScanParam::ObSSTableScanParam() {
   reset();

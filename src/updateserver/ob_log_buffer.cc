@@ -17,9 +17,9 @@
 #include "ob_log_buffer.h"
 #include "ob_ups_log_utils.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 ObLogBuffer::ObLogBuffer(): end_id_(0)
 {}
@@ -240,5 +240,5 @@ int append_to_log_buffer(ObLogBuffer* log_buf,
   return err;
 }
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 

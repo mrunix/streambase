@@ -20,7 +20,7 @@
 
 #include "common/ob_timer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace clustermanager {
 class ObOcmBroadcastTask: public common::ObTimerTask {
  public:

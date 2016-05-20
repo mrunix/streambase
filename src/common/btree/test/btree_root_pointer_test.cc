@@ -7,7 +7,7 @@
 /**
  * 测试BtreeRootPointer
  */
-namespace oceanbase {
+namespace sb {
 namespace common {
 TEST(BtreeRootPointerTest, add_node_list) {
   BtreeDefaultAlloc allocator;
@@ -84,4 +84,4 @@ TEST(BtreeRootPointerTest, remove_from_list) {
   }
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

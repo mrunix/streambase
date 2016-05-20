@@ -1,7 +1,7 @@
 
 #include "mock_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 int MockServer::set_self(const char* dev_name, const int32_t port) {
   int ret = OB_SUCCESS;

@@ -17,9 +17,9 @@
 #include "ob_merge_server.h"
 #include "ob_merge_reload_config.h"
 
-using namespace oceanbase;
-using namespace oceanbase::mergeserver;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::mergeserver;
+using namespace sb::common;
 
 ObMergeReloadConfig::ObMergeReloadConfig()
   : merge_server_(NULL) {

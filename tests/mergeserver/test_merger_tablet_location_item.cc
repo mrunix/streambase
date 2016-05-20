@@ -9,8 +9,8 @@
 #include "common/location/ob_tablet_location_list.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();

@@ -6,7 +6,7 @@
 #include "common/ob_fileinfo_manager.h"
 #include "compactsstablev2/ob_sstable_disk_path.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class FileInfoBase : public common::IFileInfo {
  protected:

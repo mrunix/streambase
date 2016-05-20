@@ -30,17 +30,17 @@
 #include "sql/ob_item_type.h"
 #include "common/ob_row.h"
 using namespace std;
-using namespace oceanbase::common;
+using namespace sb::common;
 using namespace tbsys;
-using namespace oceanbase::mergeserver;
-using namespace oceanbase::sql;
-using namespace oceanbase::sql::test;
+using namespace sb::mergeserver;
+using namespace sb::sql;
+using namespace sb::sql::test;
 using namespace testing;
 
 const uint64_t timeout = 10000000;
 const char* addr = "127.0.0.1";
 /*
-namespace oceanbase
+namespace sb
 {
   namespace sql
   {

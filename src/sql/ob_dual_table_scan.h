@@ -18,8 +18,8 @@
 #include "sql/ob_no_children_phy_operator.h"
 #include "common/ob_row.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace sql {
 class ObDualTableScan: public ObNoChildrenPhyOperator {
  public:
@@ -139,6 +139,6 @@ inline DEFINE_GET_SERIALIZE_SIZE(ObDualTableScan) {
 }
 
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_DUAL_TABLE_SCAN_H */

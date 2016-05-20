@@ -24,12 +24,12 @@
 #include "db_record.h"
 #include <string>
 
-namespace oceanbase {
+namespace sb {
 namespace api {
 const int k2M = 1024 * 1024 * 2;
 const int kTabletDupNr = 3;
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class DbRecord;
 struct TabletSliceLocation {

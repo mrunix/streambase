@@ -15,7 +15,7 @@
 #include "ob_ups_slave_mgr.h"
 #include "common/ob_malloc.h"
 #include "common/utility.h"
-using namespace oceanbase::updateserver;
+using namespace sb::updateserver;
 
 static const int64_t DEFAULT_NETWORK_TIMEOUT = 1000 * 1000;
 

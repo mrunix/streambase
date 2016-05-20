@@ -22,11 +22,11 @@
 #include "sstable/ob_disk_path.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::chunkserver;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace sstable {
 static char file_name[256];
@@ -482,7 +482,7 @@ TEST_F(TestObAIOBufferMgr, test_get_block_incontinuous) {
 
 }//end namespace chunkserver
 }//end namespace tests
-}//end namespace oceanbase
+}//end namespace sb
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();

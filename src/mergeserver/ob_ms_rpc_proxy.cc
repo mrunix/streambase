@@ -16,8 +16,8 @@
 #include "common/location/ob_tablet_location_cache.h"
 #include "common/location/ob_tablet_location_list.h"
 #include "common/ob_rpc_macros.h"
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 ObMergerRpcProxy::ObMergerRpcProxy(const ObServerType type): ups_list_lock_(tbsys::WRITE_PRIORITY),
   mm_ups_list_lock_(tbsys::WRITE_PRIORITY) {

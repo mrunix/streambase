@@ -25,7 +25,7 @@
 #include "page_arena.h"
 #include "ob_rowkey.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // This class is not thread safe.
 // ObStringBufT is used to store the ObString and ObObj object.

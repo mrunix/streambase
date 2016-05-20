@@ -21,7 +21,7 @@
 #include <vector>
 #include <common/ob_buffer.h>
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 /**
  * 表示JOIN操作的结构体

@@ -1,5 +1,5 @@
 #include "common/ob_timer.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 using namespace tbutil;
 int ObTimer::init() {

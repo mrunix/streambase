@@ -17,7 +17,7 @@
 #include "utility.h"
 #include "ob_fixed_queue.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class TSIBlockCache {
  public:
@@ -196,6 +196,6 @@ class ObTSIBlockAllocator: public ObIAllocator {
   int64_t big_block_glimit_;
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_BLOCK_ALLOCATOR_H__ */

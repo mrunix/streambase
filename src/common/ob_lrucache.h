@@ -30,7 +30,7 @@
 #include "hash/ob_hashmap.h"
 #include "hash/ob_hashutils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 using namespace hash;
 

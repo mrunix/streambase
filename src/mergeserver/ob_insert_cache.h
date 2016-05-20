@@ -5,7 +5,7 @@
 #include "common/bloom_filter.h"
 #include "common/ob_range2.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 struct InsertCacheKey {
   InsertCacheKey():

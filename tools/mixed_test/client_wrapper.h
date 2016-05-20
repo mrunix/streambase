@@ -7,7 +7,7 @@
 #include "mock_client.h"
 #include "utils.h"
 
-using namespace oceanbase;
+using namespace sb;
 
 class IClient {
  public:

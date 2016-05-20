@@ -8,8 +8,8 @@
 #include "ob_root_monitor_table.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();

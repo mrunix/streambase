@@ -2,8 +2,8 @@
 #include "stats.h"
 #include "common/utility.h"
 
-namespace oceanbase {
-using namespace oceanbase::common;
+namespace sb {
+using namespace sb::common;
 namespace obsql {
 int32_t Stats::summary(ObServer* remote_server, const int32_t interval) {
   int32_t ret = 0;

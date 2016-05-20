@@ -19,7 +19,7 @@
 #include "ob_blockcache.h"
 #include "ob_sstable_writer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 using namespace common;
 
@@ -1953,4 +1953,4 @@ void add_io_stat(const ObIOStat& stat) {
   }
 }
 } // end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb

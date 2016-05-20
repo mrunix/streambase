@@ -1,7 +1,7 @@
 #include "ob_mysql_error_packet.h"
 #include "../ob_mysql_util.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 ObMySQLErrorPacket::ObMySQLErrorPacket(): field_count_(0xff) {
   errcode_ = 2000;

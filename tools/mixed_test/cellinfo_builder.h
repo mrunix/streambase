@@ -11,9 +11,9 @@
 #include "common/ob_mutator.h"
 #include "schema_compatible.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::common::hash;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::common::hash;
 
 class CellinfoBuilder {
  public:

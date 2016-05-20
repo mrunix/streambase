@@ -27,7 +27,7 @@
 #include "ob_ms_sql_operator.h"
 #include "common/location/ob_tablet_location_range_iterator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObTabletLocationCacheProxy;
 }
@@ -51,7 +51,7 @@ class ObMsSqlScanRequest: public ObMsSqlRequest {
                  const int64_t timeout_us,
                  const int64_t limit_offset = 0);
 
-  int get_session_next(const int32_t sub_req_idx, const ObMsSqlRpcEvent& prev_rpc_event, oceanbase::common::ObNewRange& query_range,
+  int get_session_next(const int32_t sub_req_idx, const ObMsSqlRpcEvent& prev_rpc_event, sb::common::ObNewRange& query_range,
                        const int64_t timeout_us,  const int64_t limit_offset = 0);
 
 
@@ -62,7 +62,7 @@ class ObMsSqlScanRequest: public ObMsSqlRequest {
   virtual int process_result(const int64_t timeout_us, ObMsSqlRpcEvent* rpc_event, bool& finish);
   int retry(const int32_t sub_req_idx, ObMsSqlRpcEvent* rpc_event, int64_t timeout_us);
 
-  int get_next_row(oceanbase::common::ObRow& row);
+  int get_next_row(sb::common::ObRow& row);
 
   int64_t get_mem_size_used()const {
     return (merger_operator_.get_mem_size_used() + cs_result_mem_size_used_);
@@ -78,7 +78,7 @@ class ObMsSqlScanRequest: public ObMsSqlRequest {
 
   int send_rpc_event(ObMsSqlSubScanRequest* sub_req, const int64_t timeout_us, uint64_t* triggered_rpc_event_id = NULL);
 
-  bool check_if_location_cache_valid_(const oceanbase::common::ObNewScanner& scanner, const oceanbase::sql::ObSqlScanParam& scan_param);
+  bool check_if_location_cache_valid_(const sb::common::ObNewScanner& scanner, const sb::sql::ObSqlScanParam& scan_param);
 
  private:
   void end_sessions_();

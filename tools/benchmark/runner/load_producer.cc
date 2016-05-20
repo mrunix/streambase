@@ -4,8 +4,8 @@
 #include "load_producer.h"
 #include "common/ob_get_param.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 LoadProducer::LoadProducer() {
   _stop = false;

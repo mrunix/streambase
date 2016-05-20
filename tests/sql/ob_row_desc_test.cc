@@ -16,7 +16,7 @@
 #include "common/ob_row_desc.h"
 #include "common/ob_malloc.h"
 #include <gtest/gtest.h>
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class ObRowDescTest: public ::testing::Test {
  public:

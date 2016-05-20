@@ -21,9 +21,9 @@
 #include "updateserver/ob_ups_cache.h"
 #include "gtest/gtest.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace updateserver;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 const uint64_t g_pthread_num = 10;
 const uint64_t g_times_per_thread = 1024;

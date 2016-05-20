@@ -14,8 +14,8 @@
  *
  */
 #include "ob_aggregate_function.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObAggregateFunction::ObAggregateFunction()
   : aggr_columns_(NULL), varchar_buffs_count_(0), did_int_div_as_double_(false) {

@@ -16,7 +16,7 @@
 
 #include "ob_sql_read_strategy.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sql;
 

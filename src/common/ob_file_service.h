@@ -16,7 +16,7 @@
 #include "ob_single_server.h"
 #include "ob_packet.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /// Provide file download service for cs and ups
 class ObFileService {

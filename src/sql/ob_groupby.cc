@@ -15,9 +15,9 @@
  */
 #include "ob_groupby.h"
 #include "common/utility.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
-using namespace oceanbase::common::serialization;
+using namespace sb::sql;
+using namespace sb::common;
+using namespace sb::common::serialization;
 
 ObGroupBy::ObGroupBy()
   : mem_size_limit_(0) {

@@ -4,8 +4,8 @@
 #include "olap_conf.h"
 #include "common/ob_define.h"
 #include "common/ob_schema.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 using namespace std;
 namespace {
 static const char* OLAP_SECTION = "olap";

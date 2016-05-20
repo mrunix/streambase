@@ -2,7 +2,7 @@
 #include "ob_nb_accessor.h"
 #include "utility.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace nb_accessor;
 

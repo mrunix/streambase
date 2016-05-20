@@ -22,7 +22,7 @@
 #include "common/ob_ups_info.h"
 #include "common/ob_ups_info_mgr_rpc_stub.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObUpsInfoMgr {
  public:

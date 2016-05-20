@@ -20,7 +20,7 @@
 #include "tbnet.h"
 #include "tbsys.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 using namespace tbsys;
 using namespace tbnet;
 

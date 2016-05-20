@@ -30,7 +30,7 @@
 #include "chunkserver/ob_sstable_block_index.h"
 #include "chunkserver/ob_sstable_scanner.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace chunkserver;
 using namespace tbsys;

@@ -22,13 +22,13 @@
 #include "utility.h"
 
 
-namespace oceanbase {
+namespace sb {
 namespace common {
-REGISTER_CREATOR(oceanbase::sql::ObPhyOperatorGFactory, oceanbase::sql::ObPhyOperator, ObRowIterAdaptor, oceanbase::sql::PHY_ROW_ITER_ADAPTOR);
+REGISTER_CREATOR(sb::sql::ObPhyOperatorGFactory, sb::sql::ObPhyOperator, ObRowIterAdaptor, sb::sql::PHY_ROW_ITER_ADAPTOR);
 }
 }
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObObjCastHelper::ObObjCastHelper() : need_cast_(false),
   col_num_(0) {

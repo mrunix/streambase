@@ -2,7 +2,7 @@
 #include <btree_default_alloc.h>
 #include <gtest/gtest.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 TEST(BtreeAllocTest, DefaultConstructor) {
@@ -52,4 +52,4 @@ TEST(BtreeAllocTest, alloc) {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

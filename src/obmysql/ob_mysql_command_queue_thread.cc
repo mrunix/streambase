@@ -4,8 +4,8 @@
 #include "obmysql/ob_mysql_define.h"
 #include "common/ob_profile_fill_log.h"
 
-using namespace oceanbase::common;
-namespace  oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace obmysql {
 timespec* mktimespec(timespec* ts, const int64_t time_ns) {
   const int64_t NS_PER_SEC = 1000000000;

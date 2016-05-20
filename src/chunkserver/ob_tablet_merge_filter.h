@@ -27,7 +27,7 @@
 #include "sql/ob_sql_scan_param.h"
 #include "ob_tablet.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObTabletMergerFilter {
  public:
@@ -162,7 +162,7 @@ class ObTabletMergerFilter {
   int64_t extra_column_cnt_;  // how many extra columns are added into scan param for filter
   bool need_filter_;
 };
-} // namespace oceanbase::chunkserver
+} // namespace sb::chunkserver
 } // namespace Oceanbase
 
 #endif // OCEANBASE_CHUNKSERVER_OB_TABLET_MERGE_FILTER_H_

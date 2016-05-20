@@ -21,7 +21,7 @@
 #include "ob_row_cell_vec.h"
 #include "common/ob_read_common_data.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 /**
  * this is one of ObCellStream subclasses, it can provide

@@ -18,7 +18,7 @@
 #include "ob_result.h"
 #include "utility.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 const int ObSlaveMgr::DEFAULT_VERSION = 1;
 const int ObSlaveMgr::DEFAULT_LOG_SYNC_TIMEOUT = 500 * 1000;

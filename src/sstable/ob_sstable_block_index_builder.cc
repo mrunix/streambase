@@ -17,7 +17,7 @@
 #include "ob_sstable_block_index_builder.h"
 #include "ob_sstable_block_index_buffer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 using namespace common;
 using namespace common::serialization;
@@ -254,4 +254,4 @@ int ObSSTableBlockIndexBuilder::build_block_index(const bool use_binary_rowkey,
   return ret;
 }
 } // end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb

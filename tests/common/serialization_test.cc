@@ -5,8 +5,8 @@
 #include <gtest/gtest.h>
 #include <stdint.h>
 #include "common/ob_define.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 static const int64_t BUF_SIZE = 64;
 

@@ -3,7 +3,7 @@
 
 #include "common/ob_string.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObSchemaManagerV2;
 class ObMergerSchemaManager;

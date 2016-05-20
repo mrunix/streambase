@@ -19,7 +19,7 @@
 
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObBasicStmt {
  public:

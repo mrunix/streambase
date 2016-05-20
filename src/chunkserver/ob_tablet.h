@@ -24,7 +24,7 @@
 #include "sstable/ob_sstable_reader.h"
 #include "compactsstable/ob_compactsstable_mem.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObTabletImage;
 

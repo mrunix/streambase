@@ -22,7 +22,7 @@
 #include "ob_proxy_reader.h"
 #include "common/ob_data_source_desc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace proxyserver {
 class ObProxyServer;
 class ObProxyService {
@@ -89,7 +89,7 @@ class ObProxyService {
 
 
 } // end namespace proxyserver
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #endif //OCEANBASE_PROXYSERVER_PROXYSERVICE_H_

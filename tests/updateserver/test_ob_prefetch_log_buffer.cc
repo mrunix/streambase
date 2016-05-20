@@ -20,10 +20,10 @@
 #include "common/thread_buffer.h"
 #include "log_utils.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 const int OB_ERROR_NOCHECK = 123456;
 struct Config {
@@ -187,9 +187,9 @@ TEST_F(ObPrefetchLogBufferTest, PushAndGetSeq) {
   }
 }
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 
-using namespace oceanbase::test;
+using namespace sb::test;
 
 int main(int argc, char** argv) {
   int err = OB_SUCCESS;

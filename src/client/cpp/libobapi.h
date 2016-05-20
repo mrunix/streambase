@@ -26,8 +26,8 @@
 #include "ob_client.h"
 #include <list>
 
-using namespace oceanbase::common;
-using namespace oceanbase::client;
+using namespace sb::common;
+using namespace sb::client;
 
 #define OB_INVALID_THREAD_KEY     UINT32_MAX
 #define MAX_REQ_MAXIMUM           1024

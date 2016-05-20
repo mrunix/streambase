@@ -21,9 +21,9 @@
 #include "ob_fetched_log.h"
 #include "common/ob_trigger_msg.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObUpsRpcStub :: ObUpsRpcStub() {
   client_mgr_ = NULL;

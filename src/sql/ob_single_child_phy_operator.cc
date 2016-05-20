@@ -14,8 +14,8 @@
  *
  */
 #include "ob_single_child_phy_operator.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObSingleChildPhyOperator::ObSingleChildPhyOperator()
   : child_op_(NULL) {

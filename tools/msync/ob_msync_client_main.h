@@ -20,7 +20,7 @@
 #include "common/base_main.h"
 #include "ob_msync_client.h"
 
-namespace oceanbase {
+namespace sb {
 namespace msync {
 const static int64_t TIMEOUT = 10 * 1000 * 1000;
 const static int64_t RETRY_WAIT_TIME = 10 * 1000;

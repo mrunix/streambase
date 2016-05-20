@@ -17,7 +17,7 @@
 #define OCEANBASE_SQL_OB_ROW_COUNT_H_
 #include "ob_single_child_phy_operator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObRowCount: public ObSingleChildPhyOperator {
  public:
@@ -77,6 +77,6 @@ inline ObPhyOperatorType ObRowCount::get_type() const {
 }
 
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* OCEANBASE_SQL_OB_ROW_COUNT_H_ */

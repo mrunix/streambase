@@ -19,7 +19,7 @@ class TestCompactSSTableScanner_init_Test;
 class TestCompactSSTableScanner_construct_Test;
 class TestCompactSSTableScanner_set_scan_param1_Test;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 class ObCompactSSTableScanner : public sql::ObRowkeyIterator {
  public:
@@ -309,5 +309,5 @@ class ObCompactSSTableScanner : public sql::ObRowkeyIterator {
   ScanFlag scan_flag_;
 };
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 #endif

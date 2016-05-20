@@ -5,10 +5,10 @@
 #include "common/ob_postfix_expression.h"
 #include "common/hash/ob_hashutils.h"
 #include <string.h>
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
-using oceanbase::common::OB_SUCCESS;
-using oceanbase::common::OB_ERROR;
+using sb::common::OB_SUCCESS;
+using sb::common::OB_ERROR;
 static const int32_t ORG_PARAM_ID = 1;
 static const int32_t DECODED_PARAM_ID = 2;
 static const int32_t RESULT_SCANNER_ID = 3;
@@ -40,7 +40,7 @@ struct ObMSSchemaDecoderAssis {
   }
 
   inline void clear() {
-    for (int32_t i = 0; i < oceanbase::common::OB_MAX_COLUMN_NUMBER; i++) {
+    for (int32_t i = 0; i < sb::common::OB_MAX_COLUMN_NUMBER; i++) {
       column_idx_in_org_param_[i] = INVALID_IDX;
     }
     if (inited_) {
@@ -53,7 +53,7 @@ struct ObMSSchemaDecoderAssis {
     GROUPBY_COLUMN,
     SELECT_COLUMN
   };
-  inline int add_column(const oceanbase::common::ObString& cname, const int64_t idx,
+  inline int add_column(const sb::common::ObString& cname, const int64_t idx,
                         int column_type, int overwrite_flag = 0) {
     int err = OB_SUCCESS;
     int hash_err = 0;
@@ -64,16 +64,16 @@ struct ObMSSchemaDecoderAssis {
       target = &select_cname_to_idx_map_;
     } else {
       TBSYS_LOG(WARN, "unknow column type [type:%d]", column_type);
-      err = oceanbase::common::OB_INVALID_ARGUMENT;
+      err = sb::common::OB_INVALID_ARGUMENT;
     }
     if (OB_SUCCESS == err) {
-      if (oceanbase::common::hash::HASH_INSERT_SUCC ==
+      if (sb::common::hash::HASH_INSERT_SUCC ==
           (hash_err =  target->set(cname, idx, overwrite_flag))) {
         /// do nothing
-      } else if (oceanbase::common::hash::HASH_OVERWRITE_SUCC  == hash_err) {
+      } else if (sb::common::hash::HASH_OVERWRITE_SUCC  == hash_err) {
         /// do nothing
-      } else if (oceanbase::common::hash::HASH_EXIST == hash_err) {
-        err = oceanbase::common::OB_ENTRY_EXIST;
+      } else if (sb::common::hash::HASH_EXIST == hash_err) {
+        err = sb::common::OB_ENTRY_EXIST;
       } else {
         TBSYS_LOG(WARN, "fail to add column <cname,idx> pair [err:%d]", hash_err);
         err = OB_ERROR;
@@ -89,17 +89,17 @@ struct ObMSSchemaDecoderAssis {
     return groupby_cname_to_idx_map_;
   }
 
-  inline oceanbase::common::ObExpressionParser& get_post_expression_parser() {
+  inline sb::common::ObExpressionParser& get_post_expression_parser() {
     return post_expression_parser_;
   }
 
-  int64_t column_idx_in_org_param_[oceanbase::common::OB_MAX_COLUMN_NUMBER];
+  int64_t column_idx_in_org_param_[sb::common::OB_MAX_COLUMN_NUMBER];
  private:
   bool inited_;
   static const int64_t hash_map_bucket_num_ = 1024 * 2;
   HashMap select_cname_to_idx_map_;
   HashMap groupby_cname_to_idx_map_;
-  oceanbase::common::ObExpressionParser post_expression_parser_;
+  sb::common::ObExpressionParser post_expression_parser_;
 };
 }
 }

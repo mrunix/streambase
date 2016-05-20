@@ -16,7 +16,7 @@
 #include "serialization.h"
 #include "ob_new_scanner.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObStat::ObStat() :
   mod_id_(OB_INVALID_ID),

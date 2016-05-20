@@ -10,7 +10,7 @@
 #include "common/ob_general_rpc_proxy.h"
 #include "common/ob_obi_role.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObString;
 class ObServer;

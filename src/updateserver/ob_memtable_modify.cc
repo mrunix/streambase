@@ -15,7 +15,7 @@
  */
 #include "ob_memtable_modify.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 /*
 MemTableModify::MemTableModify(RWSessionCtx &session, ObIUpsTableMgr &host): session_(session),
@@ -149,4 +149,4 @@ int64_t MemTableModify::to_string(char* buf, const int64_t buf_len) const
 }
 */
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb

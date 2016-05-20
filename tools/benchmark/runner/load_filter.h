@@ -22,7 +22,7 @@
 #include "load_define.h"
 #include "load_parser.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class LoadFilter {
  public:

@@ -4,11 +4,11 @@
 #include "common/ob_malloc.h"
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obsql {
 using namespace std;
 using namespace common;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 Stmt::Stmt(char* buf, int32_t size,
            ObClientServerStub& rpc_stub,

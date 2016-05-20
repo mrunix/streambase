@@ -17,7 +17,7 @@
 #include "ob_log_src.h"
 #include "ob_fetched_log.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class IObServerGetter;
 class ObServer;
@@ -54,7 +54,7 @@ class ObRemoteLogSrc {
   int64_t fetch_timeout_;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_UPDATESERVER_OB_REMOTE_LOG_SRC_H__ */
 

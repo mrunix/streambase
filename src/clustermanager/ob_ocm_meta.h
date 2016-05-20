@@ -22,7 +22,7 @@
 #include "ob_ocm_app_info.h"
 #include "ob_ocm_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace clustermanager {
 class TestObOcmMeta;

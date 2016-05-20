@@ -10,9 +10,9 @@
 #include "common/ob_base_server.h"
 #include "common/ob_single_server.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace mms {
 namespace tests {
 class MockServer : public ObSingleServer {

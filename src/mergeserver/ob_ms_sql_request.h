@@ -13,7 +13,7 @@
 #include "ob_ms_sql_rpc_event.h"
 #include "common/location/ob_tablet_location_range_iterator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMsSqlRpcEvent;
 class ObMergerAsyncRpcStub;

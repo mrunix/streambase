@@ -21,7 +21,7 @@
 #include "ob_string.h"
 #include "ob_define.h"
 #include "crypt.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 class DES_crypt {
  public:

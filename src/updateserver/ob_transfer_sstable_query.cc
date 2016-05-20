@@ -19,7 +19,7 @@
 #include "sstable/ob_sstable_getter.h"
 #include "ob_transfer_sstable_query.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 using namespace tbsys;
 using namespace common;
@@ -183,4 +183,4 @@ int ObTransferSSTableQuery::get_sstable_end_key(
   return ret;
 }
 }//end namespace updateserver
-}//end namespace oceanbase
+}//end namespace sb

@@ -14,7 +14,7 @@
 #include "ob_define.h"
 #include "ob_mutex_task.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 int ObMutexTask::run(void* arg) {
   int err = OB_SUCCESS;
@@ -37,4 +37,4 @@ bool ObMutexTask::is_running() const {
   return is_running_;
 }
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb

@@ -15,7 +15,7 @@
 #include "task_output_file.h"
 #include "task_worker_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class TaskWorker: public BaseClient {
  public:

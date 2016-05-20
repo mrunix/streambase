@@ -2,7 +2,7 @@
 #define OCEANBASE_CHUNKSERVER_DATA_SYNTAX_H_
 #include "common/ob_object.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 const int MAX_COLUMS = 50;
 const int MAX_LINE_LEN = 4096;

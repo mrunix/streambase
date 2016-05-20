@@ -30,7 +30,7 @@ class TestSchemaService_get_table_name_Test;
 #define OB_STR(str) \
   ObString(0, static_cast<int32_t>(strlen(str)), const_cast<char *>(str))
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 static ObString first_tablet_entry_name = OB_STR(FIRST_TABLET_TABLE_NAME);
 static ObString column_table_name = OB_STR(OB_ALL_COLUMN_TABLE_NAME);

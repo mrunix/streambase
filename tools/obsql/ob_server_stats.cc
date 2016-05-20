@@ -1,9 +1,9 @@
 #include <algorithm>
 #include "ob_server_stats.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace obsql {
 
 //---------------------------------------------------------------
@@ -126,7 +126,7 @@ int32_t ObServerStats::init() {
 }
 
 // retrive data from dataserver.
-int32_t ObServerStats::refresh(const oceanbase::common::ObServer* remote_server) {
+int32_t ObServerStats::refresh(const sb::common::ObServer* remote_server) {
   int32_t ret = OB_SUCCESS;
   int32_t server_type = store_.diff.get_server_type();
 
@@ -158,7 +158,7 @@ int32_t ObServerStats::refresh(const oceanbase::common::ObServer* remote_server)
   return ret;
 }
 
-int ObServerStats::calc_hit_ratio(oceanbase::common::ObStat& stat_item,
+int ObServerStats::calc_hit_ratio(sb::common::ObStat& stat_item,
                                   const int ratio, const int hit, const int miss) {
   int64_t hit_num = stat_item.get_value(hit);
   int64_t miss_num = stat_item.get_value(miss);
@@ -167,7 +167,7 @@ int ObServerStats::calc_hit_ratio(oceanbase::common::ObStat& stat_item,
   return stat_item.set_value(ratio, ratio_num);
 }
 
-int ObServerStats::calc_div_value(oceanbase::common::ObStat& stat_item,
+int ObServerStats::calc_div_value(sb::common::ObStat& stat_item,
                                   const int div, const int count, const int time) {
   int64_t count_value = stat_item.get_value(count);
   int64_t time_value = stat_item.get_value(time);

@@ -18,7 +18,7 @@
 #include "common/ob_define.h"
 #include "common/ob_ups_info.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 // not thread safe
 class ObUpsBlackList {

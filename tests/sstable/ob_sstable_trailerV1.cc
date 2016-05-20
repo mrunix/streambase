@@ -14,7 +14,7 @@
 #include <tbsys.h>
 #include "ob_sstable_trailerV1.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 using namespace common;
 using namespace common::serialization;
@@ -971,4 +971,4 @@ void ObSSTableTrailerV1::reset() {
   key_buf_size_ = DEFAULT_KEY_BUF_SIZE;
 }
 } // end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb

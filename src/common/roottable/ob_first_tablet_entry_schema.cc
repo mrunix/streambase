@@ -14,10 +14,10 @@
  *
  */
 #include "ob_first_tablet_entry_schema.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 namespace first_tablet_entry_schema_internal {
-using namespace oceanbase::common::first_tablet_entry_cid;
+using namespace sb::common::first_tablet_entry_cid;
 
 static const uint64_t COLUMNS_ID[] = {
   TNAME,                        // 0

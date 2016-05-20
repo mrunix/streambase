@@ -13,7 +13,7 @@
 #define OCEANBASE_COMMON_OB_RESULT_H_
 #include "ob_define.h"
 #include "ob_string.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObResultCode {
   ObResultCode(): result_code_(0) {

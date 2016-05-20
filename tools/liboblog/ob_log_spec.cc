@@ -21,7 +21,7 @@
 #include "ob_log_spec.h"
 #include "ob_log_utils.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace liboblog {
 ObLogSpec::ObLogSpec() : inited_(false),

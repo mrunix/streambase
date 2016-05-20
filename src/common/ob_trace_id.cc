@@ -12,8 +12,8 @@
 
 #include "ob_trace_id.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 TraceId::TraceId() {
   uval_ = 0;

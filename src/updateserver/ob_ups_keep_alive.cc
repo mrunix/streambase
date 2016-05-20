@@ -14,7 +14,7 @@
 
 #include "ob_ups_keep_alive.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 ObUpsKeepAlive::ObUpsKeepAlive() {
   slave_mgr_ = NULL;

@@ -15,7 +15,7 @@
 #define __OB_COMMON_OB_QUEUED_LOCK_H__
 #include "ob_lighty_queue.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // 同时加锁的线程数超过OB_MAX_THREAD_NUM会出现乱序获得锁的情况，但不会出错
 class ObQueuedLock {
@@ -77,6 +77,6 @@ class ObQueuedLock {
   pthread_mutex_t mutex_[OB_MAX_THREAD_NUM];
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_QUEUED_LOCK_H__ */

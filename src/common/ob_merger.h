@@ -20,7 +20,7 @@
 #include "ob_define.h"
 #include "ob_iterator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // ObMerger is used to merge multi iterator and get cell info row by row.
 class ObMerger : public ObIterator {

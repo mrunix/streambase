@@ -3,7 +3,7 @@
 #include <string.h>
 #include "btree_default_alloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 const int32_t BtreeDefaultAlloc::MALLOC_SIZE = (1024 * 1024);
 
@@ -169,5 +169,5 @@ int32_t BtreeDefaultAlloc::get_malloc_count() {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 

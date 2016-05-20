@@ -4,7 +4,7 @@
 #include "task_env.h"
 #include "hdfs.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 struct HdfsParam {
   HdfsParam()

@@ -20,7 +20,7 @@
 #include "common/ob_define.h"
 #include "ob_store_mgr.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace updateserver {
 StoreMgr::StoreMgr() : inited_(false),

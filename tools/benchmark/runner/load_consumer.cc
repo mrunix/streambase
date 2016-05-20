@@ -8,9 +8,9 @@
 #include "obmysql/packet/ob_mysql_command_packet.h"
 #include "obmysql/ob_mysql_util.h"
 #include "common/utility.h"
-using namespace oceanbase::common;
-using namespace oceanbase::obmysql;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::obmysql;
+using namespace sb::tools;
 struct st_vio;
 LoadConsumer::LoadConsumer() {
   index_ = 0;

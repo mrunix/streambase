@@ -22,7 +22,7 @@
 
 #include "common/ob_compact_cell_iterator.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 
 namespace updateserver {

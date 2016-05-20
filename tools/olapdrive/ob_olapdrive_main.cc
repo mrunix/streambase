@@ -15,7 +15,7 @@
 #include "ob_olapdrive_main.h"
 #include "common/ob_malloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 using namespace common;
 
@@ -46,4 +46,4 @@ void ObOlapdriveMain::do_signal(const int sig) {
   }
 }
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb

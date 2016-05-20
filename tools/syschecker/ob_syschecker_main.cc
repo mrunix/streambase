@@ -15,7 +15,7 @@
 #include "ob_syschecker_main.h"
 #include "common/ob_malloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace syschecker {
 using namespace common;
 
@@ -47,4 +47,4 @@ void ObSyscheckerMain::do_signal(const int sig) {
   }
 }
 } // end namespace syschecker
-} // end namespace oceanbase
+} // end namespace sb

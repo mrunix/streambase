@@ -17,7 +17,7 @@
 #include <new>
 #include "ob_ocm_meta_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace clustermanager {
 ObOcmMetaManager::ObOcmMetaManager() {
   init_ = false;

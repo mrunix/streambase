@@ -17,11 +17,11 @@
 #include "common/ob_atomic.h"
 #include "common/ob_define.h"
 #include "tbsys.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 volatile static uint64_t PHY_OP_STAT[PHY_END];
-namespace oceanbase {
+namespace sb {
 namespace sql {
 
 #define DEF_OP(type) \

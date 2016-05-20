@@ -32,24 +32,24 @@
 #include "common/ob_schema_manager.h"
 #include "common/ob_statistics.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMergeServerService;
 }
 
 namespace sql {
 struct ObSqlContext {
-  oceanbase::common::ObTabletLocationCacheProxy* cache_proxy_;
-  oceanbase::mergeserver::ObMergerAsyncRpcStub* async_rpc_;
-  const oceanbase::common::ObSchemaManagerV2* schema_manager_;
-  oceanbase::mergeserver::ObMergerRpcProxy* merger_rpc_proxy_;
-  oceanbase::mergeserver::ObMergerRootRpcProxy* rs_rpc_proxy_;
-  const oceanbase::mergeserver::ObMergeServerService* merge_service_;
+  sb::common::ObTabletLocationCacheProxy* cache_proxy_;
+  sb::mergeserver::ObMergerAsyncRpcStub* async_rpc_;
+  const sb::common::ObSchemaManagerV2* schema_manager_;
+  sb::mergeserver::ObMergerRpcProxy* merger_rpc_proxy_;
+  sb::mergeserver::ObMergerRootRpcProxy* rs_rpc_proxy_;
+  const sb::mergeserver::ObMergeServerService* merge_service_;
   ObPsStore* ps_store_;     /* Ps Global Store */
   ObSQLSessionInfo* session_info_;
   ObSQLSessionMgr* session_mgr_;
   ObSQLIdMgr* sql_id_mgr_;
-  const oceanbase::common::ObPrivilege** pp_privilege_;
+  const sb::common::ObPrivilege** pp_privilege_;
   bool disable_privilege_check_;
   bool is_prepare_protocol_;
   // lide.wd: 两个全局指针，析构的时候不要碰

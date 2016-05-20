@@ -15,7 +15,7 @@
  */
 #include "ob_meta_table_schema.h"
 #include "common/ob_schema_service.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 static const char* SCOL_TID = "table_id";
 static const char* SCOL_TABLET_VERSION[OB_TABLET_MAX_REPLICA_COUNT] = {
@@ -46,7 +46,7 @@ static const char* SCOL_STARTKEY_OBJ_PREFIX = "start_rowkey_obj";
 static const char* SCOL_ENDKEY_OBJ_PREFIX = "end_rowkey_obj";
 static const char* SCOL_STARTKEY_OBJ_PREFIX_FORMAT = "start_rowkey_obj%d";
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace meta_table_cname {
 const ObString TID(0, static_cast<int32_t>(strlen(SCOL_TID)), SCOL_TID);
@@ -118,11 +118,11 @@ const ObString STARTKEY_OBJ_PREFIX(0, static_cast<int32_t>(strlen(SCOL_STARTKEY_
 const ObString ENDKEY_OBJ_PREFIX(0, static_cast<int32_t>(strlen(SCOL_ENDKEY_OBJ_PREFIX)), SCOL_ENDKEY_OBJ_PREFIX);
 } // end namespace meta_table_columns_name
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 ////////////////////////////////////////////////////////////////
 namespace meta_table_column_schema_internal {
-using namespace ::oceanbase::common::meta_table_cname;
+using namespace ::sb::common::meta_table_cname;
 static const ObString COLUMNS_NAME[] = {
   TID,        // 0
 

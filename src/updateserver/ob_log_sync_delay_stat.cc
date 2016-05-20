@@ -17,8 +17,8 @@
 #include "Time.h"
 #include "ob_update_server_main.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace updateserver {
 int set_state_as_replaying_log() {
   int ret = OB_SUCCESS;

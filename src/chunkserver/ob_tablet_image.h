@@ -28,7 +28,7 @@
 #include "compactsstablev2/ob_compact_sstable_reader.h"
 #include "ob_tablet.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 struct ObTabletMetaHeader {
   static const int16_t TABLET_META_MAGIC = 0x6D69; // "mi"
@@ -568,7 +568,7 @@ class ObMultiVersionTabletImage {
 };
 
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #endif //OCEANBASE_CHUNKSERVER_TABLET_IMAGE_H_

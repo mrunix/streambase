@@ -5,9 +5,9 @@
 #include "mock_root_server2.h"
 #include "mock_define.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
-using namespace oceanbase::updateserver::test;
+using namespace sb::common;
+using namespace sb::updateserver;
+using namespace sb::updateserver::test;
 static const int32_t UPS_PORT = 2302;
 
 int MockRootServer::initialize() {

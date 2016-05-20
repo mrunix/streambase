@@ -19,7 +19,7 @@
 #include "ob_fake_ups_multi_get.h"
 #include "common/utility.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sql;
 using namespace test;

@@ -17,7 +17,7 @@
 #ifndef _OB_IARRAY_H
 #define _OB_IARRAY_H
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template <typename T>
 class ObIArray {
@@ -36,6 +36,6 @@ class ObIArray {
   virtual void reserve(int64_t capacity) = 0;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // _OB_IARRAY_H

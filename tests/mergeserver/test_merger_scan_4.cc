@@ -26,9 +26,9 @@
 #include "mock_chunk_server.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
-using namespace oceanbase::mergeserver::test;
+using namespace sb::common;
+using namespace sb::mergeserver;
+using namespace sb::mergeserver::test;
 
 #define MIN(a,b)  ((a) < (b) ? (a) : (b))
 

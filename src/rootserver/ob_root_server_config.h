@@ -19,10 +19,10 @@
 #include "common/ob_server_config.h"
 #include "common/ob_config.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootServerConfig
   : public common::ObServerConfig {

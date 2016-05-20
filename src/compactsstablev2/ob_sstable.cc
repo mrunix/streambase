@@ -1,8 +1,8 @@
 #include "ob_sstable.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObSSTable::finish_one_table() {
   int ret = OB_SUCCESS;
@@ -108,5 +108,5 @@ int ObSSTable::check_row(const common::ObRow& row) {
   return ret;
 }
 }//end namepace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 

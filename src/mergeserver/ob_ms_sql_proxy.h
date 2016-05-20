@@ -22,10 +22,10 @@
 #include "sql/ob_sql.h"
 #include "sql/ob_sql_result_set.h"
 
-using namespace oceanbase::common;
-using oceanbase::sql::ObSQLResultSet;
+using namespace sb::common;
+using sb::sql::ObSQLResultSet;
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 /* predeclearation */
 class ObMergeServerService;

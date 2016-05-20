@@ -20,7 +20,7 @@
 
 #include "ob_param_decoder.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObObj;
 class ObMutator;

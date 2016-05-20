@@ -16,7 +16,7 @@
 #define __OB_ROOTSERVER_OB_RS_AFTER_RESTART_TIMER_TASK_H__
 
 #include "common/ob_timer.h"
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootWorker;
 class ObRsAfterRestartTask: public common::ObTimerTask {

@@ -22,7 +22,7 @@
 #include "ob_syschecker_schema.h"
 #include "ob_syschecker_rule.h"
 class TestSysChecker;
-namespace oceanbase {
+namespace sb {
 namespace syschecker {
 class ObSyschecker {
  public:
@@ -64,6 +64,6 @@ class ObSyschecker {
   ObReadWorker read_worker_;
 };
 } // end namespace syschecker
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_SYSCHECKER_H_

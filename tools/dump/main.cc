@@ -25,8 +25,8 @@
 #include <string>
 #include <algorithm>
 
-using namespace oceanbase::api;
-using namespace oceanbase::common;
+using namespace sb::api;
+using namespace sb::common;
 using namespace std;
 using namespace tbsys;
 

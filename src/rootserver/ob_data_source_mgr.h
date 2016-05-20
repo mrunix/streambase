@@ -25,7 +25,7 @@
 #include "common/ob_list.h"
 #include "common/ob_vector.h"
 #include "ob_chunk_server_manager.h"
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 using namespace common;
 class ObRootRpcStub;

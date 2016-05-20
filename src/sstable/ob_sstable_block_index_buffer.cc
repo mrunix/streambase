@@ -16,7 +16,7 @@
 #include "common/serialization.h"
 #include "ob_sstable_block_index_buffer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 using namespace common;
 using namespace common::serialization;

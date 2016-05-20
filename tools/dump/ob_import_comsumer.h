@@ -10,7 +10,7 @@
 
 class  ImportComsumer : public QueueComsumer<RecordBlock> {
  public:
-  ImportComsumer(oceanbase::api::OceanbaseDb* db, ObRowBuilder* builder, const TableParam& param);
+  ImportComsumer(sb::api::OceanbaseDb* db, ObRowBuilder* builder, const TableParam& param);
   ~ImportComsumer();
 
   virtual int comsume(RecordBlock& obj);
@@ -18,7 +18,7 @@ class  ImportComsumer : public QueueComsumer<RecordBlock> {
  private:
   int write_bad_record(RecordBlock& rec);
 
-  oceanbase::api::OceanbaseDb* db_;
+  sb::api::OceanbaseDb* db_;
   ObRowBuilder* builder_;
   const TableParam& param_;
   AppendableFile* bad_file_;

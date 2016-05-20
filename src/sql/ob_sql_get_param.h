@@ -21,7 +21,7 @@
 #include "common/ob_array.h"
 #include "ob_sql_read_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObSqlGetParam : public ObSqlReadParam {
   static const int64_t DEFAULT_ROW_BUF_SIZE = 64 * 1024; // 64KB

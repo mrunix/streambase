@@ -22,7 +22,7 @@
 #include "ob_rpc_proxy.h"
 #include "ob_merge_join_operator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 enum ObStageOperation {
   STAGE_NULL = 0,

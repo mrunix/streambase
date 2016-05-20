@@ -15,8 +15,8 @@
  */
 #include "ob_sys_params_mgr.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
 ObSysParamsMgr::ObSysParamsMgr() {
   // default values are set here

@@ -4,7 +4,7 @@
 #include "ob_rowkey_helper.h"
 #include "utility.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObCondInfo::ObCondInfo() {
   op_type_ = NIL;

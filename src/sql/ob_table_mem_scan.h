@@ -22,7 +22,7 @@
 #include "ob_filter.h"
 #include "ob_limit.h"
 #include "common/ob_row.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObTableMemScan: public ObTableScan {
  public:
@@ -103,6 +103,6 @@ inline void ObTableMemScan::set_phy_plan(ObPhysicalPlan* the_plan) {
   limit_.set_phy_plan(the_plan);
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_TABLE_MEM_SCAN_H */

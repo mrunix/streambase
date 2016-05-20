@@ -21,10 +21,10 @@
 #include "updateserver/ob_log_locator.h"
 #include "updateserver/ob_located_log_reader.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
-namespace oceanbase {
+namespace sb {
 namespace lsync {
 class ObSeekableLogReader {
  public:
@@ -54,6 +54,6 @@ class ObSeekableLogReader {
 };
 
 } // end namespace lsync
-} // end namespace oceanbase
+} // end namespace sb
 #endif // _OCEANBASE_LSYNC_OB_SEEKABLE_LOG_READER_H_
 

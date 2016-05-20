@@ -21,8 +21,8 @@
 #include "common/ob_row.h"
 #include "common/ob_object.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 class ObRowStoreIteratorTest: public ::testing::Test {
  public:

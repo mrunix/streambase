@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 
 /** * 多线程测试程序 */
-namespace oceanbase {
+namespace sb {
 namespace common {
 typedef  KeyBtree<CollectInfo, int32_t> CollectBtree;
 
@@ -153,4 +153,4 @@ TEST(DISABLED_KeyBtreeMThread, read_write_remove) {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

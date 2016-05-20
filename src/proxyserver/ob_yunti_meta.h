@@ -23,7 +23,7 @@
 #include "common/hash/ob_hashmap.h"
 #include "common/ob_atomic.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace proxyserver {
 class YuntiProxy;

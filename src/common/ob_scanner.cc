@@ -27,7 +27,7 @@
 #include "ob_rowkey_helper.h"
 #include "utility.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObScanner::TableReader::TableReader() {
   cur_table_id_ = OB_INVALID_ID;

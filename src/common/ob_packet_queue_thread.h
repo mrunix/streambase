@@ -24,7 +24,7 @@
 #include "ob_server.h"
 #include "ob_packet_lighty_queue.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObPacketQueueThread : public tbsys::CDefaultRunnable {
  public:
@@ -123,6 +123,6 @@ class ObPacketQueueThread : public tbsys::CDefaultRunnable {
 };
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_OB_PACKET_QUEUE_THREAD_H_

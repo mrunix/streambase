@@ -17,7 +17,7 @@
 #define _OB_ADD_PROJECT_H 1
 #include "ob_project.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 // keep the old columns of the input row, and append new columns to the output row
 class ObAddProject: public ObProject {
@@ -44,6 +44,6 @@ class ObAddProject: public ObProject {
   // data members
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ADD_PROJECT_H */

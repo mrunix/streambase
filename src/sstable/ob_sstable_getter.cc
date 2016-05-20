@@ -21,7 +21,7 @@
 #include "ob_sstable_getter.h"
 #include "ob_blockcache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 using namespace common;
 
@@ -931,4 +931,4 @@ int ObSSTableGetter::filter_column_group() {
   return ret;
 }
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb

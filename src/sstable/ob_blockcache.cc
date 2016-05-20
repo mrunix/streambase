@@ -18,7 +18,7 @@
 #include "ob_sstable_block_index_v2.h"
 #include "ob_sstable_writer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 using namespace common;
 

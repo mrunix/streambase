@@ -19,7 +19,7 @@
 #include "ob_set_operator.h"
 #include "common/ob_row.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObMergeExcept: public ObSetOperator {
  public:
@@ -68,6 +68,6 @@ class ObMergeExcept: public ObSetOperator {
   static const uint64_t OB_ROW_BUF_SIZE = common::OB_MAX_ROW_LENGTH;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* OCEANBASE_SQL_OB_MERGE_EXCEPT_H_ */

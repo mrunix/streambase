@@ -23,7 +23,7 @@
 #include "common/page_arena.h"
 #include "common/hash/ob_hashmap.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMergerGetRequest: public ObMergerRequest {
  public:

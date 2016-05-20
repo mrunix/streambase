@@ -4,9 +4,9 @@
 #include "common/ob_rowkey_helper.h"
 #include "ob_sql_read_param.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 ObSqlReadParam::ObSqlReadParam() :
   is_read_master_(0), is_result_cached_(0), data_version_(OB_NEWEST_DATA_VERSION),

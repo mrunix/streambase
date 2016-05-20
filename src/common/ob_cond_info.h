@@ -26,7 +26,7 @@
 #include "ob_rowkey.h"
 #include "ob_schema.h"
 #include "ob_string_buf.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObCondInfo {
  public:

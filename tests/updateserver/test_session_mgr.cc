@@ -8,7 +8,7 @@
 #include "updateserver/ob_trigger_handler.h"
 #include "gtest/gtest.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace updateserver;
 using namespace common;
 

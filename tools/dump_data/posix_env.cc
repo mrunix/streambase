@@ -1,7 +1,7 @@
 #include "posix_env.h"
 #include "common/utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 using namespace common;
 

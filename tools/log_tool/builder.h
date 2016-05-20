@@ -20,15 +20,15 @@
 #include "sql/ob_inc_scan.h"
 #include "sql/ob_insert_dbsem_filter.h"
 #else
-namespace oceanbase {
+namespace sb {
 namespace sql
 {};
 };
 #endif
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::updateserver;
+using namespace sb::sql;
 
 int make_version_range(ObVersionRange& version_range, int64_t start_version) {
   int err = OB_SUCCESS;

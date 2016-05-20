@@ -19,8 +19,8 @@
 #include "common/ob_array.h"
 #include "common/ob_schema_service.h"
 #include "common/ob_schema_helper.h"
-using namespace oceanbase::common;
-using namespace oceanbase::syschecker;
+using namespace sb::common;
+using namespace sb::syschecker;
 class TestSysChecker : public ObSyschecker {
  public:
   TestSysChecker() {}

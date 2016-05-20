@@ -16,8 +16,8 @@
 #include "ob_merge_sort.h"
 #include "common/ob_compact_cell_iterator.h"
 #include <algorithm>
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObMergeSort::ObMergeSort()
   : final_run_(NULL), sort_columns_(NULL),

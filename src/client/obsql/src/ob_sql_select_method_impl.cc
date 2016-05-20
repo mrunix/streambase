@@ -41,7 +41,7 @@ ObDataSource* random_mergeserver_select(ObClusterInfo* cluster, ObSQLMySQL* mysq
 ObDataSource* consishash_mergeserver_select(ObClusterInfo* pool, const char* sql, unsigned long length) {
   ObDataSource* datasource = NULL;
   uint32_t hashval = 0;
-  hashval = oceanbase::common::murmurhash2(sql, static_cast<int32_t>(length), hashval);
+  hashval = sb::common::murmurhash2(sql, static_cast<int32_t>(length), hashval);
   TBSYS_LOG(INFO, "hashval of this query is %u", hashval);
   int32_t index = 0;
   for (; index < g_config_using->cluster_size_; ++index) {

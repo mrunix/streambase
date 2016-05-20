@@ -17,7 +17,7 @@
 #include "ob_iterator.h"
 #include "ob_array_helper.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * return operator, it does the actual return work, it filters

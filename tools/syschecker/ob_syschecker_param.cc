@@ -49,7 +49,7 @@ static const char* OBSC_SCAN_ROW_CNT = "scan_row_cnt";
 static const char* OBSC_UPDATE_ROW_CNT = "update_row_cnt";
 }
 
-namespace oceanbase {
+namespace sb {
 namespace syschecker {
 using namespace common;
 
@@ -460,4 +460,4 @@ void ObSyscheckerParam::dump_param() {
           get_row_cnt_, scan_row_cnt_, update_row_cnt_);
 }
 } // end namespace syschecker
-} // end namespace oceanbase
+} // end namespace sb

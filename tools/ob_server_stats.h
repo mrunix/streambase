@@ -9,9 +9,9 @@
 #include "stats.h"
 #include "client_rpc.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 
 
@@ -47,9 +47,9 @@ struct Present {
 class ObServerStats : public Stats {
  public:
   struct Store {
-    oceanbase::common::ObStatManager current;
-    oceanbase::common::ObStatManager prev;
-    oceanbase::common::ObStatManager diff;
+    sb::common::ObStatManager current;
+    sb::common::ObStatManager prev;
+    sb::common::ObStatManager diff;
   };
 
  public:
@@ -98,12 +98,12 @@ class ObServerStats : public Stats {
  private:
   void output_header();
   void initialize_empty_value();
-  int  calc_hit_ratio(oceanbase::common::ObStat& stat_item,
+  int  calc_hit_ratio(sb::common::ObStat& stat_item,
                       const int ratio, const int hit, const int miss);
-  int calc_div_value(oceanbase::common::ObStat& stat_item,
+  int calc_div_value(sb::common::ObStat& stat_item,
                      const int div, const int time, const int count);
   int64_t print_value(const Present::ServerInfo& server_info,
-                      oceanbase::common::ObStatManager::const_iterator it,
+                      sb::common::ObStatManager::const_iterator it,
                       const uint32_t index,
                       const int32_t interval) const;
 

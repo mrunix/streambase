@@ -4,7 +4,7 @@
 #include "ob_sql_util.h"
 #include <algorithm>
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 static int init_ms_table() {
   int ret = OB_SQL_SUCCESS;

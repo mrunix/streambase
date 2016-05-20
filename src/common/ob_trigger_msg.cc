@@ -19,7 +19,7 @@
 #include "serialization.h"
 #include "ob_trigger_msg.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 DEFINE_SERIALIZE(ObTriggerMsg) {
   int ret = OB_SUCCESS;

@@ -20,7 +20,7 @@
 #ifndef OCEANBASE_COMMON_OB_EXPRESSION_H_
 #define OCEANBASE_COMMON_OB_EXPRESSION_H_
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace ObExpression {
 //public:

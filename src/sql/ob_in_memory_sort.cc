@@ -15,8 +15,8 @@
  */
 #include "ob_in_memory_sort.h"
 #include "common/ob_row_util.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObInMemorySort::ObInMemorySort()
   : sort_columns_(NULL), sort_array_get_pos_(0), row_desc_(NULL) {

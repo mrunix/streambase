@@ -19,7 +19,7 @@
 #include "common/ob_scanner.h"
 #include "common/ob_cell_array.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 
 namespace chunkserver {

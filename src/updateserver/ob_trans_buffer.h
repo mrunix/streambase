@@ -30,7 +30,7 @@
 #include "common/hash/ob_hashmap.h"
 #include "ob_table_engine.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class TransBuffer {
   static const int64_t DEFAULT_SIZE = 1024;

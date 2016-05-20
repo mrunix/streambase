@@ -4,8 +4,8 @@
 #include "common/ob_define.h"
 #include "sql/ob_sql_result_set.h"
 
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
 ObRootRpcStub::ObRootRpcStub()
   : thread_buffer_(NULL) {

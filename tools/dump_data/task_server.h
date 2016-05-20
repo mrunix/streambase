@@ -8,7 +8,7 @@
 #include "task_output.h"
 #include "base_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class TaskServer: public BaseServer {
  public:

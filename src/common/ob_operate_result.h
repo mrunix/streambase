@@ -3,7 +3,7 @@
 
 #include "ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObOperateResult {
   ObOperateResult() : err_step(0), err_code(0), affected(0) {}

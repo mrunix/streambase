@@ -22,7 +22,7 @@
 #include "ob_profile_type.h"
 #include "ob_atomic.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 // 构造

@@ -20,8 +20,8 @@
 #include <stdio.h>
 #include <string.h>
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace clustermanager {
 ObOcmInstance::ObOcmInstance(): role_(SLAVE), read_radio_(0), reserve1_(0), reserve2_(0) {
   memset(instance_name_, '\0', OB_MAX_INSTANCE_NAME_LENGTH);

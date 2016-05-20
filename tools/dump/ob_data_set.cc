@@ -1,8 +1,8 @@
 #include "ob_data_set.h"
 #include "common/utility.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::api;
+using namespace sb::common;
+using namespace sb::api;
 
 ObDataSet::ObDataSet(OceanbaseDb* db) {
   assert(db != NULL);

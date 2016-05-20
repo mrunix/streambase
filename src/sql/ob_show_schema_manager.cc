@@ -17,8 +17,8 @@
 #include "common/ob_schema_macro_define.h"
 #include "common/ob_schema_service.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObSchemaManagerV2* ObShowSchemaManager::show_schema_mgr_ = NULL;
 tbsys::CThreadMutex ObShowSchemaManager::mutex_;

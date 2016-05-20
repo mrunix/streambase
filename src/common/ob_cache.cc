@@ -25,27 +25,27 @@
 #include "./hash/ob_hashutils.h"
 
 
-using namespace oceanbase::common;
-using oceanbase::common::ObString;
-using oceanbase::common::ObVarCache;
+using namespace sb::common;
+using sb::common::ObString;
+using sb::common::ObVarCache;
 
-oceanbase::common::ObCacheBase::ObCacheBase(int64_t mod_id) {
+sb::common::ObCacheBase::ObCacheBase(int64_t mod_id) {
   cache_mod_id_ = mod_id;
 }
 
-oceanbase::common::ObCacheBase::~ObCacheBase() {
+sb::common::ObCacheBase::~ObCacheBase() {
 }
 
-oceanbase::common::ObCachePair::~ObCachePair() {
+sb::common::ObCachePair::~ObCachePair() {
   revert();
 }
 
-oceanbase::common::ObCachePair::ObCachePair() {
+sb::common::ObCachePair::ObCachePair() {
   init();
 }
 
 
-void oceanbase::common::ObCachePair::init(ObCacheBase& cache, char* key,
+void sb::common::ObCachePair::init(ObCacheBase& cache, char* key,
                                           const int32_t key_size,
                                           char* value, const int32_t value_size,
                                           void* cache_item_handle) {
@@ -56,51 +56,51 @@ void oceanbase::common::ObCachePair::init(ObCacheBase& cache, char* key,
   cache_item_handle_ = cache_item_handle;
 }
 
-void oceanbase::common::ObCachePair::init() {
+void sb::common::ObCachePair::init() {
   key_.assign(NULL, 0);
   value_.assign(NULL, 0);
   cache_ = NULL;
   cache_item_handle_ = NULL;
 }
 
-void oceanbase::common::ObCachePair::revert() {
+void sb::common::ObCachePair::revert() {
   if (cache_ != NULL) {
     cache_->revert(*this);
   }
   init();
 }
 
-oceanbase::common::ObString& oceanbase::common::ObCachePair::get_key() {
+sb::common::ObString& sb::common::ObCachePair::get_key() {
   return key_;
 }
 
-const oceanbase::common::ObString& oceanbase::common::ObCachePair::get_key() const {
+const sb::common::ObString& sb::common::ObCachePair::get_key() const {
   return key_;
 }
 
-oceanbase::common::ObString& oceanbase::common::ObCachePair::get_value() {
+sb::common::ObString& sb::common::ObCachePair::get_value() {
   return value_;
 }
 
-const oceanbase::common::ObString& oceanbase::common::ObCachePair::get_value() const {
+const sb::common::ObString& sb::common::ObCachePair::get_value() const {
   return value_;
 }
 
 
-/// void oceanbase::common::ObVarCache::inc_ref(void * cache_item_handle)
+/// void sb::common::ObVarCache::inc_ref(void * cache_item_handle)
 /// {
 ///   int err = 0;
 ///   CacheItemHead *item = reinterpret_cast<CacheItemHead*>(cache_item_handle);
 ///   if (item->magic_ != CACHE_ITEM_MAGIC)
 ///   {
 ///     TBSYS_LOG(ERROR, "cache memory overflow [item_ptr:%p]", item);
-///     err = oceanbase::common::OB_MEM_OVERFLOW;
+///     err = sb::common::OB_MEM_OVERFLOW;
 ///   }
 ///   tbsys::CThreadGuard guard(&mutex_);
 ///   if (0 == err && !inited_)
 ///   {
 ///     TBSYS_LOG(ERROR, "cache not initialized yet");
-///     err = oceanbase::common::OB_NOT_INIT;
+///     err = sb::common::OB_NOT_INIT;
 ///   }
 ///   if (0 == err)
 ///   {

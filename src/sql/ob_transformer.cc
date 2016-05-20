@@ -100,8 +100,8 @@
 #include "mergeserver/ob_merge_server_main.h"
 #include <vector>
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 typedef int ObMySQLSessionKey;
 #define TRANS_LOG(...)                                                  \
   do{                                                                   \
@@ -637,7 +637,7 @@ int ObTransformer::gen_physical_select(
         if (ret == OB_SUCCESS && (ret = filter_op->set_child(0, *result_op)) != OB_SUCCESS) {
           TRANS_LOG("Set child of filter plan failed");
         }
-        oceanbase::common::ObList<ObSqlRawExpr*>::iterator cnd_it;
+        sb::common::ObList<ObSqlRawExpr*>::iterator cnd_it;
         for (cnd_it = remainder_cnd_list.begin();
              ret == OB_SUCCESS && cnd_it != remainder_cnd_list.end();
              cnd_it++) {
@@ -668,7 +668,7 @@ int ObTransformer::gen_physical_select(
         if (ret == OB_SUCCESS && none_columnlize_alias.size() > 0) {
           // compute complex expressions that contain aggreate functions
           ObAddProject* project_op = NULL;
-          oceanbase::common::ObList<ObSqlRawExpr*>::iterator alias_it;
+          sb::common::ObList<ObSqlRawExpr*>::iterator alias_it;
           for (alias_it = none_columnlize_alias.begin(); ret == OB_SUCCESS && alias_it != none_columnlize_alias.end();) {
             if ((*alias_it)->is_columnlized() == false
                 && (*alias_it)->is_contain_aggr() && (*alias_it)->get_expr()->get_expr_type() != T_REF_COLUMN) {
@@ -1183,10 +1183,10 @@ int ObTransformer::gen_phy_joins(
   ObPhysicalPlan* physical_plan,
   ErrStat& err_stat,
   ObSelectStmt* select_stmt,
-  oceanbase::common::ObList<ObPhyOperator*>& phy_table_list,
-  oceanbase::common::ObList<ObBitSet<> >& bitset_list,
-  oceanbase::common::ObList<ObSqlRawExpr*>& remainder_cnd_list,
-  oceanbase::common::ObList<ObSqlRawExpr*>& none_columnlize_alias) {
+  sb::common::ObList<ObPhyOperator*>& phy_table_list,
+  sb::common::ObList<ObBitSet<> >& bitset_list,
+  sb::common::ObList<ObSqlRawExpr*>& remainder_cnd_list,
+  sb::common::ObList<ObSqlRawExpr*>& none_columnlize_alias) {
   int& ret = err_stat.err_code_ = OB_SUCCESS;
   while (ret == OB_SUCCESS && phy_table_list.size() > 1) {
     ObAddProject* project_op = NULL;
@@ -1201,8 +1201,8 @@ int ObTransformer::gen_phy_joins(
     ObBitSet<> right_table_bitset;
     ObSort* left_sort = NULL;
     ObSort* right_sort = NULL;
-    oceanbase::common::ObList<ObSqlRawExpr*>::iterator cnd_it;
-    oceanbase::common::ObList<ObSqlRawExpr*>::iterator del_it;
+    sb::common::ObList<ObSqlRawExpr*>::iterator cnd_it;
+    sb::common::ObList<ObSqlRawExpr*>::iterator del_it;
     for (cnd_it = remainder_cnd_list.begin(); ret == OB_SUCCESS && cnd_it != remainder_cnd_list.end();) {
       if ((*cnd_it)->get_expr()->is_join_cond() && join_table_bitset.is_empty()) {
         ObBinaryOpRawExpr* join_cnd = dynamic_cast<ObBinaryOpRawExpr*>((*cnd_it)->get_expr());
@@ -1229,10 +1229,10 @@ int ObTransformer::gen_phy_joins(
           break;
         }
 
-        oceanbase::common::ObList<ObPhyOperator*>::iterator table_it = phy_table_list.begin();
-        oceanbase::common::ObList<ObPhyOperator*>::iterator del_table_it;
-        oceanbase::common::ObList<ObBitSet<> >::iterator bitset_it = bitset_list.begin();
-        oceanbase::common::ObList<ObBitSet<> >::iterator del_bitset_it;
+        sb::common::ObList<ObPhyOperator*>::iterator table_it = phy_table_list.begin();
+        sb::common::ObList<ObPhyOperator*>::iterator del_table_it;
+        sb::common::ObList<ObBitSet<> >::iterator bitset_it = bitset_list.begin();
+        sb::common::ObList<ObBitSet<> >::iterator del_bitset_it;
         ObPhyOperator* left_table_op = NULL;
         ObPhyOperator* right_table_op = NULL;
         while (ret == OB_SUCCESS
@@ -1439,7 +1439,7 @@ int ObTransformer::gen_phy_joins(
     }
 
     // columnlize the alias expression
-    oceanbase::common::ObList<ObSqlRawExpr*>::iterator alias_it;
+    sb::common::ObList<ObSqlRawExpr*>::iterator alias_it;
     for (alias_it = none_columnlize_alias.begin(); ret == OB_SUCCESS && alias_it != none_columnlize_alias.end();) {
       if ((*alias_it)->is_columnlized()) {
         common::ObList<ObSqlRawExpr*>::iterator del_alias = alias_it;
@@ -1505,10 +1505,10 @@ int ObTransformer::gen_phy_tables(
   ObSelectStmt* select_stmt,
   bool& group_agg_pushed_down,
   bool& limit_pushed_down,
-  oceanbase::common::ObList<ObPhyOperator*>& phy_table_list,
-  oceanbase::common::ObList<ObBitSet<> >& bitset_list,
-  oceanbase::common::ObList<ObSqlRawExpr*>& remainder_cnd_list,
-  oceanbase::common::ObList<ObSqlRawExpr*>& none_columnlize_alias) {
+  sb::common::ObList<ObPhyOperator*>& phy_table_list,
+  sb::common::ObList<ObBitSet<> >& bitset_list,
+  sb::common::ObList<ObSqlRawExpr*>& remainder_cnd_list,
+  sb::common::ObList<ObSqlRawExpr*>& none_columnlize_alias) {
   int& ret = err_stat.err_code_ = OB_SUCCESS;
   ObPhyOperator* table_op = NULL;
   ObBitSet<> bit_set;

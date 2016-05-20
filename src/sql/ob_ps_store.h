@@ -24,16 +24,16 @@
 #include "ob_sql_id_mgr.h"
 #include "ob_ps_store_item_callback.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace sql {
 class TestObPsStore;
 }
 }
 }
-namespace oceanbase {
+namespace sb {
 namespace sql {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 typedef int64_t ObPsStoreKey;
 
@@ -41,7 +41,7 @@ typedef int64_t ObPsStoreKey;
 class ObPsStore {
  public:
   typedef hash::ObHashMap<ObPsStoreKey, ObPsStoreItem*> SqlPlanMap;
-  friend class oceanbase::tests::sql::TestObPsStore;
+  friend class sb::tests::sql::TestObPsStore;
  public:
   ObPsStore();
   ~ObPsStore();

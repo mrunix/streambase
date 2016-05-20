@@ -12,9 +12,9 @@
 #include "common/ob_errno.h"
 #include "sql/ob_sql_session_info.h"
 #include "ob_mysql_server.h"
-using namespace oceanbase::common;
-using namespace oceanbase::obmysql;
-using namespace oceanbase::common::hash;
+using namespace sb::common;
+using namespace sb::obmysql;
+using namespace sb::common::hash;
 
 ObMySQLClientCapability::ObMySQLClientCapability(uint32_t ca): capability_(ca) {
 

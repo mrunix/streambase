@@ -17,9 +17,9 @@
 #include "common/ob_define.h"
 #include "tbsys.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObGetCellStreamWrapper::ObGetCellStreamWrapper(
   ObMergerRpcProxy& rpc_proxy, const int64_t time_out)
@@ -39,4 +39,4 @@ ObScanCellStream* ObGetCellStreamWrapper::get_ups_scan_cell_stream() {
   return &scan_cell_stream_;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

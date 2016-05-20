@@ -18,7 +18,7 @@
 #include "ob_tsi_utils.h"
 #ifndef OCEANBASE_COMMON_OB_MOD_DEFINE_H_
 #define OCEANBASE_COMMON_OB_MOD_DEFINE_H_
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObModInfo {
   ObModInfo() {
@@ -419,7 +419,7 @@ inline void init_ob_mod_set() {
 
   ADD_MOD(OB_MOD_END);
 }
-class ObModSet : public oceanbase::common::ObMemPoolModSet {
+class ObModSet : public sb::common::ObMemPoolModSet {
  public:
   ObModSet();
   virtual ~ObModSet() {

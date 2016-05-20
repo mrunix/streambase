@@ -22,7 +22,7 @@
 #include "ob_get_param.h"
 #include "ob_scan_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObSqlUpsRpcProxy {
  public:

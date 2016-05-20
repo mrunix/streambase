@@ -15,7 +15,7 @@
  */
 
 #include "ob_base_client.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObBaseClient::ObBaseClient()
   : init_(false), eio_(NULL) {

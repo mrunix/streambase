@@ -19,7 +19,7 @@
 #include "common/ob_string.h"
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 enum AlterAction {
   NONE_ACTION,

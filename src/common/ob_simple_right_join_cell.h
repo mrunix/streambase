@@ -19,7 +19,7 @@
 #include "ob_object.h"
 #include "ob_rowkey.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObSimpleRightJoinCell {
   uint64_t table_id;

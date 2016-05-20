@@ -8,8 +8,8 @@
 #include "easy_connection.h"
 #include "ob_sql_character_set.h"
 #include <utility>
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 
 const char* state_str[] = {

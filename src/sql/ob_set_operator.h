@@ -20,7 +20,7 @@
 #include "sql/ob_double_children_phy_operator.h"
 #include "common/ob_row.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObSetOperator: public ObDoubleChildrenPhyOperator {
  public:
@@ -61,7 +61,7 @@ inline bool ObSetOperator::is_distinct() const {
   return distinct_;
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* OCEANBASE_SQL_OB_SET_OPERATOR_H_ */
 

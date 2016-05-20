@@ -17,7 +17,7 @@
 #include "ob_sessionctx_factory.h"
 #include "sql/ob_phy_operator_factory.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObUpsPhyOperatorFactory: public sql::ObPhyOperatorFactory {
  public:
@@ -33,6 +33,6 @@ class ObUpsPhyOperatorFactory: public sql::ObPhyOperatorFactory {
   ObIUpsTableMgr* table_mgr_;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_UPDATESERVER_OB_UPS_PHY_OPERATOR_FACTORY_H__ */

@@ -1,9 +1,9 @@
 #include "ob_flag.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
-int oceanbase::common::string_copy(char* dst, const char* src, int64_t max_length) {
+int sb::common::string_copy(char* dst, const char* src, int64_t max_length) {
   int ret = OB_SUCCESS;
   int64_t src_len = 0;
   if (OB_SUCCESS == ret && NULL == src) {
@@ -23,7 +23,7 @@ int oceanbase::common::string_copy(char* dst, const char* src, int64_t max_lengt
   return ret;
 }
 
-int oceanbase::common::decode_string(char* str_buf, const char* buf, const int64_t data_len, int64_t& pos,  int64_t max_length) {
+int sb::common::decode_string(char* str_buf, const char* buf, const int64_t data_len, int64_t& pos,  int64_t max_length) {
   int ret = OB_SUCCESS;
   const char* tmp = NULL;
   int64_t len = 0;
@@ -50,7 +50,7 @@ int oceanbase::common::decode_string(char* str_buf, const char* buf, const int64
   return ret;
 }
 
-DEFINE_SERIALIZE(oceanbase::common::ObFlag<const char*>) {
+DEFINE_SERIALIZE(sb::common::ObFlag<const char*>) {
   int ret = OB_SUCCESS;
   if (OB_SUCCESS == ret) {
     ret = serialization::encode_vstr(buf, buf_len, pos, value_, strlen(value_));
@@ -71,7 +71,7 @@ DEFINE_SERIALIZE(oceanbase::common::ObFlag<const char*>) {
   return ret;
 }
 
-DEFINE_DESERIALIZE(oceanbase::common::ObFlag<const char*>) {
+DEFINE_DESERIALIZE(sb::common::ObFlag<const char*>) {
   int ret = OB_SUCCESS;
 
   if (OB_SUCCESS == ret) {
@@ -92,7 +92,7 @@ DEFINE_DESERIALIZE(oceanbase::common::ObFlag<const char*>) {
   return ret;
 }
 
-DEFINE_GET_SERIALIZE_SIZE(oceanbase::common::ObFlag<const char*>) {
+DEFINE_GET_SERIALIZE_SIZE(sb::common::ObFlag<const char*>) {
   int64_t size = 0;
   size += serialization::encoded_length_vstr(value_);
   size += serialization::encoded_length_vstr(default_value_);
@@ -101,7 +101,7 @@ DEFINE_GET_SERIALIZE_SIZE(oceanbase::common::ObFlag<const char*>) {
   return size;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 template<>

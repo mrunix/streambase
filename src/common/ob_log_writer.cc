@@ -17,7 +17,7 @@
 #include "ob_trace_log.h"
 #include "ob_malloc.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObLogWriter::ObLogWriter(): is_initialized_(false),
   net_warn_threshold_us_(5000),

@@ -25,7 +25,7 @@
 #include <algorithm>
 #include "ob_file.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace FileComponent {
 template <class T>

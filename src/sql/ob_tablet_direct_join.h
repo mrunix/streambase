@@ -19,7 +19,7 @@
 
 #include "ob_tablet_join.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObTabletDirectJoin : public ObTabletJoin {
  public:

@@ -16,7 +16,7 @@
 #include "ob_define.h"
 #include "ob_log_cursor.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class MinAvailFileIdGetter {
  public:
@@ -73,6 +73,6 @@ class ObLogDataWriter {
   MinAvailFileIdGetter* min_avail_file_id_getter_;
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_LOG_DATA_WRITER_H__ */

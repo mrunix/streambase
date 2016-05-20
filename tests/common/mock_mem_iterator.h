@@ -20,7 +20,7 @@
 #include "common/ob_read_common_data.h"
 #include "common/ob_string_buf.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class MockMemIterator : public ObIterator {
  public:

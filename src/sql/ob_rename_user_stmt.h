@@ -17,7 +17,7 @@
 #define _OB_RENAME_USER_STMT_H 1
 #include "ob_basic_stmt.h"
 #include "common/ob_strings.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObRenameUserStmt: public ObBasicStmt {
  public:
@@ -37,6 +37,6 @@ class ObRenameUserStmt: public ObBasicStmt {
   common::ObStrings rename_infos_; // (from1, to1), (from2, to2)
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_RENAME_USER_STMT_H */

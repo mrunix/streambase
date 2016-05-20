@@ -21,7 +21,7 @@
 //#include "mock_ups_rpc_stub.h"
 #include "ob_commit_log_receiver.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace updateserver {
 //forward decleration
@@ -79,7 +79,7 @@ class ObUpsFetchLsync : public tbsys::CDefaultRunnable {
   bool is_initialized_;
 };
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #endif // OCEANBASE_UPDATESERVER_OB_UPS_FETCH_LSYNC_H_

@@ -25,7 +25,7 @@
 #include "common/ob_malloc.h"
 #include "common/utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 static const uint8_t BIT_MASKS[8] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
 

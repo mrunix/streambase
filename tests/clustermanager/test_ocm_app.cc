@@ -1,8 +1,8 @@
 #include "ob_ocm_app_info.h"
 #include "gtest/gtest.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::clustermanager;
+using namespace sb::common;
+using namespace sb::clustermanager;
 TEST(TestOcmAppInfo, set_app_name) {
   ObOcmAppInfo app;
   EXPECT_EQ(0, app.set_app_name("favorite"));

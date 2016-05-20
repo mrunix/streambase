@@ -19,10 +19,10 @@
 #include "common/ob_schema.h"
 #include "updateserver/ob_ups_mutator.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
-namespace oceanbase {
+namespace sb {
 namespace msync {
 class ObMutatorReader {
  public:
@@ -53,6 +53,6 @@ class ObMutatorReader {
   ObUpsMutator cur_ups_mutator_;
 };
 } // end namespace msync
-} // end namespace oceanbase
+} // end namespace sb
 #endif //_OCEANBASE_MSYNC_OB_MUTATOR_READER_H_
 

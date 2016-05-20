@@ -32,7 +32,7 @@
 #include "common/ob_cur_time.h"
 #include "ob_ps_store.h"
 #include "ob_sql_config_provider.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 enum ObSQLSessionState {
   SESSION_SLEEP,

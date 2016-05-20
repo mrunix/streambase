@@ -1,7 +1,7 @@
 #include "ob_tablet_location_cache.h"
 #include "ob_tablet_location_list.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObTabletLocationCache::ObTabletLocationCache() {
   init_ = false;

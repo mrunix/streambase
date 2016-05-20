@@ -16,7 +16,7 @@
 #include "ob_number.h"
 #include "utility.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 int8_t ObNumber::QUOTIENT_SCALE = 38;
 
 static const uint32_t POWER10[] = {
@@ -905,7 +905,7 @@ int ObNumber::negate(ObNumber& res) const {
   return ret;
 }
 
-std::ostream& oceanbase::common::operator<<(std::ostream& os, const ObNumber& num) {
+std::ostream& sb::common::operator<<(std::ostream& os, const ObNumber& num) {
   char buff[ObNumber::MAX_PRINTABLE_SIZE];
   num.to_string(buff, ObNumber::MAX_PRINTABLE_SIZE);
   os << buff;

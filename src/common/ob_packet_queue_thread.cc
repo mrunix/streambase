@@ -19,7 +19,7 @@
 #include "ob_profile_type.h"
 #include "ob_tsi_factory.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 static long* get_no_ptr(void) {
   static __thread long p = 0;

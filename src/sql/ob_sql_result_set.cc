@@ -21,10 +21,10 @@
 #include "sql/ob_result_set.h"
 #include "ob_sql_result_set.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::common::serialization;
-using namespace oceanbase::sql;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::common::serialization;
+using namespace sb::sql;
 
 int ObSQLResultSet::serialize(char* buf,
                               const int64_t len, int64_t& pos) {

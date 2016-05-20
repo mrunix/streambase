@@ -13,7 +13,7 @@
  */
 #include "ob_tsi_utils.h"
 #include "utility.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 int64_t ExpStat::to_string(char* buf, const int64_t len) const {
   int64_t pos = 0;
@@ -37,4 +37,4 @@ int64_t ExpStat::to_string(char* buf, const int64_t len) const {
   return pos;
 }
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb

@@ -22,7 +22,7 @@
 #include "ob_filter.h"
 #include "ob_limit.h"
 #include "common/ob_row.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObTableScan: public ObSingleChildPhyOperator {
  public:
@@ -88,6 +88,6 @@ class ObTableScan: public ObSingleChildPhyOperator {
   ObTableScan& operator=(const ObTableScan& other);
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_TABLE_SCAN_H */

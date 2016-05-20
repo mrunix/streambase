@@ -17,8 +17,8 @@
 #include <gtest/gtest.h>
 #include "ob_fake_table.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 class ObSortTest: public ::testing::Test {
  public:

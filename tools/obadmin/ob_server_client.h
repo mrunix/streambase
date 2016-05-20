@@ -9,7 +9,7 @@
 #include "common/ob_malloc.h"
 #include "ob_admin_utils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class ObServerClient {
  public:
@@ -47,9 +47,9 @@ class ObServerClient {
   bool inited_;
 };
 } // end of namespace tools
-}   // end of namespace oceanbase
+}   // end of namespace sb
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 inline int ObServerClient::initialize(const ObServer& server) {
   ob_init_memory_pool();
@@ -206,7 +206,7 @@ int ObServerClient::send_request(const int pcode, const Input& param,
   return ret;
 }
 } // end of namespace tools
-}   // end of namespace oceanbase
+}   // end of namespace sb
 
 
 #endif /* _OCEANBASE_TOOLS_OB_SERVER_CLIENT_ */

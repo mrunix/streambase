@@ -18,8 +18,8 @@
 
 #include <common/ob_malloc.h>
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
 int64_t ObSQLQueryCacheKey::to_string(char* buf, const int64_t buf_len) const {
   int64_t pos = snprintf(buf, buf_len, "SQL_ID: %ld", sql_id);

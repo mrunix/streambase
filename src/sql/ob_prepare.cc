@@ -17,8 +17,8 @@
 #include "ob_result_set.h"
 #include "ob_physical_plan.h"
 #include "parse_malloc.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObPrepare::ObPrepare() {
 }
@@ -67,7 +67,7 @@ int ObPrepare::store_phy_plan_to_session() {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObPrepare, PHY_PREPARE);
 }

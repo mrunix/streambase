@@ -23,11 +23,11 @@
 #include "chunkserver/ob_tablet_manager.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
-using namespace oceanbase::chunkserver;
+using namespace sb::common;
+using namespace sb::sstable;
+using namespace sb::chunkserver;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace sstable {
 static const int64_t table_id = 100;
@@ -949,7 +949,7 @@ TEST_F(TestObSSTableGetter, test_cache_row) {
   ret = getter.get_cell(&cell, &row_change);
   EXPECT_EQ(OB_SUCCESS, ret);
   EXPECT_NE((ObCellInfo*)NULL, cell);
-  //fprintf(stderr, "cell=%s\n", oceanbase::common::print_cellinfo(cell));
+  //fprintf(stderr, "cell=%s\n", sb::common::print_cellinfo(cell));
   check_cell(cell_infos[row_index][col_index], *cell);
 
   ret = getter.next_cell();
@@ -957,7 +957,7 @@ TEST_F(TestObSSTableGetter, test_cache_row) {
   ret = getter.get_cell(&cell, &row_change);
   EXPECT_EQ(OB_SUCCESS, ret);
   EXPECT_NE((ObCellInfo*)NULL, cell);
-  //fprintf(stderr, "cell=%s\n", oceanbase::common::print_cellinfo(cell));
+  //fprintf(stderr, "cell=%s\n", sb::common::print_cellinfo(cell));
   check_cell(cell_infos[row_index+1][col_index+1], *cell);
   ret = getter.next_cell();
   ASSERT_EQ(OB_ITER_END, ret);
@@ -976,7 +976,7 @@ TEST_F(TestObSSTableGetter, test_cache_row) {
   ret = getter.get_cell(&cell, &row_change);
   EXPECT_EQ(OB_SUCCESS, ret);
   EXPECT_NE((ObCellInfo*)NULL, cell);
-  //fprintf(stderr, "cell=%s\n", oceanbase::common::print_cellinfo(cell));
+  //fprintf(stderr, "cell=%s\n", sb::common::print_cellinfo(cell));
   check_cell(cell_infos[row_index+1][col_index+1], *cell);
 
   ret = getter.next_cell();
@@ -987,7 +987,7 @@ TEST_F(TestObSSTableGetter, test_cache_row) {
 
 }//end namespace sstable
 }//end namespace tests
-}//end namespace oceanbase
+}//end namespace sb
 
 int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);

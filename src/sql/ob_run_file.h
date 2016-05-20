@@ -18,7 +18,7 @@
 #include "common/ob_file.h"
 #include "common/ob_array.h"
 #include "common/ob_row.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 // run file for merge sort
 // support multi-bucket, multi-run in one physical file
@@ -86,7 +86,7 @@ class ObRunFile {
   int64_t curr_run_row_count_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_RUN_FILE_H */
 

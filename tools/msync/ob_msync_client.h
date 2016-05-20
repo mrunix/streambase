@@ -19,9 +19,9 @@
 #include "common/ob_client_manager.h"
 #include "ob_mutator_reader.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace msync {
 const static int SEQ_MARKER_SIZE = 1 << 12;
 static inline void* file_map(const char* path, size_t len) {
@@ -111,4 +111,4 @@ class ObMsyncClient: public ObClientManager {
   tbnet::Transport transport_;
 };
 } //end namespace msync
-} // end namespace oceanbase
+} // end namespace sb

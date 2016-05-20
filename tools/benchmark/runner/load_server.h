@@ -10,7 +10,7 @@
 #include "common/ob_base_server.h"
 #include "common/ob_single_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class LoadServer : public common::ObSingleServer {
  public:

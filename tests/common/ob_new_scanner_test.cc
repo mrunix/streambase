@@ -19,7 +19,7 @@
 #include "gtest/gtest.h"
 
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace std;
 

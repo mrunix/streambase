@@ -19,9 +19,9 @@
 #include "ob_sstable_scanner.h"
 #include "ob_aio_buffer_mgr.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 
 ObSeqSSTableScanner::ObSeqSSTableScanner()
@@ -187,7 +187,7 @@ int ObSeqSSTableScanner::get_cell(ObCellInfo** cell, bool* is_row_changed) {
 }
 
 } // end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb
 
 
 

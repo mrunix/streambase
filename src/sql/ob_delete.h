@@ -20,7 +20,7 @@
 #include "common/ob_mutator.h"
 #include "common/ob_schema.h"
 #include "common/ob_row_desc_ext.h"
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMergerRpcProxy;
 } // end namespace mergeserver
@@ -92,6 +92,6 @@ inline int ObDelete::get_row_desc(const common::ObRowDesc*& row_desc) const {
   return common::OB_NOT_SUPPORTED;
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_DELETE_H */

@@ -23,11 +23,11 @@
 #include "common/ob_string.h"
 #include "common/utility.h"
 
-using oceanbase::common::ObString;
-using oceanbase::common::OB_MAX_CONFIG_NAME_LEN;
-using oceanbase::common::MurmurHash2;
+using sb::common::ObString;
+using sb::common::OB_MAX_CONFIG_NAME_LEN;
+using sb::common::MurmurHash2;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObSystemConfigKey {
  public:

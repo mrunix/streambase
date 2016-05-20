@@ -15,7 +15,7 @@
 
 #include "ob_campaign_impression.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 using namespace tbsys;
 using namespace common;
@@ -96,4 +96,4 @@ int ObCampaignImpression::prepare(ObScanParam& scan_param) {
   return ret;
 }
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb

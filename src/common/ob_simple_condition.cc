@@ -19,7 +19,7 @@
 #include "ob_string_search.h"
 #include "ob_simple_condition.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObSimpleCond::ObSimpleCond() {
   pattern_sign_ = 0;

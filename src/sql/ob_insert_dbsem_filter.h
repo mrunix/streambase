@@ -19,7 +19,7 @@
 #include "ob_single_child_phy_operator.h"
 #include "ob_expr_values.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 
 namespace sql {
@@ -54,6 +54,6 @@ inline void ObInsertDBSemFilter::set_phy_plan(ObPhysicalPlan* the_plan) {
   insert_values_.set_phy_plan(the_plan);
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_INSERT_DBSEM_FILTER_H */

@@ -11,10 +11,10 @@
 #include "ob_tablet_manager.h"
 #include "ob_chunk_server.h"
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
+using namespace sb::common;
+using namespace sb::chunkserver;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace chunkserver {
 static const int64_t table_id = 100;
@@ -356,7 +356,7 @@ TEST_F(TestObTabletMigrate, test_load_tablet) {
 
 }//end namespace common
 }//end namespace tests
-}//end namespace oceanbase
+}//end namespace sb
 
 int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);

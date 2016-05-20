@@ -25,7 +25,7 @@
 #include "ob_fifo_allocator.h"
 #include "ob_packet.h"
 #include <sys/uio.h>
-namespace oceanbase {
+namespace sb {
 namespace common {
 #define FIFO_PACKET_MAGIC 0x544b505f4f464946 // "FIFO_PKT"
 #define CUR_FIFO_PACKET_VERSION 1

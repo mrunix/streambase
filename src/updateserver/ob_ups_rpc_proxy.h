@@ -23,7 +23,7 @@
 #include "ob_ups_table_mgr.h"
 #include "ob_ups_cache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObUpsMergerRpcProxy : public mergeserver::ObMergerRpcProxy {
  public:

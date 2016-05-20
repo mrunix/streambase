@@ -30,7 +30,7 @@
 #include "ob_log_mysql_adaptor.h"
 #include "BinlogRecord.h"
 
-namespace oceanbase {
+namespace sb {
 namespace liboblog {
 class ObLogBinlogRecord : public BinlogRecord {
  public:

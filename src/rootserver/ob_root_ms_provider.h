@@ -20,7 +20,7 @@
 #include "ob_chunk_server_manager.h"
 #include "ob_root_server_config.h"
 #include "ob_root_rpc_stub.h"
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 // thread safe simple ronud-robin merge server provider
 class ObRootMsProvider: public common::ObMsProvider {
@@ -48,7 +48,7 @@ class ObRootMsProvider: public common::ObMsProvider {
   ObRootRpcStub* rpc_stub_;
 };
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ROOT_MS_PROVIDER_H */
 

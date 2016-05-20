@@ -21,7 +21,7 @@
 #include "ob_lock_mgr.h"
 #include "ob_sessionctx_factory.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 int IRowUnlocker::cb_func(const bool rollback, void* data, BaseSessionCtx& session) {
   UNUSED(rollback);

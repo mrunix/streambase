@@ -17,8 +17,8 @@
 #include "ob_chunk_server_manager.h"
 #include "ob_root_sql_proxy.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 
 ObRootSQLProxy::ObRootSQLProxy(ObChunkServerManager& server_manager, ObRootServerConfig& config, ObRootRpcStub& rpc_stub)
   : ms_provider_(server_manager), rpc_stub_(rpc_stub) {

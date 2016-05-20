@@ -6,7 +6,7 @@
 #include "common/ob_define.h"
 
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class PosixWritableFile : public WritableFile {
  public:

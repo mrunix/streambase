@@ -15,7 +15,7 @@
 #include "ob_array_helper.h"
 #include "ob_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 enum ObStatMod {
   OB_STAT_ROOTSERVER = 0,  // rs

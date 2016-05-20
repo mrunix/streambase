@@ -21,7 +21,7 @@
 #include "common/ob_common_param.h"
 #include "ob_compact_obj.h"
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstable {
 class ObCompactRow {
  public:

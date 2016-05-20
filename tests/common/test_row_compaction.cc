@@ -12,7 +12,7 @@
 #include "test_rowkey_helper.h"
 #include "gtest/gtest.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 ObRowCompaction* rc = NULL;;

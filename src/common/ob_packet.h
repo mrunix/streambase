@@ -10,7 +10,7 @@
 #include "thread_buffer.h"
 #include "ob_trace_id.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 enum PacketCode {
   OB_GET_REQUEST = 101,

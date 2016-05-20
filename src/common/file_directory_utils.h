@@ -23,7 +23,7 @@
 #include <vector>
 #include <stdint.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 #ifndef S_IRWXUGO
 # define S_IRWXUGO (S_IRWXU | S_IRWXG | S_IRWXO)
@@ -51,5 +51,5 @@ class FileDirectoryUtils {
 
 typedef FileDirectoryUtils FSU;
 }				//end namespace common
-}				//end namespace oceanbase
+}				//end namespace sb
 #endif

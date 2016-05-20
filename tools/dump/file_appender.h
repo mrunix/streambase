@@ -22,7 +22,7 @@
 // data to the file.  This is safe since we either properly close the
 // file before reading from it, or for log files, the reading code
 // knows enough to skip zero suffixes.
-using namespace oceanbase::common;
+using namespace sb::common;
 using namespace tbsys;
 
 class AppendableFile {

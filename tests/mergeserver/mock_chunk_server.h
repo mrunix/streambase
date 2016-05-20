@@ -4,7 +4,7 @@
 #include "mock_server.h"
 
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 namespace test {
 class MockChunkServer: public MockServer {

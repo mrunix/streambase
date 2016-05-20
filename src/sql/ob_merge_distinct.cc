@@ -20,8 +20,8 @@
 #include "common/ob_row.h"
 #include "common/ob_row_util.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 
 ObMergeDistinct::ObMergeDistinct()
@@ -207,7 +207,7 @@ int ObMergeDistinct::add_distinct_column(const uint64_t tid, const uint64_t cid)
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObMergeDistinct, PHY_MERGE_DISTINCT);
 }

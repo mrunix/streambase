@@ -7,7 +7,7 @@
 #include "gtest/gtest.h"
 #include "test_rowkey_helper.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace nb_accessor;
 

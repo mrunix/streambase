@@ -20,7 +20,7 @@
 #include "common/ob_define.h"
 #include "common/ob_statistics.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /* rootserver */
 enum {

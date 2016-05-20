@@ -24,7 +24,7 @@
 #include "btree_tid.h"
 #include "qlock.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace cmbtree {
 template<class K, class V, class Alloc>
@@ -291,6 +291,6 @@ int32_t  BtreeRecyclePool<K, V, Alloc>::free_node_(TRecycleNode* node) {
 
 } // end namespace cmbtree
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_CMBTREE_BTREE_RECYCLE_POOL_H_

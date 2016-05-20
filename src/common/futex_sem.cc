@@ -22,7 +22,7 @@
 #include <time.h>
 #include "futex_sem.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 #define futex(...) syscall(SYS_futex,__VA_ARGS__)
 const static int64_t NS_PER_SEC = 1000000000;
@@ -130,4 +130,4 @@ int futex_wait(fsem_t* p, const timespec* end_time) {
   return err;
 }
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb

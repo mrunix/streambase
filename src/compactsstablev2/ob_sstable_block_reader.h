@@ -8,7 +8,7 @@
 #include "sstable/ob_sstable_row_cache.h"
 #include "ob_sstable_store_struct.h"
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 class ObSSTableBlockReader {
  public:

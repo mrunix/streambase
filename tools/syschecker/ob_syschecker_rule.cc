@@ -18,7 +18,7 @@
 #include "common/file_directory_utils.h"
 #include "ob_syschecker_rule.h"
 
-namespace oceanbase {
+namespace sb {
 namespace syschecker {
 using namespace common;
 using namespace serialization;
@@ -2446,4 +2446,4 @@ void hex_dump_rowkey(const void* data, const int32_t size,
   }
 }
 } // end namespace syschecker
-} // end namespace oceanbase
+} // end namespace sb

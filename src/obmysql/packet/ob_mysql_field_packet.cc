@@ -1,6 +1,6 @@
 #include "ob_mysql_field_packet.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 ObMySQLFieldPacket::ObMySQLFieldPacket(ObMySQLField* field)
   : field_(field) {

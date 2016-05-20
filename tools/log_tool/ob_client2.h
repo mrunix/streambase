@@ -10,7 +10,7 @@
 #include "easy_io.h"
 #endif
 
-using namespace oceanbase::common;
+using namespace sb::common;
 class SimpleFormatter {
  public:
   SimpleFormatter(): len_(sizeof(buf_)), pos_(0) {}

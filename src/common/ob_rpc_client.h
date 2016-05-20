@@ -6,7 +6,7 @@
 #include "ob_packet.h"
 #include "ob_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObScanParam;
 class ObScanner;

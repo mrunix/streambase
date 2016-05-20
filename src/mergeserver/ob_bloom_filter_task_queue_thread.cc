@@ -4,8 +4,8 @@
 #include "common/bloom_filter.h"
 #include "common/ob_adapter_allocator.h"
 
-using namespace oceanbase;
-using namespace oceanbase::mergeserver;
+using namespace sb;
+using namespace sb::mergeserver;
 
 ObBloomFilterTaskQueueThread::ObBloomFilterTaskQueueThread()
   : stop_(false), proxy_(NULL), task_limit_(TASK_LIMIT_DEFAULT), wait_time_(WAIT_TIME_DEFAULT) {

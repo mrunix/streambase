@@ -7,7 +7,7 @@
 #include "common/ob_mutator.h"
 #include "updateserver/ob_memtable.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace common::hash;
 using namespace updateserver;

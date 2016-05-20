@@ -1,8 +1,8 @@
 #include "ob_sstable_buffer.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 ObSSTableBuffer::ObSSTableBuffer(const int64_t block_size/*=DEFAULT_MEM_BLOCK_SIZE*/)
   : block_size_(block_size),
@@ -236,4 +236,4 @@ int ObSSTableBuffer::alloc_mem(void*& buf, const int64_t size) {
   return ret;
 }
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb

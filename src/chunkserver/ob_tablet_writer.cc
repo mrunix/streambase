@@ -13,7 +13,7 @@
  */
 #include "ob_tablet_writer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 int ObSSTableWriterUtil::gen_sstable_file_location(const int32_t disk_no,
                                                    sstable::ObSSTableId& sstable_id, char* path, const int64_t path_size) {

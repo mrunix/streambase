@@ -20,7 +20,7 @@
 #include "common/ob_define.h"
 #include "common/ob_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace proxyserver {
 
 class ObProxyServerConfig {

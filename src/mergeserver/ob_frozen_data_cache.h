@@ -26,7 +26,7 @@
 #include <common/ob_row_store.h>
 #include <common/utility.h>
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 struct ObFrozenDataKey {
   common::ObVersion frozen_version;
@@ -240,6 +240,6 @@ class ObFrozenDataCache {
 };
 } // namespace mergeserver
 
-} // namespace oceanbase
+} // namespace sb
 
 #endif // OCEANBASE_MERGESERVER_OB_FROZEN_DATA_CACHE

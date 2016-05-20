@@ -42,7 +42,7 @@
 #define TRASH_DIR "trash"
 #define BYPASS_DIR "bypass"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class StoreMgr {
  public:

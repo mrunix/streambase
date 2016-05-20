@@ -9,7 +9,7 @@
 #include "common/ob_string_buf.h"
 #include "common/ob_vector.h"
 #include "common/ob_stack_allocator.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 enum ObCurTimeType {
   CUR_TIME,
@@ -19,10 +19,10 @@ enum ObCurTimeType {
 class ObSQLSessionInfo;
 class ObLogicalPlan {
  public:
-  explicit ObLogicalPlan(oceanbase::common::ObStringBuf* name_pool);
+  explicit ObLogicalPlan(sb::common::ObStringBuf* name_pool);
   virtual ~ObLogicalPlan();
 
-  oceanbase::common::ObStringBuf* get_name_pool() const {
+  sb::common::ObStringBuf* get_name_pool() const {
     return name_pool_;
   }
 
@@ -131,12 +131,12 @@ class ObLogicalPlan {
   void print(FILE* fp = stderr, int32_t level = 0) const;
 
  protected:
-  oceanbase::common::ObStringBuf* name_pool_;
+  sb::common::ObStringBuf* name_pool_;
 
  private:
-  oceanbase::common::ObVector<ObBasicStmt*> stmts_;
-  oceanbase::common::ObVector<ObSqlRawExpr*> exprs_;
-  oceanbase::common::ObVector<ObRawExpr*> raw_exprs_store_;
+  sb::common::ObVector<ObBasicStmt*> stmts_;
+  sb::common::ObVector<ObSqlRawExpr*> exprs_;
+  sb::common::ObVector<ObRawExpr*> raw_exprs_store_;
   int64_t   question_marks_count_;
   ObCurTimeType cur_time_fun_type_;
   uint64_t  new_gen_tid_;

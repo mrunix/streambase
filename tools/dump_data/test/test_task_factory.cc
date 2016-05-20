@@ -11,8 +11,8 @@
 #include "task_factory.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();

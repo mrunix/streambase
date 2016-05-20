@@ -32,8 +32,8 @@
 #include "common/ob_hint.h"
 #include <stdint.h>
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
 extern const char* get_type_name(int type);
 
@@ -1185,7 +1185,7 @@ int resolve_expr(
     }
     if (ret == OB_SUCCESS) {
       int32_t param_num = 0;
-      if ((ret = oceanbase::sql::ObPostfixExpression::get_sys_func_param_num(func_name, param_num)) != OB_SUCCESS) {
+      if ((ret = sb::sql::ObPostfixExpression::get_sys_func_param_num(func_name, param_num)) != OB_SUCCESS) {
         snprintf(result_plan->err_stat_.err_msg_, MAX_ERROR_MSG,
                  "Unknown function '%.*s', ret=%d", func_name.length(), func_name.ptr(), ret);
       } else {
@@ -1228,11 +1228,11 @@ int resolve_expr(
       }
     }
     if (ret == OB_SUCCESS) {
-      if (0 == strncasecmp(oceanbase::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_LENGTH), func_name.ptr(), func_name.length())) {
+      if (0 == strncasecmp(sb::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_LENGTH), func_name.ptr(), func_name.length())) {
         func_expr->set_result_type(ObIntType);
-      } else if (0 == strncasecmp(oceanbase::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_SUBSTR), func_name.ptr(), func_name.length())) {
+      } else if (0 == strncasecmp(sb::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_SUBSTR), func_name.ptr(), func_name.length())) {
         func_expr->set_result_type(ObVarcharType);
-      } else if (0 == strncasecmp(oceanbase::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_CAST), func_name.ptr(), func_name.length())) {
+      } else if (0 == strncasecmp(sb::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_CAST), func_name.ptr(), func_name.length())) {
         int32_t num = node->children_[1]->num_child_;
         if (num == 2) {
           ObObj obj;
@@ -1254,34 +1254,34 @@ int resolve_expr(
         } else {
           TBSYS_LOG(WARN, "CAST function must only take 2 params");
         }
-      } else if (0 == strncasecmp(oceanbase::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_CUR_USER), func_name.ptr(), func_name.length())) {
+      } else if (0 == strncasecmp(sb::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_CUR_USER), func_name.ptr(), func_name.length())) {
         func_expr->set_result_type(ObVarcharType);
-      } else if (0 == strncasecmp(oceanbase::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_TRIM), func_name.ptr(), func_name.length())) {
+      } else if (0 == strncasecmp(sb::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_TRIM), func_name.ptr(), func_name.length())) {
         func_expr->set_result_type(ObVarcharType);
-      } else if (0 == strncasecmp(oceanbase::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_LOWER), func_name.ptr(), func_name.length())) {
+      } else if (0 == strncasecmp(sb::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_LOWER), func_name.ptr(), func_name.length())) {
         func_expr->set_result_type(ObVarcharType);
-      } else if (0 == strncasecmp(oceanbase::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_UPPER), func_name.ptr(), func_name.length())) {
+      } else if (0 == strncasecmp(sb::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_UPPER), func_name.ptr(), func_name.length())) {
         func_expr->set_result_type(ObVarcharType);
-      } else if (0 == strncasecmp(oceanbase::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_COALESCE), func_name.ptr(), func_name.length())) {
+      } else if (0 == strncasecmp(sb::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_COALESCE), func_name.ptr(), func_name.length())) {
         // always cast to varchar as it is an all-mighty type
         func_expr->set_result_type(ObVarcharType);
-      } else if (0 == strncasecmp(oceanbase::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_GREATEST), func_name.ptr(), func_name.length())) {
+      } else if (0 == strncasecmp(sb::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_GREATEST), func_name.ptr(), func_name.length())) {
         // always cast to varchar as it is an all-mighty type
         func_expr->set_result_type(ObVarcharType);
-      } else if (0 == strncasecmp(oceanbase::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_LEAST), func_name.ptr(), func_name.length())) {
+      } else if (0 == strncasecmp(sb::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_LEAST), func_name.ptr(), func_name.length())) {
         // always cast to varchar as it is an all-mighty type
         func_expr->set_result_type(ObVarcharType);
-      } else if (0 == strncasecmp(oceanbase::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_HEX), func_name.ptr(), func_name.length())) {
+      } else if (0 == strncasecmp(sb::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_HEX), func_name.ptr(), func_name.length())) {
         func_expr->set_result_type(ObVarcharType);
-      } else if (0 == strncasecmp(oceanbase::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_UNHEX), func_name.ptr(), func_name.length())) {
+      } else if (0 == strncasecmp(sb::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_UNHEX), func_name.ptr(), func_name.length())) {
         func_expr->set_result_type(ObVarcharType);
-      } else if (0 == strncasecmp(oceanbase::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_IP_TO_INT), func_name.ptr(), func_name.length())) {
+      } else if (0 == strncasecmp(sb::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_IP_TO_INT), func_name.ptr(), func_name.length())) {
         func_expr->set_result_type(ObIntType);
-      } else if (0 == strncasecmp(oceanbase::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_INT_TO_IP), func_name.ptr(), func_name.length())) {
+      } else if (0 == strncasecmp(sb::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_INT_TO_IP), func_name.ptr(), func_name.length())) {
         func_expr->set_result_type(ObVarcharType);
-      } else if (0 == strncasecmp(oceanbase::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_GREATEST), func_name.ptr(), func_name.length())) {
+      } else if (0 == strncasecmp(sb::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_GREATEST), func_name.ptr(), func_name.length())) {
         func_expr->set_result_type(ObVarcharType);
-      } else if (0 == strncasecmp(oceanbase::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_LEAST), func_name.ptr(), func_name.length())) {
+      } else if (0 == strncasecmp(sb::sql::ObPostfixExpression::get_sys_func_name(SYS_FUNC_LEAST), func_name.ptr(), func_name.length())) {
         func_expr->set_result_type(ObVarcharType);
       } else {
         ret = OB_ERR_UNKNOWN_SYS_FUNC;

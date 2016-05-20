@@ -14,7 +14,7 @@
 
 #include "ob_ups_stat.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 
 }

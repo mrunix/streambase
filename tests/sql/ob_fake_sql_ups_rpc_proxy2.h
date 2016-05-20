@@ -30,7 +30,7 @@ class ObFakeSqlUpsRpcProxyTest2_gen_new_scanner_test1_Test;
 class ObFakeSqlUpsRpcProxyTest2_gen_new_scanner_test2_Test;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObFakeSqlUpsRpcProxy2 : public ObSqlUpsRpcProxy {
  public:

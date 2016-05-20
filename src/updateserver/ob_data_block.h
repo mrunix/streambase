@@ -15,7 +15,7 @@
 #define __OB_UPDATESERVER_OB_DATA_BLOCK_H__
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObDataBlock {
  public:
@@ -46,5 +46,5 @@ class ObDataBlock {
   volatile int64_t end_pos_;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 #endif /* __OB_UPDATESERVER_OB_DATA_BLOCK_H__ */

@@ -21,7 +21,7 @@
 #include "common/ob_action_flag.h"
 #include <gtest/gtest.h>
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sql;
 

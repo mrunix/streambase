@@ -15,9 +15,9 @@
 #include "common/ob_trace_log.h"
 #include "ob_query_agent.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObQueryAgent::ObQueryAgent(ObMergerRpcProxy& proxy)
   : merge_join_operator_(proxy) {
@@ -867,4 +867,4 @@ bool ObQueryAgent::need_groupby() const {
   return need_groupby_;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

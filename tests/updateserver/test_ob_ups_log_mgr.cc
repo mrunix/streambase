@@ -12,10 +12,10 @@
 
 #include "../common/slave_mgr_4_test.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace updateserver {
 class TestObUpsLogMgr: public ::testing::Test {

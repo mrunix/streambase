@@ -6,9 +6,9 @@
 #include "common/ob_string.h"
 #include "common/location/ob_tablet_location_list.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObTabletLocationCache;
 };

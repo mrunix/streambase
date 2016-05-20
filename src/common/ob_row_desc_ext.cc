@@ -14,7 +14,7 @@
  *
  */
 #include "ob_row_desc_ext.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 ObRowDescExt::ObRowDescExt() {
 }
 

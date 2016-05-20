@@ -17,7 +17,7 @@
 #include "nb_table_row.h"
 #include "common/utility.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace nb_accessor;
 

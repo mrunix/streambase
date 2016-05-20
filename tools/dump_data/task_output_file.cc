@@ -6,9 +6,9 @@
 #include "common/data_buffer.h"
 #include "common/utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 TaskOutputFile::TaskOutputFile()
   : file_name_(NULL), env_(NULL), file_(NULL), split_rowkey_(false), conf_(NULL), delima_(1), rec_delima_(10) { }

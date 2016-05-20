@@ -21,7 +21,7 @@
 #define  OCEANBASE_COMMON_ATOMIC_H_
 #include <stdint.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // Proclaim we are using SMP
 #ifndef CONFIG_SMP

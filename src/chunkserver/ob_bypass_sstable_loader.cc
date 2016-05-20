@@ -16,11 +16,11 @@
 #include "ob_tablet_manager.h"
 #include "ob_bypass_sstable_loader.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 using namespace tbsys;
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
 ObBypassSSTableLoader::ObBypassSSTableLoader()
   : inited_(false),
@@ -661,4 +661,4 @@ int ObBypassSSTableLoader::add_bypass_tablets_into_image() {
   return ret;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

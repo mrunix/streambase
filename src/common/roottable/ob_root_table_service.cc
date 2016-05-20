@@ -19,7 +19,7 @@
 #include "common/ob_tablet_info.h"
 #include "common/ob_array.h"
 #include "common/ob_range2.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObRootTableService::ObRootTableService(ObFirstTabletEntryMeta& the_meta, ObSchemaService& schema_service)
   : the_meta_(the_meta), schema_service_(schema_service), root_table_pool_(sizeof(ObRootTable3)) {

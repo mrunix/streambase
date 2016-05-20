@@ -6,9 +6,9 @@
 #include "mock_monitor_server.h"
 #include "common/ob_define.h"
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::mms;
-using namespace oceanbase::mms::tests;
+using namespace sb::common;
+using namespace sb::mms;
+using namespace sb::mms::tests;
 
 const char* addr = "localhost";
 

@@ -10,7 +10,7 @@
 *
 ================================================================*/
 #include "rootserver/ob_server_balance_info.h"
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace rootserver {
 ObServerDiskInfo::ObServerDiskInfo(): capacity_(0), used_(0) {

@@ -21,7 +21,7 @@
 #include "ob_tablet_fuse.h"
 #include "ob_ups_multi_get.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObTabletGetFuse : public ObTabletFuse {
  public:

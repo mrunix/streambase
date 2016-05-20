@@ -15,9 +15,9 @@
 #include "tbsys.h"
 #include "ob_get_param_cell_iterator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObCellInfo ObGetParamCellIterator::fake_cell_;
 
@@ -94,4 +94,4 @@ ObCellInfo& ObGetParamCellIterator::operator*() {
   return *(this->operator->());
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

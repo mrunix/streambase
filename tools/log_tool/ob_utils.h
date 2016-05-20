@@ -9,7 +9,7 @@
 #if ROWKEY_IS_OBJ
 #include "common/ob_rowkey.h"
 #else
-typedef oceanbase::common::ObString ObRowkey;
+typedef sb::common::ObString ObRowkey;
 typedef int64_t ObRowkeyInfo;
 class ObIAllocator {
  public:
@@ -20,7 +20,7 @@ class ObIAllocator {
 };
 #endif
 
-using namespace oceanbase::common;
+using namespace sb::common;
 #define array_len(A) (sizeof(A)/sizeof(A[0]))
 #define is_env_set(key, _default) (0 == (strcmp("true", getenv(key)?: _default)))
 #define _cfg(k, v) getenv(k)?:v

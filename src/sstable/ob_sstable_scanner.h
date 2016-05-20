@@ -24,7 +24,7 @@
 #include "ob_scan_column_indexes.h"
 #include "ob_column_group_scanner.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRowkeyInfo;
 }
@@ -61,13 +61,13 @@ class ObSSTableScanner : public common::ObIterator {
    *  OB_ITER_END on success and end of data
    *  OB_ERROR on failure.
    */
-  inline int get_cell(oceanbase::common::ObCellInfo** cell) {
+  inline int get_cell(sb::common::ObCellInfo** cell) {
     return (1 == column_group_size_) ?
            column_group_scanner_.get_cell(cell, NULL)
            : merger_.get_cell(cell, NULL);
   }
 
-  inline int get_cell(oceanbase::common::ObCellInfo** cell, bool* is_row_changed) {
+  inline int get_cell(sb::common::ObCellInfo** cell, bool* is_row_changed) {
     return (1 == column_group_size_) ?
            column_group_scanner_.get_cell(cell, is_row_changed)
            : merger_.get_cell(cell, is_row_changed);
@@ -93,7 +93,7 @@ class ObSSTableScanner : public common::ObIterator {
    *  OB_SUCCESS on success otherwise on failure.
    */
   int set_scan_param(
-    const oceanbase::common::ObScanParam& scan_param,
+    const sb::common::ObScanParam& scan_param,
     const ObSSTableReader* const sstable_reader,
     ObBlockCache& block_cache,
     ObBlockIndexCache& block_index_cache,
@@ -180,6 +180,6 @@ class ObSSTableScanner : public common::ObIterator {
 
 int reset_query_thread_local_buffer();
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif

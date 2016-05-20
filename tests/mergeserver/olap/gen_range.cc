@@ -84,7 +84,7 @@ void produce_ranges(const gen_param& param) {
 }
 
 int main(int argc, char** argv) {
-  oceanbase::common::ob_init_memory_pool();
+  sb::common::ob_init_memory_pool();
   gen_param param;
   parse_cmd_line(argc, argv, param);
   produce_ranges(param);

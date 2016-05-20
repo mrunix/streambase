@@ -3,8 +3,8 @@
 #include "common/data_buffer.h"
 #include "load_client.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 int LoadClient::init() {
   int ret = OB_SUCCESS;

@@ -16,7 +16,7 @@
 
 #include "ob_empty_row_filter.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sql;
 
@@ -107,7 +107,7 @@ int ObEmptyRowFilter::get_row_desc(const common::ObRowDesc*& row_desc) const {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObEmptyRowFilter, PHY_EMPTY_ROW_FILTER);
 }

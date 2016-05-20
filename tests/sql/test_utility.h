@@ -11,7 +11,7 @@
 #include "common/page_arena.h"
 #include "common/ob_range2.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace sql {
 namespace test {

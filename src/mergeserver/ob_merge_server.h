@@ -17,7 +17,7 @@
 #include "ob_ms_sql_scan_request.h"
 #include "ob_ms_sql_get_request.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMergeServer : public common::ObSingleServer {
  public:

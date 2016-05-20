@@ -22,7 +22,7 @@
 #include <fcntl.h>
 #include "ob_fifo_stream.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObFIFOStream::ObFIFOStream() : inited_(false),
   fifo_fd_(-1),

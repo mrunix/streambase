@@ -6,7 +6,7 @@
 #include "common/ob_general_rpc_stub.h"
 #include "common/ob_general_rpc_proxy.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObGeneralRootRpcProxy::ObGeneralRootRpcProxy(const int64_t retry_times,
                                              const int64_t timeout, const ObServer& root) {
@@ -59,7 +59,7 @@ int ObGeneralRootRpcProxy::scan_root_table(ObTabletLocationCache* cache,
     ObCellInfo* cell = NULL;
     bool row_change = false;
     TBSYS_LOG(DEBUG, "root server get rpc return succeed, cell num=%ld", scanner.get_cell_num());
-    oceanbase::common::dump_scanner(scanner, TBSYS_LOG_LEVEL_DEBUG, 0);
+    sb::common::dump_scanner(scanner, TBSYS_LOG_LEVEL_DEBUG, 0);
     ObScannerIterator iter = scanner.begin();
     // all return cell in a row must be same as root table's columns
     ++iter;

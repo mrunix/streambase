@@ -13,9 +13,9 @@
  */
 #include "common/ob_define.h"
 #include "common/ob_common_stat.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 #ifndef NO_STAT
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 void set_stat(const uint64_t table_id, const int32_t index, const int64_t value) {
   UNUSED(table_id);

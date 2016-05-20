@@ -16,7 +16,7 @@
 
 #include "ob_ring_data_buffer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 // 串行地append_log(), 并发地get_log()
 class ObLogBuffer : public ObRingDataBuffer {
@@ -45,6 +45,6 @@ int get_from_log_buffer(ObLogBuffer* log_buf, const int64_t align_bits, const in
 int append_to_log_buffer(ObLogBuffer* log_buf, const int64_t start_id, const int64_t end_id,
                          const char* buf, const int64_t len);
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_UPDATESERVER_OB_LOG_BUFFER_H__ */

@@ -22,7 +22,7 @@
 #include "ob_basic_stmt.h"
 #include "parse_node.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObAlterTableStmt : public ObBasicStmt {
  public:

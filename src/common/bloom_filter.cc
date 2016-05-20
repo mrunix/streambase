@@ -17,7 +17,7 @@
 
 #include "bloom_filter.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 int destroy_bloom_filter(BloomFilter* bf) {
   if (NULL != bf) {

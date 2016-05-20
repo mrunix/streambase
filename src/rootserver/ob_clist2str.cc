@@ -15,8 +15,8 @@
  */
 #include "common/ob_malloc.h"
 #include "ob_chunk_server_manager.h"
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
 int main(int argc, char* argv[]) {
   int ret = 0;

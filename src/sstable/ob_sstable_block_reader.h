@@ -21,7 +21,7 @@
 #include "ob_sstable_block_builder.h"
 #include "ob_sstable_row_cache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRowkey;
 class ObRowkeyInfo;
@@ -204,7 +204,7 @@ class ObSSTableBlockReader {
 };
 
 } // end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #endif //OCEANBASE_SSTABLE_SSTABLE_BLOCK_READER_H_

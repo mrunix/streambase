@@ -17,9 +17,9 @@
 #include "ob_read_param_modifier.h"
 #include "ob_scan_cell_stream.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObScanCellStream::ObScanCellStream(ObMergerRpcProxy* rpc_proxy,
                                    const ObServerType server_type, const int64_t time_out)
@@ -171,4 +171,4 @@ int64_t ObScanCellStream::get_data_version() const {
   return cur_result_.get_data_version();
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

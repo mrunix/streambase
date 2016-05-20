@@ -20,8 +20,8 @@
 #include "common/ob_row_fuse.h"
 #include "common/utility.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
 ObTabletJoin::JoinInfo::JoinInfo()
   : left_column_id_(OB_INVALID_ID),

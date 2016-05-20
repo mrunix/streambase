@@ -4,7 +4,7 @@
 #include "ob_sstable_aio_event_mgr.h"
 #include "ob_sstable_aio_buffer_mgr.h"
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 using namespace common;
 
@@ -118,4 +118,4 @@ int ObAIOEventMgr::aio_wait(int64_t& timeout_us) {
   return ret;
 }
 } //end namespace sstable
-} //end namespace oceanbase
+} //end namespace sb

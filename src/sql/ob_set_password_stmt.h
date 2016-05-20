@@ -17,7 +17,7 @@
 #define _OB_SET_PASSWORD_STMT_H 1
 #include "ob_basic_stmt.h"
 #include "common/ob_strings.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObSetPasswordStmt: public ObBasicStmt {
  public:
@@ -37,6 +37,6 @@ class ObSetPasswordStmt: public ObBasicStmt {
   common::ObStrings user_pass_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_SET_PASSWORD_STMT_H */

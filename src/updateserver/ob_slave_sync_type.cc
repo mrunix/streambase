@@ -18,8 +18,8 @@
 #include "common/serialization.h"
 #include "common/ob_define.h"
 #include "tblog.h"
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace updateserver {
 ObSlaveSyncType::ObSlaveSyncType() : slave_type_(REAL_TIME_SLAVE) {
 }

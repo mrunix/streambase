@@ -16,7 +16,7 @@
 #include "tbsys.h"
 
 class ObPrivilegeManagerTest;
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObPrivilegeManager {
  public:
@@ -49,6 +49,6 @@ class ObPrivilegeManager {
 
 };
 }// namespace common
-}//namespace oceanbase
+}//namespace sb
 
 #endif

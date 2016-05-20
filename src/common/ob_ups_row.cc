@@ -1,6 +1,6 @@
 
 #include "ob_ups_row.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObUpsRow::ObUpsRow()
   : ObRow(),

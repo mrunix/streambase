@@ -7,7 +7,7 @@
 #include "chunkserver/ob_tablet_image.h"
 
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObTabletManager;
 

@@ -16,7 +16,7 @@
 #include "ob_schema_helper.h"
 #include "ob_hint.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObSchemaHelper::ObSchemaHelper() {
 }

@@ -18,7 +18,7 @@
 
 #include "sql/ob_single_child_phy_operator.h"
 #include "common/ob_row_store.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObValues: public ObSingleChildPhyOperator {
  public:
@@ -53,6 +53,6 @@ class ObValues: public ObSingleChildPhyOperator {
   common::ObRowStore row_store_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_VALUES_H */

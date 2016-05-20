@@ -7,7 +7,7 @@
 #include "test_utility.h"
 #include "common/ob_schema.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace sql {
 namespace test {

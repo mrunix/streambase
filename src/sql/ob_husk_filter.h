@@ -16,7 +16,7 @@
 #include "ob_single_child_phy_operator.h"
 #include "ob_affected_rows.h"
 #include "common/utility.h"
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace sql {
 enum ObLockFlag {
@@ -95,6 +95,6 @@ class ObHuskFilter: public ObSingleChildPhyOperator, public ObAffectedRows {
   }
 };
 }; // end namespace sql
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_SQL_OB_HUSK_SINGLE_CHILD_PHY_OPERATOR_H__ */

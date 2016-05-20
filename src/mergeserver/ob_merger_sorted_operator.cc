@@ -17,8 +17,8 @@
 #include "common/ob_scanner.h"
 #include "common/ob_range.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 using namespace std;
 
 void ObMergerSortedOperator::sharding_result_t::init(ObScanner& sharding_res, const ObNewRange& query_range,

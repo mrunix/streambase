@@ -23,7 +23,7 @@
 #include "common/ob_define.h"
 #include "common/ob_string.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 class TestObMySQLCommandPacket;
 }

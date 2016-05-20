@@ -17,7 +17,7 @@
 #include "ob_log_locator.h"
 #include "ob_recent_cache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 typedef ObRecentCache<int64_t, int64_t> ObFirstLogIdCache;
 int get_first_log_id_func(const char* log_dir, const int64_t file_id, int64_t& log_id, ObFirstLogIdCache* log_id_cache = NULL);
@@ -37,6 +37,6 @@ class ObOnDiskLogLocator : public IObLogLocator {
   const char* log_dir_;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 #endif /* __OB_UPDATESERVER_OB_ON_DISK_LOG_LOCATOR_H__ */
 

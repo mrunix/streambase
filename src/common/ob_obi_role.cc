@@ -16,7 +16,7 @@
 
 #include "ob_obi_role.h"
 #include "common/serialization.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObiRole::ObiRole()
   : role_(INIT) {

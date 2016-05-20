@@ -20,7 +20,7 @@
 #include "ob_phy_operator.h"
 #include "common/ob_rowkey.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObRowkeyPhyOperator : public ObPhyOperator {
  public:

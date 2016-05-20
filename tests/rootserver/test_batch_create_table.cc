@@ -17,7 +17,7 @@
 #include "common/serialization.h"
 #include <gtest/gtest.h>
 #include "../common/test_rowkey_helper.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 static CharArena allocator_;
 void build_range(ObNewRange& r, int64_t tid, int8_t flag, const char* sk, const char* ek) {
   ObString start_key(static_cast<int32_t>(strlen(sk)), static_cast<int32_t>(strlen(sk)), (char*)sk);

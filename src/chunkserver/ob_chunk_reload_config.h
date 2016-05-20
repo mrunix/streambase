@@ -19,7 +19,7 @@
 
 #include "common/ob_reload_config.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 /* forward declearation */
 class ObChunkServer;
@@ -38,6 +38,6 @@ class ObChunkReloadConfig
   ObChunkServer* chunk_server_;
 };
 } // end of namespace chunkserver
-} // end of namespace oceanbase
+} // end of namespace sb
 
 #endif /* _OB_CHUNK_RELOAD_CONFIG_H_ */

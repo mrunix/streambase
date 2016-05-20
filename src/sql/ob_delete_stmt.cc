@@ -1,9 +1,9 @@
 #include "ob_delete_stmt.h"
 #include <stdio.h>
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObDeleteStmt::ObDeleteStmt(ObStringBuf* name_pool)
   : ObStmt(name_pool, ObStmt::T_DELETE) {

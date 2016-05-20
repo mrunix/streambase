@@ -14,7 +14,7 @@
 #include "ob_sort.h"
 
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObSqlReadParam {
  public:

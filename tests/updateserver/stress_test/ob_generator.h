@@ -17,7 +17,7 @@
 
 #include "ob_test_bomb.h"
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 class ObGenerator {
  public:
@@ -26,6 +26,6 @@ class ObGenerator {
   virtual int gen(ObTestBomb& bomb) = 0;
 };
 } // end namespace test
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_TEST_OB_GENERATOR_H_

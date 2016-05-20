@@ -26,7 +26,7 @@
 #include "ob_string.h"
 #include "ob_rowkey.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /// @class  ObCellInfo vector, can access by offset
 /// @author wushi(wushi.ly@taobao.com)  (9/16/2010)

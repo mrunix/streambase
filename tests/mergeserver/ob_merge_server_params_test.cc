@@ -5,9 +5,9 @@
 #include "ob_merge_server_params.h"
 
 using namespace std;
-using namespace oceanbase::mergeserver;
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb::mergeserver;
+using namespace sb;
+using namespace sb::common;
 
 
 int main(int argc, char** argv) {

@@ -5,7 +5,7 @@
 #include "test_utils.h"
 #include "../common/test_rowkey_helper.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace updateserver;
 

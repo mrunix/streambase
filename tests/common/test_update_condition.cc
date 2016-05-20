@@ -23,7 +23,7 @@
 #include "ob_update_condition.h"
 
 using namespace std;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int init_mem_pool() {
   ob_init_memory_pool(2 * 1024L * 1024L);
@@ -31,7 +31,7 @@ int init_mem_pool() {
 }
 static int init_mem_pool_ret = init_mem_pool();
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace common {
 
@@ -233,7 +233,7 @@ TEST_F(TestUpdateCondition, test_multiple_conditions) {
 
 } // end namespace common
 } // end namespace tests
-} // end namespace oceanbase
+} // end namespace sb
 
 
 int main(int argc, char** argv) {

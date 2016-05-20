@@ -24,7 +24,7 @@
 #include "common/btree/btree_base.h"
 #include "common/btree/key_btree.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // this class is btree and hash data engine's abstract class
 // adaptor the lrucache engine interface for obvarcache

@@ -1,8 +1,8 @@
 #include "ob_sstable_block_endkey_builder.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObSSTableBlockEndkeyBuilder::add_item(const common::ObRowkey& row_key) {
   int ret = OB_SUCCESS;
@@ -42,4 +42,4 @@ int ObSSTableBlockEndkeyBuilder::add_item(const common::ObRowkey& row_key) {
   return ret;
 }
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb

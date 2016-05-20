@@ -6,8 +6,8 @@
 #include <gtest/gtest.h>
 #include <unistd.h>
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace common {
 class UserRpc: public IRpcStub {
  public:

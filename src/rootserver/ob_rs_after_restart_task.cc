@@ -15,9 +15,9 @@
 #include "common/ob_define.h"
 #include "rootserver/ob_rs_after_restart_task.h"
 #include "rootserver/ob_root_worker.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb;
+using namespace sb::common;
+namespace sb {
 namespace rootserver {
 ObRsAfterRestartTask::ObRsAfterRestartTask() {
 }

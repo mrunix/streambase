@@ -13,7 +13,7 @@
 
 #include "ob_root_operation_data.h"
 #include "ob_chunk_server_manager.h"
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 ObRootOperationData::ObRootOperationData() {
   operation_type_ = common::INVALID_TYPE;

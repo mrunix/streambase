@@ -10,8 +10,8 @@
 #include "common/ob_string_buf.h"
 #include "common/ob_malloc.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 #define BUF_LEN 102400
 int main(void) {
@@ -24,8 +24,8 @@ int main(void) {
   char  buf[BUF_LEN];
 
   // It is for test only, no more questions about this usage.
-  oceanbase::common::ob_init_memory_pool();
-  oceanbase::common::ObStringBuf malloc_pool;
+  sb::common::ob_init_memory_pool();
+  sb::common::ObStringBuf malloc_pool;
   ObSchemaChecker schema_checker;
 
   ParseResult result;
@@ -78,7 +78,7 @@ int main(void) {
       // 4. print result
       ObMultiLogicPlan* pMultiPlan = static_cast<ObMultiLogicPlan*>(resultPlan.plan_tree_);
       pMultiPlan->print();
-      oceanbase::sql::ObSqlContext context;
+      sb::sql::ObSqlContext context;
       //ObTransformer ob_transformer(*pMultiPlan->at(0)->get_name_pool(), context);
       ObTransformer ob_transformer(context);
       ObMultiPhyPlan multi_phy_plan;

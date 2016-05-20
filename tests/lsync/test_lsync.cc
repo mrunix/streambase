@@ -5,8 +5,8 @@
 #include "common/ob_base_client.h"
 #include "common/ob_malloc.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace lsync {
 class Config {
  public:
@@ -243,7 +243,7 @@ TEST_F(ObLsyncServerTest, RegisterSendLog) {
 }
 }
 
-using namespace oceanbase::lsync;
+using namespace sb::lsync;
 int main(int argc, char** argv) {
   int err;
   TBSYS_LOGGER.setLogLevel("INFO");

@@ -3,9 +3,9 @@
 #include "ob_update_server.h"
 #include "common/ob_packet.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 int ObUpdateCallback::process(easy_request_t* r) {
   int ret = EASY_OK;

@@ -13,7 +13,7 @@
  */
 #include "ob_syschecker_stat.h"
 
-namespace oceanbase {
+namespace sb {
 namespace syschecker {
 using namespace common;
 
@@ -549,4 +549,4 @@ void ObSyscheckerStat::ObStatDumper::runTimerTask() {
   }
 }
 } // end namespace syschecker
-} // end namespace oceanbase
+} // end namespace sb

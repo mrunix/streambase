@@ -32,9 +32,9 @@
 #include "sstable/ob_sstable_block_builder.h"
 #include "sstable/ob_sstable_schema.h"
 #include "sstable/ob_disk_path.h"
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::sstable;
+using namespace sb::sstable;
 struct TableArgs {
   int32_t table_id_;
   int32_t row_count_;
@@ -125,5 +125,5 @@ class GenDataTest {
   common::ObString compressor_string_;
 };
 }//namespace chunkserver
-}//namespace oceanbase
+}//namespace sb
 #endif

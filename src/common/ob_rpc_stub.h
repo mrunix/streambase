@@ -27,7 +27,7 @@
 
 
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ThreadSpecificBuffer;
 class ObClientManager;

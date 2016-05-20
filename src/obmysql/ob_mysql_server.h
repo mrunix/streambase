@@ -43,7 +43,7 @@
 #include "sql/ob_ps_store.h"
 #include "common/ob_fifo_stream.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObMergerSchemaManager;
 class ObTabletLocationCacheProxy;

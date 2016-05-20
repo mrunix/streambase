@@ -21,13 +21,13 @@
 #include "mock_chunk_server2.h"
 #include "test_ups_table_mgr_helper.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver::test;
-using namespace oceanbase::updateserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::updateserver::test;
+using namespace sb::updateserver;
 using namespace std;
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 namespace test {
 class TestClientWrapper : public ::testing::Test {

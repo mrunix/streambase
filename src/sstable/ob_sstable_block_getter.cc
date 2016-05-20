@@ -21,7 +21,7 @@
 #include "ob_sstable_block_index_v2.h"
 #include "ob_sstable_trailer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 using namespace common;
 
@@ -371,4 +371,4 @@ int ObSSTableBlockGetter::read_row_columns(
   return ret;
 }
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb

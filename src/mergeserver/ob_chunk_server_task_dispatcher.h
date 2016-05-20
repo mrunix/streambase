@@ -25,7 +25,7 @@
 #include "common/location/ob_tablet_location_cache_proxy.h"
 #include "ob_ms_server_counter.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObChunkServerTaskDispatcher {
  private:

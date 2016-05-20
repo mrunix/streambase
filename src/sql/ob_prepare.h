@@ -18,7 +18,7 @@
 #include "sql/ob_single_child_phy_operator.h"
 #include "ob_sql_session_info.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObPhysicalPlan;
 class ObPrepare: public ObSingleChildPhyOperator {
@@ -69,6 +69,6 @@ inline int ObPrepare::get_next_row(const common::ObRow*& row) {
   return common::OB_ITER_END;
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* OCEANBASE_SQL_OB_PREPARE_H_ */

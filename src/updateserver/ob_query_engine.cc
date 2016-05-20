@@ -21,7 +21,7 @@
 #include "ob_query_engine.h"
 #include "ob_memtable.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 using namespace common;
 

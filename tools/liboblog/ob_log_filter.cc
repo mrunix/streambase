@@ -19,7 +19,7 @@
 
 #include "ob_log_filter.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace liboblog {
 ObLogTableFilter::ObLogTableFilter() : inited_(false),

@@ -6,7 +6,7 @@
 #include "common/ob_string_buf.h"
 #include "common/ob_malloc.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 const int64_t MUTI_THREAD_NUM = 50;
 //#define THREAD_CIRCLE_TIMES 10000000
@@ -72,7 +72,7 @@ void* singThreadWork(void* arg) {
 
   srand((uint32_t)time(NULL));
 
-  oceanbase::common::ObStringBuf str_buf;
+  sb::common::ObStringBuf str_buf;
   ParseResult result;
   result.malloc_pool_ = &str_buf;
   if (parse_init(&result)) {
@@ -137,7 +137,7 @@ int checkMutiThreadSafe(SqlsAndResultsNode& sqlsAndResults) {
 }
 
 int main(void) {
-  oceanbase::common::ob_init_memory_pool();
+  sb::common::ob_init_memory_pool();
   const char* pszSql[] = {
     "select id as a from tab1 group by name;",
     "select sum(k) as a from tab2 group by i,j;",
@@ -150,7 +150,7 @@ int main(void) {
   };
   int num = sizeof(pszSql) / sizeof(pszSql[0]);
   SqlsAndResultsNode sqlsAndResults;
-  oceanbase::common::ObStringBuf stringBuf;
+  sb::common::ObStringBuf stringBuf;
 
   /* Step 1: Allocte space to record SQLs and results */
   sqlsAndResults.num = 0;

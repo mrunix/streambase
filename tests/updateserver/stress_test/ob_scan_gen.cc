@@ -17,8 +17,8 @@
 #include "ob_schema_proxy.h"
 #include "ob_row_dis.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::test;
+using namespace sb::common;
+using namespace sb::test;
 
 ObScanGen::ObScanGen(int64_t max_line_no) {
   ran_.initt();

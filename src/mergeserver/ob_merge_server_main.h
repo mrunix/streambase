@@ -9,7 +9,7 @@
 #include "ob_merge_reload_config.h"
 #include "ob_merge_server_config.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 enum ObMsType {
   INVALID = 0,

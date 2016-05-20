@@ -16,8 +16,8 @@
 #include "ob_dual_table_scan.h"
 #include "common/utility.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 /*int ObDualTableScan::open()
 {
@@ -81,7 +81,7 @@ int64_t ObDualTableScan::to_string(char* buf, const int64_t buf_len) const {
   return pos;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObDualTableScan, PHY_DUAL_TABLE_SCAN);
 }

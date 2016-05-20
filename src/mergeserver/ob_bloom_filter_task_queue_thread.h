@@ -8,7 +8,7 @@
 #include "common/ob_adapter_allocator.h"
 #include "common/ob_kv_storecache.h"
 #include "ob_insert_cache.h"
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 struct ObBloomFilterTask {
   uint64_t table_id;

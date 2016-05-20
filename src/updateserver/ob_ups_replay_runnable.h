@@ -24,7 +24,7 @@
 #include "ob_ups_role_mgr.h"
 #include "common/ob_obi_role.h"
 #include "common/ob_switch.h"
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace updateserver {
 //forward decleration
@@ -61,7 +61,7 @@ class ObUpsReplayRunnable : public tbsys::CDefaultRunnable {
   int64_t fetch_log_wait_time_us_;
 };
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #endif // OCEANBASE_UPDATESERVER_OB_UPS_REPLAY_RUNNABLE_H_

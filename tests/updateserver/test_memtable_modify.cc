@@ -8,7 +8,7 @@
 #include "sql/ob_values.h"
 #include "gtest/gtest.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace updateserver;
 using namespace sql;

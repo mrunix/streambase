@@ -17,7 +17,7 @@ class TestSSTableTable_set_table_range_Test;
 class TestSSTableTable_set_block_endkey_Test;
 class TestSSTableTable_set_block_index_Test;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 class ObSSTableTable {
  public:
@@ -191,5 +191,5 @@ class ObSSTableTable {
   ObSSTableTableRangeBuilder table_range_builder_;
 };
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 #endif

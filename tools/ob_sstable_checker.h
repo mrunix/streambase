@@ -28,7 +28,7 @@
 #define DEF_DESERIALIZE_AND_CHECK_MEMBER(T) \
   static T * deserialize_and_check(char *data_buf, const int64_t size, int64_t &pos)
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 /// @struct  ObSCRecordHeader sstable中record头，非压缩存储，磁盘上存放网络字节序
 struct ObSCRecordHeader {
@@ -77,8 +77,8 @@ struct ObSCSSTableTrailer {
   int64_t frozen_time_;
   int64_t range_record_offset_;  //range record offset in sstable
   int64_t range_record_size_;    //range record size, includes record header
-  int64_t reserved64_[oceanbase::sstable::ObSSTableTrailer::RESERVED_LEN];
-  char compressor_name_[oceanbase::common::OB_MAX_COMPRESSOR_NAME_LENGTH];
+  int64_t reserved64_[sb::sstable::ObSSTableTrailer::RESERVED_LEN];
+  char compressor_name_[sb::common::OB_MAX_COMPRESSOR_NAME_LENGTH];
   int16_t row_value_store_style_;
   int16_t reserved_;
 };
@@ -199,21 +199,21 @@ class ObSCSSTableChecker {
   static const int64_t BLOCK_SIZE = 2 * 1024 * 1024;
   ObSCTrailerOffset trailer_offset_;
   ObSCSSTableTrailer* trailer_;
-  oceanbase::common::ObNewRange range_;
-  oceanbase::common::ObMemBuffer trailer_buffer_;
+  sb::common::ObNewRange range_;
+  sb::common::ObMemBuffer trailer_buffer_;
 
   ObSCTableSchemaHeader schema_;
-  oceanbase::common::ObMemBuffer schema_buffer_;
-  oceanbase::common::ObMemBuffer range_buffer_;
-  oceanbase::common::ObMemBuf row_key_buf_;
+  sb::common::ObMemBuffer schema_buffer_;
+  sb::common::ObMemBuffer range_buffer_;
+  sb::common::ObMemBuf row_key_buf_;
   ObSCRecordHeader*       bloom_filter_record_;
-  oceanbase::common::ObMemBuffer bloom_filter_buffer_;
-  oceanbase::common::ObBloomFilterV1 bloom_filter_readed_;
-  oceanbase::common::ObBloomFilterV1 bloom_filter_generated_;
+  sb::common::ObMemBuffer bloom_filter_buffer_;
+  sb::common::ObBloomFilterV1 bloom_filter_readed_;
+  sb::common::ObBloomFilterV1 bloom_filter_generated_;
   ObSCSSTableBlockIndexHeader*   block_index_;
-  oceanbase::common::ObMemBuffer block_index_buffer_;
-  oceanbase::common::ObMemBuffer block_buffer_;
-  oceanbase::common::ObMemBuffer decompress_block_buffer_;
+  sb::common::ObMemBuffer block_index_buffer_;
+  sb::common::ObMemBuffer block_buffer_;
+  sb::common::ObMemBuffer decompress_block_buffer_;
   common::ObMemBuf bf_key_buf_;              //bloom filter key buf
   common::ObObj start_key_obj_array[common::OB_MAX_ROWKEY_COLUMN_NUMBER];
   common::ObObj end_key_obj_array[common::OB_MAX_ROWKEY_COLUMN_NUMBER];

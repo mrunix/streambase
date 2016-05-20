@@ -7,7 +7,7 @@
 #include "common/ob_atomic.h"
 #include "common/ob_malloc.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 //SelectTable global_select_table;
 //更新配置中的flow_weight

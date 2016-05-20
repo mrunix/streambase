@@ -19,7 +19,7 @@
 #include "sql/ob_groupby.h"
 #include "ob_sql_expression.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObHashGroupBy: public ObGroupBy {
  public:
@@ -50,7 +50,7 @@ class ObHashGroupBy: public ObGroupBy {
   common::ObRowDesc row_desc_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_HASH_GROUPBY_H */
 

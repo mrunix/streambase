@@ -16,7 +16,7 @@
 #include "ob_server.h"
 #include "ob_spin_rwlock.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 enum ServerType {
   ANY_SERVER = 0,
@@ -43,6 +43,6 @@ class ObStoredServer : public IObServerGetter {
   mutable SpinRWLock server_lock_;
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_SERVER_GETTER_H__ */

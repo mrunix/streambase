@@ -19,7 +19,7 @@
 #include "ob_server.h"
 #include "utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObChunkServerItem {
   enum RequestStatus {

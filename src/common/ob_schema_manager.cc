@@ -2,7 +2,7 @@
 #include "common/ob_schema.h"
 #include "ob_schema_manager.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObMergerSchemaManager::ObMergerSchemaManager() {
   init_ = false;

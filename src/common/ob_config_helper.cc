@@ -17,7 +17,7 @@
 #include "common/ob_config.h"
 #include "ob_config_helper.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 bool ObConfigIpChecker::check(const ObConfigItem& t) const {
   struct sockaddr_in sa;

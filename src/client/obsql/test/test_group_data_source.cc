@@ -24,7 +24,7 @@
 #include "test_sql_base.h"
 #include "common/ob_malloc.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 class ObSQLGDSTest: public ObSQLBaseTest {
  public:
   ObSQLGDSTest() {};

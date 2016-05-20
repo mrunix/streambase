@@ -22,7 +22,7 @@
 #include "ob_rowkey_phy_operator.h"
 #include "common/ob_row.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace sql {
 // 用于CS从UPS获取多行数据
@@ -104,6 +104,6 @@ void ObUpsMultiGet::set_get_param(const ObGetParam& get_param) {
   get_param_ = &get_param;
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_UPS_MULTI_GET_H */

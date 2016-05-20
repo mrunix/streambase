@@ -33,7 +33,7 @@
 
 #define DEFAULT_ENCODING "UTF-8"
 
-namespace oceanbase {
+namespace sb {
 namespace liboblog {
 class IObLogDBNameBuilder {
  public:

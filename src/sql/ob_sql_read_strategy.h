@@ -22,7 +22,7 @@
 #include "common/ob_obj_cast.h"
 #include "common/ob_range2.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 /*
  * 通过sql语句的where条件判断使用get还是使用scan

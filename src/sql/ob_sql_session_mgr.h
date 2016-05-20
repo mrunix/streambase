@@ -21,10 +21,10 @@
 #include "common/ob_allocator.h"
 #include "common/ob_new_scanner.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::obmysql;
+using namespace sb::common;
+using namespace sb::obmysql;
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 class ObMySQLServer;
 }

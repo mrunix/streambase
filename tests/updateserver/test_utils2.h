@@ -11,8 +11,8 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace test {
 #define core() (*(char*)(0) = 0)
 inline int64_t get_usec() {
@@ -149,5 +149,5 @@ class Profiler {
 int rand_str(char* str, int64_t len);
 int64_t get_file_len(const char* path);
 }; // end namespace test
-}; // end namespace oceanbase
+}; // end namespace sb
 #endif /* __OB_UPDATESERVER_TEST_UTILS2_H__ */

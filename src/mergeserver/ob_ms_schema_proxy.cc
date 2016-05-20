@@ -2,8 +2,8 @@
 #include "ob_rs_rpc_proxy.h"
 #include "ob_ms_schema_proxy.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 ObMergerSchemaProxy::ObMergerSchemaProxy() {
   root_rpc_ = NULL;

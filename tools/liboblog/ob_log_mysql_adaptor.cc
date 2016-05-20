@@ -20,7 +20,7 @@
 #include "ob_log_utils.h"
 #include "ob_log_mysql_adaptor.h"
 
-namespace oceanbase {
+namespace sb {
 namespace liboblog {
 ObLogMysqlAdaptor::ObLogMysqlAdaptor() : mod_(ObModIds::OB_LOG_STMT),
   allocator_(ALLOCATOR_PAGE_SIZE, mod_),

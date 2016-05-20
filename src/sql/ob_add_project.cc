@@ -14,8 +14,8 @@
  *
  */
 #include "ob_add_project.h"
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
 ObAddProject::ObAddProject() {
 }
@@ -121,7 +121,7 @@ PHY_OPERATOR_ASSIGN(ObAddProject) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObAddProject, PHY_ADD_PROJECT);
 }

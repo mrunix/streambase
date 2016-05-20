@@ -31,7 +31,7 @@
 #include "common/ob_scanner.h"
 #include "common/ob_kv_storecache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 static const int32_t GET_PARAM_ID = 16;
 static const int32_t SCANNDER_ID  = 32;

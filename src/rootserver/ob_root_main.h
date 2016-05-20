@@ -19,7 +19,7 @@
 #include "ob_root_reload_config.h"
 #include "ob_root_server_config.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 
 class ObRootMain : public common::BaseMain {

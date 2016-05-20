@@ -1,8 +1,8 @@
 #include "ob_sstable_table.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObSSTableTable::switch_table_reset() {
   int ret = OB_SUCCESS;

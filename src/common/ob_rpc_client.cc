@@ -8,7 +8,7 @@
 #include "ob_client_packet.h"
 
 using namespace tbnet;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObRpcClient::ObRpcClient(const ObServer& server): init_(false), ready_(false) {
   retry_times_ = 0;

@@ -11,7 +11,7 @@
 #include "ob_trace_id.h"
 #include "ob_profile_log.h"
 #include "ob_common_stat.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 //decode packet from networ using m->pool memory for packet

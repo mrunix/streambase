@@ -31,7 +31,7 @@
 #include "ob_trans_buffer.h"
 #include "ob_memtank.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class HashEngine;
 class HashEngineIterator;

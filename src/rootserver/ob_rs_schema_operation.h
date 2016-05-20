@@ -15,7 +15,7 @@
 #define OCEANBASE_ROOTSERVER_RS_SCHEMA_OPERATION_
 #include "common/ob_schema.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRsSchemaOperation {
  public:

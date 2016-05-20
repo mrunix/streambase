@@ -20,7 +20,7 @@
 
 #include "common/ob_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObServerExt {
  public:

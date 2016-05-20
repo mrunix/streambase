@@ -41,7 +41,7 @@
 #include "common/gperf.h"
 #include "common/ob_pcap.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 #define RPC_CALL_WITH_RETRY(function, retry_times, timeout, server, args...) \
   ({ \
@@ -68,7 +68,7 @@ using namespace oceanbase::common;
     err; \
   })
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 static const int32_t ADDR_BUF_LEN = 64;
 

@@ -3,7 +3,7 @@
 #include "common/utility.h"
 #include "ob_sql_scan_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 const char* SELECT_CLAUSE_WHERE_COND_AS_CNAME_PREFIX = "__WHERE_";
 

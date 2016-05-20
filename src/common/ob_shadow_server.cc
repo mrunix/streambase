@@ -1,7 +1,7 @@
 #include "ob_shadow_server.h"
 #include "ob_tbnet_callback.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObShadowServer::ObShadowServer(ObBaseServer* master) {
   priority_ = NORMAL_PRI;

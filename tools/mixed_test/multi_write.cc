@@ -4,7 +4,7 @@
 #include "test_utils.h"
 #include "utils.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 struct CmdLine {

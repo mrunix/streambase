@@ -27,7 +27,7 @@
 #include <algorithm>
 #include <sstream>
 
-using namespace oceanbase::common;
+using namespace sb::common;
 const char* kLogIdFile = "file_max";
 const int kLogIdMaxLen = 32;
 

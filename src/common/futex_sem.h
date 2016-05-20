@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <sys/time.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct fsem_t {
   int32_t val_;
@@ -28,6 +28,6 @@ int futex_post(fsem_t* p);
 int futex_wait(fsem_t* p);
 int futex_wait(fsem_t* p, const timespec* end_time);
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_FUTEX_SEM_H__ */

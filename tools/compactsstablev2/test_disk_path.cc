@@ -2,10 +2,10 @@
 #include "common/ob_define.h"
 #include "sstable/ob_disk_path.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 extern const char* g_sstable_directory;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 uint64_t get_sstable_disk_no(const uint64_t sstable_file_id) {
   return (sstable_file_id & DISK_NO_MASK);
@@ -113,4 +113,4 @@ int get_tmp_meta_path(const int32_t disk_no, char* path,
   return ret;
 }
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb

@@ -19,7 +19,7 @@
 #include "common/ob_row_util.h"
 #include "sstable_writer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 using namespace common;
 using namespace common::serialization;
@@ -1168,4 +1168,4 @@ void SSTableWriter::reset_data_size() {
   data_size_ = 0;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

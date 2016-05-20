@@ -3,7 +3,7 @@
 #include "ob_array_lock.h"
 #include "ob_malloc.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 int main(int argc, char** argv) {

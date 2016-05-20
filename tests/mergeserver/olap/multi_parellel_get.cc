@@ -4,8 +4,8 @@
 #include "olap.h"
 #include <assert.h>
 #include "../../common/test_rowkey_helper.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 MultiGetP MultiGetP::static_case_;
 static CharArena allocator_;
 namespace {

@@ -20,7 +20,7 @@
 #include "sstable/ob_blockcache.h"
 #include "ob_tablet_image.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObBlockCacheReader {
   static const int64_t DEFAULT_UNCOMPRESSED_BUFSIZE = 128 * 1024; //128k
@@ -189,6 +189,6 @@ class ObBlockCacheReader {
 };
 
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_CHUNKSERVER_OB_BLOCK_CACHE_READER_H_

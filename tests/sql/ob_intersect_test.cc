@@ -2,9 +2,9 @@
 #include "ob_fake_table.h"
 #include "common/ob_row.h"
 #include <gtest/gtest.h>
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
-using namespace oceanbase::sql::test;
+using namespace sb::common;
+using namespace sb::sql;
+using namespace sb::sql::test;
 
 class ObFakeTable2 : public ObFakeTable {
  public:

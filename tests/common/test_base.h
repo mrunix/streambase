@@ -19,7 +19,7 @@ struct BaseConfig {
   }
 };
 
-using namespace oceanbase::common;
+using namespace sb::common;
 struct BufHolder {
   BufHolder(int64_t limit) { buf_ = (char*)ob_malloc(limit); }
   ~BufHolder() { ob_free((void*)buf_); }

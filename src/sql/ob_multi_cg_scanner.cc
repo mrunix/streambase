@@ -19,7 +19,7 @@
 #include "common/utility.h"
 #include "ob_multi_cg_scanner.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sql;
 

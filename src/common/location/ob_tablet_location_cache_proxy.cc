@@ -8,8 +8,8 @@
 #include "common/ob_tsi_factory.h"
 #include "common/ob_common_stat.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::common;
+using namespace sb::common;
+using namespace sb::common;
 
 ObTabletLocationCacheProxy::ObTabletLocationCacheProxy() {
   root_rpc_ = NULL;

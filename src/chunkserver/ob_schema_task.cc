@@ -18,9 +18,9 @@
 #include "common/ob_schema_manager.h"
 #include "common/ob_malloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObMergerSchemaTask::ObMergerSchemaTask() {
   task_scheduled_ = false;
@@ -59,4 +59,4 @@ void ObMergerSchemaTask::runTimerTask(void) {
   unset_scheduled();
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

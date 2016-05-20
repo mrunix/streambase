@@ -21,7 +21,7 @@
 #include "common/ob_range2.h"
 #include "common/ob_malloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 // check finish
 bool is_finish_scan(const common::ObScanParam& param,

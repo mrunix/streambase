@@ -19,7 +19,7 @@
 
 #include "utility.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObLogReplayRunnable::ObLogReplayRunnable() {
   replay_wait_time_ = DEFAULT_REPLAY_WAIT_TIME_US;

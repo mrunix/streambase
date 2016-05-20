@@ -10,7 +10,7 @@
 #include "common/ob_packet_factory.h"
 #include "common/ob_statistics.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class ObMonitorClient {
  public:

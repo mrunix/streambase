@@ -23,8 +23,8 @@
 #include "common/ob_common_stat.h"
 #include "common/file_utils.h"
 #include "ob_root_server2.h"
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
 
 ObLoadDataInfo::ObLoadDataInfo() {
@@ -1465,7 +1465,7 @@ bool ObRootBalancer::nb_did_cs_have_no_tablets(const common::ObServer& cs) const
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 namespace balancer {
 struct ObShutDownProgress {
@@ -1478,7 +1478,7 @@ struct ObShutDownProgress {
 };
 } // end namespace balancer
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 void ObRootBalancer::nb_print_shutting_down_progress(char* buf, const int64_t buf_len, int64_t& pos) {
   int ret = OB_SUCCESS;

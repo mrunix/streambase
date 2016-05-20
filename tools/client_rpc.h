@@ -28,7 +28,7 @@
 #include "rootserver/ob_chunk_server_manager.h"
 
 
-class ObClientRpcStub : public oceanbase::common::ObGeneralRpcStub {
+class ObClientRpcStub : public sb::common::ObGeneralRpcStub {
  public:
   static const int64_t FRAME_BUFFER_SIZE = 2 * 1024 * 1024L;
   static const int64_t DEFAULT_TIMEOUT = 1000000;  // send_request timeout millionseconds
@@ -37,35 +37,35 @@ class ObClientRpcStub : public oceanbase::common::ObGeneralRpcStub {
 
  public:
   // warning: rpc_buff should be only used by rpc stub for reset
-  int initialize(const oceanbase::common::ObServer& remote_server,
-                 const oceanbase::common::ObClientManager* rpc_frame, const int64_t timeout = -1) ;
+  int initialize(const sb::common::ObServer& remote_server,
+                 const sb::common::ObClientManager* rpc_frame, const int64_t timeout = -1) ;
 
-  int cs_scan(const oceanbase::common::ObScanParam& scan_param,
-              oceanbase::common::ObScanner& scanner);
+  int cs_scan(const sb::common::ObScanParam& scan_param,
+              sb::common::ObScanner& scanner);
 
-  int cs_get(const oceanbase::common::ObGetParam& get_param,
-             oceanbase::common::ObScanner& scanner);
+  int cs_get(const sb::common::ObGetParam& get_param,
+             sb::common::ObScanner& scanner);
 
-  int rs_scan(const oceanbase::common::ObServer& server, const int64_t timeout,
-              const oceanbase::common::ObScanParam& param,
-              oceanbase::common::ObScanner& result);
+  int rs_scan(const sb::common::ObServer& server, const int64_t timeout,
+              const sb::common::ObScanParam& param,
+              sb::common::ObScanner& result);
 
   int get_tablet_info(const uint64_t table_id, const char* table_name,
-                      const oceanbase::common::ObNewRange& range,
-                      oceanbase::common::ObTabletLocation location [], int32_t& size);
+                      const sb::common::ObNewRange& range,
+                      sb::common::ObTabletLocation location [], int32_t& size);
 
-  int cs_dump_tablet_image(const int32_t index, const int32_t disk_no, oceanbase::common::ObString& image_buf);
+  int cs_dump_tablet_image(const int32_t index, const int32_t disk_no, sb::common::ObString& image_buf);
 
-  int rs_dump_cs_info(oceanbase::rootserver::ObChunkServerManager& obcsm);
+  int rs_dump_cs_info(sb::rootserver::ObChunkServerManager& obcsm);
 
-  int fetch_stats(oceanbase::common::ObStatManager& obsm);
+  int fetch_stats(sb::common::ObStatManager& obsm);
 
   int cs_disk_maintain(const int8_t is_install, const int32_t disk_no);
 
-  int get_update_server(oceanbase::common::ObServer& update_server);
-  int fetch_update_server_list(oceanbase::common::ObUpsList& server_list) ;
-  int fetch_schema(const int64_t version, const bool only_core_tables, oceanbase::common::ObSchemaManagerV2& schema);
-  int get_bloom_filter(const oceanbase::common::ObNewRange& range,
+  int get_update_server(sb::common::ObServer& update_server);
+  int fetch_update_server_list(sb::common::ObUpsList& server_list) ;
+  int fetch_schema(const int64_t version, const bool only_core_tables, sb::common::ObSchemaManagerV2& schema);
+  int get_bloom_filter(const sb::common::ObNewRange& range,
                        const int64_t tablet_version, const int64_t bf_version, ObString& bf_buffer);
 
   int request_report_tablet();
@@ -73,30 +73,30 @@ class ObClientRpcStub : public oceanbase::common::ObGeneralRpcStub {
   int drop_tablets(const int64_t frozen_memtable_version);
   int start_gc(const int32_t reserve);
   int migrate_tablet(const ObDataSourceDesc& desc);
-  int create_tablet(const oceanbase::common::ObNewRange& range, const int64_t last_frozen_version);
-  int delete_tablet(const oceanbase::common::ObTabletReportInfoList& info_list,
+  int create_tablet(const sb::common::ObNewRange& range, const int64_t last_frozen_version);
+  int delete_tablet(const sb::common::ObTabletReportInfoList& info_list,
                     bool is_force = false);
   int show_param();
-  int execute_sql(const oceanbase::common::ObString& query);
+  int execute_sql(const sb::common::ObString& query);
   int change_log_level(int log_level);
   int stop_server(bool restart = false);
   int sync_all_tablet_images();
   int delete_table(const uint64_t table_id);
-  int load_sstables(const oceanbase::common::ObTableImportInfoList& table_list);
-  int fetch_cs_sstable_dist(const oceanbase::common::ObServer& server, const int64_t table_version,
-                            std::list<std::pair<oceanbase::common::ObNewRange, oceanbase::common::ObString> >& sstable_list,
-                            oceanbase::common::ModuleArena& arena);
-  int get_frame_buffer(oceanbase::common::ObDataBuffer& data_buffer) const;
+  int load_sstables(const sb::common::ObTableImportInfoList& table_list);
+  int fetch_cs_sstable_dist(const sb::common::ObServer& server, const int64_t table_version,
+                            std::list<std::pair<sb::common::ObNewRange, sb::common::ObString> >& sstable_list,
+                            sb::common::ModuleArena& arena);
+  int get_frame_buffer(sb::common::ObDataBuffer& data_buffer) const;
 
-  const oceanbase::common::ObServer&
+  const sb::common::ObServer&
   get_remote_server() const { return remote_server_; }
 
-  int fetch_bypass_table_id(oceanbase::common::ObBypassTaskInfo& info);
+  int fetch_bypass_table_id(sb::common::ObBypassTaskInfo& info);
   int cs_show_disk(int32_t* disk_no, bool* avail, int32_t& disk_num);
 
  private:
-  oceanbase::common::ObServer remote_server_;               // root server addr
-  oceanbase::common::ThreadSpecificBuffer frame_buffer_;
+  sb::common::ObServer remote_server_;               // root server addr
+  sb::common::ThreadSpecificBuffer frame_buffer_;
   int64_t timeout_;
 };
 

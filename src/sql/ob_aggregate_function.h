@@ -22,7 +22,7 @@
 #include "common/ob_se_array.h"
 #include "common/ob_vector.h"
 #include <stdint.h>
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObAggregateFunction {
  public:
@@ -100,6 +100,6 @@ inline int64_t ObAggregateFunction::get_used_mem_size() const {
   return row_store_.get_used_mem_size();
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_AGGREGATE_FUNCTION_H */

@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include "ob_crc64.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 /*******************************************************************************

@@ -6,7 +6,7 @@
 #include "common/ob_server.h"
 #include "common/ob_schema_service.h"
 #include "common/ob_strings.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObString;
 class ObServer;

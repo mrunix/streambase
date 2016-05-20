@@ -14,9 +14,9 @@
 #include "tbsys.h"
 #include "ob_log_src.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 ObCachedLogSrc::ObCachedLogSrc(): cache_(NULL), backup_(NULL) {
 }
@@ -64,4 +64,4 @@ int ObCachedLogSrc:: get_log(const int64_t start_id, int64_t& end_id,
   return err;
 }
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb

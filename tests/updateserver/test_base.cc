@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "ob_malloc.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int main(int argc, char** argv) {
   int err = OB_SUCCESS;

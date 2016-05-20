@@ -17,7 +17,7 @@
 
 #include "ob_lz_query.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 class ObAdgroupEffectDaily : public ObLzQuery {
  public:
@@ -40,6 +40,6 @@ class ObAdgroupEffectDaily : public ObLzQuery {
   DISALLOW_COPY_AND_ASSIGN(ObAdgroupEffectDaily);
 };
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_OLAPDRIVE_ADGROUP_EFFECT_DAILY_H

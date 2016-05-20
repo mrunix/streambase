@@ -7,9 +7,9 @@
 #include "mock_root_server.h"
 #include "mock_update_server.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
-using namespace oceanbase::sql::test;
+using namespace sb::common;
+using namespace sb::sql;
+using namespace sb::sql::test;
 
 int MockRootServer::initialize() {
   set_listen_port(ROOT_SERVER_PORT);

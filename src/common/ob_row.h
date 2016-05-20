@@ -20,7 +20,7 @@
 #include "ob_row_desc.h"
 #include "ob_rowkey.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /// 行
 class ObRow {
@@ -169,6 +169,6 @@ inline const ObObj* ObRow::get_obj_array(int64_t& array_size) const {
   return raw_row_.get_obj_array(array_size);
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ROW_H */

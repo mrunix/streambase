@@ -17,7 +17,7 @@
 #include "ob_cell_array.h"
 #include "ob_composite_column.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * compose operator, it does the actual compose work, it

@@ -13,9 +13,9 @@
 
 #include "ob_bypass_task_info.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObBypassTaskInfo::ObBypassTaskInfo() {
   operation_type_ = IMPORT_TABLE;

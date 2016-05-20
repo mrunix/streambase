@@ -16,7 +16,7 @@
 #ifndef _OB_UPS_PROVIDER_H
 #define _OB_UPS_PROVIDER_H 1
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObServer;
 
@@ -36,7 +36,7 @@ class ObUpsProvider {
   ObUpsProvider& operator=(const ObUpsProvider& other);
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_UPS_PROVIDER_H */
 

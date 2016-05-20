@@ -30,7 +30,7 @@
 #include "common/ob_list.h"
 #include "common/hash/ob_hashutils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class MultiFileUtils : public common::ObIFileAppender {
   typedef common::ObFileAppender FileAppenderImpl;

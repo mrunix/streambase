@@ -23,7 +23,7 @@
 #include "ob_queue_thread.h"
 #include "utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObCond::ObCond(const int64_t spin_wait_num) : spin_wait_num_(spin_wait_num),
   bcond_(false),

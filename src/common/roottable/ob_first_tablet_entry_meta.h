@@ -18,7 +18,7 @@
 
 #include "ob_tablet_meta_table.h"
 #include <tbsys.h>
-namespace oceanbase {
+namespace sb {
 namespace common {
 // @note used as a singleton
 // multi-readers & one writer using COW
@@ -62,7 +62,7 @@ class ObFirstTabletEntryMeta : public ObTabletMetaTable {
   RefCountRow* first_meta_; // the only one row
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_FIRST_TABLET_ENTRY_META_H */
 

@@ -20,7 +20,7 @@
 #include "ob_ups_slave_mgr.h"
 #include "easy_io_struct.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObCommitLogReceiver {
  public:
@@ -52,6 +52,6 @@ class ObCommitLogReceiver {
   bool is_initialized_;
 };
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_UPDATESERVER_OB_COMMIT_LOG_RECEIVER_H_

@@ -13,7 +13,7 @@
  */
 #include "ob_olapdrive_stat.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 using namespace common;
 
@@ -124,4 +124,4 @@ void ObOlapdriveStat::ObStatDumper::runTimerTask() {
   }
 }
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb

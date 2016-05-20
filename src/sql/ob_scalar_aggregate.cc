@@ -16,8 +16,8 @@
 #include "ob_scalar_aggregate.h"
 #include "common/utility.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObScalarAggregate::ObScalarAggregate()
   : is_first_row_(true), is_input_empty_(false) {
@@ -92,7 +92,7 @@ int ObScalarAggregate::add_aggr_column(const ObSqlExpression& expr) {
   return merge_groupby_.add_aggr_column(expr);
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObScalarAggregate, PHY_SCALAR_AGGREGATE);
 }

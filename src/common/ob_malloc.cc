@@ -27,7 +27,7 @@
 #include <execinfo.h>
 #endif
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObTSIBlockAllocator& get_global_tsi_block_allocator() {
   static ObTSIBlockAllocator tsi_block_allocator;
@@ -43,28 +43,28 @@ namespace {
 
 /// @note 提前在数据区分配内存，这样就不需要处理new调用失败的情况
 /// @property 全局的内存池对象的存放空间
-char g_fixed_memory_pool_buffer[sizeof(oceanbase::common::ObFixedMemPool)];
-char g_mod_set_buffer[sizeof(oceanbase::common::ObModSet)];
+char g_fixed_memory_pool_buffer[sizeof(sb::common::ObFixedMemPool)];
+char g_mod_set_buffer[sizeof(sb::common::ObModSet)];
 
 /// @note 为了解决析构顺序的问题，必须使用指针
 /// @property global memory pool
-oceanbase::common::ObFixedMemPool* g_memory_pool = NULL;
-oceanbase::common::ObModSet* g_mod_set = NULL;
+sb::common::ObFixedMemPool* g_memory_pool = NULL;
+sb::common::ObModSet* g_mod_set = NULL;
 
 /// @note 在main函数执行前初始化全局的内存池
 /// @fn initialize global memory pool
 void  __attribute__((constructor)) init_global_memory_pool() {
-  g_memory_pool = new(g_fixed_memory_pool_buffer)oceanbase::common::ObFixedMemPool;
-  g_mod_set = new(g_mod_set_buffer) oceanbase::common::ObModSet;
-  oceanbase::common::thread_mempool_init();
-  oceanbase::common::tsi_factory_init();
+  g_memory_pool = new(g_fixed_memory_pool_buffer)sb::common::ObFixedMemPool;
+  g_mod_set = new(g_mod_set_buffer) sb::common::ObModSet;
+  sb::common::thread_mempool_init();
+  sb::common::tsi_factory_init();
 }
 
 /// @note 在main函数退出后析构全局内存池
 /// @fn deinitialize global memory pool
 void  __attribute__((destructor)) deinit_global_memory_pool() {
-  oceanbase::common::tsi_factory_destroy();
-  oceanbase::common::thread_mempool_destroy();
+  sb::common::tsi_factory_destroy();
+  sb::common::thread_mempool_destroy();
   g_memory_pool->~ObBaseMemPool();
   g_mod_set->~ObModSet();
   g_memory_pool = NULL;
@@ -72,12 +72,12 @@ void  __attribute__((destructor)) deinit_global_memory_pool() {
 }
 
 /// @fn get global memory pool
-oceanbase::common::ObFixedMemPool& get_fixed_memory_pool_instance() {
+sb::common::ObFixedMemPool& get_fixed_memory_pool_instance() {
   return *g_memory_pool;
 }
 }
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 void* ob_tc_malloc(const int64_t nbyte, const int32_t mod_id) {
   return get_global_tsi_block_allocator().mod_alloc(nbyte, mod_id);
@@ -94,7 +94,7 @@ void* ob_tc_realloc(void* ptr, const int64_t nbyte, const int32_t mod_id) {
 }
 
 
-int oceanbase::common::ob_init_memory_pool(int64_t block_size) {
+int sb::common::ob_init_memory_pool(int64_t block_size) {
   int ret = OB_SUCCESS;
   static ObMalloc sys_allocator;
   sys_allocator.set_mod_id(ObModIds::OB_MOD_TC_TOTAL);
@@ -108,7 +108,7 @@ int oceanbase::common::ob_init_memory_pool(int64_t block_size) {
   return ret;
 }
 
-void oceanbase::common::ob_mod_usage_update(const int64_t delta, const int32_t mod_id) {
+void sb::common::ob_mod_usage_update(const int64_t delta, const int32_t mod_id) {
   get_fixed_memory_pool_instance().mod_usage_update(delta, mod_id);
 }
 
@@ -116,7 +116,7 @@ void __attribute__((weak)) memory_limit_callback() {
   TBSYS_LOG(DEBUG, "common memory_limit_callback");
 }
 
-void* oceanbase::common::ob_malloc(void* ptr, size_t size) {
+void* sb::common::ob_malloc(void* ptr, size_t size) {
   if (size) {
     if (NULL != ptr) {
       ob_free(ptr, ObModIds::OB_COMMON_NETWORK);
@@ -153,7 +153,7 @@ static int64_t MON_BLOCK_SIZE_ARRAY[] = {
 
 static int64_t MON_BLOCK_ARRAY[ARRAYSIZEOF(MON_BLOCK_SIZE_ARRAY)] = {0};
 
-void* oceanbase::common::ob_malloc(const int64_t nbyte, const int32_t mod_id, int64_t* got_size) {
+void* sb::common::ob_malloc(const int64_t nbyte, const int32_t mod_id, int64_t* got_size) {
   void* result = NULL;
   if (nbyte <= 0) {
     TBSYS_LOG(WARN, "cann't allocate memory less than 0 byte [nbyte:%ld]", nbyte);
@@ -180,7 +180,7 @@ void* oceanbase::common::ob_malloc(const int64_t nbyte, const int32_t mod_id, in
   return  result;
 }
 
-void* oceanbase::common::ob_malloc_emergency(const int64_t nbyte, const int32_t mod_id, int64_t* got_size) {
+void* sb::common::ob_malloc_emergency(const int64_t nbyte, const int32_t mod_id, int64_t* got_size) {
   void* result = NULL;
   if (nbyte <= 0) {
     TBSYS_LOG(WARN, "cann't allocate memory less than 0 byte [nbyte:%ld]", nbyte);
@@ -192,18 +192,18 @@ void* oceanbase::common::ob_malloc_emergency(const int64_t nbyte, const int32_t 
 }
 
 
-void oceanbase::common::ob_free(void* ptr, const int32_t mod_id) {
+void sb::common::ob_free(void* ptr, const int32_t mod_id) {
   UNUSED(mod_id);
   get_fixed_memory_pool_instance().free(ptr);
 }
 
-void oceanbase::common::ob_safe_free(void*& ptr, const int32_t mod_id) {
+void sb::common::ob_safe_free(void*& ptr, const int32_t mod_id) {
   UNUSED(mod_id);
   get_fixed_memory_pool_instance().free(ptr);
   ptr = NULL;
 }
 
-void oceanbase::common::ob_print_mod_memory_usage(bool print_to_std) {
+void sb::common::ob_print_mod_memory_usage(bool print_to_std) {
   g_memory_pool->print_mod_memory_usage(print_to_std);
   TBSYS_LOG(INFO, "malloc size distribution\n%s", to_cstring(g_malloc_size_stat));
   for (uint32_t i = 0; i < ARRAYSIZEOF(MON_BLOCK_SIZE_ARRAY); ++i) {
@@ -211,38 +211,38 @@ void oceanbase::common::ob_print_mod_memory_usage(bool print_to_std) {
   } // end for
 }
 
-int64_t oceanbase::common::ob_get_mod_memory_usage(int32_t mod_id) {
+int64_t sb::common::ob_get_mod_memory_usage(int32_t mod_id) {
   return g_memory_pool->get_mod_memory_usage(mod_id);
 }
 
-int64_t oceanbase::common::ob_get_memory_size_direct_allocated() {
+int64_t sb::common::ob_get_memory_size_direct_allocated() {
   return g_memory_pool->get_memory_size_direct_allocated();
 }
 
-int64_t oceanbase::common::ob_set_memory_size_limit(const int64_t mem_size_limit) {
+int64_t sb::common::ob_set_memory_size_limit(const int64_t mem_size_limit) {
   return get_fixed_memory_pool_instance().set_memory_size_limit(mem_size_limit);
 }
 
-int64_t oceanbase::common::ob_get_memory_size_limit() {
+int64_t sb::common::ob_get_memory_size_limit() {
   return get_fixed_memory_pool_instance().get_memory_size_limit();
 }
 
-int64_t oceanbase::common::ob_get_memory_size_handled() {
+int64_t sb::common::ob_get_memory_size_handled() {
   return get_fixed_memory_pool_instance().get_memory_size_handled();
 }
 
-int64_t oceanbase::common::ob_get_memory_size_used() {
-  oceanbase::common::ObFixedMemPool& fixed_pool = get_fixed_memory_pool_instance();
+int64_t sb::common::ob_get_memory_size_used() {
+  sb::common::ObFixedMemPool& fixed_pool = get_fixed_memory_pool_instance();
   return fixed_pool.get_memory_size_handled()
          - (fixed_pool.get_block_size() * fixed_pool.get_free_block_num());
 }
 
-oceanbase::common::ObMemBuffer::ObMemBuffer() {
+sb::common::ObMemBuffer::ObMemBuffer() {
   buf_size_ = 0;
   buf_ptr_ = NULL;
 }
 
-oceanbase::common::ObMemBuffer::ObMemBuffer(const int64_t nbyte) {
+sb::common::ObMemBuffer::ObMemBuffer(const int64_t nbyte) {
   buf_size_ = 0;
   buf_ptr_ = NULL;
   buf_ptr_ = ob_malloc(nbyte, ObModIds::OB_MEM_BUFFER);
@@ -251,13 +251,13 @@ oceanbase::common::ObMemBuffer::ObMemBuffer(const int64_t nbyte) {
   }
 }
 
-oceanbase::common::ObMemBuffer::~ObMemBuffer() {
+sb::common::ObMemBuffer::~ObMemBuffer() {
   ob_free(buf_ptr_, mod_id_);
   buf_size_ = 0;
   buf_ptr_ = NULL;
 }
 
-void* oceanbase::common::ObMemBuffer::malloc(const int64_t nbyte, const int32_t mod_id) {
+void* sb::common::ObMemBuffer::malloc(const int64_t nbyte, const int32_t mod_id) {
   void* result = NULL;
   if (nbyte <= buf_size_ && buf_ptr_ != NULL) {
     result = buf_ptr_;
@@ -275,15 +275,15 @@ void* oceanbase::common::ObMemBuffer::malloc(const int64_t nbyte, const int32_t 
   return result;
 }
 
-void* oceanbase::common::ObMemBuffer::get_buffer() {
+void* sb::common::ObMemBuffer::get_buffer() {
   return buf_ptr_;
 }
 
-int64_t oceanbase::common::ObMemBuffer::get_buffer_size() {
+int64_t sb::common::ObMemBuffer::get_buffer_size() {
   return buf_size_;
 }
 
-int oceanbase::common::ObMemBuf::ensure_space(const int64_t size, const int32_t mod_id) {
+int sb::common::ObMemBuf::ensure_space(const int64_t size, const int32_t mod_id) {
   int ret         = OB_SUCCESS;
   char* new_buf   = NULL;
   int64_t buf_len = size > buf_size_ ? size : buf_size_;

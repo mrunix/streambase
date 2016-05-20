@@ -35,7 +35,7 @@
 #include <sys/wait.h>
 
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * @brief remove any ending forward slashes from directory paths
@@ -564,4 +564,4 @@ int FileDirectoryUtils::rm(const char* path, const char* name) {
 }
 
 }//end namespace common
-}//end namespace oceanbase
+}//end namespace sb

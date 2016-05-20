@@ -15,7 +15,7 @@
 #define __OB_UPDATESERVER_OB_RING_DATA_BUFFER_H__
 #include "common/ob_define.h"
 #include "ob_data_block.h"
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObDataBlock;
 // 不关心保存的数据是什么格式，
@@ -59,6 +59,6 @@ class ObRingDataBuffer {
   volatile int64_t end_pos_;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_UPDATESERVER_OB_RING_DATA_BUFFER_H__ */

@@ -17,7 +17,7 @@
 #include "common/ob_compact_cell_writer.h"
 #include "common/ob_compact_cell_iterator.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int ObRowUtil::convert(const ObRow& row, ObString& compact_row) {
   int ret = OB_SUCCESS;

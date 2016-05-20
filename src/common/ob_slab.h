@@ -27,7 +27,7 @@
 
 #define OB_SLAB_DEBUG 1
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObSlab;
 class ObSlabItem;

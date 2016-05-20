@@ -41,7 +41,7 @@ static const char* OBSC_READ_DAY_COUNT = "read_day_count";
 static const char* OBSC_LOG_LEVEL = "log_level";
 }
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 using namespace common;
 
@@ -387,4 +387,4 @@ void ObOlapdriveParam::dump_param() {
           read_day_count_, log_level_);
 }
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb

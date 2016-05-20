@@ -20,7 +20,7 @@
 #include "common/ob_server_ext.h"
 #include "common/ob_list.h"
 #include "common/ob_define.h"
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace clustermanager {
 class TestObOcmInstance;

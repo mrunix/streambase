@@ -7,7 +7,7 @@
 #include "common/ob_compact_store_type.h"
 #include "ob_sstable_buffer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 class ObSSTableBlockEndkeyBuilder {
  public:

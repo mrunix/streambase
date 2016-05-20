@@ -19,7 +19,7 @@
 #include "common/utility.h"
 #include "db_utils.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 std::string& trim(std::string& str) {
   str.erase(0, str.find_first_not_of(' '));

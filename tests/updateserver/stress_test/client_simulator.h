@@ -22,7 +22,7 @@
 #include <math.h>
 #include <signal.h>
 
-using namespace oceanbase;
+using namespace sb;
 
 #define ARR_LEN(a) (sizeof(a)/sizeof(a[0]))
 
@@ -43,7 +43,7 @@ using namespace oceanbase;
 
 typedef common::ObVector<const common::ObColumnSchema*> ColumnArr;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template <>
 struct ob_vector_traits<uint64_t> {

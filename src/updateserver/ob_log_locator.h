@@ -17,7 +17,7 @@
 
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 struct ObLogLocation {
   ObLogLocation(): log_id_(0), file_id_(0), offset_(0) {}
@@ -37,6 +37,6 @@ class IObLogLocator {
   virtual int get_location(const int64_t log_id, ObLogLocation& location) = 0;
 };
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 #endif /* __OB_UPDATESERVER_OB_LOG_LOCATOR_H__ */
 

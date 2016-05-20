@@ -19,7 +19,7 @@
 #include "ob_chunk_server.h"
 #include "ob_chunk_server_main.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 using namespace common;
 using namespace sstable;
@@ -102,4 +102,4 @@ int ObSwitchCacheUtility::switch_cache(ObMultiVersionTabletImage& tablet_image,
   return status;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

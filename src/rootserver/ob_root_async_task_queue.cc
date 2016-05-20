@@ -17,8 +17,8 @@
 #include "common/ob_atomic.h"
 #include "ob_root_async_task_queue.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 
 uint64_t ObRootAsyncTaskQueue::ObSeqTask::get_task_id(void) const {
   return task_id_;

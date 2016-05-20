@@ -64,7 +64,7 @@
     lua_pop(lua_, 1); \
   }
 
-namespace oceanbase {
+namespace sb {
 namespace liboblog {
 ObLogPartitioner::ObLogPartitioner() : inited_(false),
   lua_(NULL),

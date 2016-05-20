@@ -5,7 +5,7 @@
 #include "common/ob_malloc.h"
 #include "common/utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 class ObSSTableScanColumnIndexes {
  public:
@@ -78,6 +78,6 @@ class ObSSTableScanColumnIndexes {
   int64_t column_cnt_;
 };
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif

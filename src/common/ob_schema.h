@@ -40,7 +40,7 @@
 #define USER_COL_ID 4
 #define SKEY_COL_ID 4
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 const int64_t OB_SCHEMA_VERSION = 1;
 const int64_t OB_SCHEMA_VERSION_TWO = 2;

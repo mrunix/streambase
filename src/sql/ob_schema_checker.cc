@@ -20,8 +20,8 @@
 #include <config.h>
 #include <tblog.h>
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 const char* SCHEMA_FILE = "./MyTestSchema.ini";
 

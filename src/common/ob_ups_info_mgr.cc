@@ -1,7 +1,7 @@
 
 #include "ob_ups_info_mgr.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 bool ObUpsInfoMgr::check_inner_stat(void) const {

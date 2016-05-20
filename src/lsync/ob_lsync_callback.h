@@ -18,7 +18,7 @@
 #define OB_LSYNC_CALLBACK_H_
 #include "easy_io_struct.h"
 
-namespace oceanbase {
+namespace sb {
 namespace lsync {
 class ObLsyncCallback {
  public:

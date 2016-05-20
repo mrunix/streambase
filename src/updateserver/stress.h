@@ -16,7 +16,7 @@
 #include "common/ob_pcap.h"
 #include "ob_trans_executor.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace updateserver {
 class StressRunnable: public tbsys::CDefaultRunnable {
@@ -72,6 +72,6 @@ class StressRunnable: public tbsys::CDefaultRunnable {
   ThreadSpecificBuffer thread_buffer_;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_UPDATESERVER_STRESS_H__ */

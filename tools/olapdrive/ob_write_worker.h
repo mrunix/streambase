@@ -22,7 +22,7 @@
 #include "ob_olapdrive_schema.h"
 #include "ob_lz_common.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 struct ObDist {
   int64_t start_cnt_;
@@ -179,6 +179,6 @@ class ObWriteWorker : public tbsys::CDefaultRunnable {
   ObCampaignAdgroupDist adgroup_dist_;
 };
 } // end namespace olapdrive,
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_OLAPDRIVE_WRITE_WORKER_H

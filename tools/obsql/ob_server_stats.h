@@ -10,7 +10,7 @@
 #include "client_rpc.h"
 
 
-namespace oceanbase {
+namespace sb {
 namespace obsql {
 struct Present {
  public:
@@ -43,9 +43,9 @@ struct Present {
 class ObServerStats : public Stats {
  public:
   struct Store {
-    oceanbase::common::ObStatManager current;
-    oceanbase::common::ObStatManager prev;
-    oceanbase::common::ObStatManager diff;
+    sb::common::ObStatManager current;
+    sb::common::ObStatManager prev;
+    sb::common::ObStatManager diff;
   };
 
  public:
@@ -69,16 +69,16 @@ class ObServerStats : public Stats {
  protected:
   virtual int32_t calc() ;
   virtual int32_t save() ;
-  virtual int32_t refresh(const oceanbase::common::ObServer* remote_server) ;
+  virtual int32_t refresh(const sb::common::ObServer* remote_server) ;
 
  private:
   void output_header();
-  int  calc_hit_ratio(oceanbase::common::ObStat& stat_item,
+  int  calc_hit_ratio(sb::common::ObStat& stat_item,
                       const int ratio, const int hit, const int miss);
-  int calc_div_value(oceanbase::common::ObStat& stat_item,
+  int calc_div_value(sb::common::ObStat& stat_item,
                      const int div, const int time, const int count);
   int32_t print_item(const Present::ServerInfo& server_info,
-                     oceanbase::common::ObStatManager::const_iterator it,
+                     sb::common::ObStatManager::const_iterator it,
                      const uint32_t index,
                      const int32_t interval) const;
  protected:

@@ -31,7 +31,7 @@
 DEFINE_HAS_MEMBER(RP_LOCAL_NUM);
 DEFINE_HAS_MEMBER(RP_TOTAL_NUM);
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template <class T, int64_t LOCAL_NUM = 4, int64_t TOTAL_NUM = 256>
 class ObResourcePool {

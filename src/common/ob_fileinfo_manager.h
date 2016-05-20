@@ -31,7 +31,7 @@
 #include <algorithm>
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class IFileInfo {
  public:

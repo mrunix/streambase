@@ -30,7 +30,7 @@
 #include "common/ob_mutator.h"
 #include "common/thread_buffer.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class BaseClient {
  public:

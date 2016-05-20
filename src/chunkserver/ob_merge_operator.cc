@@ -20,9 +20,9 @@
 #include "ob_row_cell_vec.h"
 #include "ob_get_param_cell_iterator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 void ObMergeOperator::initialize() {
   ups_stream_ = NULL;
@@ -924,4 +924,4 @@ bool ObMergeOperator::is_unchanged() const {
   return is_unchanged_;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

@@ -32,8 +32,8 @@
 #include "common/ob_action_flag.h"
 #include "test_utils.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::common::serialization;
+using namespace sb::common;
+using namespace sb::common::serialization;
 class BaseClient {
  public:
   int initialize();

@@ -50,7 +50,7 @@
 
 #define DEFAULT_COMPRESSOR_NAME "lzo_1.0"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class CellInfoAllocator {
   typedef common::ObList<ObCellInfoNode*> ClearList;

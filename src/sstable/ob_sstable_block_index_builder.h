@@ -22,7 +22,7 @@
 #include "common/ob_rowkey.h"
 #include "ob_sstable_block_index_buffer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 struct ObSSTableBlockIndexHeader {
   int64_t sstable_block_count_;         //block count of sstable
@@ -144,7 +144,7 @@ class ObSSTableBlockIndexBuilder {
   ObSSTableBlockIndexBuffer end_keys_buf_;        //buffer to stroe end keys
   ObSSTableBlockIndexHeader index_block_header_;  //block index header
 };
-} // namespace oceanbase::sstable
+} // namespace sb::sstable
 } // namespace Oceanbase
 
 #endif // OCEANBASE_SSTABLE_OB_BLOCK_INDEX_BUILDER_H_

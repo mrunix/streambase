@@ -16,7 +16,7 @@
 #include "common/ob_define.h"
 #include "ob_ups_table_mgr.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObLogTask;
 struct ReplayTaskProfile {
@@ -143,6 +143,6 @@ class ObAsyncLogApplier: public IAsyncLogApplier {
   ObUpsLogMgr* log_mgr_;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_UPDATESERVER_OB_ASYNC_LOG_APPLIER_H__ */

@@ -15,15 +15,15 @@
 #include "ob_ups_inc_scan.h"
 #include "ob_update_server_main.h"
 
-using namespace oceanbase::sql;
+using namespace sb::sql;
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
-REGISTER_CREATOR(oceanbase::sql::ObPhyOperatorGFactory, oceanbase::sql::ObPhyOperator, ObIncGetIter, oceanbase::sql::PHY_INC_GET_ITER);
+REGISTER_CREATOR(sb::sql::ObPhyOperatorGFactory, sb::sql::ObPhyOperator, ObIncGetIter, sb::sql::PHY_INC_GET_ITER);
 }
 }
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 ObUpsTableMgr* get_global_table_mgr() {
   ObUpdateServerMain* ups_main = ObUpdateServerMain::get_instance();
@@ -277,4 +277,4 @@ int ObUpsIncScan::get_row_desc(const common::ObRowDesc*& row_desc) const {
   return err;
 }
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb

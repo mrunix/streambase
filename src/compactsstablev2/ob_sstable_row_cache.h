@@ -6,7 +6,7 @@
 #include "common/ob_rowkey.h"
 #include "common/ob_kv_storecache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 struct ObSSTableRowCacheValue {
   char* buf_;
@@ -205,6 +205,6 @@ class ObSSTableRowCache {
   KVCache kv_cache_;
 };
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif //OCEANBASE_SSTABLE_SSTABLE_ROW_CACHE_H_

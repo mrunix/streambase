@@ -20,8 +20,8 @@
 #include "common/ob_mod_define.h"
 #include "common/ob_string.h"
 
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
 int64_t ObDataSourceProxy::to_string(char* buffer, const int64_t length) const {
   int64_t pos = 0;

@@ -8,8 +8,8 @@
 #include "db_record_set.h"
 
 using namespace std;
-using namespace oceanbase::api;
-using namespace oceanbase::common;
+using namespace sb::api;
+using namespace sb::common;
 
 typedef map<string, ObObj> RowData;
 

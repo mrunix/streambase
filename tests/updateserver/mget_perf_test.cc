@@ -4,7 +4,7 @@
 #include "mock_client.h"
 #include "test_utils.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace updateserver;
 

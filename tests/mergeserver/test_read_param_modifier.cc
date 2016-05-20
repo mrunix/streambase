@@ -6,8 +6,8 @@
 #include "ob_read_param_modifier.h"
 #include "../common/test_rowkey_helper.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 static CharArena allocator_;
 
 int main(int argc, char** argv) {

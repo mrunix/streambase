@@ -1,7 +1,7 @@
 #ifndef OCEANBASE_ACCESS_COUNTER_H_
 #define OCEANBASE_ACCESS_COUNTER_H_
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // no need thread safe using LRU for Washout
 class ObAccessCounter {

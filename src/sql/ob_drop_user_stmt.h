@@ -19,7 +19,7 @@
 #include "common/ob_strings.h"
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObDropUserStmt: public ObBasicStmt {
  public:
@@ -40,6 +40,6 @@ class ObDropUserStmt: public ObBasicStmt {
   common::ObStrings users_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_DROP_USER_STMT_H */

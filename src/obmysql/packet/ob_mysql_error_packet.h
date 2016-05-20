@@ -24,7 +24,7 @@
 #include "tblog.h"
 #include "../ob_mysql_state.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 class ObMySQLErrorPacket : public ObMySQLPacket {
  public:

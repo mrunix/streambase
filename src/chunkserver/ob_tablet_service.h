@@ -26,7 +26,7 @@
 #include "common/ob_ups_rpc_proxy.h"
 #include "ob_chunk_server.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 using namespace sql;
 

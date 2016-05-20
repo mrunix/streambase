@@ -22,7 +22,7 @@
 #include "ob_object.h"
 #include "ob_compact_store_type.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /*
  * 紧凑格式读取类

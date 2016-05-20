@@ -1,7 +1,7 @@
 
 #include "client_simulator.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 const char* Param::TR_TYPE_WRITE_STR = "WRITE";
 const char* Param::TR_TYPE_USSCAN_STR = "USSCAN";

@@ -7,7 +7,7 @@
 #include "btree_read_handle_new.h"
 #include "btree_write_handle.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 /**
@@ -192,7 +192,7 @@ class BtreeBase : public BtreeCallback {
 };
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif
 

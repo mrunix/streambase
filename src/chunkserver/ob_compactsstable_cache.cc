@@ -17,7 +17,7 @@
 #include "ob_compactsstable_cache.h"
 #include "ob_chunk_server_main.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace compactsstable;
 using namespace tbsys;
 using namespace common;
@@ -364,4 +364,4 @@ ObTablet* ObCompactSSTableMemThread::pop() {
   return tablet;
 }
 } //end namespace chunkserver
-} //end namespace oceanbase
+} //end namespace sb

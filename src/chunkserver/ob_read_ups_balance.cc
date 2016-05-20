@@ -17,9 +17,9 @@
 #include "common/ob_ups_info.h"
 #include "ob_read_ups_balance.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObReadUpsBalance::ObReadUpsBalance() {
 }
@@ -49,4 +49,4 @@ int32_t ObReadUpsBalance::select_server(const ObUpsList& list, const ObServerTyp
   return ret;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

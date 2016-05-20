@@ -22,7 +22,7 @@
 #include "common/ob_string.h"
 #include "common/ob_string_buf.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 class ObMySQLOKPacket : public ObMySQLPacket {
  public:
@@ -104,5 +104,5 @@ class ObMySQLOKPacket : public ObMySQLPacket {
   common::ObStringBuf str_buf_;
 };
 } // end namespace obmysql
-} // end namespace oceanbase
+} // end namespace sb
 #endif

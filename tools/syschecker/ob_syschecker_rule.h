@@ -18,7 +18,7 @@
 #include "common/ob_object.h"
 #include "ob_syschecker_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace syschecker {
 static const int64_t MAX_SYSCHECKER_ROWKEY_LEN = sizeof(int64_t) * 2;
 static const int64_t MAX_SYSCHECKER_ROWKEY_COLUMN_COUNT =   2;
@@ -288,6 +288,6 @@ class ObSyscheckerRule {
 void hex_dump_rowkey(const void* data, const int32_t size,
                      const bool char_type);
 } // end namespace syschecker
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_SYSCHECKER_RULE_H_

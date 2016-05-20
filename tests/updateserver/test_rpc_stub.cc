@@ -25,12 +25,12 @@
 #include "updateserver/ob_ups_rpc_stub.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
 const int32_t MOCK_SERVER_LISTEN_PORT = 8888;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace updateserver {
 
@@ -81,7 +81,7 @@ TEST_F(TestRpcStub, test_send_log) {
 
 } // end namespace updateserver
 } // end namespace tests
-} // end namespace oceanbase
+} // end namespace sb
 
 
 int main(int argc, char** argv) {

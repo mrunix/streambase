@@ -18,7 +18,7 @@
 
 #include "common/roottable/ob_ups_provider.h"
 #include "common/ob_server.h"
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootUpsProvider: public common::ObUpsProvider {
  public:
@@ -34,7 +34,7 @@ class ObRootUpsProvider: public common::ObUpsProvider {
   common::ObServer ups_;
 };
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ROOT_UPS_PROVIDER_H */
 

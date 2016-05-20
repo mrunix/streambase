@@ -20,7 +20,7 @@
 #include "common/ob_define.h"
 #include <string>
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 const int kCheckpointLen = 32;
 

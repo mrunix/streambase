@@ -17,7 +17,7 @@
 #include "ob_ring_buffer.h"
 #include "ob_atomic.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObRingBuffer::ObRingBuffer() {
   reset_();

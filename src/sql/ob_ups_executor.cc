@@ -16,8 +16,8 @@
 #include "ob_ups_executor.h"
 #include "common/utility.h"
 #include "common/ob_trace_log.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObUpsExecutor::ObUpsExecutor()
   : rpc_(NULL), inner_plan_(NULL) {
@@ -224,7 +224,7 @@ int ObUpsExecutor::make_fake_desc(const int64_t column_num) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObUpsExecutor, PHY_UPS_EXECUTOR);
 }

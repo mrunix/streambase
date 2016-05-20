@@ -3,9 +3,9 @@
 #include "common/ob_packet_factory.h"
 #include "common/ob_base_server.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 ObDataBuffer& __get_thread_buffer(ThreadSpecificBuffer& thread_buf, ObDataBuffer& buf) {
   ThreadSpecificBuffer::Buffer* my_buffer = thread_buf.get_buffer();
@@ -86,5 +86,5 @@ class MyObServer : public ObBaseServer {
   ThreadSpecificBuffer response_buffer_;
 };
 }; // end namespace test
-}; // end namespace oceanbase
+}; // end namespace sb
 #endif /* __OB_UPDATESERVER_MY_OB_SERVER_H__ */

@@ -24,8 +24,8 @@
 #include <vector>
 #include <algorithm>
 
-using namespace oceanbase::common;
-using namespace oceanbase::api;
+using namespace sb::common;
+using namespace sb::api;
 
 const char* kConfigObLog = "ob_log_dir";
 const char* kConfigColumn = "column_info";

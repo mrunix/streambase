@@ -18,12 +18,12 @@
 #include "common/ob_packet.h"
 
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObIncScan, PHY_INC_SCAN);
 }
 }
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace sql {
 ObGetParamPool& get_get_param_pool() {
@@ -250,4 +250,4 @@ PHY_OPERATOR_ASSIGN(ObIncScan) {
   return ret;
 }
 }; // end namespace sql
-}; // end namespace oceanbase
+}; // end namespace sb

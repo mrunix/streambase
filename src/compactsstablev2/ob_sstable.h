@@ -7,7 +7,7 @@
 #include "ob_sstable_table_index_builder.h"
 #include "ob_sstable_table_schema_builder.h"
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 class ObSSTable {
  public:
@@ -283,5 +283,5 @@ class ObSSTable {
   QueryStruct query_struct_;
 };
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 #endif

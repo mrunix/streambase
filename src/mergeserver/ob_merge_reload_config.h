@@ -19,7 +19,7 @@
 
 #include "common/ob_reload_config.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 /* forward declearation */
 class ObMergeServer;
@@ -37,6 +37,6 @@ class ObMergeReloadConfig
   ObMergeServer* merge_server_;
 };
 } // end of namespace mergeserver
-} // end of namespace oceanbase
+} // end of namespace sb
 
 #endif /* _OB_MERGE_RELOAD_CONFIG_H_ */

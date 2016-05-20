@@ -18,7 +18,7 @@
 
 #include "ob_husk_filter.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 
 namespace sql {
@@ -57,6 +57,6 @@ class ObUpsModifyWithDmlType: public ObHuskFilter<PHY_UPS_MODIFY_WITH_DML_TYPE> 
   ObDmlType dml_type_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_UPS_MODIFY_H */

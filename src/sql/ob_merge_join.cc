@@ -16,8 +16,8 @@
 #include "ob_merge_join.h"
 #include "common/utility.h"
 #include "common/ob_row_util.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObMergeJoin::ObMergeJoin()
   : get_next_row_func_(NULL),
@@ -1390,7 +1390,7 @@ int ObMergeJoin::right_anti_semi_get_next_row(const ObRow*& row) {
 
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObMergeJoin, PHY_MERGE_JOIN);
 }

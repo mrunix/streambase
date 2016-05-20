@@ -22,7 +22,7 @@
 //#define ob_malloc(size) ::malloc(size)
 //#define ob_free(ptr) ::free(ptr)
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 FIFOAllocator::FIFOAllocator() : inited_(false),
   mod_id_(0),

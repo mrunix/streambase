@@ -18,7 +18,7 @@
 #include "libobapi.h"
 #include "ob_client.h"
 
-using namespace oceanbase::client;
+using namespace sb::client;
 
 OB_ERR_PMSG OB_ERR_DEFAULT_MSG[] = {
   "Success",

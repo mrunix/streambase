@@ -3,8 +3,8 @@
 #include "ob_proxy_server.h"
 #include "common/ob_packet.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace proxyserver {
 int ObProxyCallback::process(easy_request_t* r) {
   int ret = EASY_OK;

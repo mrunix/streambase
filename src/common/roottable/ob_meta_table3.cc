@@ -20,7 +20,7 @@
 #include "common/utility.h"
 #include "ob_meta_table_schema.h"
 #include "common/ob_mutator.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 struct ObMetaTable3::MyIterator: public ConstIterator {
  public:

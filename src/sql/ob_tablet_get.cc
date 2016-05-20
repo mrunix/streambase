@@ -17,7 +17,7 @@
 #include "ob_tablet_get.h"
 #include "common/ob_new_scanner_helper.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace sql;
 using namespace common;
 
@@ -287,7 +287,7 @@ int ObTabletGet::set_tablet_manager(chunkserver::ObTabletManager* tablet_manager
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObTabletGet, PHY_TABLET_GET);
 }

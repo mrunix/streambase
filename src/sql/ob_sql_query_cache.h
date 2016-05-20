@@ -23,7 +23,7 @@
 #include <common/ob_object.h>
 #include <mergeserver/ob_merge_server_config.h>
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 struct ObSQLQueryCacheKey {
   int64_t         sql_id;
@@ -230,6 +230,6 @@ inline void do_destroy(ObSQLQueryCacheValue* value, ObSQLQueryCacheValueDeepCopy
 }
 } // namespace KVStoreCacheComponent
 } // namespace common
-} // namespace oceanbase
+} // namespace sb
 
 #endif // OCEANBASE_SQL_OB_SQL_QUERY_CACHE

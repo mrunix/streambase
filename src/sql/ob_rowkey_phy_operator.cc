@@ -16,8 +16,8 @@
 
 #include "ob_rowkey_phy_operator.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
 int ObRowkeyPhyOperator::get_next_row(const common::ObRow*& row) {
   const ObRowkey* rowkey = NULL;

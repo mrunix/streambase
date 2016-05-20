@@ -21,8 +21,8 @@
 #include <common/utility.h>
 #include <common/ob_ups_info.h>
 
-using namespace oceanbase::common;
-using namespace oceanbase::client;
+using namespace sb::common;
+using namespace sb::client;
 
 extern OB_ERR_PMSG OB_ERR_DEFAULT_MSG[];
 

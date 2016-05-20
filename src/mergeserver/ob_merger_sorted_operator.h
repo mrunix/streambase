@@ -16,7 +16,7 @@
 #include "common/ob_iterator.h"
 #include "ob_ms_request.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObScanParam;
 class ObScanner;

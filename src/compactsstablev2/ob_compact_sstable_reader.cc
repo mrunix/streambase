@@ -1,8 +1,8 @@
 #include "ob_compact_sstable_reader.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObCompactSSTableReader::ObFileInfo::init(
   const char* sstable_fname, const bool use_dio) {
@@ -715,4 +715,4 @@ int ObCompactSSTableReader::trans_to_table_range(ObNewRange& range,
   return ret;
 }
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb

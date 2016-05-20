@@ -26,10 +26,10 @@
 #include "ob_sstable_schema.h"
 #include "ob_scan_column_indexes.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::common::serialization;
+using namespace sb::common;
+using namespace sb::common::serialization;
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 ObSSTableBlockReader::ObSSTableBlockReader()
   : index_begin_(NULL), index_end_(NULL),
@@ -503,4 +503,4 @@ int ObSSTableBlockReader::get_cache_row_value(const_iterator index,
   return ret;
 }
 } // end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb

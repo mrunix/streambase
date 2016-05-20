@@ -17,7 +17,7 @@
 #include "ob_define.h"
 #include "ob_obj_type.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 const char* ob_obj_type_str(ObObjType type) {
   const char* ret = "unknown_type";

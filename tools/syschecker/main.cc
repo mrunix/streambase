@@ -14,8 +14,8 @@
 #include "common/ob_define.h"
 #include "ob_syschecker_main.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::syschecker;
+using namespace sb::common;
+using namespace sb::syschecker;
 
 int main(int argc, char* argv[]) {
   int ret               = OB_SUCCESS;

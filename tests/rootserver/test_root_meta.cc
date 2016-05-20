@@ -18,10 +18,10 @@
 
 #include <gtest/gtest.h>
 #include "ob_root_meta.h"
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace rootserver {
 

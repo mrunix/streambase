@@ -1,7 +1,7 @@
 #include "ob_kill_stmt.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 ObKillStmt::ObKillStmt(ObStringBuf* name_pool): ObBasicStmt(ObBasicStmt::T_KILL) {
   name_pool_ = name_pool;
   thread_id_ = -1;

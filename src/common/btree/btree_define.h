@@ -22,7 +22,7 @@
 #define OCEAN_BTREE_CHECK_FALSE(cond, format, ...)
 #endif
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * 常量定义
@@ -69,6 +69,6 @@ struct BtreeKeyValuePair {
 typedef int64_t BtreeKeyCompare(const char*, const char*);
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif

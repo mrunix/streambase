@@ -24,7 +24,7 @@
 #include "ob_lease_common.h"
 #include "ob_log_cursor.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 //forward declaration
 namespace common {
@@ -33,7 +33,7 @@ class TestObSlaveMgr_test_server_race_condition_Test;
 }
 namespace common {
 class ObSlaveMgr {
-  friend class oceanbase::tests::common::TestObSlaveMgr_test_server_race_condition_Test;
+  friend class sb::tests::common::TestObSlaveMgr_test_server_race_condition_Test;
  public:
   static const int DEFAULT_VERSION;
   static const int DEFAULT_LOG_SYNC_TIMEOUT;  // ms
@@ -158,6 +158,6 @@ class ObSlaveMgr {
   bool is_initialized_;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_OB_SLAVE_MGR_H_

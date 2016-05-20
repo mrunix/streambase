@@ -1,8 +1,8 @@
 #include "ob_change_obi_stmt.h"
 
-using namespace oceanbase;
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObChangeObiStmt::ObChangeObiStmt(ObStringBuf* name_pool) : ObBasicStmt(ObBasicStmt::T_CHANGE_OBI) {
   force_ = false;

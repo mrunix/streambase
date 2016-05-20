@@ -24,8 +24,8 @@
 #include "updateserver/ob_ups_mutator.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 static CharArena allocator_;
 
 int init_mem_pool() {
@@ -63,7 +63,7 @@ void check_cell_with_name(const ObCellInfo& expected, const ObCellInfo& real) {
   check_obj(expected.value_, real.value_);
 }
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace updateserver {
 
@@ -180,7 +180,7 @@ TEST_F(TestUpsMutator, test_drop_memtable) {
 
 } // end namespace updateserver
 } // end namespace tests
-} // end namespace oceanbase
+} // end namespace sb
 
 
 int main(int argc, char** argv) {

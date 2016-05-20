@@ -8,9 +8,9 @@
 #include "common/ob_read_common_data.h"
 #include "../common/test_rowkey_helper.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
-using namespace oceanbase::mergeserver::test;
+using namespace sb::common;
+using namespace sb::mergeserver;
+using namespace sb::mergeserver::test;
 static CharArena allocator_;
 
 int MockUpdateServer::initialize() {

@@ -260,13 +260,13 @@ void store_memtable(MockClient& client, int64_t store_all) {
 }
 
 void get_bloomfilter(MockClient& client, int64_t version) {
-  oceanbase::common::TableBloomFilter table_bf;
+  sb::common::TableBloomFilter table_bf;
   int err = client.get_bloomfilter(version, table_bf, timeout);
   fprintf(stdout, "[%s] err=%d\n", __FUNCTION__, err);
 }
 
 void fetch_ups_stat_info(MockClient& client) {
-  oceanbase::updateserver::UpsStatMgr stat_mgr;
+  sb::updateserver::UpsStatMgr stat_mgr;
   int err = client.fetch_ups_stat_info(stat_mgr, timeout);
   fprintf(stdout, "[%s] err=%d\n", __FUNCTION__, err);
   if (OB_SUCCESS == err) {

@@ -16,7 +16,7 @@
 
 #include "nb_scan_cond.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace nb_accessor;
 

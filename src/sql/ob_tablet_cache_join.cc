@@ -19,7 +19,7 @@
 #include "common/ob_row_util.h"
 #include "common/ob_ups_row_util.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sql;
 

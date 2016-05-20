@@ -18,7 +18,7 @@
 #include "ob_malloc.h"
 #include "utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template<typename DataT>
 class ObFixedArray {
@@ -179,6 +179,6 @@ int static_callback(easy_request_t* arg) {
   return (*reg::value())->callback(arg);
 }
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_WAIT_QUEUE_H__ */

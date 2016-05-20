@@ -34,7 +34,7 @@
 #include "sql/ob_ups_result.h"
 #include "sql/ob_physical_plan.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObGeneralRpcStub::ObGeneralRpcStub() {
 }
@@ -853,4 +853,4 @@ int ObGeneralRpcStub::get_bloom_filter(
 }
 
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

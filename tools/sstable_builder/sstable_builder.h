@@ -12,7 +12,7 @@
 #include "sstable_writer.h"
 #include "com_taobao_mrsstable_SSTableBuilder.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 struct data_format {
   common::ObObjType type;

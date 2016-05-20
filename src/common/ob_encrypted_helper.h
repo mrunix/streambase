@@ -17,7 +17,7 @@
 #include <string.h>
 #include "ob_string.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObEncryptedHelper {
 #define SCRAMBLE_LENGTH 20
@@ -172,5 +172,5 @@ class ObEncryptedHelper {
   static void my_crypt(char* to, const unsigned char* s1, const unsigned char* s2, uint32_t len);
 };
 }// namespace common
-}//namespace oceanbase
+}//namespace sb
 #endif

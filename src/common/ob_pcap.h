@@ -16,7 +16,7 @@
 #include "data_buffer.h"
 #include "utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObPacket;
 class ObPCap {
@@ -97,6 +97,6 @@ class ObPFetcher {
 };
 
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_PCAP_H__ */

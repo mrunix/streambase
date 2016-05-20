@@ -13,7 +13,7 @@
  */
 #include "ob_tsi_block_allocator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 #define ENABLE_MALLOC_BT 0
 char* parray(char* buf, int64_t len, int64_t* array, int size) {
@@ -361,4 +361,4 @@ void* ObTSIBlockAllocator::mod_realloc(void* p, int64_t size, const int32_t mod_
   return new_block ? new_block->buf_ : NULL;
 }
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb

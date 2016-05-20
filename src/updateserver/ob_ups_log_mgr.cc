@@ -23,11 +23,11 @@
 #include "common/ob_delay_guard.h"
 #include "ob_update_server_main.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 #define UPS ObUpdateServerMain::get_instance()->get_update_server()
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 // 获得sstable指示的最大日志文件ID
 uint64_t get_max_file_id_by_sst() {
@@ -107,7 +107,7 @@ int parse_log_buffer(const char* log_data, int64_t data_len, const ObLogCursor& 
   return err;
 }
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 
 
 int64_t ObUpsLogMgr::FileIdBeforeLastMajorFrozen::get() {

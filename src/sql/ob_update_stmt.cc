@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
-using namespace oceanbase::common;
+using namespace sb::common;
 
-ObUpdateStmt::ObUpdateStmt(oceanbase::common::ObStringBuf* name_pool)
+ObUpdateStmt::ObUpdateStmt(sb::common::ObStringBuf* name_pool)
   : ObStmt(name_pool, T_UPDATE) {
 }
 

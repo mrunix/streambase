@@ -17,7 +17,7 @@
 #include "ob_multiple_scan_merge.h"
 #include "common/ob_row_fuse.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace sql;
 
 ObMultipleScanMerge::ObMultipleScanMerge()
@@ -230,7 +230,7 @@ int ObMultipleScanMerge::close() {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObMultipleScanMerge, PHY_MULTIPLE_SCAN_MERGE);
 }

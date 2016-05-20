@@ -8,8 +8,8 @@
 #include "ob_ms_sql_rpc_event.h"
 #include "ob_ms_async_rpc.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 ObMsSqlRpcEvent::ObMsSqlRpcEvent()
   : magic_(0x1234abcd) {

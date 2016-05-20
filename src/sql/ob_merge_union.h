@@ -19,7 +19,7 @@
 #include "sql/ob_set_operator.h"
 #include "common/ob_row.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObMergeUnion: public ObSetOperator {
  public:
@@ -71,6 +71,6 @@ class ObMergeUnion: public ObSetOperator {
   static const uint64_t OB_ROW_BUF_SIZE = common::OB_MAX_ROW_LENGTH;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* OCEANBASE_SQL_OB_MERGE_UNION_H_ */

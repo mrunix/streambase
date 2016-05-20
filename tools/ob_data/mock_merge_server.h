@@ -3,7 +3,7 @@
 
 #include "mock_server.h"
 #include "mergeserver/ob_merge_server_params.h"
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class MockMergeServer : public MockServer {
  public:

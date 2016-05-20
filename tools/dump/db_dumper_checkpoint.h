@@ -23,7 +23,7 @@
 #include <set>
 
 using namespace tbsys;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class DbCheckpoint : CDefaultRunnable {
  public:

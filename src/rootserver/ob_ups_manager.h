@@ -29,7 +29,7 @@ class ObUpsManagerTest_test_register_lease2_Test;
 class ObUpsManagerTest_test_offline_Test;
 class ObUpsManagerTest_test_read_percent_Test;
 class ObUpsManagerTest_test_read_percent2_Test;
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 enum ObUpsStatus {
   UPS_STAT_OFFLINE = 0,     ///< the ups is offline
@@ -141,7 +141,7 @@ class ObUpsManager {
   bool is_flow_control_by_ip_;
 };
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_UPS_MANAGER_H */
 

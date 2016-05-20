@@ -21,11 +21,11 @@
 #include "thread.h"
 #include "gtest/gtest.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 using namespace tbsys;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace sql {
 

@@ -42,8 +42,8 @@ int64_t scan_max_line_no = 10;
 int64_t update_max_cell_no = 30;
 }
 
-using namespace oceanbase::common;
-using namespace oceanbase::test;
+using namespace sb::common;
+using namespace sb::test;
 
 class DIntRowkey {
  public:

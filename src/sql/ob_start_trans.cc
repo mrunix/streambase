@@ -15,8 +15,8 @@
  */
 #include "ob_start_trans.h"
 #include "common/utility.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 int ObStartTrans::open() {
   int ret = OB_SUCCESS;
@@ -72,7 +72,7 @@ PHY_OPERATOR_ASSIGN(ObStartTrans) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObStartTrans, PHY_START_TRANS);
 }

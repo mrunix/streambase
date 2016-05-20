@@ -21,10 +21,10 @@
 #include "test_utils2.h"
 #include "log_utils.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 struct Config {
   static int64_t MAX_N_DATA_ITEMS;
@@ -109,9 +109,9 @@ TEST_F(ObReplayLogTest, ReplayWithLastFileMissing) {
   TBSYS_LOG(INFO, "after_replay: log_cursor=%s", end_cursor.to_str());
 }
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 
-using namespace oceanbase::test;
+using namespace sb::test;
 int main(int argc, char** argv) {
   int err = OB_SUCCESS;
   int n_data_items_shift = 0;

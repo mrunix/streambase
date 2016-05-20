@@ -1,7 +1,7 @@
 #ifndef OB_ADAPTER_ALLOCATOR_H_
 #define OB_ADAPTER_ALLOCATOR_H_
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class AdapterAllocator {
  public:

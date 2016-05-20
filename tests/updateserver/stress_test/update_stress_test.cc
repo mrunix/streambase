@@ -44,8 +44,8 @@ static ObServer g_update_server;
 static MockClient g_merge_client;
 static MockClient g_update_client;
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 static int set_server_addr(const char* addr_str, ObServer& server);
 
 struct ConfigParam {

@@ -20,7 +20,7 @@
 #include "common/ob_row.h"
 #include "ob_sstable_row.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 struct ObSSTableBlockHeader {
   int32_t row_index_array_offset_;  // offset of row index array in payload
@@ -234,7 +234,7 @@ class ObSSTableBlockBuilder {
   int64_t block_buf_size_;  //size of block buffer
   ObSSTableBlockHeader block_header_;   //block header
 };
-} // namespace oceanbase::sstable
+} // namespace sb::sstable
 } // namespace Oceanbase
 
 #endif // OCEANBASE_SSTABLE_OB_BLOCK_BUILDER_H_

@@ -16,7 +16,7 @@
 #include "common/ob_tablet_info.h"
 #include "common/ob_define.h"
 #include "common/ob_range2.h"
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObTabletInfoManager;
 struct ObRootMeta2 {
@@ -97,7 +97,7 @@ struct ObRootMeta2TableIdLessThan {
 };
 
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #endif

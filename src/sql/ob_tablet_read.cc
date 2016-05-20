@@ -16,7 +16,7 @@
 
 #include "ob_tablet_read.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sql;
 

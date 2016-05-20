@@ -21,7 +21,7 @@
 
 #include "common/ob_timer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMergerRpcProxy;
 /// @brief fetch ups list timer task

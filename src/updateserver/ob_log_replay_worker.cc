@@ -14,7 +14,7 @@
 #include "ob_log_replay_worker.h"
 #include "ob_ups_log_utils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 ObLogReplayWorker::ObLogReplayWorker(): n_worker_(0), queue_len_(0),
   flying_trans_no_limit_(0),
@@ -443,4 +443,4 @@ int ObLogReplayWorker::submit_batch(int64_t& log_id, const char* buf, int64_t le
   return err;
 }
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb

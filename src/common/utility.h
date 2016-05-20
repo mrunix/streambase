@@ -64,7 +64,7 @@
 #define DEFAULT_TIME_FORMAT "%Y-%m-%d %H:%M:%S"
 
 #define DEFINE_HAS_MEMBER(member) \
-    namespace oceanbase \
+    namespace sb \
     { \
       namespace common \
       { \
@@ -89,13 +89,13 @@
     }
 
 #define HAS_MEMBER(type, sign, member) \
-  oceanbase::common::__has_##member##__<type, sign>::value
+  sb::common::__has_##member##__<type, sign>::value
 
 DEFINE_HAS_MEMBER(MAX_PRINTABLE_SIZE)
 DEFINE_HAS_MEMBER(to_cstring)
 DEFINE_HAS_MEMBER(reset)
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObCellInfo;
 class ObScanner;
@@ -541,7 +541,7 @@ class ObTSIArray {
   })
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #endif //OCEANBASE_COMMON_UTILITY_H_

@@ -20,7 +20,7 @@
 #include <tbsys.h>
 #include "ob_config.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 bool ObConfigIntegralItem::parse_range(const char* range) {
   char buff[64] = {0};

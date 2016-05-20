@@ -5,8 +5,8 @@
 #include "olap.h"
 #include "../../common/test_rowkey_helper.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 GetNotExistRows GetNotExistRows::static_case_;
 static CharArena allocator_;
 

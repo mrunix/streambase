@@ -13,8 +13,8 @@
 #include "ob_profile_log.h"
 #include "ob_define.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 const char* const ObProfileLogger::errmsg_[2] = {"INFO", "DEBUG"};
 ObProfileLogger* ObProfileLogger::logger_ = NULL;

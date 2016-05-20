@@ -27,7 +27,7 @@
 #include "common/ob_kv_storecache.h"
 #include "common/ob_action_flag.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 struct ObUpsCacheKey {
   uint64_t table_id: 16;

@@ -22,10 +22,10 @@
 #include "ob_sstable_writer.h" // for magic
 #include "ob_disk_path.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::common::serialization;
+using namespace sb::common;
+using namespace sb::common::serialization;
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 ObSSTableReader::ObFileInfo::ObFileInfo() {
   fd_ = -1;
@@ -752,4 +752,4 @@ bool ObSSTableReader::check_sstable(const char* sstable_fname, uint64_t* sstable
   return ret;
 }
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb

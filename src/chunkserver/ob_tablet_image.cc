@@ -25,12 +25,12 @@
 #include "ob_disk_manager.h"
 #include "ob_fileinfo_cache.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::common::serialization;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::common::serialization;
+using namespace sb::sstable;
 
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 
 //----------------------------------------
@@ -2828,4 +2828,4 @@ int ObMultiVersionTabletImage::delete_table(const uint64_t table_id) {
 }
 
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

@@ -14,8 +14,8 @@
 #include "common/ob_malloc.h"
 #include "ob_root_main.h"
 
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
 int main(int argc, char* argv[]) {
   static const int DEFAULT_MMAP_MAX_VAL = 1024 * 1024 * 1024;

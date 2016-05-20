@@ -1,7 +1,7 @@
 #include "load_server.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 int LoadServer::initialize() {
   int ret = set_packet_factory(&factory_);

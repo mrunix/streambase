@@ -15,7 +15,7 @@
 #define __OB_UPDATESERVER_OB_CACHED_POS_LOG_READER_H__
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObPosLogReader;
 class ObLogBuffer;
@@ -36,6 +36,6 @@ class ObCachedPosLogReader {
   ObLogBuffer* log_buffer_;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_UPDATESERVER_OB_CACHED_POS_LOG_READER_H__ */

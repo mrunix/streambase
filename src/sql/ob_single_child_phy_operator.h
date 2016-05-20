@@ -16,7 +16,7 @@
 #ifndef _OB_SINGLE_CHILD_PHY_OPERATOR_H
 #define _OB_SINGLE_CHILD_PHY_OPERATOR_H 1
 #include "ob_phy_operator.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObSingleChildPhyOperator: public ObPhyOperator {
  public:
@@ -42,7 +42,7 @@ class ObSingleChildPhyOperator: public ObPhyOperator {
   ObPhyOperator* child_op_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_SINGLE_CHILD_PHY_OPERATOR_H */
 

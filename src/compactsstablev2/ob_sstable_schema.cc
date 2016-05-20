@@ -1,9 +1,9 @@
 #include "ob_sstable_schema.h"
 #include "common/ob_schema.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 ObSSTableSchema::ObSSTableSchema()
   : column_def_(column_def_array_),

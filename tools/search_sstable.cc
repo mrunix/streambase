@@ -28,7 +28,7 @@
 #include "sql/ob_sstable_scanner.h"
 #include "common/ob_schema_manager.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 

@@ -19,7 +19,7 @@
 #include "ob_multi_tablet_merger.h"
 #include "ob_chunk_server_main.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 using namespace common;
 using namespace sstable;
@@ -495,4 +495,4 @@ int ObMultiTabletMerger::release_tablets() {
   return ret;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

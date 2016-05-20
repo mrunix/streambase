@@ -5,7 +5,7 @@
 #include <test_key.h>
 #include <signal.h>
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 int32_t max_id = 1000;

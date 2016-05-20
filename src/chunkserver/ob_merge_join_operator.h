@@ -24,7 +24,7 @@
 #include "ob_merge_operator.h"
 #include "ob_join_operator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 /**
  * this class encapsulates merge operator and join operator as a

@@ -18,7 +18,7 @@
 
 #include "tbsys.h"
 #include "rootserver/ob_ups_manager.h"
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObUpsHeartbeatRunnable: public tbsys::CDefaultRunnable {
  public:
@@ -35,6 +35,6 @@ class ObUpsHeartbeatRunnable: public tbsys::CDefaultRunnable {
   ObUpsManager& ups_manager_;
 };
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 #endif /* _OB_UPS_HEARTBEAT_RUNNABLE_H */
 

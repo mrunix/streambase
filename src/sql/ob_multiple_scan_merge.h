@@ -19,7 +19,7 @@
 
 #include "ob_multiple_merge.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObMultipleScanMerge : public ObMultipleMerge {
   struct ChildContext {

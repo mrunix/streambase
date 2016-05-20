@@ -21,7 +21,7 @@
 #include "ob_server_manager.h"
 #include "ob_server_rpc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace client {
 class ObClient : public common::ObBaseClient {
  public:
@@ -71,7 +71,7 @@ class ObClient : public common::ObBaseClient {
   ObServerManager& servers_mgr_;
   int64_t timeout_;
 };
-} // namespace oceanbase::client
+} // namespace sb::client
 } // namespace Oceanbase
 
 #endif //OCEANBASE_CLIENT_OB_CLIENT_H_

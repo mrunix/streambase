@@ -17,7 +17,7 @@
 #define _OB_ROOT_TABLE_SERVICE_H 1
 #include "ob_root_table3.h"
 #include "common/ob_define.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObServer;
 class ObTabletReportInfoList;
@@ -74,6 +74,6 @@ class ObRootTableService {
   ObLockedPool root_table_pool_;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ROOT_TABLE_SERVICE_H */

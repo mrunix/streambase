@@ -17,7 +17,7 @@
 
 #include "ob_lz_query.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 class ObPlatformPvtypeEffect : public ObLzQuery {
  public:
@@ -41,6 +41,6 @@ class ObPlatformPvtypeEffect : public ObLzQuery {
   DISALLOW_COPY_AND_ASSIGN(ObPlatformPvtypeEffect);
 };
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_OLAPDRIVE_PLATFORM_PVTYPE_EFFECT_H

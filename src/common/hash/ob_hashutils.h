@@ -49,7 +49,7 @@
 }
 #endif
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace hash {
 enum {

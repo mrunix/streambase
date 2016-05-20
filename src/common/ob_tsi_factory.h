@@ -33,7 +33,7 @@
 #include "common/ob_malloc.h"
 #include "common/ob_mod_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 enum TSICommonType {
   TSI_COMMON_OBJPOOL_1 = 1001,

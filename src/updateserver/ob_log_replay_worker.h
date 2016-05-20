@@ -20,7 +20,7 @@
 #include "ob_ups_table_mgr.h"
 #include "ob_async_log_applier.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObLogReplayWorker: public tbsys::CDefaultRunnable {
  public:
@@ -107,6 +107,6 @@ class ObLogReplayWorker: public tbsys::CDefaultRunnable {
   volatile int64_t last_barrier_log_id_;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_UPDATESERVER_OB_LOG_REPLAY_WORKER_H__ */

@@ -6,9 +6,9 @@
 #include "tbsys.h"
 #include "ob_malloc.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace common {
 class TestObLogEntry: public ::testing::Test {

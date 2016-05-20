@@ -20,10 +20,10 @@
 #include "mergeserver/ob_ms_tablet_location_proxy.h"
 #include "ob_client_wrapper.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 class ObClientWrapperTSI {
  public:

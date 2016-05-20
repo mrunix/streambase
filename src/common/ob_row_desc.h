@@ -18,7 +18,7 @@
 #include "common/ob_define.h"
 #include "common/ob_bit_set.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /// 行描述
 class ObRowDesc {
@@ -241,6 +241,6 @@ inline void ObRowDesc::set_rowkey_cell_count(int64_t rowkey_cell_count) {
   this->rowkey_cell_count_ = rowkey_cell_count;
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ROW_DESC_H */

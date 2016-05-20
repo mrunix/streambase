@@ -22,10 +22,10 @@
 #include "mergeserver/ob_merge_server_service.h"
 #include "common/ob_schema_manager.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::common::serialization;
-using namespace oceanbase::mergeserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::common::serialization;
+using namespace sb::mergeserver;
 
 ObMsSQLProxy::ObMsSQLProxy()
   : ms_service_(NULL),

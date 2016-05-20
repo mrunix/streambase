@@ -19,8 +19,8 @@
 #include "ob_root_worker.h"
 #include "ob_root_async_task_queue.h"
 
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
 void ObUps::reset() {
   addr_.reset();

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "test_main.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 TEST(BaseMainTest, basic) {
   BaseMain* pmain = BaseMainTest::get_instance();

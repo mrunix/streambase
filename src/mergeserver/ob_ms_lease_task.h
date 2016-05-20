@@ -21,7 +21,7 @@
 
 #include "common/ob_timer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMergeServerService;
 /// @brief check and fetch new schema timer task

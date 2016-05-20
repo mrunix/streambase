@@ -1,6 +1,6 @@
 #include "load_statics.h"
 
-using namespace oceanbase::tools;
+using namespace sb::tools;
 
 Statics Statics::operator - (const Statics& other) const {
   Statics inc;

@@ -21,7 +21,7 @@
 #include "ob_define.h"
 #include "ob_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObTriggerEvent {
  public:
@@ -66,5 +66,5 @@ class ObTriggerEvent {
   ObGeneralRpcStub* rpc_stub_;
 };
 }; // end namepsace common
-}; // end namespace oceanbase
+}; // end namespace sb
 #endif //__OCEANBASE_COMMON_OB_TRIGGER_EVENT_H__

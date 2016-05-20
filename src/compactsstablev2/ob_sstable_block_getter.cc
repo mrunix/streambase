@@ -1,8 +1,8 @@
 #include "ob_sstable_block_getter.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObSSTableBlockGetter::init(const common::ObRowkey& row_key,
                                const ObSSTableBlockReader::BlockData& block_data,
@@ -36,4 +36,4 @@ int ObSSTableBlockGetter::init(const common::ObRowkey& row_key,
   return ret;
 }
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb

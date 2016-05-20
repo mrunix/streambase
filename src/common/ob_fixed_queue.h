@@ -22,7 +22,7 @@
 #include "common/ob_define.h"
 #include "common/ob_malloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template <typename T>
 class ObFixedQueue {

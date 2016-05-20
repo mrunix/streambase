@@ -1,9 +1,9 @@
 #include "common/utility.h"
 #include "ob_sstable_row_cache.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObSSTableRowCache::init(const int64_t max_mem_size) {
   int ret = OB_SUCCESS;
@@ -80,4 +80,4 @@ int ObSSTableRowCache::put_row(const ObSSTableRowCacheKey& key,
 }
 
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb

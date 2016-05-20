@@ -24,7 +24,7 @@
 #include "common/ob_string.h"
 #include "common/ob_string_buf.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 class ObMySQLHandshakePacket {
  public:

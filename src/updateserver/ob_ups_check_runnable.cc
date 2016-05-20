@@ -14,8 +14,8 @@
 
 #include "ob_ups_check_runnable.h"
 #include "ob_update_server_main.h"
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace updateserver {
 ObUpsCheckRunnable::ObUpsCheckRunnable() {
 }

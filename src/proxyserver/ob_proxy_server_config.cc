@@ -17,7 +17,7 @@
 #include "ob_proxy_server_config.h"
 #include "common/ob_system_config_key.h"
 
-using namespace oceanbase::proxyserver;
+using namespace sb::proxyserver;
 
 const char* ObProxyServerConfig::YUNTI_PROXY = "hadoop";
 const char* ObProxyServerConfig::PUBLIC = "public";

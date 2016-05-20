@@ -5,7 +5,7 @@
 #include "common/file_utils.h"
 #include <getopt.h>
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 struct CmdLineParam {
   const char* cmd_type_;
@@ -104,5 +104,5 @@ class DumpSSTableV2 {
   //char** block_endkey_array_;
 };
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 

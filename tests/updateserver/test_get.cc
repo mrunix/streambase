@@ -28,12 +28,12 @@
 #include "../common/test_rowkey_helper.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
 static CharArena allocator_;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace updateserver {
 
@@ -165,7 +165,7 @@ TEST_F(TestGet, test_get_multi_rows) {
 
 } // end namespace updateserver
 } // end namespace tests
-} // end namespace oceanbase
+} // end namespace sb
 
 
 int main(int argc, char** argv) {

@@ -28,7 +28,7 @@
 #include "common/thread_buffer.h"
 #include "ob_tablet_fuse.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 
 namespace sql {
@@ -163,6 +163,6 @@ void ObTabletJoin::set_batch_count(const int64_t batch_count) {
 }
 
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_TABLET_JOIN_H */

@@ -17,9 +17,9 @@
 
 #include "ob_update_server_main.h"
 #include "stress.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 ObUpdateServerMain::ObUpdateServerMain()
   : BaseMain(), config_mgr_(ups_config_, ups_reload_config_), server_(config_mgr_, ups_config_),

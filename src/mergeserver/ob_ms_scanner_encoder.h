@@ -18,7 +18,7 @@
 #ifndef OCEANBASE_SCANNER_ENCODER_H_
 #define OCEANBASE_SCANNER_ENCODER_H_
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObGetParam;
 class ObScanParam;

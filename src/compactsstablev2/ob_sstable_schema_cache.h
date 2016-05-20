@@ -7,7 +7,7 @@
 
 class TestSSTableSchemaCache_construct_Test;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 struct ObSSTableSchemaNode {
   ObSSTableSchema* schema_;
@@ -99,7 +99,7 @@ class ObSSTableSchemaCache {
   int64_t schema_cnt_;
   common::SpinRWLock rwlock_;
 };
-} // namespace oceanbase::sstable
+} // namespace sb::sstable
 } // namespace Oceanbase
 
 #endif

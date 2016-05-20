@@ -2,7 +2,7 @@
 #include "btree_root_pointer.h"
 #include "btree_read_handle_new.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * 构造
@@ -65,4 +65,4 @@ void BtreeReadHandle::set_tree_id(int32_t id) {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

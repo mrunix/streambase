@@ -23,7 +23,7 @@
 #include "ob_expression.h"
 #include "ob_array_helper.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObCellArray;
 class ObInfixExpression {

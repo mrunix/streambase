@@ -14,9 +14,9 @@
 #include "tbsys.h"
 #include "ob_prefetch_log_buffer.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 ObPrefetchLogBuffer::ObPrefetchLogBuffer(): read_pos_(0)
 {}
@@ -87,5 +87,5 @@ int ObPrefetchLogBuffer::append_log(const int64_t start_id, const int64_t end_id
   return err;
 }
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 

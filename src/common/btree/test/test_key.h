@@ -9,7 +9,7 @@
 /**
  * TestKey测试程序
  */
-namespace oceanbase {
+namespace sb {
 namespace common {
 #define TEST_KEY_MAX_SIZE 16
 class TestKey {

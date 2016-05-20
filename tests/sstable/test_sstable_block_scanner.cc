@@ -28,9 +28,9 @@
 #include "sstable/ob_sstable_trailer.h"
 #include "test_helper.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::sstable;
 
 class TestObSSTableBlockScanner : public ::testing::Test {
  public:

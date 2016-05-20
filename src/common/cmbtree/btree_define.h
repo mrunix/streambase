@@ -65,7 +65,7 @@
     void operator=(const TypeName&)
 
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace cmbtree {
 /**
@@ -119,6 +119,6 @@ inline void CMBTreeMemoryBarrier() {
 
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_CMBTREE_BTREE_DEFINE_H_

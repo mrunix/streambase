@@ -23,9 +23,9 @@
 #include "common/ob_system_config.h"
 #include "common/ob_reload_config.h"
 
-using namespace oceanbase;
+using namespace sb;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObMsProvider;
 class ObConfigManager {

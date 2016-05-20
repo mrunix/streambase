@@ -35,7 +35,7 @@
 #include "ob_btree_engine_alloc.h"
 #include "ob_lighty_hash.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class HashEngineAllocator {
  public:

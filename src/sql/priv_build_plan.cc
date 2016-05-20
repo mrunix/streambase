@@ -24,8 +24,8 @@
 #include "ob_grant_stmt.h"
 #include "ob_schema_checker.h"
 #include "ob_revoke_stmt.h"
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
 int resolve_create_user_stmt(ResultPlan* result_plan,
                              ParseNode* node,

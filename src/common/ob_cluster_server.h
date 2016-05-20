@@ -6,7 +6,7 @@
 #include "ob_define.h"
 #include "ob_vector.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObClusterServer {
   ObRole role;

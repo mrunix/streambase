@@ -50,7 +50,7 @@
 #define SCHEMA_SUFFIX ".schema"
 #define SSTABLE_FNAME_REGEX "^[0-9]+_[0-9]+-[0-9]+_[0-9]+.sst$"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 struct SSTFileInfo {
   common::ObString path;

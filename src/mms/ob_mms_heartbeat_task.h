@@ -18,7 +18,7 @@
 
 #include "common/ob_timer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mms {
 class ObMonitor;
 class ObMMSHeartbeatTask : public common::ObTimerTask {

@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <openssl/md5.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 const int OB_SUCCESS = EXIT_SUCCESS;
 const int OB_ERROR = EXIT_FAILURE;
@@ -646,7 +646,7 @@ enum ObDmlType {
   OB_DML_NUM,
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
     TypeName(const TypeName&);               \
   void operator=(const TypeName&)

@@ -21,7 +21,7 @@
 #include "ob_common_param.h"
 #include "ob_scanner.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 void hex_dump(const void* data, const int32_t size,
               const bool char_type /*= true*/, const int32_t log_level /*= TBSYS_LOG_LEVEL_DEBUG*/) {
@@ -861,4 +861,4 @@ const char* to_cstring<int64_t>(const int64_t& v) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

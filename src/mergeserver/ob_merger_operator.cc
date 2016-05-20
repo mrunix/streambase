@@ -13,7 +13,7 @@
  */
 #include "ob_merger_operator.h"
 #include "common/ob_scan_param.h"
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace mergeserver;
 ObMergerOperator::ObMergerOperator() {

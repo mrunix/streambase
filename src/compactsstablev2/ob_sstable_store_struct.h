@@ -5,7 +5,7 @@
 #include "common/ob_compact_store_type.h"
 #include "common/utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 //record magic
 static const int16_t OB_SSTABLE_BLOCK_DATA_MAGIC = 0x4461;

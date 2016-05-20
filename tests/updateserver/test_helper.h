@@ -25,7 +25,7 @@
 #include <gtest/gtest.h>
 
 using namespace std;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 
 void check_string(const ObString& expected, const ObString& real) {

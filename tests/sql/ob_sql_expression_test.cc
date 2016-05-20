@@ -21,8 +21,8 @@
 #include "sql/ob_sql_expression.h"
 
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 
 class ObSqlExpressionTest: public ::testing::Test {

@@ -18,7 +18,7 @@
 #ifndef OCEANBASE_PARAM_DECODER_H_
 #define OCEANBASE_PARAM_DECODER_H_
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObCondInfo;
 class ObCellInfo;

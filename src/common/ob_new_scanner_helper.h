@@ -24,7 +24,7 @@
 #include "ob_get_param.h"
 #include "ob_string_buf.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObNewScannerHelper {
  public:

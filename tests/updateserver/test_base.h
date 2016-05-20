@@ -9,7 +9,7 @@
 #include "log_tool/builder.h"
 
 
-using namespace oceanbase::common;
+using namespace sb::common;
 struct BufHolder {
   BufHolder(int64_t limit) { buf_ = (char*)ob_malloc(limit, ObModIds::TEST); }
   ~BufHolder() { ob_free((void*)buf_); }

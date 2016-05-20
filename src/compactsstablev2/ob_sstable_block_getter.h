@@ -8,7 +8,7 @@
 #include "ob_sstable_block_reader.h"
 #include "sstable/ob_sstable_row_cache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 class ObSSTableBlockGetter {
  public:
@@ -58,6 +58,6 @@ class ObSSTableBlockGetter {
   common::ObCompactCellIterator row_;
 };
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif

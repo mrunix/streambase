@@ -28,7 +28,7 @@
 #include "ob_define.h"
 #include "ob_scan_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ColumnFilter {
  public:

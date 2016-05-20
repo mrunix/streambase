@@ -21,7 +21,7 @@
 #include "common/utility.h"
 #include "ob_olapdrive_meta.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 using namespace common;
 using namespace hash;
@@ -1037,4 +1037,4 @@ void hex_dump_rowkey(const void* data, const int32_t size,
   }
 }
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb

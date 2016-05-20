@@ -5,7 +5,7 @@
 #include "common/ob_malloc.h"
 
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 char* trim(char* str) {
   char* ptr;
@@ -138,7 +138,7 @@ char* string_split_by_ch(char*& str, const int ch) {
 }
 
 
-int parse_number_range(const char* number_string, oceanbase::common::ObArrayHelper<int32_t>& disk_array) {
+int parse_number_range(const char* number_string, sb::common::ObArrayHelper<int32_t>& disk_array) {
   int ret = OB_ERROR;
   if (NULL != strstr(number_string, ",")) {
     int32_t size = static_cast<int32_t>(disk_array.get_array_size());

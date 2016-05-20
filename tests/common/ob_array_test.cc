@@ -15,7 +15,7 @@
  */
 #include <gtest/gtest.h>
 #include "common/ob_array.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 TEST(ObArrayTest, array_of_array) {
   ObArray<ObArray<int> > aai;

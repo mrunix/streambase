@@ -17,8 +17,8 @@
 #include "common/ob_atomic_type.h"
 #include "tbsys.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace updateserver {
 template<typename K, typename V>
 class ObRecentCache {
@@ -91,6 +91,6 @@ class ObRecentCache {
   AssocItem* items_;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_UPDATESERVER_OB_RECENT_CACHE_H__ */

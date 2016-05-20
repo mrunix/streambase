@@ -3,8 +3,8 @@
 #include "select_where_comp_order_limit.h"
 #include "olap.h"
 #include "../../common/test_rowkey_helper.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 SelectWhereCompOrderLimit SelectWhereCompOrderLimit::static_case_;
 static CharArena allocator_;
 namespace {

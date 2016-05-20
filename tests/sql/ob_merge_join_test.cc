@@ -16,8 +16,8 @@
 #include "sql/ob_merge_join.h"
 #include "ob_fake_table.h"
 #include <gtest/gtest.h>
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 class ObMergeJoinTest: public ::testing::Test {
  public:

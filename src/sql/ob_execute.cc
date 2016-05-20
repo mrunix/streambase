@@ -16,8 +16,8 @@
 #include "ob_execute.h"
 #include "ob_result_set.h"
 #include "ob_physical_plan.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObExecute::ObExecute()
   : stmt_id_(OB_INVALID_ID) {
@@ -131,7 +131,7 @@ int ObExecute::get_next_row(const common::ObRow*& row) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObExecute, PHY_EXECUTE);
 }

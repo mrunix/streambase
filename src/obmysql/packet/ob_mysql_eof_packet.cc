@@ -1,9 +1,9 @@
 #include "ob_mysql_eof_packet.h"
 #include "../ob_mysql_util.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 ObMySQLEofPacket::ObMySQLEofPacket()
   : field_count_(0xfe),

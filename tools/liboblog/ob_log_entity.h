@@ -24,7 +24,7 @@
 #include "ob_log_formator.h"
 #include "ob_log_utils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace liboblog {
 class ObLogEntity : public IObLog {
   static const uint64_t SEQ_MAP_SIZE = 65536;

@@ -33,10 +33,10 @@
 #include "tbsys.h"
 #include <string>
 
-using namespace oceanbase::common;
+using namespace sb::common;
 using namespace std;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace common {
 class TestObFetchRunnable: public ::testing::Test {

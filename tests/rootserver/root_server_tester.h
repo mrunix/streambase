@@ -2,7 +2,7 @@
 #define OCEANBASE_TESTS_ROOTSERVER_ROOT_SERVER_TESTER_H_
 #include "rootserver/ob_root_server2.h"
 #include "rootserver/ob_root_worker.h"
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace rootserver {
 class ObRootServerTester {

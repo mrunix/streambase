@@ -20,9 +20,9 @@
 #include "common/ob_new_scanner.h"
 #include "sql/ob_result_set.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 /*
  * @class ResultSet

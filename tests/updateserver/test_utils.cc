@@ -2,7 +2,7 @@
 #include "common/ob_list.h"
 #include "test_utils.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace common::hash;
 

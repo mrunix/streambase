@@ -17,7 +17,7 @@
 #include "ob_row_util.h"
 #include "common/ob_compact_cell_writer.h"
 #include "utility.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ////////////////////////////////////////////////////////////////
 struct ObRowStore::BlockInfo {

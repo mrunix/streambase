@@ -22,7 +22,7 @@
 #include "ob_last_rowkey_interface.h"
 #include "chunkserver/ob_tablet_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObSSTableGet : public ObRowkeyPhyOperator, public ObLastRowkeyInterface {
  public:

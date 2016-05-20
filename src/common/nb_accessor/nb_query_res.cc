@@ -19,7 +19,7 @@
 
 #define COLUMN_NAME_MAP_BUCKET_NUM 100
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace nb_accessor;
 

@@ -16,7 +16,7 @@
 
 #include <gtest/gtest.h>
 #include "common/ob_obi_config.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 TEST(ObiConfigTest, test_serialization) {
   ObiConfig conf;

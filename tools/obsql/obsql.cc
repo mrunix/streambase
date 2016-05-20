@@ -35,10 +35,10 @@
 #include <string.h>
 
 using namespace std;
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
-using namespace oceanbase::obsql;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::chunkserver;
+using namespace sb::obsql;
 
 //--------------------------------------------------------------------
 // class GFactory
@@ -292,7 +292,7 @@ int show_schema() {
   if (OB_SUCCESS != ret)
     return ret;
 
-  oceanbase::obsql::ObSchemaPrinter schema_prt(schema_mgr);
+  sb::obsql::ObSchemaPrinter schema_prt(schema_mgr);
   ret = schema_prt.output();
 
   return ret;
@@ -509,7 +509,7 @@ int main(const int argc, char* argv[]) {
       break;
     case CMD_SELECT: {
       p = putback_token(token, p);
-      oceanbase::obsql::SelectStmt select_stmt(p, strlen(p) + 1,
+      sb::obsql::SelectStmt select_stmt(p, strlen(p) + 1,
                                                GFactory::get_instance().get_rpc_stub(),
                                                GFactory::get_instance().get_rowkey_map());
       select_stmt.query();
@@ -518,7 +518,7 @@ int main(const int argc, char* argv[]) {
     }
     case CMD_INSERT: {
       p = putback_token(token, p);
-      oceanbase::obsql::InsertStmt insert_stmt(p, strlen(p) + 1,
+      sb::obsql::InsertStmt insert_stmt(p, strlen(p) + 1,
                                                GFactory::get_instance().get_rpc_stub(),
                                                GFactory::get_instance().get_rowkey_map());
 
@@ -528,7 +528,7 @@ int main(const int argc, char* argv[]) {
     }
     case CMD_UPDATE: {
       p = putback_token(token, p);
-      oceanbase::obsql::UpdateStmt update_stmt(p, strlen(p) + 1,
+      sb::obsql::UpdateStmt update_stmt(p, strlen(p) + 1,
                                                GFactory::get_instance().get_rpc_stub(),
                                                GFactory::get_instance().get_rowkey_map());
       update_stmt.query();
@@ -537,7 +537,7 @@ int main(const int argc, char* argv[]) {
     }
     case CMD_DELETE: {
       p = putback_token(token, p);
-      oceanbase::obsql::DeleteStmt delete_stmt(p, strlen(p) + 1,
+      sb::obsql::DeleteStmt delete_stmt(p, strlen(p) + 1,
                                                GFactory::get_instance().get_rpc_stub(),
                                                GFactory::get_instance().get_rowkey_map());
       delete_stmt.query();

@@ -24,7 +24,7 @@
 #include "common/ob_string.h"
 #include "common/ob_schema.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // warning: the schema manager contain MAX_VERSION_COUNT schema instance, if add a new schema
 // and fullfilled, then we have remove the oldest and not using by other thread, which read

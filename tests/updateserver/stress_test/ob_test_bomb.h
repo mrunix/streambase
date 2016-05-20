@@ -21,7 +21,7 @@
 #include <common/ob_get_param.h>
 #include <common/ob_scan_param.h>
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 const int64_t BOMB_INT_RESERVED_BITS = 32;
 const int64_t BOMB_INT_MAX = INT64_MAX >> BOMB_INT_RESERVED_BITS;
@@ -70,6 +70,6 @@ class ObTestBomb {
   common::ObScanParam* scan_param_;
 };
 } // end namespace test
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_TEST_OB_TEST_BOMB_H_

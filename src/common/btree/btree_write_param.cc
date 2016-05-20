@@ -1,7 +1,7 @@
 #include "btree_read_param.h"
 #include "btree_write_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * BTree写过程的辅助结构
@@ -20,4 +20,4 @@ BtreeWriteParam::~BtreeWriteParam() {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

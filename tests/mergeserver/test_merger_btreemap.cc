@@ -9,7 +9,7 @@
 #include "common/location/ob_btree_map.h"
 
 using namespace std;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();

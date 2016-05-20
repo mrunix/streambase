@@ -17,9 +17,9 @@
 #include "common/ob_schema.h"
 #include "common/ob_tablet_info.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObCellStream::ObCellStream(ObMergerRpcProxy* rpc, const ObServerType server_type,
                            const int64_t time_out) {
@@ -147,4 +147,4 @@ int ObCellStream::rpc_get_cell_data(const common::ObGetParam& param) {
   return ret;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

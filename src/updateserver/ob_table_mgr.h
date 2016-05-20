@@ -60,7 +60,7 @@
 #include "ob_memtable_rowiter.h"
 #include "ob_inc_seq.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 typedef MemTableTransDescriptor TableTransDescriptor;
 

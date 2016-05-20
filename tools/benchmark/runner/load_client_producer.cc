@@ -6,8 +6,8 @@
 #include "load_rpc.h"
 #include "common/ob_get_param.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 LoadClientProducer::LoadClientProducer() {
   last_time_ = 0;

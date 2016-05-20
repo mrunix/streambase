@@ -16,7 +16,7 @@
 #include "common/ob_bypass_task_info.h"
 #include "rootserver/ob_root_table_operation.h"
 #include "rootserver/ob_rs_schema_operation.h"
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootOperationData {
  public:

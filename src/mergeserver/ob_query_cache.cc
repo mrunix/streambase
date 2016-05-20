@@ -14,9 +14,9 @@
 #include <tblog.h>
 #include "ob_query_cache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObQueryCache::ObQueryCache()
   : inited_(false) {
@@ -117,4 +117,4 @@ int ObQueryCache::put(const ObString& key, const ObQueryCacheValue& value) {
 }
 
 } //end namespace mergeserver
-} //end namespace oceanbase
+} //end namespace sb

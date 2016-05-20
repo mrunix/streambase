@@ -9,7 +9,7 @@
 
 const char* g_sstable_directory = "./";
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 using namespace common;
 using namespace sstable;
@@ -304,9 +304,9 @@ bool ObMergeMetaNew::is_file_exists(const char* file) {
 } /* oceanbase */
 
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::chunkserver;
 
 int main(int argc, char** argv) {
   int i = 0;

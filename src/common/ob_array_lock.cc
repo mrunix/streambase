@@ -2,7 +2,7 @@
 #include "ob_atomic.h"
 #include "ob_array_lock.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObLockHolder::ObLockHolder() {
   lock_size_ = 0;

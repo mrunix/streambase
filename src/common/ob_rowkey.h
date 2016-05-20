@@ -21,7 +21,7 @@
 #include "tblog.h"
 #include "ob_define.h"
 #include "ob_object.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 class ObBatchChecksum;

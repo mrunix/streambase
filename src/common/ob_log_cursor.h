@@ -20,7 +20,7 @@
 #include "ob_log_entry.h"
 #include "ob_spin_rwlock.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObLogCursor {
   int64_t file_id_;
@@ -55,5 +55,5 @@ class ObAtomicLogCursor {
   mutable common::SpinRWLock cursor_lock_;
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 #endif // __OCEANBASE_COMMON_OB_LOG_CURSOR_H__

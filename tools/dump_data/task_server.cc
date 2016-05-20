@@ -12,8 +12,8 @@
 #include "task_server_callback.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 TaskServer::TaskServer(const char* result_file, const int64_t timeout_times,
                        const int64_t max_count, const int64_t timeout, const ObServer& root_server)

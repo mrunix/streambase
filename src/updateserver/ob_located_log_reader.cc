@@ -16,9 +16,9 @@
 #include "common/ob_file.h"
 #include "ob_ups_log_utils.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 int read_log_file_by_location(const char* log_dir, const int64_t file_id, const int64_t offset,
                               char* buf, const int64_t len, int64_t& read_count, const bool dio = true) {
@@ -87,4 +87,4 @@ int ObLocatedLogReader::read_log(const int64_t file_id, const int64_t offset,
   return err;
 }
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb

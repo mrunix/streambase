@@ -17,7 +17,7 @@
 #define _OB_UPS_CHECK_RUNNABLE_H 1
 #include <tbsys.h>
 #include "rootserver/ob_ups_manager.h"
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObUpsCheckRunnable: public tbsys::CDefaultRunnable {
  public:
@@ -34,7 +34,7 @@ class ObUpsCheckRunnable: public tbsys::CDefaultRunnable {
   static const int64_t CHECK_INTERVAL_US = 50000LL; // 100ms
 };
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_UPS_CHECK_RUNNABLE_H */
 

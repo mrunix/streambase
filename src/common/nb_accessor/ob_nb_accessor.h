@@ -36,7 +36,7 @@
 
 
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace nb_accessor {
 class ObNbAccessor {

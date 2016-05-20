@@ -18,7 +18,7 @@
 #include "ob_rowkey_helper.h"
 #include "ob_schema.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 const char* ObGetParam::OB_GET_ALL_COLUMN_NAME_CSTR = "*";
 const ObString ObGetParam::OB_GET_ALL_COLUMN_NAME(static_cast<int32_t>(strlen(OB_GET_ALL_COLUMN_NAME_CSTR)),

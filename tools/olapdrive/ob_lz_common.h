@@ -18,7 +18,7 @@
 #include "common/ob_rowkey.h"
 #include "common/ob_range2.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 static const int64_t MAX_PLATFORM_ID = 2;
 static const int64_t MAX_PV_TYPE = 3;
@@ -295,6 +295,6 @@ struct ObLZRowkey {
   int64_t cur_creative_id_;
 };
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_LZ_COMMON_H

@@ -17,7 +17,7 @@
 #include "ob_block_index_cache.h"
 #include "ob_sstable_merger.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 using namespace common;
 
@@ -369,4 +369,4 @@ void ObSSTableMerger::reset_for_next_column_group() {
   row_num_ = 0;
 }
 } // end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb

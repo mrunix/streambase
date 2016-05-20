@@ -12,7 +12,7 @@
 #include "client_wrapper.h"
 #include "row_checker.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace updateserver;
 
@@ -69,7 +69,7 @@ void trans_name2id(ObCellInfo& ci, const ObSchema& schema) {
 }
 
 int fetch_schema(const char* schema_addr, const int64_t schema_port,
-                 oceanbase::common::ObSchemaManager& schema_mgr) {
+                 sb::common::ObSchemaManager& schema_mgr) {
   int ret = OB_SUCCESS;
   ObServer dst_host;
   dst_host.set_ipv4_addr(schema_addr, static_cast<int32_t>(schema_port));

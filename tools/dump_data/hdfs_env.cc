@@ -2,7 +2,7 @@
 #include "common/utility.h"
 #include <cassert>
 
-using namespace oceanbase::tools;
+using namespace sb::tools;
 using namespace std;
 
 HdfsWritableFile::~HdfsWritableFile() {

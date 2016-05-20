@@ -2,7 +2,7 @@
 #include <strings.h>
 #include <stdio.h>
 #include "common/ob_define.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 
 typedef struct CharacterSet {

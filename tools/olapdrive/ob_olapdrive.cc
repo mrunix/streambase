@@ -15,7 +15,7 @@
 #include "common/ob_malloc.h"
 #include "common/utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 using namespace common;
 
@@ -163,4 +163,4 @@ int ObOlapdrive::wait() {
   return OB_SUCCESS;
 }
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb

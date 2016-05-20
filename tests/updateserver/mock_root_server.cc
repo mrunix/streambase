@@ -4,8 +4,8 @@
 #include "common/ob_schema.h"
 #include "mock_root_server.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
 static const int32_t UPS_PORT = 2302;
 

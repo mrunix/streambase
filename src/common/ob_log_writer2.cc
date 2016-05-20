@@ -14,7 +14,7 @@
 
 #include "ob_log_writer2.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObLogWriterV2::ObLogWriterV2(): log_dir_(NULL), file_(), dio_(true), align_mask_(0), log_sync_type_(OB_LOG_SYNC) {
 }
@@ -236,4 +236,4 @@ int ObLogWriterV2::flush_log() {
   return err;
 }
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb

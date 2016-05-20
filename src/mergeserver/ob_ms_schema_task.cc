@@ -20,8 +20,8 @@
 #include "common/ob_schema_manager.h"
 #include "common/ob_malloc.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 ObMergerSchemaTask::ObMergerSchemaTask() {
   schema_proxy_ = NULL;

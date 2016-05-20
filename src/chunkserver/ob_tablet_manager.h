@@ -41,7 +41,7 @@
 #include "ob_bypass_sstable_loader.h"
 #include "ob_file_recycle.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObSchemaManager;
 class ObSchemaManagerV2;

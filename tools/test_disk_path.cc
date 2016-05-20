@@ -19,10 +19,10 @@
 #include "ob_tablet.h"
 
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 uint64_t get_sstable_disk_no(const uint64_t sstable_file_id) {
   return (sstable_file_id & DISK_NO_MASK);

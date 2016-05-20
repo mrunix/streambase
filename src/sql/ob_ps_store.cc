@@ -1,6 +1,6 @@
 #include "ob_ps_store.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 ObPsStore::ObPsStore() {
 

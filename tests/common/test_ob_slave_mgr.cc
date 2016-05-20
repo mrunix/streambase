@@ -9,10 +9,10 @@
 
 #include "tbsys.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 using namespace tbsys;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace common {
 class TestObSlaveMgr: public ::testing::Test {

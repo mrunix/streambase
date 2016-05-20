@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <ext/hash_map>
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace hash;
 using namespace std;

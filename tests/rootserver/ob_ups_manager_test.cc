@@ -20,9 +20,9 @@
 #include "mock_root_rpc_stub.h"
 #include "root_server_tester.h"
 #include <gtest/gtest.h>
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
-using namespace oceanbase;
+using namespace sb::common;
+using namespace sb::rootserver;
+using namespace sb;
 using ::testing::_;
 using ::testing::Eq;
 using ::testing::Ne;
@@ -46,7 +46,7 @@ TEST(ObUpsManagerTest, test_basic) {
   int64_t waiting_register_time = 5000 * 1000; // 5s
   int64_t config_version = 2;
 
-  oceanbase::rootserver::testing::MockObRootRpcStub rpc_stub;
+  sb::rootserver::testing::MockObRootRpcStub rpc_stub;
   ObRootServerConfig rs_config;
   ObReloadConfig reload;
   ObConfigManager config_mgr(rs_config, reload);
@@ -192,7 +192,7 @@ TEST(ObUpsManagerTest, test_register_lease) {
   int64_t lease_reserved_us = 1000 * 1000;   // 1s
   int64_t waiting_register_time = 5000 * 1000; // 5s
 
-  oceanbase::rootserver::testing::MockObRootRpcStub rpc_stub;
+  sb::rootserver::testing::MockObRootRpcStub rpc_stub;
   ObRootServerConfig rs_config;
   ObReloadConfig reload;
   ObConfigManager config_mgr(rs_config, reload);
@@ -269,7 +269,7 @@ TEST(ObUpsManagerTest, test_register_lease2) {
   //config.flag_ups_lease_reserved_us_.set(lease_reserved_us);
   //config.flag_ups_waiting_register_duration_us_.set(waiting_register_time);
 
-  oceanbase::rootserver::testing::MockObRootRpcStub rpc_stub;
+  sb::rootserver::testing::MockObRootRpcStub rpc_stub;
   ObiRole rs_obi_role;
   ObRootServerConfig rs_config;
   ObReloadConfig reload;
@@ -320,7 +320,7 @@ TEST(ObUpsManagerTest, test_read_percent2) {
   //config.flag_ups_lease_reserved_us_.set(lease_reserved_us);
   //config.flag_ups_waiting_register_duration_us_.set(waiting_register_time);
 
-  oceanbase::rootserver::testing::MockObRootRpcStub rpc_stub;
+  sb::rootserver::testing::MockObRootRpcStub rpc_stub;
   ObiRole rs_obi_role;
   ObRootServerConfig rs_config;
   ObReloadConfig reload;
@@ -499,7 +499,7 @@ TEST(ObUpsManagerTest, test_read_percent) {
   //config.flag_ups_lease_reserved_us_.set(lease_reserved_us);
   //config.flag_ups_waiting_register_duration_us_.set(waiting_register_time);
 
-  oceanbase::rootserver::testing::MockObRootRpcStub rpc_stub;
+  sb::rootserver::testing::MockObRootRpcStub rpc_stub;
   ObiRole rs_obi_role;
   ObRootServerConfig rs_config;
   ObReloadConfig reload;
@@ -637,7 +637,7 @@ TEST(ObUpsManagerTest, test_offline) {
   //config.flag_ups_lease_reserved_us_.set(lease_reserved_us);
   //config.flag_ups_waiting_register_duration_us_.set(waiting_register_time);
 
-  oceanbase::rootserver::testing::MockObRootRpcStub rpc_stub;
+  sb::rootserver::testing::MockObRootRpcStub rpc_stub;
   ObiRole rs_obi_role;
   ObRootServerConfig rs_config;
   ObReloadConfig reload;

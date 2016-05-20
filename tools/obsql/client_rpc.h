@@ -33,49 +33,49 @@ class ObClientServerStub {
 
  public:
   // warning: rpc_buff should be only used by rpc stub for reset
-  int initialize(const oceanbase::common::ObServer& root_server,
-                 const oceanbase::common::ObClientManager* rpc_frame);
+  int initialize(const sb::common::ObServer& root_server,
+                 const sb::common::ObClientManager* rpc_frame);
 
   /*
-  	int initialize(const oceanbase::common::ObServer & root_server,
-          const oceanbase::common::ObClientManager * rpc_frame,
-          const oceanbase::common::ObServer & update_server,
-          const oceanbase::rootserver::ObChunkServerManager & obcsm);
+  	int initialize(const sb::common::ObServer & root_server,
+          const sb::common::ObClientManager * rpc_frame,
+          const sb::common::ObServer & update_server,
+          const sb::rootserver::ObChunkServerManager & obcsm);
   */
-  int cs_scan(const oceanbase::common::ObScanParam& scan_param,
-              oceanbase::common::ObScanner& scanner);
+  int cs_scan(const sb::common::ObScanParam& scan_param,
+              sb::common::ObScanner& scanner);
 
-  int cs_get(const oceanbase::common::ObGetParam& get_param,
-             oceanbase::common::ObScanner& scanner);
+  int cs_get(const sb::common::ObGetParam& get_param,
+             sb::common::ObScanner& scanner);
 
-  int ups_apply(const oceanbase::common::ObMutator& mutator);
+  int ups_apply(const sb::common::ObMutator& mutator);
 
-  int get_cs_tablet_image(const oceanbase::common::ObServer& remote_server,
+  int get_cs_tablet_image(const sb::common::ObServer& remote_server,
                           const int32_t disk_no,
-                          oceanbase::common::ObString& image_buf);
+                          sb::common::ObString& image_buf);
 
-  int rs_dump_cs_info(oceanbase::rootserver::ObChunkServerManager& obcsm);
+  int rs_dump_cs_info(sb::rootserver::ObChunkServerManager& obcsm);
 
-  int fetch_stats(const oceanbase::common::ObServer& remote_server,
-                  oceanbase::common::ObStatManager& obsm);
+  int fetch_stats(const sb::common::ObServer& remote_server,
+                  sb::common::ObStatManager& obsm);
 
-  int get_update_server(oceanbase::common::ObServer& update_server);
+  int get_update_server(sb::common::ObServer& update_server);
 
-  int fetch_schema(oceanbase::common::ObSchemaManagerV2& schema);
+  int fetch_schema(sb::common::ObSchemaManagerV2& schema);
 
   int start_merge(const int64_t frozen_memtable_version, const int32_t init_flag);
   int drop_tablets(const int64_t frozen_memtable_version);
   int start_gc(const int32_t reserve);
 
-  const oceanbase::common::ObServer&
+  const sb::common::ObServer&
   get_root_server() const { return root_server_; }
-  const oceanbase::common::ObServer&
+  const sb::common::ObServer&
   get_update_server() const { return update_server_; }
-  std::vector<oceanbase::common::ObServer>&
+  std::vector<sb::common::ObServer>&
   get_merge_server_list() { return merge_server_list_; }
-  std::vector<oceanbase::common::ObServer>&
+  std::vector<sb::common::ObServer>&
   get_chunk_server_list() { return chunk_server_list_; }
-  //const oceanbase::rootserver::ObChunkServerManager &
+  //const sb::rootserver::ObChunkServerManager &
   //  get_chunk_server_manager() const { return obcs_manager_; }
 
 
@@ -85,17 +85,17 @@ class ObClientServerStub {
   // check inner stat
   inline bool check_inner_stat(void) const;
 
-  int get_frame_buffer(oceanbase::common::ObDataBuffer& data_buffer) const;
+  int get_frame_buffer(sb::common::ObDataBuffer& data_buffer) const;
   int get_cs_and_ms();
 
  private:
   bool init_;                                             // init stat for inner check
-  oceanbase::common::ObServer root_server_;               // root server addr
-  oceanbase::common::ObServer update_server_;
-  std::vector<oceanbase::common::ObServer> merge_server_list_;  // merge server addr
-  std::vector<oceanbase::common::ObServer> chunk_server_list_;   //chunk servers
-  oceanbase::common::ThreadSpecificBuffer frame_buffer_;
-  const oceanbase::common::ObClientManager* rpc_frame_;   // rpc frame for send request
+  sb::common::ObServer root_server_;               // root server addr
+  sb::common::ObServer update_server_;
+  std::vector<sb::common::ObServer> merge_server_list_;  // merge server addr
+  std::vector<sb::common::ObServer> chunk_server_list_;   //chunk servers
+  sb::common::ThreadSpecificBuffer frame_buffer_;
+  const sb::common::ObClientManager* rpc_frame_;   // rpc frame for send request
 };
 
 // check inner stat

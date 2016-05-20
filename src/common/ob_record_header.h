@@ -21,7 +21,7 @@
 #include "ob_crc64.h"
 #include "utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 static const int16_t MAGIC_NUMER = static_cast<int16_t>(0xB0CC);
 

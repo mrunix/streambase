@@ -21,7 +21,7 @@
 
 #define OB_DEFAULT_CRC64_POLYNOM 0xD800000000000000ULL
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
   * create the crc64_table and optimized_crc64_table for calculate

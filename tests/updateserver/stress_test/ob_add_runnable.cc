@@ -22,8 +22,8 @@
 #include "ob_row_dis.h"
 #include "ob_schema_proxy.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::test;
+using namespace sb::common;
+using namespace sb::test;
 
 ObAddRunnable::ObAddRunnable() {
 }

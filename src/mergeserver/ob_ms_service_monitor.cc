@@ -1,8 +1,8 @@
 
 #include "ob_ms_service_monitor.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 
 ObMergerServiceMonitor::ObMergerServiceMonitor(const int64_t timestamp)

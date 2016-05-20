@@ -16,7 +16,7 @@
 
 #include <libaio.h>
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 class ObAIOBufferInterface;
 class ObAIOEventMgr {
@@ -68,7 +68,7 @@ class ObAIOEventMgr {
   io_context_t ctx_;  //io_context, thread local instance
   struct iocb iocb_;  //io callback instance
 };
-} // namespace oceanbase::sstable
+} // namespace sb::sstable
 } // namespace Oceanbase
 
 #endif //OCEANBASE_SSTABLE_OB_AIO_EVENT_MGR_H_

@@ -17,7 +17,7 @@
 #include "common/ob_row.h"
 #include "ob_ms_request.h"
 #include "common/ob_se_array.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObSqlScanParam;
 }
@@ -28,7 +28,7 @@ class ObCellArray;
 class ObRowkey;
 }
 namespace mergeserver {
-class ObMsSqlSortedOperator : public oceanbase::common::ObRowIterator {
+class ObMsSqlSortedOperator : public sb::common::ObRowIterator {
  public:
   ObMsSqlSortedOperator();
   virtual ~ObMsSqlSortedOperator();
@@ -55,7 +55,7 @@ class ObMsSqlSortedOperator : public oceanbase::common::ObRowIterator {
 
  private:
   static const int64_t FULL_SCANNER_RESERVED_BYTE_COUNT  = 200;
-  void sort(bool& is_finish, oceanbase::common::ObNewScanner* last_sharding_res = NULL);
+  void sort(bool& is_finish, sb::common::ObNewScanner* last_sharding_res = NULL);
   struct sharding_result_t {
     common::ObNewScanner* sharding_res_;
     const common::ObNewRange*   sharding_query_range_;

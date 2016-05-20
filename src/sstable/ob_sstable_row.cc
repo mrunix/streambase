@@ -14,7 +14,7 @@
 #include "ob_sstable_row.h"
 #include "common/ob_rowkey.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 using namespace common;
 using namespace common::serialization;
@@ -405,4 +405,4 @@ DEFINE_GET_SERIALIZE_SIZE(ObSSTableRow) {
   return total_size;
 }
 } // end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb

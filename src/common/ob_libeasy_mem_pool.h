@@ -14,7 +14,7 @@
 #define OB_LIBEASY_MEM_POOL_H
 
 #include "ob_malloc.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 void* ob_easy_realloc(void* ptr, size_t size);
 }

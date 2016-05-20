@@ -1,7 +1,7 @@
 #include "dumpsst_v2.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::compactsstablev2;
+using namespace sb::common;
+using namespace sb::compactsstablev2;
 
 const char* g_sstable_directory = NULL;
 ObSSTableSchema g_schema;

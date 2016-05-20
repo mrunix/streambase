@@ -18,7 +18,7 @@
 #include "ob_row_desc.h"
 #include "ob_raw_row.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // ObRowDesc with column data type information
 class ObRowDescExt {
@@ -44,6 +44,6 @@ inline int64_t ObRowDescExt::get_column_num() const {
   return row_desc_.get_column_num();
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ROW_DESC_EXT_H */

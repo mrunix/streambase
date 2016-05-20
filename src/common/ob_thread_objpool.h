@@ -31,7 +31,7 @@
 #include "common/ob_tsi_factory.h"
 #include "common/ob_atomic.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template <typename T, typename Allocator>
 class ThreadObjPool;

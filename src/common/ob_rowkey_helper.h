@@ -22,7 +22,7 @@
 #include "serialization.h"
 #include "ob_schema.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRowkeyHelper {
  public:

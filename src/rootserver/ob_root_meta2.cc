@@ -14,7 +14,7 @@
 #include "rootserver/ob_root_meta2.h"
 #include "rootserver/ob_tablet_info_manager.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace rootserver {
 
@@ -215,4 +215,4 @@ bool ObRootMeta2TableIdLessThan::operator()(const ObRootMeta2& r1, const ObNewRa
 }
 
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb

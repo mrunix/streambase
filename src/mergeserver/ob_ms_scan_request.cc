@@ -20,7 +20,7 @@
 #include "ob_ms_async_rpc.h"
 #include "ob_read_param_modifier.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 ObMergerScanRequest::ObMergerScanRequest(common::ObTabletLocationCacheProxy* cache_proxy, ObMergerAsyncRpcStub* async_rpc)
   : ObMergerRequest(cache_proxy, async_rpc) {

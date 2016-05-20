@@ -28,11 +28,11 @@
 #include "sql/ob_sstable_scan.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::chunkserver;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace sstable {
 
@@ -316,7 +316,7 @@ class TestObSSTableScan : public ::testing::Test {
   }
 
   virtual void SetUp() {
-    oceanbase::common::ModuleArena* arena = GET_TSI_MULT(oceanbase::common::ModuleArena, TSI_SSTABLE_MODULE_ARENA_1);
+    sb::common::ModuleArena* arena = GET_TSI_MULT(sb::common::ModuleArena, TSI_SSTABLE_MODULE_ARENA_1);
     arena->set_page_size(1024 * 1024 * 2);
     arena->reuse();
     image_.read(idx_file, 1, 1, true);
@@ -511,7 +511,7 @@ TEST_F(TestObSSTableScan, test_build_row_desc) {
   ASSERT_EQ(0, ret);
   ret = scanner.open();
   ASSERT_EQ(0, ret);
-  const oceanbase::common::ObRowDesc* row_desc = NULL;
+  const sb::common::ObRowDesc* row_desc = NULL;
   ret = scanner.get_row_desc(row_desc);
   ASSERT_EQ(0, ret);
   ASSERT_TRUE(NULL != row_desc);
@@ -531,7 +531,7 @@ TEST_F(TestObSSTableScan, test_build_row_desc) {
 
 } // end namespace sstable
 } // end namespace tests
-} // end namespace oceanbase
+} // end namespace sb
 
 
 int main(int argc, char** argv) {

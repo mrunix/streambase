@@ -36,7 +36,7 @@
 #include "rootserver/ob_root_server_config.h"
 #include "rootserver/ob_root_inner_table_task.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObDataBuffer;
 class ObServer;

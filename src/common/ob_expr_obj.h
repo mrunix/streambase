@@ -24,7 +24,7 @@ class ObExprObjTest_get_bool_Test;
 class ObExprObjTest_compare_Test;
 class ObExprObjTest_like_Test;
 class ObExprObjTest_others_Test;
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 class ObExprObj {
@@ -295,6 +295,6 @@ inline bool ObExprObj::is_false() const {
   return type_ == ObBoolType && !v_.bool_;
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_EXPR_OBJ_H */

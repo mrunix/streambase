@@ -13,7 +13,7 @@
 class TestSSTableBlockCache_construction1_Test;
 class TestSSTableBlockCache_construction2_Test;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 struct ObSSTableBlockCacheKey {
   uint64_t sstable_id_;
@@ -285,5 +285,5 @@ class ObSSTableBlockBufferHandle {
   const char* buffer_;
 };
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 #endif

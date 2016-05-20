@@ -2,7 +2,7 @@
 #include "ob_define.h"
 #include "ob_access_counter.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObAccessCounter::ObAccessCounter(const int64_t timeout) {
   memset(this, 0, sizeof(ObAccessCounter));

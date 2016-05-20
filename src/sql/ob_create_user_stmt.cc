@@ -14,9 +14,9 @@
 #include "common/ob_string.h"
 #include "common/ob_strings.h"
 #include "ob_create_user_stmt.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::sql;
 
 const common::ObStrings* ObCreateUserStmt::get_users() const {
   return &users_;

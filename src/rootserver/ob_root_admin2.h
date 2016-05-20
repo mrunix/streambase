@@ -21,10 +21,10 @@
 #include "rootserver/ob_root_stat_key.h"
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 static const int MAX_CONFIG_STR_LENGTH = 1024;
-using oceanbase::common::ObBaseClient;
+using sb::common::ObBaseClient;
 
 struct Arguments;
 typedef int (*CmdHandler)(ObBaseClient& client, Arguments& args);
@@ -68,7 +68,7 @@ struct Arguments {
   const char* rs_host;
   int rs_port;
   int64_t request_timeout_us;
-  oceanbase::common::ObiRole obi_role;
+  sb::common::ObiRole obi_role;
   int log_level;
   int stat_key;
   int32_t obi_read_percentage;
@@ -132,7 +132,7 @@ void version();
 int parse_cmd_line(int argc, char* argv[], Arguments& args);
 
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ROOT_ADMIN2_H */
 

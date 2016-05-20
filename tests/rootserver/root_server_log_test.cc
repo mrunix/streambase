@@ -5,9 +5,9 @@
 #include "common/ob_tablet_info.h"
 #include "rootserver/ob_root_meta2.h"
 #include "rootserver/ob_root_table2.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::rootserver;
 
 TEST(ObRootServer2LogTest, do_cs_regist) {
   int32_t port = 1001;

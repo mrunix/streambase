@@ -1,8 +1,8 @@
 #include "common/ob_packet.h"
 #include "load_parser.h"
 
-using namespace oceanbase::tools;
-using namespace oceanbase::common;
+using namespace sb::tools;
+using namespace sb::common;
 
 int LoadParser::is_consistency_read(const common::Request* request, bool& read_master) const {
   int ret = OB_SUCCESS;

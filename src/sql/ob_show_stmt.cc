@@ -17,8 +17,8 @@
 #include "parse_malloc.h"
 #include "common/utility.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObShowStmt::ObShowStmt(ObStringBuf* name_pool, StmtType stmt_type)
   : ObStmt(name_pool, stmt_type), sys_table_id_(OB_INVALID_ID), show_table_id_(OB_INVALID_ID)

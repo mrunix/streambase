@@ -2,7 +2,7 @@
 #include <tblog.h>
 #ifndef _OCEANBASE_COMMON_OB_DECIMAL_HELPER_
 #define _OCEANBASE_COMMON_OB_DECIMAL_HELPER_
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace common {
 class TestObjDecimalHelper;

@@ -18,7 +18,7 @@
 #include "sql/ob_no_children_phy_operator.h"
 #include "mergeserver/ob_ms_rpc_proxy.h"
 #include "sql/ob_sql_session_info.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObStartTrans: public ObNoChildrenPhyOperator {
  public:
@@ -69,6 +69,6 @@ inline int64_t ObStartTrans::to_string(char* buf, const int64_t buf_len) const {
 }
 
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_START_TRANS_H */

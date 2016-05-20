@@ -15,7 +15,7 @@
 #include "tbsys.h"
 #include "easy_io.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObClientWaitObj::ObClientWaitObj(): err_(OB_SUCCESS), done_count_(0), response_(buf_, sizeof(buf_))
 {}
@@ -107,4 +107,4 @@ int ObClientWaitObj::on_receive_response(easy_request_t* r) {
   return ret;
 }
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb

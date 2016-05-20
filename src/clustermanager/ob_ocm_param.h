@@ -21,8 +21,8 @@
 #include "common/ob_define.h"
 #include "common/ob_string.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace clustermanager {
 const int64_t OB_MAX_DEV_NAME_SIZE = 64;
 const int64_t OB_MAX_LOCATION_LENGTH = 16;

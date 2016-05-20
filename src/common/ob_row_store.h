@@ -26,7 +26,7 @@
 #include "ob_ups_row.h"
 #include "ob_ups_row_util.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRowStore {
  private:
@@ -190,6 +190,6 @@ inline const common::ObString ObRowStore::StoredRow::get_compact_row() const {
   return ret;
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ROW_STORE_H */

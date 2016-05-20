@@ -28,7 +28,7 @@
 #include "ob_hashtable.h"
 #include "ob_serialization.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace hash {
 template <class _key_type>
@@ -47,7 +47,7 @@ template <class _key_type,
 class ObHashSet {
   typedef typename HashSetTypes<_key_type>::pair_type pair_type;
   typedef ObHashSet<_key_type, _hashfunc, _equal, _allocer, _defendmode> hashset;
-  typedef ObHashTable<_key_type, pair_type, _hashfunc, _equal, pair_first<pair_type>, _allocer, _defendmode, _bucket_array, oceanbase::common::ObMalloc> hashtable;
+  typedef ObHashTable<_key_type, pair_type, _hashfunc, _equal, pair_first<pair_type>, _allocer, _defendmode, _bucket_array, sb::common::ObMalloc> hashtable;
  public:
   typedef typename hashtable::iterator iterator;
   typedef typename hashtable::const_iterator const_iterator;
@@ -125,7 +125,7 @@ class ObHashSet {
   };
  private:
   _allocer allocer_;
-  oceanbase::common::ObMalloc bucket_allocer_;
+  sb::common::ObMalloc bucket_allocer_;
   hashtable ht_;
 };
 }

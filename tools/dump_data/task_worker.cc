@@ -8,8 +8,8 @@
 #include "task_worker.h"
 #include <string>
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 using namespace std;
 using namespace tbsys;
 

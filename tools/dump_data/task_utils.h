@@ -11,17 +11,17 @@
 
 #include <time.h>
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 using namespace common;
 
 int ObDateTime2MySQLDate(int64_t ob_time, int time_type, char* outp, int size);
 
-int serialize_cell(oceanbase::common::ObCellInfo* cell, oceanbase::common::ObDataBuffer& buff);
+int serialize_cell(sb::common::ObCellInfo* cell, sb::common::ObDataBuffer& buff);
 
-int append_delima(oceanbase::common::ObDataBuffer& buff, const RecordDelima& delima);
+int append_delima(sb::common::ObDataBuffer& buff, const RecordDelima& delima);
 
-int append_end_rec(oceanbase::common::ObDataBuffer& buff, const RecordDelima& rec_delima);
+int append_end_rec(sb::common::ObDataBuffer& buff, const RecordDelima& rec_delima);
 
 int task_utils_init();
 

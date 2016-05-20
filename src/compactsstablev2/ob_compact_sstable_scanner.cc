@@ -1,10 +1,10 @@
 #include "ob_compact_sstable_scanner.h"
 #include "common/ob_object.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 ObCompactSSTableScanner::ObCompactSSTableScanner()
   : scan_context_(NULL),
@@ -999,4 +999,4 @@ int ObCompactSSTableScanner::dense_sparse_store_row(const int64_t scan_column_cn
   return ret;
 }
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb

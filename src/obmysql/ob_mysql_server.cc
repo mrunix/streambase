@@ -26,11 +26,11 @@
 #include "easy_connection.h"
 #include "common/base_main.h"
 #include "common/ob_errno.h"
-using namespace oceanbase::common;
-using namespace oceanbase::common::hash;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::common::hash;
+using namespace sb::sql;
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 __thread uint8_t number = 0;
 ObMySQLServer::ObMySQLServer(): io_thread_count_(1), work_thread_count_(10),
@@ -1278,7 +1278,7 @@ int ObMySQLServer::do_com_execute(ObMySQLCommandPacket* packet) {
   const int64_t elapsed_time = tbsys::CTimeUtil::getTime() - start_time;
   bool is_slow = (elapsed_time > config_->slow_query_threshold);
 
-  if (oceanbase::common::TraceLog::get_log_level() <= TBSYS_LOGGER._level
+  if (sb::common::TraceLog::get_log_level() <= TBSYS_LOGGER._level
       || (is_slow && force_trace_log)) {
     // fill query string
     ObString query_string;

@@ -1,6 +1,6 @@
 #include "ob_root_log_replay.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 ObRootLogReplay::ObRootLogReplay() {
   is_initialized_ = false;

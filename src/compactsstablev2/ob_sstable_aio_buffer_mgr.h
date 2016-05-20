@@ -6,7 +6,7 @@
 #include "ob_sstable_aio_event_mgr.h"
 #include "ob_sstable_store_struct.h"
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 struct ObBlockPositionInfos;
 class ObSSTableBlockCache;
@@ -499,6 +499,6 @@ class ObThreadAIOBufferMgrArray {
 int wait_aio_buffer();
 void add_io_stat(const ObIOStat& stat);
 const char* get_io_stat_str();
-} // namespace oceanbase::sstable
+} // namespace sb::sstable
 } // namespace Oceanbase
 #endif //OCEANBASE_SSTABLE_OB_AIO_BUFFER_MGR_H_

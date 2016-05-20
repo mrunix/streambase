@@ -20,7 +20,7 @@
 #include "common/ob_define.h"
 #include "common/ob_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 class ObAddRunnable : public tbsys::CDefaultRunnable {
  public:
@@ -42,6 +42,6 @@ class ObAddRunnable : public tbsys::CDefaultRunnable {
   common::ObServer ups_;
 };
 } // end namespace test
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_TEST_OB_ADD_RUNNABLE_H_

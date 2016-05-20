@@ -20,7 +20,7 @@
 #include "algorithm"
 #include "tbsys.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class SeqLock {
   struct Item {
@@ -247,7 +247,7 @@ struct CasIncSeq {
 } __attribute__((__aligned__(16)));
 typedef CasIncSeq IncSeq;
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_UPDATESERVER_OB_INC_SEQ_H__ */
 

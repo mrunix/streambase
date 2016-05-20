@@ -3,7 +3,7 @@
 #include "common/ob_define.h"
 #include "load_query.h"
 #include "common/ob_list.h"
-namespace oceanbase {
+namespace sb {
 namespace tools {
 struct HeadArray {
   int64_t count_;

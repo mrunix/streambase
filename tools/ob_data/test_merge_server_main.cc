@@ -1,7 +1,7 @@
 #include "mock_merge_server.h"
 #include "common/ob_malloc.h"
 
-using namespace oceanbase::mergeserver;
+using namespace sb::mergeserver;
 
 int main() {
   ob_init_memory_pool();

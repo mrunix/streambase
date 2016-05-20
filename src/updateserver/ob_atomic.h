@@ -20,7 +20,7 @@
 #ifndef  OCEANBASE_UPDATESERVER_ATOMIC_H_
 #define  OCEANBASE_UPDATESERVER_ATOMIC_H_
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 // Proclaim we are using SMP
 #ifndef CONFIG_SMP

@@ -6,7 +6,7 @@
 #include "ob_packet.h"
 #include "ob_pcap.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 int copy_from_ring_buf(char* dest, const char* src, const int64_t ring_buf_len,
                        const int64_t start_pos, const int64_t len) {
@@ -491,4 +491,4 @@ int ObPFetcher::get_match_packet(ObPacket* packet, int pkt_code) {
   return err;
 }
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb

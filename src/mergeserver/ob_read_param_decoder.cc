@@ -21,9 +21,9 @@
 #include "common/utility.h"
 #include "common/ob_range2.h"
 #include <vector>
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::mergeserver;
 namespace {
 static const ObString OB_SCAN_PARAM_EMPTY_TABLE_NAME;
 
@@ -856,10 +856,10 @@ bool check_scan_param_compatibility(const ObScanParam& scan_param_in , common::O
 }
 }
 
-int oceanbase::mergeserver::ob_decode_get_param(const oceanbase::common::ObGetParam& org_param,
-                                                const oceanbase::common::ObSchemaManagerV2& schema_mgr,
-                                                oceanbase::common::ObGetParam& decoded_param,
-                                                oceanbase::common::ObGetParam& org_param_with_name,
+int sb::mergeserver::ob_decode_get_param(const sb::common::ObGetParam& org_param,
+                                                const sb::common::ObSchemaManagerV2& schema_mgr,
+                                                sb::common::ObGetParam& decoded_param,
+                                                sb::common::ObGetParam& org_param_with_name,
                                                 common::ObResultCode* rc) {
   int err = OB_SUCCESS;
   ObCellInfo cell;
@@ -955,7 +955,7 @@ int oceanbase::mergeserver::ob_decode_get_param(const oceanbase::common::ObGetPa
   return err;
 }
 
-int oceanbase::mergeserver::ob_decode_scan_param(ObScanParam& org_param,
+int sb::mergeserver::ob_decode_scan_param(ObScanParam& org_param,
                                                  const ObSchemaManagerV2& schema_mgr,
                                                  ObScanParam& decoded_param,
                                                  common::ObResultCode* rc) {

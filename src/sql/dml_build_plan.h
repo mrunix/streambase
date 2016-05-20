@@ -55,25 +55,25 @@ extern int resolve_update_stmt(
   uint64_t& query_id);
 extern int resolve_table(
   ResultPlan* result_plan,
-  oceanbase::sql::ObStmt* stmt,
+  sb::sql::ObStmt* stmt,
   ParseNode* node,
   uint64_t& table_id);
 extern int resolve_and_exprs(
   ResultPlan* result_plan,
-  oceanbase::sql::ObStmt* stmt,
+  sb::sql::ObStmt* stmt,
   ParseNode* node,
-  oceanbase::common::ObVector<uint64_t>& and_exprs,
+  sb::common::ObVector<uint64_t>& and_exprs,
   int32_t expr_scope_type = T_NONE_LIMIT);
 extern int resolve_independ_expr(
   ResultPlan* result_plan,
-  oceanbase::sql::ObStmt* stmt,
+  sb::sql::ObStmt* stmt,
   ParseNode* node,
   uint64_t& expr_id,
   int32_t expr_scope_type = T_NONE_LIMIT);
 extern int resolve_table_columns(
   ResultPlan* result_plan,
-  oceanbase::sql::ObStmt* stmt,
-  oceanbase::sql::TableItem& table_item,
+  sb::sql::ObStmt* stmt,
+  sb::sql::TableItem& table_item,
   int64_t num_columns = -1);
 
 #endif //DML_BUILD_PLAN_H_

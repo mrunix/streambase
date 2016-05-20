@@ -3,7 +3,7 @@
 #include "compactsstablev2/ob_compact_sstable_writer.h"
 #include "common/compress/ob_compressor.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace compactsstablev2;
 

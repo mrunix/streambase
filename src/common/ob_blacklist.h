@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include "tbsys.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // thread safe blacklist for access selector
 class ObBlackList {

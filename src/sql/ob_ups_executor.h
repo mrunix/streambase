@@ -20,7 +20,7 @@
 #include "ob_physical_plan.h"
 #include "ob_result_set.h"
 #include "ob_sql_session_info.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObUpsExecutor: public ObNoChildrenPhyOperator {
  public:
@@ -59,6 +59,6 @@ class ObUpsExecutor: public ObNoChildrenPhyOperator {
   common::ObRowDesc row_desc_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_UPS_EXECUTOR_H */

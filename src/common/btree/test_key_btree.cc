@@ -37,7 +37,7 @@ class TestKey {
   static const int32_t MAX_SIZE;
 };
 const int32_t TestKey::MAX_SIZE = 16;
-typedef oceanbase::common::KeyBtree<TestKey, int32_t> StringBtree;
+typedef sb::common::KeyBtree<TestKey, int32_t> StringBtree;
 
 // 从文件里取KEY
 FILE* fp = NULL;
@@ -75,7 +75,7 @@ void test_insert(int32_t cnt) {
     sprintf(buffer, "%08X", j);
     key.set_value(buffer);
     ret = btree->put(key, i + 1);
-    if (ret != oceanbase::common::ERROR_CODE_OK) {
+    if (ret != sb::common::ERROR_CODE_OK) {
       failure ++;
     }
   }
@@ -104,7 +104,7 @@ void test_remove(int32_t cnt, int32_t remove_cnt) {
     fprintf(stderr, "buffer: %s\n", buffer);
     key.set_value(buffer);
     ret = btree->remove(key);
-    if (ret != oceanbase::common::ERROR_CODE_OK) {
+    if (ret != sb::common::ERROR_CODE_OK) {
       failure ++;
     }
   }
@@ -148,7 +148,7 @@ void test_search(int32_t cnt) {
 }
 
 void test_insert_batch(int32_t cnt) {
-  oceanbase::common::BtreeWriteHandle handle;
+  sb::common::BtreeWriteHandle handle;
 
   TestKey key;
   int32_t ret, j;
@@ -156,13 +156,13 @@ void test_insert_batch(int32_t cnt) {
   int32_t failure = 0;
 
   ret = btree->get_write_handle(handle);
-  assert(oceanbase::common::ERROR_CODE_OK == ret);
+  assert(sb::common::ERROR_CODE_OK == ret);
   for (int32_t i = 0; i < cnt; i++) {
     if (get_next_id(j)) break;
     sprintf(buffer, "%08X", j);
     key.set_value(buffer);
     ret = btree->put(handle, key, i + 1);
-    if (ret != oceanbase::common::ERROR_CODE_OK) {
+    if (ret != sb::common::ERROR_CODE_OK) {
       failure ++;
     }
   }
@@ -173,7 +173,7 @@ void test_insert_batch(int32_t cnt) {
 }
 
 void test_range_search(int32_t cnt) {
-  oceanbase::common::BtreeReadHandle handle;
+  sb::common::BtreeReadHandle handle;
 
   TestKey key;
   int32_t j;
@@ -193,9 +193,9 @@ void test_range_search(int32_t cnt) {
   int32_t value = 0;
   int32_t success = 0;
   int32_t ret = btree->get_read_handle(handle);
-  assert(oceanbase::common::ERROR_CODE_OK == ret);
+  assert(sb::common::ERROR_CODE_OK == ret);
   btree->set_key_range(handle, btree->get_min_key(), 0, btree->get_max_key(), 0);
-  while (oceanbase::common::ERROR_CODE_OK == btree->get_next(handle, value)) {
+  while (sb::common::ERROR_CODE_OK == btree->get_next(handle, value)) {
     success ++;
   }
   if (success == cnt)
@@ -204,10 +204,10 @@ void test_range_search(int32_t cnt) {
     printf("test_search failure: %d <> %d\n", success, cnt);
 
   success = 0;
-  oceanbase::common::BtreeReadHandle handle1;
+  sb::common::BtreeReadHandle handle1;
   btree->get_read_handle(handle1);
   btree->set_key_range(handle1, btree->get_max_key(), 1, btree->get_min_key(), 1);
-  while (oceanbase::common::ERROR_CODE_OK == btree->get_next(handle1, value)) {
+  while (sb::common::ERROR_CODE_OK == btree->get_next(handle1, value)) {
     success ++;
   }
   if (success == cnt - 2)

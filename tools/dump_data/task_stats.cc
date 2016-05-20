@@ -2,7 +2,7 @@
 #include "common/serialization.h"
 #include "common/utility.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 DEFINE_SERIALIZE(TaskStats) {
   int ret = serialization::encode_vi64(buf, buf_len, pos, stats_.size()); /* vector size */

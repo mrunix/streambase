@@ -17,7 +17,7 @@
 #include "common/ob_new_scanner.h"
 #include "common/ob_row_iterator.h"
 #include "ob_ms_sql_rpc_event.h"
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMsSqlSubGetRequest;
 typedef common::ObVector<ObMsSqlSubGetRequest*> SubRequestVector;
@@ -38,8 +38,8 @@ class ObMsSqlSubGetRequest {
   int add_row(const int64_t row_idx);
   int add_result(common::ObNewScanner& res);
 
-  int get_next_row(oceanbase::common::ObRow& row, int64_t& org_row_idx);
-  int get_next_row(oceanbase::common::ObRow*& row, int64_t& org_row_idx);
+  int get_next_row(sb::common::ObRow& row, int64_t& org_row_idx);
+  int get_next_row(sb::common::ObRow*& row, int64_t& org_row_idx);
 
   inline void set_first_cs_addr(const ObServer& server) {
     first_cs_addr_ = server;

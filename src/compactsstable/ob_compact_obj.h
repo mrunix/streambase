@@ -18,7 +18,7 @@
 
 #include <stdint.h>
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstable {
 static const uint8_t COMPACT_OBJ_META_TYPE_BITS = 5;
 static const uint8_t COMPACT_OBJ_META_ATTR_BITS = 3;

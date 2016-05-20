@@ -19,7 +19,7 @@
 #include "common/ob_define.h"
 #include "common/serialization.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 int string_copy(char* dst, const char* src, int64_t max_length);
 int decode_string(char* str_buf, const char* buf, const int64_t data_len, int64_t& pos,  int64_t max_length);
@@ -196,13 +196,13 @@ inline void g_print_flag(const ObFlag<const char*>& flag) {
   TBSYS_LOG(INFO, "flag %s=%s", flag.get_flag_str(), flag.get());
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #define LOAD_FLAG_INT(cconfig, flag)                                    \
   if (OB_SUCCESS == ret)                                                \
   {                                                                     \
     int tmp_int = cconfig.getInt((flag).get_section_str(), flag.get_flag_str(), flag.get_default()); \
-    if (oceanbase::common::OB_SUCCESS != (ret = flag.set(tmp_int)))     \
+    if (sb::common::OB_SUCCESS != (ret = flag.set(tmp_int)))     \
     {                                                                   \
       TBSYS_LOG(ERROR, "invalid flag value, set default value");        \
       flag.set(flag.get_default());                                     \
@@ -213,7 +213,7 @@ inline void g_print_flag(const ObFlag<const char*>& flag) {
   if (OB_SUCCESS == ret)                                                \
   {                                                                     \
     const char* tmp_str = cconfig.getString(flag.get_section_str(), flag.get_flag_str(), flag.get_default()); \
-    if (oceanbase::common::OB_SUCCESS != (ret = flag.set(tmp_str)))     \
+    if (sb::common::OB_SUCCESS != (ret = flag.set(tmp_str)))     \
     {                                                                   \
       TBSYS_LOG(ERROR, "invalid flag value, set default value");        \
       flag.set(flag.get_default());                                     \
@@ -237,7 +237,7 @@ inline void g_print_flag(const ObFlag<const char*>& flag) {
     {                                                                   \
       char *endptr = NULL;                                              \
       ret = flag.set(strtoll(tmp_str, &endptr, 10));                    \
-      if (oceanbase::common::OB_SUCCESS != ret)                         \
+      if (sb::common::OB_SUCCESS != ret)                         \
       {                                                                 \
         TBSYS_LOG(ERROR, "invalid flag value");                         \
       }                                                                 \
@@ -245,7 +245,7 @@ inline void g_print_flag(const ObFlag<const char*>& flag) {
       {                                                                 \
         ret = flag.set(flag.get_default());                             \
         TBSYS_LOG(ERROR, "invalid flag value, flag=%s v=%s", flag.get_flag_str(), tmp_str); \
-        ret = oceanbase::common::OB_INVALID_ARGUMENT;                   \
+        ret = sb::common::OB_INVALID_ARGUMENT;                   \
       }                                                                 \
     }                                                                   \
   }

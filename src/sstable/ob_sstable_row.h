@@ -24,7 +24,7 @@
 #include "common/ob_schema.h"
 #include "ob_sstable_schema.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRowkey;
 }
@@ -318,7 +318,7 @@ class ObSSTableRow {
   /* Parse Rowkey split */
   const common::ObRowkeyInfo* binary_rowkey_info_;
 };
-} // namespace oceanbase::sstable
+} // namespace sb::sstable
 } // namespace Oceanbase
 
 #endif // OCEANBASE_SSTABLE_OB_SSTABLE_ROW_H_

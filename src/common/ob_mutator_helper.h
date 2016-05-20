@@ -20,7 +20,7 @@
 #include "common/ob_mutator.h"
 #include "common/ob_easy_array.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct kv_pair {
   const char* key_;

@@ -18,7 +18,7 @@
 #include <inttypes.h>
 #include "sql/ob_sql.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 class ObMySQLResultSet;     // pre-declearation
 
@@ -66,7 +66,7 @@ class ObMySQLField : private sql::ObResultSet::Field {
 }; // end class ObMySQLField
 
 } // namespace obmysql
-} // namespace oceanbase
+} // namespace sb
 
 
 #endif /* _OB_MYSQL_FIELD_H_ */

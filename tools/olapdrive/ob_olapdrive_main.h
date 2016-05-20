@@ -17,7 +17,7 @@
 #include "common/base_main.h"
 #include "ob_olapdrive.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 class ObOlapdriveMain : public common::BaseMain {
  protected:
@@ -43,7 +43,7 @@ class ObOlapdriveMain : public common::BaseMain {
   ObOlapdrive drive_;
 };
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_OLAPDRIVE_MAIN_H
 

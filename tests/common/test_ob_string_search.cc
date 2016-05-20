@@ -18,9 +18,9 @@
 #include <gtest/gtest.h>
 #include "ob_string_search.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace common {
 class TestObStringSearch: public ::testing::Test {
@@ -54,7 +54,7 @@ TEST_F(TestObStringSearch, test_kr_fast_print) {
 }
 }//namespace common
 }//namespace tests
-}//namespace oceanbase
+}//namespace sb
 int main(int argc, char** argv) {
   TBSYS_LOGGER.setLogLevel("ERROR");
   testing::InitGoogleTest(&argc, argv);

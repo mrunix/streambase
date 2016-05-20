@@ -18,7 +18,7 @@
 #include "ob_row.h"
 #include "ob_rowkey.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRowUtil {
  public:
@@ -61,7 +61,7 @@ class ObRowUtil {
   static int serialize_row(const common::ObRow& row, char* buf, int64_t buf_len, int64_t& pos);
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ROW_UTIL_H */
 

@@ -2,7 +2,7 @@
 #include "ob_tablet_location_list.h"
 #include "ob_tablet_location_range_iterator.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObTabletLocationRangeIterator::ObTabletLocationRangeIterator() {
   init_ = false;

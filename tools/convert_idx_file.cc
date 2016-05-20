@@ -29,7 +29,7 @@
 #include "common/file_directory_utils.h"
 #include "chunkserver/ob_tablet_image.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace chunkserver;
 

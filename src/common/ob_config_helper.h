@@ -88,7 +88,7 @@
 #define DEF_MOMENT(args...)                     \
   _DEF_CONFIG_EASY(Moment,args)
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObConfigItem;
 class ObConfigIntegralItem;
@@ -98,7 +98,7 @@ typedef ObConfigAlwaysTrue True;
 }
 }
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObConfigChecker {
  public:
@@ -230,7 +230,7 @@ class __ObConfigContainer
 typedef __ObConfigContainer<ObConfigStringKey,
         ObConfigItem, OB_MAX_CONFIG_NUMBER> ObConfigContainer;
 } /* namespace common */
-}   /* namespace oceanbase */
+}   /* namespace sb */
 
 
 #endif /* _OB_CONFIG_HELPER_H_ */

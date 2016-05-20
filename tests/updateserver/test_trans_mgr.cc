@@ -7,7 +7,7 @@
 #include "updateserver/ob_trans_mgr.h"
 #include "gtest/gtest.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace updateserver;
 using namespace common;
 

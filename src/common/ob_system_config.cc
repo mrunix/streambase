@@ -18,7 +18,7 @@
 #include "ob_system_config.h"
 #include "ob_config.h"
 
-using namespace oceanbase;
+using namespace sb;
 
 int ObSystemConfig::update(
   const FieldArray& fields, ObNewScanner& scanner) {

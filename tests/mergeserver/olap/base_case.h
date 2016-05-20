@@ -11,24 +11,24 @@ class OlapBaseCase {
   };
   virtual ~OlapBaseCase() {
   };
-  virtual int form_scan_param(oceanbase::common::ObScanParam& param, const uint32_t min_key_include,
+  virtual int form_scan_param(sb::common::ObScanParam& param, const uint32_t min_key_include,
                               const uint32_t max_key_include, void*& arg) {
     UNUSED(param);
     UNUSED(min_key_include);
     UNUSED(max_key_include);
     UNUSED(arg);
-    return oceanbase::common::OB_NOT_SUPPORTED;
+    return sb::common::OB_NOT_SUPPORTED;
   }
-  virtual int form_get_param(oceanbase::common::ObGetParam& param, const uint32_t min_key_include,
+  virtual int form_get_param(sb::common::ObGetParam& param, const uint32_t min_key_include,
                              const uint32_t max_key_include, void*& arg) {
     UNUSED(param);
     UNUSED(min_key_include);
     UNUSED(max_key_include);
     UNUSED(arg);
-    return oceanbase::common::OB_NOT_SUPPORTED;
+    return sb::common::OB_NOT_SUPPORTED;
   }
   virtual bool check_result(const uint32_t min_key_include, const uint32_t max_key_include,
-                            oceanbase::common::ObScanner& result, void* arg) = 0;
+                            sb::common::ObScanner& result, void* arg) = 0;
   typedef enum {
     SCAN,
     GET

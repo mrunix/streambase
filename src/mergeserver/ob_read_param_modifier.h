@@ -25,41 +25,41 @@
 #include "common/ob_range.h"
 #include "common/ob_scan_param.h"
 #include "sql/ob_sql_scan_param.h"
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 // check finish of all scan
-bool is_finish_scan(const oceanbase::common::ScanFlag::Direction  scan_direction,
-                    const oceanbase::common::ObNewRange& org_range,
-                    const oceanbase::common::ObNewRange& result_range);
+bool is_finish_scan(const sb::common::ScanFlag::Direction  scan_direction,
+                    const sb::common::ObNewRange& org_range,
+                    const sb::common::ObNewRange& result_range);
 // check finish
-bool is_finish_scan(const oceanbase::common::ObScanParam& param,
-                    const oceanbase::common::ObNewRange& result_range);
+bool is_finish_scan(const sb::common::ObScanParam& param,
+                    const sb::common::ObNewRange& result_range);
 
 /// @fn get next pram for next get
 /// @return if all has gotten, return OB_ITER_END
-int get_next_param(const oceanbase::common::ObGetParam& org_param,
-                   const oceanbase::common::ObScanner& result,
+int get_next_param(const sb::common::ObGetParam& org_param,
+                   const sb::common::ObScanner& result,
                    int64_t& got_cell_num, bool& finish,
-                   oceanbase::common::ObGetParam* get_param);
+                   sb::common::ObGetParam* get_param);
 
 /// @fn get next scan param
 /// @return if all cell has gotten, return OB_ITER_END
-int get_next_param(const oceanbase::common::ObScanParam& org_scan_param,
-                   const oceanbase::common::ObScanner&  prev_scan_result,
-                   oceanbase::common::ObScanParam* scan_param,
-                   oceanbase::common::ObMemBuffer& range_buffer);
+int get_next_param(const sb::common::ObScanParam& org_scan_param,
+                   const sb::common::ObScanner&  prev_scan_result,
+                   sb::common::ObScanParam* scan_param,
+                   sb::common::ObMemBuffer& range_buffer);
 
-int get_next_range(const oceanbase::sql::ObSqlScanParam& org_scan_param,
-                   const oceanbase::common::ObNewScanner& prev_scan_result,
+int get_next_range(const sb::sql::ObSqlScanParam& org_scan_param,
+                   const sb::common::ObNewScanner& prev_scan_result,
                    const int64_t prev_limit_offset,
-                   oceanbase::common::ObNewRange& cur_range,
-                   int64_t& cur_limit_offset, oceanbase::common::ObStringBuf& buf);
+                   sb::common::ObNewRange& cur_range,
+                   int64_t& cur_limit_offset, sb::common::ObStringBuf& buf);
 
-int get_next_range(const oceanbase::common::ObScanParam& org_scan_param,
-                   const oceanbase::common::ObScanner& prev_scan_result,
+int get_next_range(const sb::common::ObScanParam& org_scan_param,
+                   const sb::common::ObScanner& prev_scan_result,
                    const int64_t prev_limit_offset,
-                   oceanbase::common::ObNewRange& cur_range,
-                   int64_t& cur_limit_offset, oceanbase::common::ObStringBuf& buf);
+                   sb::common::ObNewRange& cur_range,
+                   int64_t& cur_limit_offset, sb::common::ObStringBuf& buf);
 
 
 }

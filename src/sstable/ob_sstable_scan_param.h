@@ -24,7 +24,7 @@
 #include "common/ob_rowkey.h"
 #include "common/ob_range2.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 class ObSSTableScanParam : public common::ObReadParam {
  public:

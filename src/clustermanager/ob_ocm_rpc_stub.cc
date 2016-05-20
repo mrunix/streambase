@@ -18,8 +18,8 @@
 #include "ob_ocm_rpc_stub.h"
 #include "common/ob_result.h"
 
-using namespace oceanbase;
-using namespace oceanbase::clustermanager;
+using namespace sb;
+using namespace sb::clustermanager;
 
 ObOcmRpcStub::ObOcmRpcStub() {
   init_ = false;

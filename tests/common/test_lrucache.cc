@@ -2,7 +2,7 @@
 #include "ob_malloc.h"
 #include "gtest/gtest.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 struct value_t {

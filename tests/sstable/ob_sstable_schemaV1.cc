@@ -15,7 +15,7 @@
 #include "common/serialization.h"
 #include "ob_sstable_schemaV1.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 using namespace common;
 using namespace common::serialization;
@@ -294,4 +294,4 @@ DEFINE_GET_SERIALIZE_SIZE(ObSSTableSchemaV1) {
   return total_size;
 }
 } // end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb

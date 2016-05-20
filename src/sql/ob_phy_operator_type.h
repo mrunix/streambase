@@ -17,7 +17,7 @@
 #ifndef _OB_PHY_OPERATOR_TYPE_H
 #define _OB_PHY_OPERATOR_TYPE_H 1
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 enum ObPhyOperatorType {
   PHY_INVALID               = 0,
@@ -94,6 +94,6 @@ void ob_dec_phy_operator_stat(ObPhyOperatorType type);
 }
 }
 
-#define OB_PHY_OP_INC(type) oceanbase::sql::ob_inc_phy_operator_stat((oceanbase::sql::ObPhyOperatorType)type)
-#define OB_PHY_OP_DEC(type) oceanbase::sql::ob_dec_phy_operator_stat((oceanbase::sql::ObPhyOperatorType)type)
+#define OB_PHY_OP_INC(type) sb::sql::ob_inc_phy_operator_stat((sb::sql::ObPhyOperatorType)type)
+#define OB_PHY_OP_DEC(type) sb::sql::ob_dec_phy_operator_stat((sb::sql::ObPhyOperatorType)type)
 #endif /* _OB_PHY_OPERATOR_TYPE_H */

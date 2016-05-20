@@ -11,7 +11,7 @@
 ================================================================*/
 #include "rootserver/ob_tablet_info_manager.h"
 #include "common/utility.h"
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 using namespace common;
 ObTabletCrcHistoryHelper::ObTabletCrcHistoryHelper() {

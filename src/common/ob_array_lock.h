@@ -20,7 +20,7 @@
 
 #include <tbsys.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /// multi lock holder
 class ObLockHolder {

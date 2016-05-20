@@ -17,7 +17,7 @@
 #define _OB_CACHED_ALLOCATOR_H 1
 #include "ob_pool.h"
 #include "ob_spin_lock.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 // @note thread-safe
 template <typename T>
@@ -101,6 +101,6 @@ void ObCachedAllocator<T>::free(T* obj) {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_CACHED_ALLOCATOR_H */

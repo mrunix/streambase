@@ -23,8 +23,8 @@
 #include "sql/ob_table_mem_scan.h"
 
 #include <gtest/gtest.h>
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 class ObPhyOperatorsTest: public ::testing::Test {
  public:
   ObPhyOperatorsTest();

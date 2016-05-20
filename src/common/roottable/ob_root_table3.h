@@ -22,7 +22,7 @@
 #include "ob_scan_helper.h"
 class ObRootTableTest;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // @note not thread-safe
 // 生命周期：每个事务开始时构造，结束时析构
@@ -58,7 +58,7 @@ class ObRootTable3: public ObTabletMetaTable {
   ObMetaTable3 meta_table_;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ROOT_TABLE3_H */
 

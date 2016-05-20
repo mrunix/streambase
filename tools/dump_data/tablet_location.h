@@ -3,7 +3,7 @@
 
 #include "common/ob_tablet_info.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class TabletLocation {
  public:

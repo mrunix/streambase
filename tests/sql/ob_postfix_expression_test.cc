@@ -21,9 +21,9 @@
 #include "common/ob_string_buf.h"
 #include "common/ob_schema.h"
 
-using namespace oceanbase;
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::sql;
+using namespace sb::common;
 
 class ObPostfixExpressionTest: public ::testing::Test {
  public:

@@ -20,15 +20,15 @@
 #include "common/serialization.h"
 #include "ob_phy_operator_factory.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
-using namespace oceanbase::common::serialization;
-namespace oceanbase {
+using namespace sb::sql;
+using namespace sb::common;
+using namespace sb::common::serialization;
+namespace sb {
 namespace sql {
 //uint64_t phycount=0;
-REGISTER_CREATOR(oceanbase::sql::ObPhyPlanGFactory, ObPhysicalPlan, ObPhysicalPlan, 0);
+REGISTER_CREATOR(sb::sql::ObPhyPlanGFactory, ObPhysicalPlan, ObPhysicalPlan, 0);
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 
 ObPhysicalPlan::ObPhysicalPlan()

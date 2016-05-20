@@ -25,7 +25,7 @@
 #include "ob_tablet_merge_filter.h"
 #include "sql/ob_tablet_scan.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObTableSchema;
 }

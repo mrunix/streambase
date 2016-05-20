@@ -21,7 +21,7 @@ class TestSSTableBuffer_get_free_buf_Test;
 class TestSSTableBuffer_set_write_size_Test;
 class TestSSTableBuffer_alloc_block_Test;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 class ObSSTableBuffer {
  public:

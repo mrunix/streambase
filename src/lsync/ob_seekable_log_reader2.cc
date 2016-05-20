@@ -3,7 +3,7 @@
 #include "common/ob_repeated_log_reader.h"
 #include "Time.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 int get_log_file_offset_func(const char* log_dir, const int64_t file_id, const int64_t log_id, int64_t& offset);
 int read_log_file_by_location(const char* log_dir, const int64_t file_id, const int64_t offset,
@@ -308,5 +308,5 @@ int ObSeekableLogReader::get_log(const int64_t file_id, const int64_t start_id, 
   return err;
 }
 } // end namespace lsync
-} // end namespace oceanbase
+} // end namespace sb
 

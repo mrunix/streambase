@@ -14,7 +14,7 @@
 #define OB_TRACE_ID_H_
 
 #include <stdint.h>
-namespace oceanbase {
+namespace sb {
 namespace common {
 class SeqGenerator {
  public:
@@ -38,7 +38,7 @@ struct IpPort {
   uint16_t port_;
 };
 }// namespace common
-}// namespace oceanbase
+}// namespace sb
 
 
 #endif

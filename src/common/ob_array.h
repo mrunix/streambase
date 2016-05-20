@@ -19,7 +19,7 @@
 #include "page_arena.h"         // for ModulePageAllocator
 #include "utility.h"
 #include "ob_iarray.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 template<typename T>
 class ObArrayDefaultCallBack {
@@ -295,6 +295,6 @@ void ObArray<T, BlockAllocatorT, CallBack>::destroy() {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ARRAY_H */

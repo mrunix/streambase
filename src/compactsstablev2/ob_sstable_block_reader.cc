@@ -1,8 +1,8 @@
 #include "ob_sstable_block_reader.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObSSTableBlockReader::init(const BlockData& data,
                                const common::ObCompactStoreType& row_store_type) {
@@ -172,4 +172,4 @@ int ObSSTableBlockReader::get_row_key(ObCompactCellIterator& row,
   return ret;
 }
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb

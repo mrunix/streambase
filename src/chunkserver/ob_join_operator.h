@@ -20,7 +20,7 @@
 #include "common/ob_schema.h"
 #include "common/ob_cell_array.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 /**
  * join operator, it does the actual join work, it uses

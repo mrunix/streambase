@@ -19,7 +19,7 @@
 #include "common/ob_scanner.h"
 #include "common/ob_action_flag.h"
 #include "ob_old_root_table_schema.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObTabletReplica::ObTabletReplica()
   : version_(OB_INVALID_VERSION),

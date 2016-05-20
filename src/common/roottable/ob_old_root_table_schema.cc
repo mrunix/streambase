@@ -14,7 +14,7 @@
  *
  */
 #include "ob_old_root_table_schema.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 static const char* RT_OCCUPY_SIZE = "occupy_size";
 static const char* RT_RECORD_COUNT = "record_count";

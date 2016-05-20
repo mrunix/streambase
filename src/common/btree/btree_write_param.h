@@ -3,7 +3,7 @@
 
 #include "btree_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * BTree写过程的辅助结构
@@ -31,6 +31,6 @@ class BtreeWriteParam : public BtreeReadParam {
   int32_t tree_id;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif

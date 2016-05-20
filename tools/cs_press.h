@@ -54,14 +54,14 @@ class Metrics {
     total_count_ = 0;
   }
   uint64_t tick(uint64_t consume, uint64_t count, bool succeed) {
-    oceanbase::common::atomic_add(&total_consume_, consume);
-    oceanbase::common::atomic_add(&total_count_, count);
+    sb::common::atomic_add(&total_consume_, consume);
+    sb::common::atomic_add(&total_count_, count);
     if (succeed) {
-      oceanbase::common::atomic_add(&total_succeed_, count);
-      oceanbase::common::atomic_add(&succeed_consume_, consume);
+      sb::common::atomic_add(&total_succeed_, count);
+      sb::common::atomic_add(&succeed_consume_, consume);
     } else {
-      oceanbase::common::atomic_add(&total_failed_, count);
-      oceanbase::common::atomic_add(&failed_consume_, consume);
+      sb::common::atomic_add(&total_failed_, count);
+      sb::common::atomic_add(&failed_consume_, consume);
     }
     return total_count_;
   }
@@ -148,12 +148,12 @@ class Worker : public tbsys::CDefaultRunnable {
    * @param seed
    * @param rowkey, caller must allocate memory
    */
-  int get_rowkey(const int64_t seed, oceanbase::common::ObString& rowkey);
+  int get_rowkey(const int64_t seed, sb::common::ObString& rowkey);
   int get_rowkey_length(const int64_t seed);
 
   int check_query_result(
     const Param& param,
-    const oceanbase::common::ObScanner& scanner,
+    const sb::common::ObScanner& scanner,
     const int64_t* seed_array,
     const int64_t seed_array_size,
     const int64_t* column_id_array,
@@ -162,7 +162,7 @@ class Worker : public tbsys::CDefaultRunnable {
 
   int check_cell(
     const Param& param,
-    const oceanbase::common::ObCellInfo& cell_info,
+    const sb::common::ObCellInfo& cell_info,
     const uint64_t column_id,
     uint32_t& hash_value);
 
@@ -176,7 +176,7 @@ class GFactory {
  public:
   GFactory();
   ~GFactory();
-  int initialize(const oceanbase::common::ObServer& remote_server,
+  int initialize(const sb::common::ObServer& remote_server,
                  const char* schema_file, const int32_t tc);
   int start();
   int stop();
@@ -185,14 +185,14 @@ class GFactory {
   inline ObClientRpcStub& get_rpc_stub() { return rpc_stub_; }
   inline const Param& get_param(int index) const { return params_[index]; }
   inline Param* get_params() { return params_; }
-  inline const oceanbase::common::ObSchemaManager& get_schema_manager() const { return schema_manager_; }
+  inline const sb::common::ObSchemaManager& get_schema_manager() const { return schema_manager_; }
  private:
   static GFactory instance_;
   ObClientRpcStub rpc_stub_;
   BaseClient client_;
   Param params_[MAX_THREAD_COUNT];
   Worker worker_;
-  oceanbase::common::ObSchemaManager schema_manager_;
+  sb::common::ObSchemaManager schema_manager_;
   int32_t thread_count_;
 };
 

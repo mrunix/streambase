@@ -6,7 +6,7 @@
 
 using namespace std;
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class TaskOutput {
  public:

@@ -14,7 +14,7 @@
 #include <tbsys.h>
 
 #include "ob_define.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 extern bool PACKET_RECORDER_FLAG;
 class BaseMain {

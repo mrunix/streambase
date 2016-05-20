@@ -32,7 +32,7 @@
 #include "ob_memtank.h"
 #include "ob_btree_engine_alloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class BtreeEngineIterator;
 class BtreeEngineTransHandle {

@@ -20,7 +20,7 @@
 
 #include "easy_io_struct.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 class ObMySQLCallback {
  public:

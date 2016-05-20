@@ -4,8 +4,8 @@
 #include "common/utility.h"
 #include "ob_ms_scanner_encoder.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 void ObMergerScannerEncoder::output(const common::ObCellInfo& cell) {
   TBSYS_LOG(DEBUG, "tableid:%lu, table_name:%.*s, rowkey:%s,"

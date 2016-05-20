@@ -18,8 +18,8 @@
 #include "ob_privilege_type.h"
 #include "common/ob_encrypted_helper.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 ObPrivilege::TablePrivilege::TablePrivilege()
   : table_id_(OB_INVALID_ID), privileges_() {

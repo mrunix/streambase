@@ -19,7 +19,7 @@
 #include "common/ob_define.h"
 #include <tbsys.h>
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 enum ObDiskStatus {
   DISK_NORMAL = 0,

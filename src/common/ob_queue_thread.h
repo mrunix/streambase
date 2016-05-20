@@ -31,7 +31,7 @@
 
 #define CPU_CACHE_LINE 64
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObCond {
   static const int64_t SPIN_WAIT_NUM = 0;

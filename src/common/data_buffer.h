@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObDataBuffer {
  public:

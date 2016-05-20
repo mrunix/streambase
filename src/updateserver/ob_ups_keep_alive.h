@@ -18,7 +18,7 @@
 #include "common/ob_obi_role.h"
 #include "ob_ups_slave_mgr.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObUpsKeepAlive : public tbsys::CDefaultRunnable {
  public:

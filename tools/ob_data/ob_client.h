@@ -8,7 +8,7 @@
 #include "common/ob_string_buf.h"
 #include "common/ob_scanner.h"
 #include "common/ob_server.h"
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class ObClient: public BaseClient {
  public:

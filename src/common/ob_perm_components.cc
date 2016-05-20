@@ -34,7 +34,7 @@
 #include "common/utility.h"
 #include "common/ob_cipher.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 static const char* SUPPER_ACCOUNT = "root";
 static const char* SUPPER_PASSWORD = "hello1234";

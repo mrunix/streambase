@@ -4,7 +4,7 @@
 #include "ob_libeasy_mem_pool.h"
 #include "easy_pool.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObBaseServer::ObBaseServer() : stoped_(false), batch_(false), port_(0), eio_(NULL), local_ip_(0) {
 }

@@ -2,7 +2,7 @@
 #include "common/ob_buffer_helper.h"
 
 using namespace testing;
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 #define OK(value) ASSERT_EQ(common::OB_SUCCESS, (value))

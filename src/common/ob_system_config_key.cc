@@ -16,8 +16,8 @@
 
 #include "ob_system_config_key.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 const char* ObSystemConfigKey::DEFAULT_VALUE = "ANY";
 
 int ObSystemConfigKey::set_varchar(const ObString& key, const char* strvalue) {

@@ -5,7 +5,7 @@
 #include <dirent.h>
 
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 uint64_t get_sstable_disk_no(const uint64_t sstable_file_id);
 
@@ -37,6 +37,6 @@ int idx_file_name_filter(const struct dirent* d);
 
 int bak_idx_file_name_filter(const struct dirent* d);
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif

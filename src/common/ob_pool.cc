@@ -15,7 +15,7 @@
  */
 #include "ob_pool.h"
 #include "ob_atomic.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObPool::ObPool(int64_t obj_size, int64_t block_size /*= 64*1024*/)
   : obj_size_(obj_size), block_size_(block_size),

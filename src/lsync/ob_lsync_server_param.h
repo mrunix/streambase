@@ -18,14 +18,14 @@
 
 #include "common/ob_define.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 #define getter_define(type, lower) inline const type get_##lower() const { return lower##_; }
 #define setter_define(type, lower) inline void set_##lower(const type lower) { lower##_ = lower; }
 #define set_predictor_define(type, lower, upper) inline bool lower##_is_set() { return lower##_ != DEFAULT_##upper; }
 #define config_item_define(type, lower, upper) getter_define(type, lower) setter_define(type, lower) set_predictor_define(type, lower, upper)
 
-namespace oceanbase {
+namespace sb {
 namespace lsync {
 const static int MAX_CONFIG_VALUE_LEN = 1 << 10;
 const static char* DEFAULT_DEV_NAME = NULL;

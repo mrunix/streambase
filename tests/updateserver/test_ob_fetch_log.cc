@@ -28,10 +28,10 @@
 #include "log_utils.h"
 #include "my_ob_server.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 struct Config {
   static int64_t MAX_N_DATA_ITEMS;
@@ -251,9 +251,9 @@ TEST_F(ObFetchLogTest, SlaveFetchLog) {
   sleep(1);
 }
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 
-using namespace oceanbase::test;
+using namespace sb::test;
 int main(int argc, char** argv) {
   int err = OB_SUCCESS;
   int n_data_items_shift = 0;

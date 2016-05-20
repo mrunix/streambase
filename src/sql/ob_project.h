@@ -20,7 +20,7 @@
 #include "common/page_arena.h"
 #include "common/ob_se_array.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObProject: public ObSingleChildPhyOperator {
  public:
@@ -74,6 +74,6 @@ inline void ObProject::set_rowkey_cell_count(const int64_t count) {
 
 
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_PROJECT_H */

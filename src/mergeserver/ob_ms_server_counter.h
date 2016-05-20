@@ -4,7 +4,7 @@
 #include "common/ob_server.h"
 #include "common/hash/ob_hashmap.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMergerServerCounter {
  public:

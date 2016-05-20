@@ -34,7 +34,7 @@ extern uint64_t PREFIX_END_COLUMN_ID;
 
 #define META_COLUMN_NUM 8
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObSchema;
 class ObCellInfo;
@@ -51,18 +51,18 @@ extern int64_t range_rand(int64_t start, int64_t end, int64_t rand);
 
 extern void build_string(char* buffer, int64_t len, int64_t seed);
 
-extern oceanbase::common::ObCellInfo* copy_cell(oceanbase::updateserver::MemTank& mem_tank,
-                                                const oceanbase::common::ObCellInfo* ci);
+extern sb::common::ObCellInfo* copy_cell(sb::updateserver::MemTank& mem_tank,
+                                                const sb::common::ObCellInfo* ci);
 
-extern void trans_name2id(oceanbase::common::ObCellInfo& ci,
-                          const oceanbase::common::ObSchema& schema);
+extern void trans_name2id(sb::common::ObCellInfo& ci,
+                          const sb::common::ObSchema& schema);
 
 extern int fetch_schema(const char* schema_addr,
                         const int64_t schema_port,
-                        oceanbase::common::ObSchemaManager& schema_mgr);
+                        sb::common::ObSchemaManager& schema_mgr);
 
-extern bool get_check_row(const oceanbase::common::ObSchema& schema,
-                          const oceanbase::common::ObRowkey& row_key,
+extern bool get_check_row(const sb::common::ObSchema& schema,
+                          const sb::common::ObRowkey& row_key,
                           CellinfoBuilder& cb,
                           ClientWrapper& client,
                           const int64_t table_start_version,
@@ -70,19 +70,19 @@ extern bool get_check_row(const oceanbase::common::ObSchema& schema,
 
 template <typename T>
 int copy(T& src, T& dst) {
-  int ret = oceanbase::common::OB_SUCCESS;
+  int ret = sb::common::OB_SUCCESS;
   int64_t size = src.get_serialize_size();
-  char* buffer = (char*)oceanbase::common::ob_malloc(size, ObModIds::TEST);
+  char* buffer = (char*)sb::common::ob_malloc(size, ObModIds::TEST);
   if (NULL == buffer) {
-    ret = oceanbase::common::OB_ERROR;
+    ret = sb::common::OB_ERROR;
   } else {
     int64_t pos = 0;
     ret = src.serialize(buffer, size, pos);
-    if (oceanbase::common::OB_SUCCESS == ret) {
+    if (sb::common::OB_SUCCESS == ret) {
       pos = 0;
       ret = dst.deserialize(buffer, size, pos);
     }
-    oceanbase::common::ob_free(buffer);
+    sb::common::ob_free(buffer);
   }
   return ret;
 }

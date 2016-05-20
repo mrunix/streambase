@@ -20,7 +20,7 @@
 #include "utility.h"
 #include "thread_buffer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObClientProxy::ObClientProxy() : inited_(false), client_manager_(NULL), thread_buffer_(NULL), timeout_(100 * 1000L)
 {}

@@ -3,7 +3,7 @@
 #include "ob_mysql_util.h"
 #include "ob_mysql_dtoa.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 ObMySQLRow::ObMySQLRow(): row_(NULL), type_(TEXT), bitmap_(NULL), bitmap_bytes_(0) {
 
@@ -365,4 +365,4 @@ int ObMySQLRow::float_cell_str(const ObObj& obj, char* buf, const int64_t len, i
   return ret;
 }
 } // end of namespace obmysql
-} // end of namespace oceanbase
+} // end of namespace sb

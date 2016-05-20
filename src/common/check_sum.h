@@ -13,7 +13,7 @@
  */
 #ifndef OCEANBASE_COMMON_CHECKSUM_H_
 #define OCEANBASE_COMMON_CHECKSUM_H_
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace checksum {
 //crc64¹þÏ£Ëã·¨

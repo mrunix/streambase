@@ -24,7 +24,7 @@
 #include <string.h>
 #include <stdint.h>
 
-namespace oceanbase {
+namespace sb {
 namespace liboblog {
 
 class StrHash {

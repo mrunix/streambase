@@ -23,8 +23,8 @@
 #include "common/ob_action_flag.h"
 #include <string>
 
-using namespace oceanbase::common;
-using namespace oceanbase::api;
+using namespace sb::common;
+using namespace sb::api;
 
 class FormatorHeader {
  public:

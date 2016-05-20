@@ -14,8 +14,8 @@
  *
  */
 #include "ob_lock_user_stmt.h"
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 ObLockUserStmt::ObLockUserStmt(const ObLockUserStmt& other)
   : ObBasicStmt(other.get_stmt_type(), other.get_query_id()) {
   *this = other;

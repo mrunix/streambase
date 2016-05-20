@@ -14,7 +14,7 @@
  *     - some work details if you want
  *
  * last update:
- * 2012/5/30 change name space oceanbase::common to oceanbase::sql
+ * 2012/5/30 change name space sb::common to sb::sql
  *           modify calc interface to adapt ExprItem
  *
  */
@@ -30,9 +30,9 @@
 #include "ob_result_set.h"
 #include "ob_sql_session_info.h"
 
-using namespace oceanbase::sql;
+using namespace sb::sql;
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 bool ObPostfixExpression::ExprUtil::is_column_idx(const ObObj& obj) {
   int64_t val = 0;

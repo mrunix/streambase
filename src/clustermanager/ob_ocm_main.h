@@ -29,11 +29,11 @@
 #include <cstdio>
 #include <malloc.h>
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace clustermanager {
-class OcmMain: public ::oceanbase::common::BaseMain {
+class OcmMain: public ::sb::common::BaseMain {
  public:
   OcmMain();
   virtual ~OcmMain();

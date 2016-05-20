@@ -10,9 +10,9 @@
 #include "../../common/test_rowkey_helper.h"
 #include "olap.h"
 using namespace std;
-using namespace oceanbase;
-using namespace oceanbase::sstable;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::sstable;
+using namespace sb::common;
 struct gen_param {
   uint32_t start_include_;
   uint32_t end_include_;
@@ -173,7 +173,7 @@ int gen_sst(const gen_param& param) {
 }
 
 int main(int argc, char** argv) {
-  oceanbase::common::ob_init_memory_pool();
+  sb::common::ob_init_memory_pool();
   gen_param param;
   parse_cmd_line(argc, argv, param);
   return gen_sst(param);

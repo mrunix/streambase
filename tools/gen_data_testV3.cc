@@ -6,12 +6,12 @@ char* g_sstable_directory = NULL;
 
 //TODO 每次切换column group的时候 需要记住所有构成rowkey变量
 //TODO 把构造rowkow这个拿出来 range的start key设置一下
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
-using namespace oceanbase::sstable;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::chunkserver;
+using namespace sb::sstable;
 
 static const int32_t TEN = 10;
 static const int32_t HUN = 100;
@@ -1220,9 +1220,9 @@ void GenDataTestV3::set_rowkey_var_cust(int32_t index) {
 }
 
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::chunkserver;
 
 int main(int argc, char* argv[]) {
   int ret = 0;

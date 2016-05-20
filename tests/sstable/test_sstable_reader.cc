@@ -26,9 +26,9 @@
 #include "sstable/ob_sstable_schema.h"
 #include "common/ob_schema_manager.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::chunkserver;
+using namespace sb::sstable;
 
 static const char* g_key[] = { "aoo", "boo", "coo", "doo", "foo", "koo" };
 const int64_t TABLE_ID = 1;

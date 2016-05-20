@@ -20,7 +20,7 @@
 #include "chunkserver/ob_sql_rpc_stub.h"
 #include "common/ob_client_helper.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace chunkserver;
 

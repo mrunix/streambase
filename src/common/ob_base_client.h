@@ -22,7 +22,7 @@
 #include "easy_io.h"
 #include "ob_tbnet_callback.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObBaseClient {
  public:
@@ -46,7 +46,7 @@ inline ObClientManager& ObBaseClient::get_client_mgr() {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_BASE_CLIENT_H */
 

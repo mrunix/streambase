@@ -15,10 +15,10 @@
 #include "ob_spop_spush_queue.h"
 #include "ob_define.h"
 #include "ob_malloc.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
-oceanbase::common::ObSPopSPushQueue::ObSPopSPushQueue() {
+sb::common::ObSPopSPushQueue::ObSPopSPushQueue() {
   push_count_ = 0;
   pop_count_ = 0;
   push_idx_ = 0;
@@ -31,14 +31,14 @@ oceanbase::common::ObSPopSPushQueue::ObSPopSPushQueue() {
   pthread_cond_init(&cond_, NULL) ;
 }
 
-void oceanbase::common::ObSPopSPushQueue::reset() {
+void sb::common::ObSPopSPushQueue::reset() {
   waiter_exist_ = false;
   push_count_ = 0;
   pop_count_ = 0;
   push_idx_ = 0;
   pop_idx_ = 0;
 }
-oceanbase::common::ObSPopSPushQueue::~ObSPopSPushQueue() {
+sb::common::ObSPopSPushQueue::~ObSPopSPushQueue() {
   inited_ = false;
   waiter_exist_ = false;
   push_count_ = 0;
@@ -54,7 +54,7 @@ oceanbase::common::ObSPopSPushQueue::~ObSPopSPushQueue() {
   pthread_cond_destroy(&cond_);
 }
 
-int oceanbase::common::ObSPopSPushQueue::init(const int64_t queue_size, const int32_t mod_id) {
+int sb::common::ObSPopSPushQueue::init(const int64_t queue_size, const int32_t mod_id) {
   int err = OB_SUCCESS;
   if (queue_size <= 0) {
     TBSYS_LOG(WARN, "arg error [queue_size:%ld]", queue_size);
@@ -81,7 +81,7 @@ int oceanbase::common::ObSPopSPushQueue::init(const int64_t queue_size, const in
 }
 
 
-int oceanbase::common::ObSPopSPushQueue::push(void* msg) {
+int sb::common::ObSPopSPushQueue::push(void* msg) {
   int err = OB_SUCCESS;
   if ((OB_SUCCESS == err) && (NULL == queue_arr_)) {
     TBSYS_LOG(WARN, "queue not initialized yet [queue_arr_:%p]",  queue_arr_);
@@ -112,7 +112,7 @@ int oceanbase::common::ObSPopSPushQueue::push(void* msg) {
   return err;
 }
 
-int oceanbase::common::ObSPopSPushQueue::pop(const int64_t timeout_us, void*& msg) {
+int sb::common::ObSPopSPushQueue::pop(const int64_t timeout_us, void*& msg) {
   msg = NULL;
   int err = OB_SUCCESS;
   if ((OB_SUCCESS == err) && (NULL == queue_arr_)) {

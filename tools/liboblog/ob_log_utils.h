@@ -36,7 +36,7 @@
     func(args); \
 })
 
-namespace oceanbase {
+namespace sb {
 namespace liboblog {
 class ObLogClock {
  public:

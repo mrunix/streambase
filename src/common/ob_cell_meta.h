@@ -20,7 +20,7 @@
 
 #include "common/ob_common_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObCellMeta {
   const static int64_t TP_NULL              = 0;   // 空类型

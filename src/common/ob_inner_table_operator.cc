@@ -21,7 +21,7 @@
 #include "ob_obi_role.h"
 #include "ob_inner_table_operator.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int ObInnerTableOperator::update_all_cluster(ObString& sql, const int64_t cluster_id,
                                              const ObServer& server, const ObiRole role, const int64_t flow_percent) {

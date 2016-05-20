@@ -39,9 +39,9 @@ const int64_t kMaxLogSize = 256 * 1024 * 1024;  /* log file size 256M */
 const int64_t kMaxApplyRetries = 5;
 const int kMaxColumns = 50;
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace api {
 RowMutator::RowMutator() {

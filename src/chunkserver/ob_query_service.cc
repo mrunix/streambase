@@ -16,9 +16,9 @@
 #include "common/ob_trace_log.h"
 #include "ob_query_service.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObQueryService::ObQueryService(ObChunkServer& chunk_server)
   : chunk_server_(chunk_server),
@@ -418,4 +418,4 @@ int ObQueryService::fill_scan_data(ObScanner& scanner) {
   return ret;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

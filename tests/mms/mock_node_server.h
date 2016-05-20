@@ -3,8 +3,8 @@
 #include "mms/ob_node.h"
 
 
-using namespace oceanbase::mms;
-namespace oceanbase {
+using namespace sb::mms;
+namespace sb {
 namespace mms {
 namespace tests {
 class Handler;

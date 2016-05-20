@@ -21,9 +21,9 @@
 #include "common/thread_buffer.h"
 #include "common/ob_client_manager.h"
 #include "ob_ocm_meta.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace clustermanager {
 class ObOcmRpcStub {
  public:

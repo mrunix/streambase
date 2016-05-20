@@ -6,8 +6,8 @@
 #include "ob_schema_checker.h"
 #include "common/utility.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObSelectStmt::ObSelectStmt(ObStringBuf* name_pool)
   : ObStmt(name_pool, ObStmt::T_SELECT) {
@@ -112,7 +112,7 @@ int ObSelectStmt::add_select_item(
 }
 
 // return the first expr with name alias_name
-uint64_t ObSelectStmt::get_alias_expr_id(oceanbase::common::ObString& alias_name) {
+uint64_t ObSelectStmt::get_alias_expr_id(sb::common::ObString& alias_name) {
   uint64_t expr_id = OB_INVALID_ID;
   for (int32_t i = 0; i < select_items_.size(); i++) {
     SelectItem& item = select_items_[i];

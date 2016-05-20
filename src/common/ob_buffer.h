@@ -22,7 +22,7 @@
 #include <stdexcept>
 #include <pthread.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template <int ModId = ObModIds::OB_BUFFER>
 struct DfltBufferAlloc {

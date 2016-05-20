@@ -37,10 +37,10 @@
 #include "ob_daily_merge_checker.h"
 #include "ob_root_table2.h"
 #include "ob_tablet_info_manager.h"
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 void usage() {
   printf("Usage: rs_admin -r <rootserver_ip> -p <rootserver_port> <command> -o <suboptions>\n");

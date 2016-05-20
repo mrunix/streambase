@@ -22,7 +22,7 @@
 #include "ob_sort_helper.h"
 #include "common/ob_row_store.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 struct ObSortColumn {
   uint64_t table_id_;
@@ -74,7 +74,7 @@ inline const common::ObRowDesc* ObInMemorySort::get_row_desc() const {
   return row_desc_;
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_IN_MEMORY_SORT_H */
 

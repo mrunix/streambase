@@ -1,6 +1,6 @@
 #ifndef OCEANBASE_COMPACTSSTABLEV2_OB_COMPACT_ROW_H_
 #define OCEANBASE_COMPACTSSTABLEV2_OB_COMPACT_ROW_H_
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 class ObCompactRow {
  public:

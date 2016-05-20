@@ -10,8 +10,8 @@
 #include "ob_crc64.h"
 #include "murmur_hash.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 const uint8_t ObObj::INVALID_OP_FLAG;
 const uint8_t ObObj::ADD;

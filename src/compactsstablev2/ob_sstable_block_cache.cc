@@ -1,9 +1,9 @@
 #include "common/ob_common_stat.h"
 #include "ob_sstable_block_cache.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObSSTableBlockCache::init(const int64_t cache_mem_size) {
   int ret = OB_SUCCESS;
@@ -414,4 +414,4 @@ ObAIOBufferMgr* ObSSTableBlockCache::get_aio_buf_mgr(
   return aio_buf_mgr;
 }
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb

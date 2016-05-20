@@ -4,8 +4,8 @@
 #include "common/utility.h"
 #include "load_util.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 bool LoadUtil::compare_cell(const ObCellInfo& first, const ObCellInfo& second) {
   bool ret = (first.table_name_ == second.table_name_) && (first.table_id_ == second.table_id_)

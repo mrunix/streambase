@@ -31,7 +31,7 @@
 #include "common/ob_string.h"
 #include "common/ob_perm_components.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObLoginInfo {
   static const int64_t CUR_VERSION = 1;

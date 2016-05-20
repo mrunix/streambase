@@ -31,7 +31,7 @@
 #include "ob_expr_values.h"
 #include "ob_multiple_scan_merge.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObPhyOperator;
 class ObPhyOperatorFactory {

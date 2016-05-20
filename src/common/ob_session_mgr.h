@@ -21,7 +21,7 @@
 #include "common/ob_get_param.h"
 #include "common/ob_atomic.h"
 #include "tbsys.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 /// transform peerid to ascii str
@@ -35,9 +35,9 @@ class ObSessionManager {
   /// called when a session begin, this will record the session info in the mgr, and will record
   /// session start time in a thread specific variable whose type is SessionInfo, so the info can
   /// be checked by ob administrator
-  int session_begin(const oceanbase::common::ObScanParam& scan_param, const uint64_t peer_port,
+  int session_begin(const sb::common::ObScanParam& scan_param, const uint64_t peer_port,
                     uint64_t& session_id, const pthread_t tid, const pid_t pid);
-  int session_begin(const oceanbase::common::ObGetParam& get_param, const uint64_t peer_port,
+  int session_begin(const sb::common::ObGetParam& get_param, const uint64_t peer_port,
                     uint64_t& session_id, const pthread_t tid, const pid_t pid);
 
   /// record the end time of the given session

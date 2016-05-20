@@ -18,7 +18,7 @@
 #include "ob_sstable_reader.h"
 #include "ob_seq_sstable_scanner.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 class ObSSTableMerger {
  public:
@@ -83,7 +83,7 @@ class ObSSTableMerger {
   common::ObScanParam scan_param_;
   ObSeqSSTableScanner seq_scanner_;
 };
-} // namespace oceanbase::sstable
+} // namespace sb::sstable
 } // namespace Oceanbase
 
 #endif // OCEANBASE_SSTABLE_OB_SSTABLE_MERGER_H_

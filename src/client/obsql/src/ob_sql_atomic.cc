@@ -1,6 +1,6 @@
 #include "ob_sql_atomic.h"
 #include "tblog.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 int64_t atomic_dec_positive(volatile uint32_t* pv) {
   uint32_t old = 0;
   uint32_t nv = 0;

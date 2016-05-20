@@ -14,8 +14,8 @@
 
 #include "ob_commit_log_receiver.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
 ObCommitLogReceiver::ObCommitLogReceiver() {
   log_writer_ = NULL;

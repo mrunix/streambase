@@ -20,7 +20,7 @@
 #include "common/ob_array.h"
 #include "common/ob_privilege_type.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObRevokeStmt: public ObBasicStmt {
  public:
@@ -47,6 +47,6 @@ class ObRevokeStmt: public ObBasicStmt {
   common::ObStrings users_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_REVOKE_STMT_H */

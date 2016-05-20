@@ -28,10 +28,10 @@
 #include "chunkserver/ob_fileinfo_cache.h"
 #include "common_func.h"
 
-using oceanbase::common::OB_SUCCESS;
-using oceanbase::common::ObRowkey;
-using oceanbase::common::ObRow;
-using oceanbase::common::ObNewRange;
+using sb::common::OB_SUCCESS;
+using sb::common::ObRowkey;
+using sb::common::ObRow;
+using sb::common::ObNewRange;
 
 // --------------------------------------------------------------
 // Structures
@@ -72,7 +72,7 @@ class CacheFactory {
   ~CacheFactory() { destroy(); }
   static CacheFactory& get_instance() { return instance_; }
  public:
-  void build_scan_context(oceanbase::sql::ScanContext& scan_context) {
+  void build_scan_context(sb::sql::ScanContext& scan_context) {
     scan_context.block_index_cache_ = &block_index_cache_;
     scan_context.block_cache_ = &block_cache_;
     scan_context.compact_context_.block_index_cache_ = &compact_block_index_cache_;
@@ -82,13 +82,13 @@ class CacheFactory {
   void init();
   void destroy();
   static CacheFactory instance_;
-  oceanbase::chunkserver::FileInfoCache fic_;
-  oceanbase::common::ThreadSpecificBuffer compressed_buffer_;
-  oceanbase::common::ThreadSpecificBuffer uncompressed_buffer_;
-  oceanbase::sstable::ObBlockCache block_cache_;
-  oceanbase::sstable::ObBlockIndexCache block_index_cache_;
-  oceanbase::compactsstablev2::ObSSTableBlockCache compact_block_cache_;
-  oceanbase::compactsstablev2::ObSSTableBlockIndexCache compact_block_index_cache_;
+  sb::chunkserver::FileInfoCache fic_;
+  sb::common::ThreadSpecificBuffer compressed_buffer_;
+  sb::common::ThreadSpecificBuffer uncompressed_buffer_;
+  sb::sstable::ObBlockCache block_cache_;
+  sb::sstable::ObBlockIndexCache block_index_cache_;
+  sb::compactsstablev2::ObSSTableBlockCache compact_block_cache_;
+  sb::compactsstablev2::ObSSTableBlockIndexCache compact_block_index_cache_;
 };
 
 class RowScanOp {
@@ -97,17 +97,17 @@ class RowScanOp {
   ~RowScanOp();
  public:
   int open(const int64_t sstable_file_id, const int64_t sstable_version,
-           const oceanbase::sstable::ObSSTableScanParam& param);
-  int get_next_row(const oceanbase::common::ObRowkey*& row_key,
-                   const oceanbase::common::ObRow*& row_value);
+           const sb::sstable::ObSSTableScanParam& param);
+  int get_next_row(const sb::common::ObRowkey*& row_key,
+                   const sb::common::ObRow*& row_value);
  private:
-  oceanbase::common::ModuleArena arena_;
-  oceanbase::sstable::ObSSTableReader reader1_;
-  oceanbase::compactsstablev2::ObCompactSSTableReader reader2_;
-  oceanbase::sql::ObSSTableScanner scanner_;
-  oceanbase::compactsstablev2::ObCompactSSTableScanner compact_scanner_;
-  oceanbase::sql::ObRowkeyIterator* iterator_;
-  oceanbase::sql::ScanContext scan_context_;
+  sb::common::ModuleArena arena_;
+  sb::sstable::ObSSTableReader reader1_;
+  sb::compactsstablev2::ObCompactSSTableReader reader2_;
+  sb::sql::ObSSTableScanner scanner_;
+  sb::compactsstablev2::ObCompactSSTableScanner compact_scanner_;
+  sb::sql::ObRowkeyIterator* iterator_;
+  sb::sql::ScanContext scan_context_;
 };
 
 class CellScanOp {
@@ -116,27 +116,27 @@ class CellScanOp {
   ~CellScanOp();
  public:
   int open(const int64_t sstable_file_id, const int64_t sstable_version,
-           const oceanbase::common::ObScanParam& param);
-  int get_next_row(const oceanbase::common::ObRowkey*& row_key,
-                   const oceanbase::common::ObRow*& row_value);
+           const sb::common::ObScanParam& param);
+  int get_next_row(const sb::common::ObRowkey*& row_key,
+                   const sb::common::ObRow*& row_value);
 
   inline int next_cell() {
     return scanner_.next_cell();
   }
-  inline int get_cell(oceanbase::common::ObCellInfo** cell, bool* is_row_changed) {
+  inline int get_cell(sb::common::ObCellInfo** cell, bool* is_row_changed) {
     return scanner_.get_cell(cell, is_row_changed);
   }
   inline int is_row_finished(bool* is_row_finished) {
     return scanner_.is_row_finished(is_row_finished);
   }
  private:
-  int build_row_desc(const oceanbase::common::ObScanParam& param,
+  int build_row_desc(const sb::common::ObScanParam& param,
                      const ObSSTableReader& reader);
-  oceanbase::common::ModuleArena arena_;
-  oceanbase::sstable::ObSSTableReader reader1_;
-  oceanbase::sstable::ObSSTableScanner scanner_;
-  oceanbase::common::ObRowDesc row_desc_;
-  oceanbase::common::ObRowIterAdaptor row_iter_;
+  sb::common::ModuleArena arena_;
+  sb::sstable::ObSSTableReader reader1_;
+  sb::sstable::ObSSTableScanner scanner_;
+  sb::common::ObRowDesc row_desc_;
+  sb::common::ObRowIterAdaptor row_iter_;
 };
 
 
@@ -163,11 +163,11 @@ int build_scan_param(const CmdLineParam& clp, ScanParam& param) {
     param.set_range(range);
     param.set_is_result_cached(clp.is_result_cached);
     if (clp.is_async_read) {
-      param.set_read_mode(oceanbase::common::ScanFlag::ASYNCREAD);
+      param.set_read_mode(sb::common::ScanFlag::ASYNCREAD);
     } else {
-      param.set_read_mode(oceanbase::common::ScanFlag::SYNCREAD);
+      param.set_read_mode(sb::common::ScanFlag::SYNCREAD);
     }
-    param.set_scan_direction(oceanbase::common::ScanFlag::FORWARD);
+    param.set_scan_direction(sb::common::ScanFlag::FORWARD);
 
     for (int64_t i = 0; OB_SUCCESS == ret && i < query_column_size; i++) {
       if (OB_SUCCESS != (ret = param.add_column(query_column_array[i]))) {

@@ -17,8 +17,8 @@
 #include "common/ob_log_dir_scanner.h"
 #include "ob_on_disk_log_locator.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace updateserver {
 int get_max_log_file_id_in_dir(const char* log_dir, int64_t& max_log_file_id) {
   int err = OB_SUCCESS;
@@ -277,4 +277,4 @@ int ObOnDiskLogLocator::get_location(const int64_t log_id, ObLogLocation& locati
   return err;
 }
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb

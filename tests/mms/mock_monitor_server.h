@@ -4,8 +4,8 @@
 #include "mock_server.h"
 #include "mms/ob_monitor.h"
 
-using namespace oceanbase::mms;
-namespace oceanbase {
+using namespace sb::mms;
+namespace sb {
 namespace mms {
 namespace tests {
 class MonitorHandler;

@@ -14,7 +14,7 @@
 
 #include "ob_log_reader.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObLogReader::ObLogReader() {
   is_initialized_ = false;

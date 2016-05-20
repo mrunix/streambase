@@ -17,8 +17,8 @@
 #include "ob_block_membuf.h"
 //#include "common/ob_malloc.h"
 
-namespace oceanbase {
-using namespace oceanbase::common;
+namespace sb {
+using namespace sb::common;
 
 namespace compactsstable {
 ObBlockMembuf::ObBlockMembuf(const int64_t block_size,

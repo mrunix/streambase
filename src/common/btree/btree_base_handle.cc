@@ -2,7 +2,7 @@
 #include "btree_base_handle.h"
 #include "btree_root_pointer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * 构造
@@ -45,4 +45,4 @@ bool BtreeBaseHandle::is_null_pointer() {
 BtreeCallback::~BtreeCallback() {
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

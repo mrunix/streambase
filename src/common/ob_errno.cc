@@ -16,7 +16,7 @@
 #include "ob_errno.h"
 #include "ob_define.h"
 #include "tbsys.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 static const char* STR_ERROR[OB_MAX_ERROR_CODE];
 #define ADD_ERROR_STR(err, str) STR_ERROR[-err] = str
 
@@ -324,7 +324,7 @@ static struct ObStrErrorInit {
   }
 } local_init;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 const char* ob_strerror(int err) {
   const char* ret = "Unknown error";
@@ -337,4 +337,4 @@ const char* ob_strerror(int err) {
   return ret;
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

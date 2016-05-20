@@ -18,8 +18,8 @@
 #include "parse_malloc.h"
 #include "common/utility.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObMultiPhyPlan::ObMultiPhyPlan() {
 }

@@ -18,10 +18,10 @@
 #include "sstable/ob_disk_path.h"
 #include "sstable/ob_sstable_row.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace sstable {
 #define COMPRESSOR_NAME "none"
@@ -240,9 +240,9 @@ void test_write_patch_file_with_check() {
 }
 }//end namespace sstable
 }//end namespace tests
-}//end namespace oceanbase
+}//end namespace sb
 
-using namespace oceanbase::tests::sstable;
+using namespace sb::tests::sstable;
 int main(int argc, char** argv) {
   UNUSED(argc);
   UNUSED(argv);

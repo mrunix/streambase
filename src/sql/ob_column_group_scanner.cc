@@ -21,10 +21,10 @@
 #include "sstable/ob_block_index_cache.h"
 #include "sstable/ob_sstable_scan_param.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 ObColumnGroupScanner::ObColumnGroupScanner()
   : block_index_cache_(NULL), block_cache_(NULL), rowkey_info_(NULL),
@@ -755,4 +755,4 @@ int ObColumnGroupScanner::get_row_desc(const common::ObRowDesc*& row_desc) const
 }
 
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb

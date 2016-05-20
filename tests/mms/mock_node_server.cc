@@ -1,9 +1,9 @@
 #include "common/ob_define.h"
 #include "mock_node_server.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mms;
-using namespace oceanbase::mms::tests;
+using namespace sb::common;
+using namespace sb::mms;
+using namespace sb::mms::tests;
 
 
 MockNodeServer::MockNodeServer(int32_t port, int64_t retry_time, int64_t timeout, ObServer monitor, char* app_name, char* instance_name, char* hostname) {

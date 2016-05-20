@@ -24,10 +24,10 @@
 #include "ob_column_group_scanner.h"
 #include "ob_multi_cg_scanner.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRowkeyInfo;
 }
@@ -156,6 +156,6 @@ class ObSSTableScanner : public ObRowkeyIterator {
   common::ObRowDesc row_desc_;
 };
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif

@@ -21,7 +21,7 @@
 #include "common/ob_malloc.h"
 #include "common/page_arena.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 static const int64_t SIZE_OF_PAGE = 32;

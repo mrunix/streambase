@@ -18,13 +18,13 @@
 #include "common/ob_define.h"
 #include "common/ob_range2.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
-int oceanbase::mergeserver::get_next_param(const oceanbase::common::ObGetParam& org_param,
-                                           const oceanbase::common::ObScanner& result,
+int sb::mergeserver::get_next_param(const sb::common::ObGetParam& org_param,
+                                           const sb::common::ObScanner& result,
                                            int64_t& got_cell, bool& finish,
-                                           oceanbase::common::ObGetParam* get_param) {
+                                           sb::common::ObGetParam* get_param) {
   ObReadParam* read_param = get_param;
   finish = false;
   int64_t item_count = 0;
@@ -92,7 +92,7 @@ int oceanbase::mergeserver::get_next_param(const oceanbase::common::ObGetParam& 
   return ret;
 }
 
-bool oceanbase::mergeserver::is_finish_scan(const ScanFlag::Direction scan_direction,  const ObNewRange& org_range,
+bool sb::mergeserver::is_finish_scan(const ScanFlag::Direction scan_direction,  const ObNewRange& org_range,
                                             const ObNewRange& result_range) {
   bool ret = false;
   if (ScanFlag::FORWARD == scan_direction) {
@@ -107,7 +107,7 @@ bool oceanbase::mergeserver::is_finish_scan(const ScanFlag::Direction scan_direc
   return ret;
 }
 
-bool oceanbase::mergeserver::is_finish_scan(const ObScanParam& param, const ObNewRange& result_range) {
+bool sb::mergeserver::is_finish_scan(const ObScanParam& param, const ObNewRange& result_range) {
   bool ret = false;
   if (ScanFlag::FORWARD == param.get_scan_direction()) {
     if (result_range.compare_with_endkey2(*param.get_range()) >= 0) {
@@ -142,8 +142,8 @@ int allocate_range_buffer(ObNewRange& range, ObMemBuffer& buffer) {
 }
 }
 
-int oceanbase::mergeserver::get_next_param(const ObScanParam& org_scan_param,
-                                           const oceanbase::common::ObScanner& prev_scan_result,
+int sb::mergeserver::get_next_param(const ObScanParam& org_scan_param,
+                                           const sb::common::ObScanner& prev_scan_result,
                                            ObScanParam* scan_param, ObMemBuffer& range_buffer) {
   int err = OB_SUCCESS;
   const ObReadParam& org_read_param = org_scan_param;
@@ -284,7 +284,7 @@ int get_next_range_for_trivail_scan(const ObNewRange& org_scan_range,
   return err;
 }
 
-int oceanbase::mergeserver::get_next_range(const oceanbase::common::ObScanParam& org_scan_param,
+int sb::mergeserver::get_next_range(const sb::common::ObScanParam& org_scan_param,
                                            const ObScanner& prev_scan_result,
                                            const int64_t prev_limit_offset,
                                            ObNewRange& cur_range,
@@ -413,7 +413,7 @@ int get_next_range_for_trivail_scan(const ObNewRange& org_scan_range,
   return err;
 }
 
-int oceanbase::mergeserver::get_next_range(const oceanbase::sql::ObSqlScanParam& org_scan_param,
+int sb::mergeserver::get_next_range(const sb::sql::ObSqlScanParam& org_scan_param,
                                            const ObNewScanner& prev_scan_result,
                                            const int64_t prev_limit_offset,
                                            ObNewRange& cur_range,

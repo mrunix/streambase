@@ -1,7 +1,7 @@
 #include "ob_file_table.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::sql::test;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::sql::test;
+using namespace sb::common;
 
 #define GET_LINE do { \
   fgets(line_, sizeof(line_), fp_); \

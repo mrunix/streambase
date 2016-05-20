@@ -16,9 +16,9 @@
 
 #include "ob_root_server_config.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::rootserver;
 
 int ObRootServerConfig::get_root_server(ObServer& server) const {
   int ret = OB_SUCCESS;

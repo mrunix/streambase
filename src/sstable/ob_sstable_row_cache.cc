@@ -15,9 +15,9 @@
 #include "ob_sstable_row_cache.h"
 #include "common/utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObSSTableRowCache::ObSSTableRowCache()
   : inited_(false) {
@@ -130,4 +130,4 @@ int ObSSTableRowCache::put_row(const ObSSTableRowCacheKey& key,
 }
 
 } //end namespace sstable
-} //end namespace oceanbase
+} //end namespace sb

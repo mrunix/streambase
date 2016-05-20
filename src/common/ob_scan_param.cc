@@ -4,7 +4,7 @@
 #include "ob_rowkey_helper.h"
 #include "utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 const char* SELECT_CLAUSE_WHERE_COND_AS_CNAME_PREFIX = "__WHERE_";
 

@@ -13,7 +13,7 @@
 
 #include "common/ob_schema.h"
 #include "common/ob_malloc.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 int main(int argc, char* argv[]) {
   if (argc != 2) {
     printf("usage %s schema_file\n", argv[0]);

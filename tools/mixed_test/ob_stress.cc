@@ -4,7 +4,7 @@
 #include "thread_store.h"
 #include "utils.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace updateserver;
 

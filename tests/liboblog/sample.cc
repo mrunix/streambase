@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "liboblog/liboblog.h"
 
-using namespace oceanbase::liboblog;
+using namespace sb::liboblog;
 
 typedef int64_t (*str_to_int_pt)(const char* str);
 

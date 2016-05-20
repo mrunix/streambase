@@ -23,7 +23,7 @@ namespace {
 const pthread_key_t INVALID_THREAD_KEY = UINT32_MAX;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ThreadSpecificBuffer::ThreadSpecificBuffer(const int32_t size)
   : key_(INVALID_THREAD_KEY), size_(size) {
@@ -126,4 +126,4 @@ int ThreadSpecificBuffer::Buffer::write(const char* bytes, const int32_t size) {
 }
 
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

@@ -10,7 +10,7 @@
 #include "tblog.h"
 #include "common/ob_malloc.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 /* 从集群池pool中移除一个集群spool */
 static int delete_cluster(ObClusterInfo* spool, ObGroupDataSource* gds) {
   int ret = OB_SQL_SUCCESS;

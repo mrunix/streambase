@@ -16,7 +16,7 @@
 #define __OCEANBASE_UPDATE_SERVER_OB_LOG_SRC_H__
 #include <common/ob_define.h>
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class IObLogSrc {
  public:
@@ -41,5 +41,5 @@ class ObCachedLogSrc: public IObLogSrc {
   IObLogSrc* backup_;
 };
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 #endif //__OCEANBASE_UPDATE_SERVER_OB_LOG_CACHE_H__

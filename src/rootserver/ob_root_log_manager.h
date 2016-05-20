@@ -19,7 +19,7 @@
 #include "rootserver/ob_root_log_worker.h"
 #include "rootserver/ob_root_server2.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootLogManager : public common::ObLogWriter {
  public:

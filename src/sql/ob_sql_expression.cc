@@ -20,8 +20,8 @@
 #include "sql/ob_item_type_str.h"
 #include "common/ob_cached_allocator.h"
 #include "sql/ob_phy_operator_type.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObSqlExpression::ObSqlExpression()
   : column_id_(0), table_id_(0), is_aggr_func_(false), is_distinct_(false)

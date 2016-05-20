@@ -20,7 +20,7 @@
 #include "ob_mysql_packet.h"
 #include "../ob_mysql_field.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 class ObMySQLFieldPacket : public ObMySQLPacket {
  public:

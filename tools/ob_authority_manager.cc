@@ -32,9 +32,9 @@
 
 using namespace std;
 using namespace tbsys;
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 const char* COMMANDS[] = {"create_user", "delete_user",
                           "change_password", "show_user", "update_privilege",

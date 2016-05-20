@@ -16,7 +16,7 @@
 
 #include "ob_operator_factory_impl.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace sql;
 using namespace test;
 

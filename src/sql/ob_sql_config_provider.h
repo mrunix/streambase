@@ -16,7 +16,7 @@
 #ifndef _OB_SQL_CONFIG_PROVIDER_H
 #define _OB_SQL_CONFIG_PROVIDER_H 1
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObSQLConfigProvider {
  public:
@@ -35,6 +35,6 @@ class ObSQLConfigProvider {
   // data members
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_SQL_CONFIG_PROVIDER_H */

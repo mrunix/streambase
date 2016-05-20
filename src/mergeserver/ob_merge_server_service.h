@@ -22,7 +22,7 @@
 #include "common/ob_statistics.h"
 #include "ob_get_privilege_task.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObMergerSchemaManager;
 class ObTabletLocationCache;
@@ -280,12 +280,12 @@ class ObMergeServerService: public ObVersionProvider {
   //
   int64_t frozen_version_;
   ObMergerRpcProxy*  rpc_proxy_;
-  oceanbase::common::ObGeneralRpcStub*  rpc_stub_;
+  sb::common::ObGeneralRpcStub*  rpc_stub_;
   ObMsSQLProxy sql_proxy_;
   ObMergerAsyncRpcStub*   async_rpc_;
   common::ObMergerSchemaManager* schema_mgr_;
   ObMergerSchemaProxy* schema_proxy_;
-  oceanbase::common::nb_accessor::ObNbAccessor* nb_accessor_;
+  sb::common::nb_accessor::ObNbAccessor* nb_accessor_;
   ObMergerRootRpcProxy* root_rpc_;
   ObMergerUpsTask fetch_ups_task_;
   ObMergerSchemaTask fetch_schema_task_;
@@ -294,7 +294,7 @@ class ObMergeServerService: public ObVersionProvider {
   ObTabletLocationCache* location_cache_;
   common::ObTabletLocationCacheProxy* cache_proxy_;
   ObMergerServiceMonitor* service_monitor_;
-  oceanbase::common::ObSessionManager session_mgr_;
+  sb::common::ObSessionManager session_mgr_;
   sql::ObSQLSessionMgr* sql_session_mgr_;
   ObQueryCache* query_cache_;
   common::ObPrivilegeManager* privilege_mgr_;

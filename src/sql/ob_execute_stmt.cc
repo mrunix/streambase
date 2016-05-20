@@ -15,8 +15,8 @@
  */
 #include "ob_execute_stmt.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
 void ObExecuteStmt::print(FILE* fp, int32_t level, int32_t index) {
   UNUSED(index);

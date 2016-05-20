@@ -18,7 +18,7 @@
 
 #include <pthread.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace cmbtree {
 class BtreeMutex {
@@ -75,6 +75,6 @@ int BtreeMutex::unlock() const {
 
 } // end namespace cmbtree
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_CMBTREE_BTREE_MUTEX_H_

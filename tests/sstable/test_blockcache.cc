@@ -23,7 +23,7 @@
 #include "sstable/ob_block_index_cache.h"
 #include "sstable/ob_disk_path.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace chunkserver;
 using namespace common;
 using namespace sstable;

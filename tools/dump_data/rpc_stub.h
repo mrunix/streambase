@@ -13,7 +13,7 @@
 #include "base_server.h"
 #include "task_info.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class BaseServer;
 class RpcStub {

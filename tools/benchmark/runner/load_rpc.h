@@ -25,7 +25,7 @@
 #include "common/ob_client_manager.h"
 #include "common/ob_fifo_stream.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class QueryInfo;
 class LoadRpc {

@@ -25,7 +25,7 @@
 #include "ob_compact_row.h"
 #include "ob_block_membuf.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace compactsstable {
 struct ObFrozenVersionRange {
@@ -123,11 +123,11 @@ class ObCompactSSTableMemIterator : public common::ObIterator {
 
   int next_cell();
 
-  inline int get_cell(oceanbase::common::ObCellInfo** cell) {
+  inline int get_cell(sb::common::ObCellInfo** cell) {
     return get_cell(cell, NULL);
   }
 
-  inline int get_cell(oceanbase::common::ObCellInfo** cell, bool* is_row_changed) {
+  inline int get_cell(sb::common::ObCellInfo** cell, bool* is_row_changed) {
     int ret = common::OB_SUCCESS;
     if (NULL == cell) {
       TBSYS_LOG(ERROR, "invalid argument, cell=%p", cell);

@@ -19,8 +19,8 @@
 #include "parse_malloc.h"
 #include "ob_sql_session_info.h"
 #include "common/ob_trace_log.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 int ObResultSet::Field::deep_copy(ObResultSet::Field& other, ObStringBuf* str_buf) {
   int ret = OB_SUCCESS;

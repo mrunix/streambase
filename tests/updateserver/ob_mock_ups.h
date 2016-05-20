@@ -3,10 +3,10 @@
 #include "updateserver/ob_trigger_handler.h"
 #include "updateserver/ob_table_mgr.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 class MockLogMgr : public ObILogWriter {
  public:
@@ -96,5 +96,5 @@ class ObMockUps {
   ObLogWriter log_writer_;
 };
 }
-}; // end namespace oceanbase
+}; // end namespace sb
 

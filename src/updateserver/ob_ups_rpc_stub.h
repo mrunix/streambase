@@ -33,8 +33,8 @@
 #include "common/ob_log_cursor.h"
 #include "ob_remote_log_src.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace common {
 class ObTriggerMsg;
 };

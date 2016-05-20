@@ -29,7 +29,7 @@
 #include "common/ob_mod_define.h"
 #include "common/ob_iterator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRowCompaction : public ObIterator {
   struct ObjNode {

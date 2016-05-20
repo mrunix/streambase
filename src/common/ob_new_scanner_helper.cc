@@ -17,7 +17,7 @@
 #include "ob_new_scanner_helper.h"
 #include "utility.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 int ObNewScannerHelper::print_new_scanner(ObNewScanner& new_scanner, ObRow& row, bool has_rowkey /* = false */) {

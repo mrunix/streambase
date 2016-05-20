@@ -18,7 +18,7 @@
 #include "common/ob_schema.h"
 #include "common/ob_string.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObSchemaChecker {
  public:
@@ -63,7 +63,7 @@ class ObSchemaChecker {
   const common::ObSchemaManagerV2* show_schema_mgr_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* OCEANBASE_SQL_OB_SCHEMA_CHECKER_H_ */
 

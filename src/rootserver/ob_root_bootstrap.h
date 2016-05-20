@@ -24,7 +24,7 @@
 #include "ob_ups_manager.h"
 #include "ob_root_log_worker.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootServer2;
 typedef common::ObArray<common::ObServer> ObServerArray;
@@ -61,6 +61,6 @@ class ObBootstrap {
   common::ObSchemaServiceImpl schema_service_;
 };
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ROOT_BOOTSTRAP_H */

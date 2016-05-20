@@ -3,8 +3,8 @@
 #include "common/ob_tablet_info.h"
 #include "common/serialization.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::common;
+using namespace sb::common;
+using namespace sb::common;
 
 
 ObTabletLocationList::ObTabletLocationList() {

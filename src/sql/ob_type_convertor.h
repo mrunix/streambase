@@ -16,7 +16,7 @@
 #define _OB__TYPE_CONVERTOR_H 1
 #include "ob_item_type.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 inline ObObjType convert_item_type_to_obj_type(const ObItemType item_type) {
   ObObjType dest_type = ObNullType;
@@ -63,6 +63,6 @@ inline ObObjType convert_item_type_to_obj_type(const ObItemType item_type) {
 
 
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB__TYPE_CONVERTOR_H */

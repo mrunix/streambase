@@ -22,7 +22,7 @@
 #include "common/ob_tbnet_callback.h"
 #include "ob_log_rpc_stub.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace liboblog {
 ObLogRpcStub::ObLogRpcStub() : inited_(false),

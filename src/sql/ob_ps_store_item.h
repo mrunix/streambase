@@ -24,7 +24,7 @@
 #include "ob_basic_stmt.h"
 #include "ob_result_set.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 enum PsStoreItemStatus {
   PS_ITEM_INVALID,                  /* plan not build */

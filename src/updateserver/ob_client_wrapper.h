@@ -26,7 +26,7 @@
 #include "ob_ups_rpc_proxy.h"
 #include "ob_ups_cache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 using namespace common;
 using namespace mergeserver;
@@ -50,7 +50,7 @@ class ObClientWrapper {
   //get_param的中必须把end_version_设为ups活跃表版本号-1
   int get(const ObGetParam& get_param, const ObSchemaManagerV2& schema_mgr);
 
-  int get_cell(oceanbase::common::ObCellInfo * *cell);
+  int get_cell(sb::common::ObCellInfo * *cell);
   int next_cell();
   void clear();
 
@@ -69,6 +69,6 @@ class ObClientWrapper {
   ObGetMergeJoinAgentImp ups_rpc_agent_;
 };
 } //end of namespace updateserver
-}//end of namespace oceanbase
+}//end of namespace sb
 
 #endif //OCEANBASE_UPDATASERVER_CLIENT_WRAPPER

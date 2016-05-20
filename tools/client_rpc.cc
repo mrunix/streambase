@@ -6,9 +6,9 @@
 #include "sql/ob_sql_result_set.h"
 #include "mergeserver/ob_ms_sql_proxy.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
-using oceanbase::sql::ObSQLResultSet;
+using namespace sb::common;
+using namespace sb::rootserver;
+using sb::sql::ObSQLResultSet;
 
 template <typename T>
 int get_result(ObDataBuffer& data_buff, ObResultCode& result_code, T& data) {
@@ -83,7 +83,7 @@ int ObClientRpcStub::cs_get(const ObGetParam& get_param, ObScanner& scanner) {
 
 int ObClientRpcStub::cs_dump_tablet_image(
   const int32_t index, const int32_t disk_no,
-  oceanbase::common::ObString& image_buf) {
+  sb::common::ObString& image_buf) {
   return send_2_return_1(remote_server_, DEFAULT_TIMEOUT, OB_CS_DUMP_TABLET_IMAGE,
                          DEFAULT_VERSION, index, disk_no, image_buf);
 }
@@ -96,7 +96,7 @@ int ObClientRpcStub::cs_disk_maintain(const int8_t is_install, const int32_t dis
   return send_2_return_0(remote_server_, 5 * DEFAULT_TIMEOUT, OB_CS_DISK_MAINTAIN, DEFAULT_VERSION, is_install, disk_no);
 }
 
-int ObClientRpcStub::fetch_stats(oceanbase::common::ObStatManager& obsm) {
+int ObClientRpcStub::fetch_stats(sb::common::ObStatManager& obsm) {
   return send_0_return_1(remote_server_, DEFAULT_TIMEOUT, OB_FETCH_STATS, DEFAULT_VERSION, obsm);
 }
 
@@ -252,7 +252,7 @@ int ObClientRpcStub::fetch_update_server_list(ObUpsList& server_list) {
 }
 
 int ObClientRpcStub::fetch_schema(const int64_t version,
-                                  const bool only_core_tables, oceanbase::common::ObSchemaManagerV2& schema) {
+                                  const bool only_core_tables, sb::common::ObSchemaManagerV2& schema) {
   return send_2_return_1(remote_server_, DEFAULT_TIMEOUT, OB_FETCH_SCHEMA, DEFAULT_VERSION, version, only_core_tables, schema);
 }
 
@@ -433,7 +433,7 @@ int ObClientRpcStub::execute_sql(const ObString& query) {
   return ret;
 }
 
-int ObClientRpcStub::get_frame_buffer(oceanbase::common::ObDataBuffer& data_buffer) const {
+int ObClientRpcStub::get_frame_buffer(sb::common::ObDataBuffer& data_buffer) const {
   int ret = OB_SUCCESS;
   if (!check_inner_stat()) {
     TBSYS_LOG(ERROR, "check inner stat failed.");
@@ -454,7 +454,7 @@ int ObClientRpcStub::get_frame_buffer(oceanbase::common::ObDataBuffer& data_buff
 }
 
 int ObClientRpcStub::fetch_cs_sstable_dist(const ObServer& server, const int64_t table_version,
-                                           std::list<std::pair<ObNewRange, ObString> >& sstable_list, oceanbase::common::ModuleArena& arena) {
+                                           std::list<std::pair<ObNewRange, ObString> >& sstable_list, sb::common::ModuleArena& arena) {
   const int64_t timeout = timeout_ > 0 ? timeout_ : 10000000;  //10s
   int ret = OB_SUCCESS;
   ObDataBuffer in_buffer;
@@ -463,7 +463,7 @@ int ObClientRpcStub::fetch_cs_sstable_dist(const ObServer& server, const int64_t
   int64_t session_id = 0;
   bool last_flag = false;
   const int32_t OB_CS_FETCH_SSTABLE_DIST_VERSION = 1;
-  oceanbase::common::ObResultCode rc;
+  sb::common::ObResultCode rc;
   ObNewRange range;
   ObString path;
   ObObj start_rowkey_objs[OB_MAX_ROWKEY_COLUMN_NUMBER];
@@ -571,7 +571,7 @@ int ObClientRpcStub::fetch_cs_sstable_dist(const ObServer& server, const int64_t
   return ret;
 }
 
-int ObClientRpcStub::get_bloom_filter(const oceanbase::common::ObNewRange& range,
+int ObClientRpcStub::get_bloom_filter(const sb::common::ObNewRange& range,
                                       const int64_t tablet_version, const int64_t bf_version, ObString& bf_buffer) {
   return ObGeneralRpcStub::get_bloom_filter(DEFAULT_TIMEOUT, remote_server_,
                                             range, tablet_version, bf_version, bf_buffer);

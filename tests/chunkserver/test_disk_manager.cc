@@ -3,8 +3,8 @@
 #include "chunkserver/ob_disk_manager.h"
 #include "common/ob_malloc.h"
 
-using namespace oceanbase;
-using namespace oceanbase::chunkserver;
+using namespace sb;
+using namespace sb::chunkserver;
 
 TEST(obDiskManager, test) {
   ObDiskManager disk_m;

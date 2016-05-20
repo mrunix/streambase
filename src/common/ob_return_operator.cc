@@ -13,7 +13,7 @@
  */
 #include "ob_return_operator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObReturnOperator::ObReturnOperator() {
   initialize();
@@ -137,4 +137,4 @@ int ObReturnOperator::get_cell(ObInnerCellInfo** cell, bool* is_row_changed) {
   return ret;
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

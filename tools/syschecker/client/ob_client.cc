@@ -14,7 +14,7 @@
 #include <tblog.h>
 #include "ob_client.h"
 
-namespace oceanbase {
+namespace sb {
 namespace client {
 using namespace common;
 
@@ -153,4 +153,4 @@ int ObClient::get_last_frozen_version(int64_t& version) {
 }
 
 } // end namespace client
-} // end namespace oceanbase
+} // end namespace sb

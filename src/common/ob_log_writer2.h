@@ -19,8 +19,8 @@
 #include "ob_log_cursor.h"
 #include "ob_file.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace common {
 class ObLogWriterV2 {
  public:
@@ -45,6 +45,6 @@ class ObLogWriterV2 {
 };
 //typedef ObLogWriterV2 ObLogWriter;
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 ;
 #endif // OCEANBASE_COMMON_OB_LOG_WRITER2_H_

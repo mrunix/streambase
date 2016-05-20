@@ -26,7 +26,7 @@
 #include "ob_restart_server.h"
 #include "ob_root_server_config.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootTable2;
 class ObRestartServer {

@@ -15,7 +15,7 @@
 #define __OB_COMMON_OB_TICKET_QUEUE_H__
 #include "ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // not thread safe
 class ObTicketQueue {
@@ -42,6 +42,6 @@ class ObTicketQueue {
 };
 
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_TICKET_QUEUE_H__ */

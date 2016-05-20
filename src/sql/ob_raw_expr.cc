@@ -4,8 +4,8 @@
 #include "ob_prepare.h"
 #include "ob_result_set.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 bool ObRawExpr::is_const() const {
   return (type_ >= T_INT && type_ <= T_NULL);

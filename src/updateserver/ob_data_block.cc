@@ -16,9 +16,9 @@
 #include "common/utility.h"
 #include "ob_data_block.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 int64_t clear_lower_bits(const int64_t x, int64_t n_bits) {
   return x & ~((1 << n_bits) - 1);
@@ -121,4 +121,4 @@ int ObDataBlock::append(const char* buf, const int64_t len) {
 }
 
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb

@@ -36,11 +36,11 @@
 #include "updateserver/ob_log_sync_delay_stat.h"
 #include "ob_server_client.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 extern const char* print_obj(const ObObj& obj);
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class ObUpsClientRpc : public ObServerClient {
  public:
@@ -91,7 +91,7 @@ class ObUpsClientRpc : public ObServerClient {
   int store_memtable(const int64_t store_all, const int64_t timeout) {
     return send_command(OB_UPS_STORE_MEM_TABLE, store_all, timeout);
   }
-  int reload_store(const oceanbase::updateserver::StoreMgr::Handle store_handle, const int64_t timeout) {
+  int reload_store(const sb::updateserver::StoreMgr::Handle store_handle, const int64_t timeout) {
     return send_command(OB_UPS_RELOAD_STORE, store_handle, timeout);
   }
   int drop(const int64_t timeout) {
@@ -106,18 +106,18 @@ class ObUpsClientRpc : public ObServerClient {
   int get_last_frozen_version(int64_t& version, const int64_t timeout) {
     return send_request(OB_UPS_GET_LAST_FROZEN_VERSION, version, timeout);
   }
-  int fetch_ups_stat_info(oceanbase::updateserver::UpsStatMgr& stat_mgr, const int64_t timeout) {
+  int fetch_ups_stat_info(sb::updateserver::UpsStatMgr& stat_mgr, const int64_t timeout) {
     return send_request(OB_FETCH_STATS, stat_mgr, timeout);
   }
-  int memory_watch(oceanbase::updateserver::UpsMemoryInfo& memory_info, const int64_t timeout) {
+  int memory_watch(sb::updateserver::UpsMemoryInfo& memory_info, const int64_t timeout) {
     return send_request(OB_UPS_MEMORY_WATCH, memory_info, timeout);
   }
-  int memory_limit(const oceanbase::updateserver::UpsMemoryInfo& input,
-                   oceanbase::updateserver::UpsMemoryInfo& output, const int64_t timeout) {
+  int memory_limit(const sb::updateserver::UpsMemoryInfo& input,
+                   sb::updateserver::UpsMemoryInfo& output, const int64_t timeout) {
     return send_request(OB_UPS_MEMORY_LIMIT_SET, input, output, timeout);
   }
-  int priv_queue_conf(const oceanbase::updateserver::UpsPrivQueueConf& input,
-                      oceanbase::updateserver::UpsPrivQueueConf& output, const int64_t timeout) {
+  int priv_queue_conf(const sb::updateserver::UpsPrivQueueConf& input,
+                      sb::updateserver::UpsPrivQueueConf& output, const int64_t timeout) {
     return send_request(OB_UPS_PRIV_QUEUE_CONF_SET, input, output, timeout);
   }
   int reset_vip(const char* vip, const int64_t timeout) {
@@ -175,6 +175,6 @@ class ObUpsClientRpc : public ObServerClient {
 }; // class ObUpsClientRpc
 
 } // end of namespace tools
-} // end of namespace oceanbase
+} // end of namespace sb
 
 #endif // _OCEANBASE_TOOLS_UPS_CLIENT_RPC_H_

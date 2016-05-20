@@ -8,8 +8,8 @@
 #include <fcntl.h>
 
 using namespace std;
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 void write_buf_to_file(const char* filename, const char* buf, int64_t size) {
   if (NULL == buf || size <= 0 || NULL == filename)

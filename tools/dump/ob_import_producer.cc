@@ -4,7 +4,7 @@
 #include "tokenizer.h"
 #include "slice.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int ImportProducer::init() {
   return OB_SUCCESS;

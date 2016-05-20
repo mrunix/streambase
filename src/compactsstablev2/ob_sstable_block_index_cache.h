@@ -11,7 +11,7 @@
 class TestSSTableBlockIndexCache_construct_Test;
 class TestSSTableBlockIndexCache_init_Test;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace KVStoreCacheComponent {
 struct CSBlockIndexCacheValueDeepCopyTagV2 {
@@ -144,6 +144,6 @@ class ObSSTableBlockIndexCache {
   KVCache kv_cache_;
 };
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif

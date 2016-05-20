@@ -18,7 +18,7 @@
 #include "common/ob_spin_lock.h"
 #include "common/ob_recursive_mutex.h"
 #include "common/ob_malloc.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObTCBlock: public common::DLink {
  public:
@@ -394,7 +394,7 @@ void ObGlobalFactory<T, MAX_CLASS_NUM, MODID>::stat() {
   }
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 // utility for register class to global factory
 #define DEFINE_CREATOR(T, D)\

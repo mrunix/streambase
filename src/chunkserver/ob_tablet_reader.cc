@@ -14,7 +14,7 @@
 #include "ob_tablet_reader.h"
 #include "ob_chunk_server_main.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 ObTabletRemoteReader::ObTabletRemoteReader(common::ObDataBuffer& out_buffer, ObTabletManager& manager) :
   out_buffer_(out_buffer), manager_(manager), pos_(0),

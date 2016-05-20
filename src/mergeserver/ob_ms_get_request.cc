@@ -20,8 +20,8 @@
 #include "common/utility.h"
 #include "common/ob_action_flag.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 ObMergerGetRequest::ObMergerGetRequest(common::ObTabletLocationCacheProxy* cache_proxy,
                                        ObMergerAsyncRpcStub* async_rpc): ObMergerRequest(cache_proxy, async_rpc),
@@ -107,7 +107,7 @@ int ObMergerGetRequest::distribute_request() {
     int64_t sub_req_idx = -1;
     int64_t same_cs_subreq_idx = -1;
     int64_t ip = loc_list[svr_idx].server_.chunkserver_.get_ipv4();
-    if (req_dist_map_.get(ip, sub_req_idx) == oceanbase::common::hash::HASH_EXIST
+    if (req_dist_map_.get(ip, sub_req_idx) == sb::common::hash::HASH_EXIST
         && sub_req_idx >= 0) {
       same_cs_subreq_idx = sub_req_idx;
     } else {
@@ -124,7 +124,7 @@ int ObMergerGetRequest::distribute_request() {
         total_sub_request_count_ ++;
         sub_requests_[sub_req_idx].reset();
         sub_requests_[sub_req_idx].init(page_arena_);
-        if (!is_subreq_full && oceanbase::common::hash::HASH_INSERT_SUCC !=
+        if (!is_subreq_full && sb::common::hash::HASH_INSERT_SUCC !=
             (hash_err = req_dist_map_.set(loc_list[svr_idx].server_.chunkserver_.get_ipv4(), sub_req_idx))) {
           TBSYS_LOG(WARN, "fail to insert hash map [hash_err:%d]", hash_err);
           err = OB_ERROR;

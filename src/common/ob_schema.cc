@@ -75,7 +75,7 @@ const int POS_COLUM_TYPE = 3;
 const int POS_COLUM_SIZE = 4;
 
 const uint64_t ROW_KEY_COLUMN_ID = 1;
-const uint64_t MAX_ID_USED = oceanbase::common::OB_ALL_MAX_COLUMN_ID;//we limit our id in 2 byte, so update server can take advantage of this
+const uint64_t MAX_ID_USED = sb::common::OB_ALL_MAX_COLUMN_ID;//we limit our id in 2 byte, so update server can take advantage of this
 
 const int POS_COLUMN_GROUP_ID = 0;
 
@@ -84,7 +84,7 @@ const int32_t OB_SCHEMA_MAGIC_NUMBER = 0x4353; //SC
 }
 
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 using namespace std;
 
@@ -4062,4 +4062,4 @@ int ObSchemaManagerV2::change_table_id(const uint64_t table_id, const uint64_t n
 }
 
 } // end namespace common
-}   // end namespace oceanbase
+}   // end namespace sb

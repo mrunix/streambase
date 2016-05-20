@@ -20,7 +20,7 @@
 #include "common/ob_action_flag.h"
 #include "updateserver/ob_ups_utils.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 static char header_delima = '\002';
 static char body_delima = '\001';

@@ -16,7 +16,7 @@
 #ifndef _OB_MUTATE_HELPER_H
 #define _OB_MUTATE_HELPER_H 1
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObMutator;
 class ObMutateHelper {
@@ -31,7 +31,7 @@ class ObMutateHelper {
   ObMutateHelper& operator=(const ObMutateHelper& other);
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_MUTATE_HELPER_H */
 

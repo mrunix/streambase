@@ -17,11 +17,11 @@
 #include "common/ob_scan_param.h"
 #include "common/ob_column_filter.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
-using namespace oceanbase::compactsstable;
+using namespace sb::common;
+using namespace sb::sstable;
+using namespace sb::compactsstable;
 
 ObGetScanProxy::ObGetScanProxy(ObTabletManager& manager)
   : ObMergerRpcProxy(), tablet_manager_(manager) {
@@ -320,4 +320,4 @@ const ObNewRange& ObGetScanProxy::get_tablet_range() const {
   return tablet_range_;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

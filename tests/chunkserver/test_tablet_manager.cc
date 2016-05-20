@@ -21,10 +21,10 @@
 #include "common/ob_base_client.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
+using namespace sb::common;
+using namespace sb::chunkserver;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace chunkserver {
 static ObTabletManager tablet_manager;
@@ -369,7 +369,7 @@ TEST_F(TestTabletManager, test_merge_empty_tablets) {
 
 } // end namespace chunkserver
 } // end namespace tests
-} // end namespace oceanbase
+} // end namespace sb
 
 class FooEnvironment : public testing::Environment {
  public:

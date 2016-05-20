@@ -2,10 +2,10 @@
 #include "obmysql/packet/ob_mysql_command_packet.h"
 #include "obmysql/ob_mysql_util.h"
 #include <mysql.h>
-using namespace oceanbase;
-using namespace oceanbase::tools;
-using namespace oceanbase::common;
-using namespace oceanbase::obmysql;
+using namespace sb;
+using namespace sb::tools;
+using namespace sb::common;
+using namespace sb::obmysql;
 
 PacketQueue::PacketQueue() {
   discart_count_ = 0;

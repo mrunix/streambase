@@ -23,7 +23,7 @@
 #include "common/ob_transaction.h"
 #include "ob_table_engine.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ILockInfo : public ISessionCallback {
  public:

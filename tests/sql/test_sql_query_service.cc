@@ -21,7 +21,7 @@
 #include "ob_operator_factory_impl.h"
 #include "ob_fake_ups_rpc_stub2.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sql;
 using namespace chunkserver;

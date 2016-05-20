@@ -19,7 +19,7 @@
 
 #include "ob_sstable_mgr.h"
 
-namespace oceanbase {
+namespace sb {
 //forward decleration
 namespace tests {
 namespace updateserver {
@@ -69,6 +69,6 @@ class ObUpsFetchRunnable : public common::ObFetchRunnable {
 };
 
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_UPDATESERVER_OB_FETCH_RUNNABLE_H_

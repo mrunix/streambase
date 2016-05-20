@@ -20,7 +20,7 @@
 #include "page_arena.h"
 #include "ob_range2.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObTabletLocation {
   int64_t tablet_version_;
@@ -222,7 +222,7 @@ struct ObTableImportInfoList {
 };
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_ROOTSERVER_COMMONDATA_H_
 

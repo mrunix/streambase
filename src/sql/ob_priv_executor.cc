@@ -30,8 +30,8 @@
 #include "sql/ob_set_password_stmt.h"
 #include "sql/ob_rename_user_stmt.h"
 
-using namespace oceanbase;
-using namespace oceanbase::sql;
+using namespace sb;
+using namespace sb::sql;
 
 void ObPrivExecutor::reset() {
   stmt_ = NULL;
@@ -73,7 +73,7 @@ int ObPrivExecutor::get_row_desc(const common::ObRowDesc*& row_desc) const {
   return OB_NOT_SUPPORTED;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObPrivExecutor, PHY_PRIV_EXECUTOR);
 }

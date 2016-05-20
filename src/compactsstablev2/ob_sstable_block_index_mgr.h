@@ -11,7 +11,7 @@
 
 class TestSSTableBlockIndexMgr_construct_Test;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 enum SearchMode {
   OB_SEARCH_MODE_MIN_VALUE = 1,
@@ -238,5 +238,5 @@ class ObSSTableBlockIndexMgr {
   int64_t block_count_; //实际数目=block_count_ + 1
 };
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 #endif

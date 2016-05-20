@@ -19,7 +19,7 @@
 #include "ob_packet.h"
 #include "semaphore.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObClientWaitObj {
   ObClientWaitObj();
@@ -37,7 +37,7 @@ struct ObClientWaitObj {
   char buf_[OB_MAX_PACKET_LENGTH];
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_CLIENT_WAIT_OBJ_H__ */
 

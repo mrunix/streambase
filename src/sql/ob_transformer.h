@@ -29,7 +29,7 @@
 #include "common/ob_list.h"
 #include "common/ob_row_desc_ext.h"
 #include "common/ob_se_array.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObWhenFilter;
 class ObTransformer {
@@ -129,10 +129,10 @@ class ObTransformer {
     ObSelectStmt* select_stmt,
     bool& group_agg_pushed_down,
     bool& limit_pushed_down,
-    oceanbase::common::ObList<ObPhyOperator*>& phy_table_list,
-    oceanbase::common::ObList<ObBitSet<> >& bitset_list,
-    oceanbase::common::ObList<ObSqlRawExpr*>& remainder_cnd_list,
-    oceanbase::common::ObList<ObSqlRawExpr*>& none_columnlize_alias);
+    sb::common::ObList<ObPhyOperator*>& phy_table_list,
+    sb::common::ObList<ObBitSet<> >& bitset_list,
+    sb::common::ObList<ObSqlRawExpr*>& remainder_cnd_list,
+    sb::common::ObList<ObSqlRawExpr*>& none_columnlize_alias);
   int gen_physical_kill_stmt(
     ObLogicalPlan* logical_plan,
     ObPhysicalPlan* physical_plan,
@@ -153,10 +153,10 @@ class ObTransformer {
     ObPhysicalPlan* physical_plan,
     ErrStat& err_stat,
     ObSelectStmt* select_stmt,
-    oceanbase::common::ObList<ObPhyOperator*>& phy_table_list,
-    oceanbase::common::ObList<ObBitSet<> >& bitset_list,
-    oceanbase::common::ObList<ObSqlRawExpr*>& remainder_cnd_list,
-    oceanbase::common::ObList<ObSqlRawExpr*>& none_columnlize_alias);
+    sb::common::ObList<ObPhyOperator*>& phy_table_list,
+    sb::common::ObList<ObBitSet<> >& bitset_list,
+    sb::common::ObList<ObSqlRawExpr*>& remainder_cnd_list,
+    sb::common::ObList<ObSqlRawExpr*>& none_columnlize_alias);
   int gen_phy_group_by(
     ObLogicalPlan* logical_plan,
     ObPhysicalPlan* physical_plan,
@@ -415,6 +415,6 @@ inline ObSqlContext* ObTransformer::get_sql_context() {
   return sql_context_;
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_TRANSFORMER_H */

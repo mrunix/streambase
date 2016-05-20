@@ -17,7 +17,7 @@
 #include "common/ob_schema.h"
 #include "common/ob_tablet_info.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootServer2;
 class ObRootBalancer;

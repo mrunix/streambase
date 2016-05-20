@@ -20,9 +20,9 @@
 #include "mock_chunk_server.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
-using namespace oceanbase::mergeserver::test;
+using namespace sb::common;
+using namespace sb::mergeserver;
+using namespace sb::mergeserver::test;
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();

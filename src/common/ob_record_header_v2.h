@@ -5,7 +5,7 @@
 #include "ob_crc64.h"
 #include "ob_record_header.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObRecordHeaderV2 {
   int16_t magic_;
@@ -87,6 +87,6 @@ struct ObRecordHeaderV2 {
                                int64_t& payload_size);
 };
 }//end namespace commmon
-}//end namespace oceanbase
+}//end namespace sb
 #endif
 

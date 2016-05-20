@@ -2,8 +2,8 @@
 #include "common/ob_mutator.h"
 #include "common/ob_get_param.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 int ObMutatorParamDecoder::add_cell(const ObCellInfo& cell, ObGetParam& get_param) {
   // reset the value at first

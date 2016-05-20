@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "dlist.h"
 #include "tbsys.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 DLink::DLink() {
   prev_ = NULL;

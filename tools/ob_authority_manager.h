@@ -23,7 +23,7 @@
 #include "client/cpp/oceanbase.h"
 #include "ob_vector.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class AuthorityManager {
  public:

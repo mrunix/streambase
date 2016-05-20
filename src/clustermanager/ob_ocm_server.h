@@ -26,9 +26,9 @@
 #include "common/ob_single_server.h"
 #include "common/ob_packet_factory.h"
 #include "ob_ocm_service.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace clustermanager {
 class OcmService;
 static const int32_t RESPONSE_PACKET_BUFFER_SIZE = 1024 * 1024 * 2; //2MB
@@ -61,7 +61,7 @@ class OcmServer: public common::ObBaseServer {
   static const int DEFAULT_LISTEN_PORT = 8000;
 };
 } // end namespace clustermanager
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #endif /* _OB_OCM_SERVER_H */

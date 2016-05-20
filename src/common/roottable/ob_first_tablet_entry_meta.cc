@@ -18,7 +18,7 @@
 #include "common/ob_tsi_factory.h"
 #include "common/ob_atomic.h"
 #include <cstdio>
-using namespace oceanbase::common;
+using namespace sb::common;
 
 struct ObFirstTabletEntryMeta::RefCountRow {
   ObTabletMetaTableRow meta_;

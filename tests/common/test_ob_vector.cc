@@ -3,7 +3,7 @@
 #include "common/ob_malloc.h"
 #include "common/ob_vector.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 struct Nice {

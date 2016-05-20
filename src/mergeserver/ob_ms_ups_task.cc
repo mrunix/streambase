@@ -18,8 +18,8 @@
 #include "ob_merge_server_service.h"
 #include "common/ob_malloc.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 ObMergerUpsTask::ObMergerUpsTask() {
   rpc_proxy_ = NULL;

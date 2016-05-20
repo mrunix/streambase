@@ -17,7 +17,7 @@
 
 #include "common/ob_schema.h"
 
-namespace oceanbase {
+namespace sb {
 namespace syschecker {
 struct ObColumnPair {
   const common::ObColumnSchemaV2* org_; //original column
@@ -123,6 +123,6 @@ class ObSyscheckerSchema {
   ObColumnPair jt_addable_column_[common::OB_MAX_COLUMN_NUMBER];
 };
 } // end namespace syschecker
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_SYSCHECKER_SCHEMA_H_

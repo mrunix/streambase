@@ -27,7 +27,7 @@
 #include "test_rowkey_helper.h"
 
 using namespace std;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 static CharArena  allocator_;
 
@@ -54,7 +54,7 @@ void check_cell_with_op(const ObCellInfo& ori_cell_info, const ObCellInfo& new_c
   }
 }
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace common {
 
@@ -812,7 +812,7 @@ TEST_F(TestObMerger, test_empty_row_unordered) {
 
 } // end namespace common
 } // end namespace tests
-} // end namespace oceanbase
+} // end namespace sb
 
 
 int main(int argc, char** argv) {

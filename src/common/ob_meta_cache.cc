@@ -19,7 +19,7 @@
 #include "ob_meta_cache.h"
 #include "ob_action_flag.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 const int64_t BUF_SIZE = 1024 * 16;     //buffer size
 ObPermInfoKey::ObPermInfoKey() : table_id_(OB_INVALID_ID), user_name_(NULL),
@@ -91,9 +91,9 @@ int ObPermInfoKey::build_get_param(ObGetParam& get_param) {
 
 int64_t ObPermInfoKey::hash() const {
   uint32_t hash_val = 0;
-  hash_val = oceanbase::common::murmurhash2(&table_id_, sizeof(table_id_), hash_val);
+  hash_val = sb::common::murmurhash2(&table_id_, sizeof(table_id_), hash_val);
   if (NULL != user_name_ && 0 < length_) {
-    hash_val = oceanbase::common::murmurhash2(user_name_, static_cast<int32_t>(length_), hash_val);
+    hash_val = sb::common::murmurhash2(user_name_, static_cast<int32_t>(length_), hash_val);
   }
   return hash_val;
 }
@@ -219,7 +219,7 @@ int ObUserInfoKey:: build_get_param(ObGetParam& get_param) {
 int64_t ObUserInfoKey::hash() const {
   uint32_t hash_val = 0;
   if (NULL != user_name_ && 0 < length_) {
-    hash_val = oceanbase::common::murmurhash2(user_name_, static_cast<int32_t>(length_), hash_val);
+    hash_val = sb::common::murmurhash2(user_name_, static_cast<int32_t>(length_), hash_val);
   }
   return hash_val;
 }
@@ -326,7 +326,7 @@ int ObSKeyInfoKey::build_get_param(ObGetParam& get_param) {
 
 int64_t ObSKeyInfoKey::hash() const {
   uint32_t hash_val = 0;
-  hash_val = oceanbase::common::murmurhash2(&skey_version_, sizeof(skey_version_), hash_val);
+  hash_val = sb::common::murmurhash2(&skey_version_, sizeof(skey_version_), hash_val);
   return hash_val;
 }
 

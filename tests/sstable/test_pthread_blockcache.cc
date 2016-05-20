@@ -21,10 +21,10 @@
 #include "chunkserver/ob_fileinfo_cache.h"
 #include "gtest/gtest.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace chunkserver;
 using namespace sstable;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 // block cache压力测试代码，请先使用prepare参数运行一次生成测试数据
 

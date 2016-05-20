@@ -1,8 +1,8 @@
 #include "ob_client.h"
 #include "common/ob_scan_param.h"
 #include "common/ob_scanner.h"
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 int ObClient::prepare() {
   // get merge server list

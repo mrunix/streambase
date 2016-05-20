@@ -24,7 +24,7 @@
 #include "sstable/ob_sstable_reader.h"
 #include "ob_sstable_mgr.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObTransferSSTableQuery {
  public:
@@ -61,6 +61,6 @@ class ObTransferSSTableQuery {
   sstable::ObSSTableRowCache* sstable_row_cache_;
 };
 }//end namespace updateserver
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif  // OCEANBASE_UPDATESERVER_OB_TRANSFER_SSTABLE_QUERY_H_

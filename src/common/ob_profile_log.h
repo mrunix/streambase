@@ -1,7 +1,7 @@
 #ifndef _OB_PROFILE_LOG_H_
 #define _OB_PROFILE_LOG_H_
 
-#define PROFILE_LOGGER oceanbase::common::ObProfileLogger::getInstance()
+#define PROFILE_LOGGER sb::common::ObProfileLogger::getInstance()
 #define PROFILE_LOG(level,fmt,args...) if (ObProfileLogger::level <= PROFILE_LOGGER->getLogLevel()) PROFILE_LOGGER->printlog(ObProfileLogger::level, __FILE__, __LINE__, __FUNCTION__, pthread_self(), fmt,##args)
 #define TRACEID (GET_TSI_MULT(TraceId, TSI_COMMON_PACKET_TRACE_ID_1))->uval_
 #define SRC_CHID *(GET_TSI_MULT(uint32_t, TSI_COMMON_PACKET_SOURCE_CHID_1))
@@ -22,7 +22,7 @@
 
 #include "ob_trace_id.h"
 #include "ob_tsi_factory.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 // 打印ip, port, seq, chid,default
 class ObProfileLogger {

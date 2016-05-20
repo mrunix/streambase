@@ -20,7 +20,7 @@
 #include "rootserver/ob_root_server_config.h"
 #include "rootserver/ob_root_rpc_stub.h"
 #include "rootserver/ob_root_operation_data.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObBypassTaskInfo;
 }

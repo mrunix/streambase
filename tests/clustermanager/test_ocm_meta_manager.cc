@@ -3,8 +3,8 @@
 #include "ob_ocm_meta_manager.h"
 #include "gtest/gtest.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::clustermanager;
+using namespace sb::common;
+using namespace sb::clustermanager;
 
 TEST(TestOcmMetaManager, add_ocm_info) {
   ObOcmMetaManager ocm_meta_manager;

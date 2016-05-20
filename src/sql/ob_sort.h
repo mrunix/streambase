@@ -20,7 +20,7 @@
 #include "ob_in_memory_sort.h"
 #include "ob_merge_sort.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObSort: public ObSingleChildPhyOperator {
  public:
@@ -71,6 +71,6 @@ inline const common::ObArray<ObSortColumn>& ObSort::get_sort_columns() const {
   return sort_columns_;
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_SORT_H */

@@ -16,7 +16,7 @@
 #include "common/ob_malloc.h"
 #include "ob_server_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace client {
 using namespace common;
 
@@ -104,4 +104,4 @@ int ObServerManager::add_chunk_server(const ObServer& chunk_server) {
 }
 
 } // end namespace client
-} // end namespace oceanbase
+} // end namespace sb

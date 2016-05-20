@@ -2,8 +2,8 @@
 #include "load_runner.h"
 #include "load_manager.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 LoadWatcher::LoadWatcher() {
   compare_ = false;

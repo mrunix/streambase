@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include "test_key_str.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /* The size of Key for Btree */
 static const int32_t MAX_SIZE = 16;
@@ -334,4 +334,4 @@ void tear_down() {
   }
 }
 }//end of namespace common
-}// end of namespace oceanbase
+}// end of namespace sb

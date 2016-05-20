@@ -15,9 +15,9 @@
 #include "ob_groupby_operator.h"
 #include "ob_rowkey.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
-using namespace oceanbase::common::hash;
+using namespace sb::common::hash;
 
 ObGroupByOperator::ObGroupByOperator() {
   param_ = NULL;
@@ -323,4 +323,4 @@ bool ObGroupByOperator::has_group(const ObGroupKey& key) {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

@@ -32,7 +32,7 @@
 #include "ob_log_rpc_stub.h"
 #include "ob_log_server_selector.h"
 
-namespace oceanbase {
+namespace sb {
 namespace liboblog {
 class ObLogSpec : public IObLogSpec {
  public:

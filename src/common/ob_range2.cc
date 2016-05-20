@@ -18,7 +18,7 @@
 #include "utility.h"
 #include "ob_range2.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 bool ObNewRange::intersect(const ObNewRange& r) const {

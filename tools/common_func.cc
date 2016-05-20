@@ -32,9 +32,9 @@
 #include "test_utils.h"
 #include "sstable/ob_sstable_reader.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::common::serialization;
-using namespace oceanbase::chunkserver;
+using namespace sb::common;
+using namespace sb::common::serialization;
+using namespace sb::chunkserver;
 
 hash::ObHashMap<const char*, int> obj_type_map;
 
@@ -290,7 +290,7 @@ int parse_rowkey(const char* strkey, ObObj* array, int64_t& size) {
   return ret;
 }
 
-int parse_range_str(const char* range_str, int hex_format, oceanbase::common::ObNewRange& range) {
+int parse_range_str(const char* range_str, int hex_format, sb::common::ObNewRange& range) {
   UNUSED(hex_format);
   //[int:1,varchar:aaa; int:2,varchar:bbb]
   int ret = OB_SUCCESS;

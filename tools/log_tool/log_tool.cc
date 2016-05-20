@@ -27,8 +27,8 @@
 #include "file_utils.h"
 #include "ob_utils.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
 const char* _usages = "Usages:\n"
                       "\t# You can set env var 'log_level' to 'DEBUG'/'WARN'...\n"

@@ -17,7 +17,7 @@
 
 #include "ob_common_rpc_stub.h"
 #include "common/utility.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 const int32_t ObCommonRpcStub :: DEFAULT_VERSION = 1;
 const int64_t ObCommonRpcStub :: DEFAULT_RPC_TIMEOUT_US = 1 * 1000 * 1000;

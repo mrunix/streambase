@@ -55,7 +55,7 @@
       ? UPS_STAT_LL_##req_type##_##stat_type \
       : UPS_STAT_NL_##req_type##_##stat_type
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObGetParam;
 class ObScanParam;
@@ -195,9 +195,9 @@ const char* print_array(const T& array, const int64_t length, const char* deli =
   int64_t pos = 0;
   for (int64_t i = 0; i < length; i++) {
     if ((length - 1) > i) {
-      oceanbase::common::databuff_printf(buffer, BUFFER_SIZE, pos, "%s%s", oceanbase::common::to_cstring(array[i]), deli);
+      sb::common::databuff_printf(buffer, BUFFER_SIZE, pos, "%s%s", sb::common::to_cstring(array[i]), deli);
     } else {
-      oceanbase::common::databuff_printf(buffer, BUFFER_SIZE, pos, "%s", oceanbase::common::to_cstring(array[i]));
+      sb::common::databuff_printf(buffer, BUFFER_SIZE, pos, "%s", sb::common::to_cstring(array[i]));
     }
   }
   return buffer;

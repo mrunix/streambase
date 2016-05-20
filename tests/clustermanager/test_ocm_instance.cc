@@ -1,9 +1,9 @@
 #include "clustermanager/ob_ocm_instance.h"
 #include "gtest/gtest.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::clustermanager;
-namespace oceanbase {
+using namespace sb::common;
+using namespace sb::clustermanager;
+namespace sb {
 namespace tests {
 namespace clustermanager {
 class TestObOcmInstance : public ObOcmInstance {

@@ -11,9 +11,9 @@
 
 #include "slave_mgr_4_test.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace common {
 class TestReplayThread : public ObLogReplayRunnable {

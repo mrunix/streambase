@@ -16,7 +16,7 @@
 #include "ob_merger_sorted_operator.h"
 #include "common/ob_iterator.h"
 #include "common/ob_return_operator.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObCellArray;
 }

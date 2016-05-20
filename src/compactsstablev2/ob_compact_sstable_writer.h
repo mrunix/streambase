@@ -31,7 +31,7 @@ class TestCompactSSTableWriter_set_sstable_filepath1_Test;
 //#define OB_COMPACT_SSTABLE_ALLOW_BLOOMFILTER_
 //#define OB_COMPACT_SSTABLE_ALLOW_LAST_CHECK_ROWKEY_
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 class ObCompactSSTableWriter {
  public:
@@ -352,6 +352,6 @@ class ObCompactSSTableWriter {
   QueryStruct query_struct_;
 };
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 #endif
 

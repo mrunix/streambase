@@ -21,7 +21,7 @@
 #include "ob_merger_reverse_operator.h"
 #include "ob_merger_sorted_operator.h"
 #include "ob_merger_groupby_operator.h"
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMergerSortedOperator;
 class ObMergerReverseOperator;

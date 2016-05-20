@@ -35,7 +35,7 @@
 #include "ob_inc_seq.h"
 
 #define INVALID_SESSION_DESCRIPTOR IDMAP_INVALID_ID
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class BaseSessionCtx;
 class ObTriggerHandler;

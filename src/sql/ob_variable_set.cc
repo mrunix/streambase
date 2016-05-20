@@ -18,8 +18,8 @@
 #include "common/ob_obj_cast.h"
 #include "common/ob_trace_log.h"
 #include "common/ob_common_stat.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObVariableSet::ObVariableSet()
   : variable_nodes_(), rpc_(NULL), table_id_(OB_INVALID_ID)
@@ -206,7 +206,7 @@ int ObVariableSet::process_variables_set() {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObVariableSet, PHY_VARIABLE_SET);
 }

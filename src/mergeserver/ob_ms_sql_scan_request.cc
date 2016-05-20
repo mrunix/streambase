@@ -21,10 +21,10 @@
 #include "ob_ms_async_rpc.h"
 #include "ob_read_param_modifier.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 ObMsSqlScanRequest::ObMsSqlScanRequest() {
   total_sub_request_count_ = 0;
@@ -816,7 +816,7 @@ void ObMsSqlScanRequest::reset() {
   inited_ = false;
 }
 
-int ObMsSqlScanRequest::get_next_row(oceanbase::common::ObRow& row) {
+int ObMsSqlScanRequest::get_next_row(sb::common::ObRow& row) {
   if (true == is_finish()) {
     // nop
   } else {

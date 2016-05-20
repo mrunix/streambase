@@ -44,8 +44,8 @@ static MockClient g_update_client;
 static int64_t MEMTABLE_START_VERSION = 2;
 static const int MY_VARCHAR_LEN = 20;
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 static int set_server_addr(const char* addr_str, ObServer& server);
 
 struct ConfigParam {

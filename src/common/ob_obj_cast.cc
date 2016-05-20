@@ -16,7 +16,7 @@
 #include "ob_obj_cast.h"
 #include <time.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 static int identity(const ObObjCastParams& params, const ObExprObj& in, ObExprObj& out) {
   UNUSED(params);
@@ -1080,4 +1080,4 @@ int obj_cast(ObObj& cell, const ObObjType expected_type, ObString& cast_buffer) 
   return obj_cast(cell, expected_type, cast_buffer.ptr(), cast_buffer.length(), used_buf_len);
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

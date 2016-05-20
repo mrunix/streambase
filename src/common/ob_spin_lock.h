@@ -18,7 +18,7 @@
 #include <pthread.h>
 #include "tbsys.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * A simple wrapper of pthread spin lock
@@ -107,6 +107,6 @@ inline ObLockGuard<LockT>::~ObLockGuard() {
 
 typedef ObLockGuard<ObSpinLock> ObSpinLockGuard;
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_SPIN_LOCK_H */

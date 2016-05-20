@@ -3,8 +3,8 @@
 #include <set>
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 TaskFactory::TaskFactory() {
   memtable_version_ = 0;

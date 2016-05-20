@@ -9,7 +9,7 @@
 #include "ob_packet_queue_thread.h"
 #include "ob_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObSingleServer : public ObBaseServer, public ObPacketQueueHandler {
  public:

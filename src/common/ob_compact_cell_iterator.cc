@@ -17,7 +17,7 @@
 #include "ob_compact_cell_iterator.h"
 #include "ob_object.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 ObCompactCellIterator::ObCompactCellIterator()

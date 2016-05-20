@@ -49,8 +49,8 @@
 #include "ob_table_rpc_scan.h"
 #include "ob_get_cur_time_phy_operator.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
 template <typename OperatorT>
 static int init_hook_env(ObSqlContext& context, ObPhysicalPlan*& phy_plan, OperatorT*& op) {

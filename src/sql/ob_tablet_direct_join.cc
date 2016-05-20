@@ -17,7 +17,7 @@
 #include "ob_tablet_direct_join.h"
 #include "common/utility.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sql;
 
@@ -109,7 +109,7 @@ int ObTabletDirectJoin::get_ups_row(const ObRowkey& rowkey, ObUpsRow& ups_row, c
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObTabletDirectJoin, PHY_TABLET_DIRECT_JOIN);
 }

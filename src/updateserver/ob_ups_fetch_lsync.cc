@@ -15,8 +15,8 @@
 #include "ob_ups_fetch_lsync.h"
 
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
 ObUpsFetchLsync::ObUpsFetchLsync() {
   rpc_stub_ = NULL;

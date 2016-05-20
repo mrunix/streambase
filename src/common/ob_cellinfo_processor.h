@@ -28,7 +28,7 @@
 #include "ob_object.h"
 #include "ob_action_flag.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class CellInfoProcessor {
  public:

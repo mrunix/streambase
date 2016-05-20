@@ -4,7 +4,7 @@
 #include "ob_schema.h"
 #include "ob_rowkey_helper.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 bool ObCellInfo::operator == (const ObCellInfo& other) const {
   return ((table_name_ == other.table_name_) && (table_id_ == other.table_id_)

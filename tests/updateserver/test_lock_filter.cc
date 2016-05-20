@@ -16,10 +16,10 @@
 #include "updateserver/ob_ups_lock_filter.h"
 #include "ob_mock_ups.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
-using namespace oceanbase::updateserver;
-namespace oceanbase {
+using namespace sb::common;
+using namespace sb::sql;
+using namespace sb::updateserver;
+namespace sb {
 namespace test {
 struct Config: public BaseConfig {
   int64_t thread_num;

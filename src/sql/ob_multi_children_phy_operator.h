@@ -18,7 +18,7 @@
 #include "ob_phy_operator.h"
 #include "common/ob_se_array.h"
 #include "common/ob_define.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObMultiChildrenPhyOperator: public ObPhyOperator {
  public:
@@ -44,7 +44,7 @@ class ObMultiChildrenPhyOperator: public ObPhyOperator {
   common::ObSEArray<ObPhyOperator*, common::OB_PREALLOCATED_NUM> children_ops_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* OCEANBASE_SQL_OB_MULTI_CHILDREN_PHY_OPERATOR_H_ */
 

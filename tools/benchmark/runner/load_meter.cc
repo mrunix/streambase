@@ -9,8 +9,8 @@
 #include "load_runner.h"
 
 using namespace std;
-using namespace oceanbase::tools;
-using namespace oceanbase::common;
+using namespace sb::tools;
+using namespace sb::common;
 
 void print_usage() {
   fprintf(stderr, "ob_meter [OPTION]\n");

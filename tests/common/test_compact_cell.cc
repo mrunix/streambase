@@ -5,7 +5,7 @@
 #include "common/ob_malloc.h"
 #include "common/ob_string.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 #define OK(value) ASSERT_EQ(OB_SUCCESS, (value))

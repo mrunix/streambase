@@ -19,7 +19,7 @@
 #include "ob_syschecker_rule.h"
 #include "ob_syschecker_stat.h"
 
-namespace oceanbase {
+namespace sb {
 namespace syschecker {
 class ObReadWorker : public tbsys::CDefaultRunnable {
  public:
@@ -71,6 +71,6 @@ class ObReadWorker : public tbsys::CDefaultRunnable {
   ObSyscheckerParam& param_;
 };
 } // end namespace syschecker
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_SYSCHECKER_READ_WORKER_H_

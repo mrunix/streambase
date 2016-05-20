@@ -16,7 +16,7 @@
 
 #include "common/ob_schema.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 class ObOlapdriveSchema {
  public:
@@ -53,6 +53,6 @@ class ObOlapdriveSchema {
   common::ObSchemaManagerV2 schema_manager_;
 };
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_OLAPDRIVE_SCHEMA_H

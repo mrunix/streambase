@@ -27,7 +27,7 @@
 #include "load_consumer.h"
 #include "load_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 struct MeterParam;
 class LoadRunner {

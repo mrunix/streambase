@@ -7,10 +7,10 @@
 #include "page_arena.h"
 #include "test_helper.h"
 #include "../common/test_rowkey_helper.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
-using namespace oceanbase::sstable;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::chunkserver;
+using namespace sb::sstable;
 
 static const int64_t VERSION_1 = 1;
 static const int64_t VERSION_2 = 2;

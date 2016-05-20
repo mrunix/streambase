@@ -48,12 +48,12 @@
 #include "ob_root_ups_provider.h"
 #include "ob_root_ddl_operator.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 
-using oceanbase::common::databuff_printf;
+using sb::common::databuff_printf;
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 const int WAIT_SECONDS = 1;
 const int RETURN_BACH_COUNT = 8;
@@ -90,7 +90,7 @@ const char* ROOT_3_TABLET_VERSION = "3_tablet_version";
 const char* ROOT_OCCUPY_SIZE = "occupy_size";
 const char* ROOT_RECORD_COUNT = "record_count";
 
-char max_row_key[oceanbase::common::OB_MAX_ROW_KEY_LENGTH];
+char max_row_key[sb::common::OB_MAX_ROW_KEY_LENGTH];
 
 const int NO_REPORTING = 0;
 const int START_REPORTING = 1;

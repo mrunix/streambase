@@ -19,7 +19,7 @@
 #include "common/ob_schema.h"
 #include <gtest/gtest.h>
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 #define TABLE_ID 1000

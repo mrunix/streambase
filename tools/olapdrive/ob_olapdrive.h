@@ -22,7 +22,7 @@
 #include "ob_olapdrive_schema.h"
 #include "ob_olapdrive_meta.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 class ObOlapdrive {
  public:
@@ -50,6 +50,6 @@ class ObOlapdrive {
   ObReadWorker read_worker_;
 };
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_OLAPDRIVE_H

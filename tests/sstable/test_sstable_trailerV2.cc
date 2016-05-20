@@ -22,12 +22,12 @@
 #include "common/file_utils.h"
 #include "common/file_directory_utils.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::sstable;
 using namespace std;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace sstable {
 class TestObSSTableTrailerV2: public ::testing::Test {
@@ -86,7 +86,7 @@ TEST_F(TestObSSTableTrailerV2, deserialize_and_check) {
 }
 }//end namespace sstable
 }//end namespace tests
-}//end namespace oceanbase
+}//end namespace sb
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();

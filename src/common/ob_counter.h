@@ -17,7 +17,7 @@
 #include "tbsys.h"
 #include "threadmutex.h"
 #include <pthread.h>
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObCounter {
  public:

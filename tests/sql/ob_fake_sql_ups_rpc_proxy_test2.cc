@@ -20,7 +20,7 @@
 #include "ob_fake_sql_ups_rpc_proxy2.h"
 #include "test_utility.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sql::test;
 

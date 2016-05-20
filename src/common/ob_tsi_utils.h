@@ -28,7 +28,7 @@
 #define __OB_COMMON_OB_TSI_UTILS_H__
 #include "ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 volatile int64_t __next_tid __attribute__((weak));
 inline int64_t itid() {
@@ -84,6 +84,6 @@ struct ExpStat {
   const char* metric_name_;
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_TSI_UTILS_H__ */

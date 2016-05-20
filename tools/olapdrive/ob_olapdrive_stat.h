@@ -19,7 +19,7 @@
 #include "common/ob_atomic.h"
 #include "common/ob_timer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 class ObOlapdriveStat {
  public:
@@ -72,6 +72,6 @@ class ObOlapdriveStat {
   ObStatDumper stat_dumper_;
 };
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_OLAPDRIVE_STAT_H

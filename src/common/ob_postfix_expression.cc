@@ -18,9 +18,9 @@
 
 #include "ob_postfix_expression.h"
 #include "ob_cell_array.h"
-using namespace oceanbase::common::ObExpression;
+using namespace sb::common::ObExpression;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 static inline int reserved_func(const ObExprObj& obj1, const ObExprObj& obj2, ObExprObj& result) {
   int err = OB_INVALID_ARGUMENT;
@@ -445,7 +445,7 @@ ObPostfixExpression& ObPostfixExpression::operator=(const ObPostfixExpression& o
   return *this;
 }
 
-int ObPostfixExpression::set_expression(const ObObj* expr, oceanbase::common::ObStringBuf&   data_buf) {
+int ObPostfixExpression::set_expression(const ObObj* expr, sb::common::ObStringBuf&   data_buf) {
   int err = OB_SUCCESS;
   int i = 0;
   postfix_size_ = 0;  // reset postfix size

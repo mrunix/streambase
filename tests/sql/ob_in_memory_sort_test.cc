@@ -16,8 +16,8 @@
 #include "sql/ob_in_memory_sort.h"
 #include <gtest/gtest.h>
 #include "ob_fake_table.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 class ObInMemorySortTest: public ::testing::Test {
  public:

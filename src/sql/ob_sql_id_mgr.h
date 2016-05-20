@@ -21,7 +21,7 @@
 #include <common/hash/ob_hashmap.h>
 #include <common/ob_string_buf.h>
 #include "common/ob_new_scanner.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 typedef common::ObString SQLIdKey;
 typedef int64_t SQLIdValue;
@@ -69,6 +69,6 @@ class ObSQLIdMgr {
   common::ObStringBuf   sql_str_buf_;
 };
 } // namespace sql
-} // namespace oceanbase
+} // namespace sb
 
 #endif // OCEANBASE_SQL_OB_SQL_ID_MGR

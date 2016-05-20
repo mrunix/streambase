@@ -31,8 +31,8 @@
 #define CAST_TO_INHERITANCE(TypeName) \
   const TypeName *o_ptr = static_cast<const TypeName*>(other);
 
-//typedef oceanbase::common::ObArray<oceanbase::sql::ObSqlExpression, oceanbase::common::ModulePageAllocator, oceanbase::common::ObArrayExpressionCallBack<oceanbase::sql::ObSqlExpression> > ObArraySqlEx;
-namespace oceanbase {
+//typedef sb::common::ObArray<sb::sql::ObSqlExpression, sb::common::ModulePageAllocator, sb::common::ObArrayExpressionCallBack<sb::sql::ObSqlExpression> > ObArraySqlEx;
+namespace sb {
 namespace sql {
 
 class ObPhysicalPlan;
@@ -161,10 +161,10 @@ inline void ObPhyOperator::free(ObPhyOperator* op) {
   ObPhyOperatorTCFactory::get_instance()->put(op);
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #define REGISTER_PHY_OPERATOR(OP, OP_TYPE) \
-  REGISTER_CREATOR(oceanbase::sql::ObPhyOperatorGFactory, ObPhyOperator, OP, OP_TYPE)
+  REGISTER_CREATOR(sb::sql::ObPhyOperatorGFactory, ObPhyOperator, OP, OP_TYPE)
 
 #endif /* _OB_PHY_OPERATOR_H */

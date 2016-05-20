@@ -16,8 +16,8 @@
 #include "ob_sort.h"
 #include "common/utility.h"
 #include "ob_physical_plan.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObSort::ObSort()
   : mem_size_limit_(0), sort_reader_(&in_mem_sort_) {
@@ -159,7 +159,7 @@ int ObSort::get_next_row(const common::ObRow*& row) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObSort, PHY_SORT);
 }

@@ -19,7 +19,7 @@
 
 #include "common/ob_kv_storecache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObTabletJoinCacheKey {
  public:

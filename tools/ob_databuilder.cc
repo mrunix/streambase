@@ -24,11 +24,11 @@
 
 const char* g_sstable_directory = "./";
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::compactsstablev2;
+using namespace sb::common;
+using namespace sb::compactsstablev2;
 
 char DELIMETER = '\0';
 int32_t RAW_DATA_FILED = 0;
@@ -766,8 +766,8 @@ int ObDataBuilder::create_and_append_rowkey(const char* fields, int index, char*
 }
 
 
-using namespace oceanbase;
-using namespace oceanbase::chunkserver;
+using namespace sb;
+using namespace sb::chunkserver;
 
 void usage(const char* program_name) {
   printf("Usage: %s  -s schema_file\n"

@@ -3,8 +3,8 @@
 #include "common/data_buffer.h"
 #include "base_client.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 int BaseClient::init() {
   int ret = OB_SUCCESS;

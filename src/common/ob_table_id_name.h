@@ -20,7 +20,7 @@
 #include "common/ob_string.h"
 #include "common/nb_accessor/ob_nb_accessor.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObTableIdName {
   ObString table_name_;

@@ -19,7 +19,7 @@
 #include "common/ob_iterator.h"
 #include "sstable/ob_sstable_scanner.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 
 class ObMultiVersionTabletImage;
@@ -38,7 +38,7 @@ class ObMergeReader : public common::ObIterator {
   virtual int get_cell(common::ObCellInfo** cell);
   virtual int get_cell(common::ObCellInfo** cell, bool* is_row_changed);
  public:
-  int scan(const oceanbase::common::ObScanParam& scan_param);
+  int scan(const sb::common::ObScanParam& scan_param);
   void reset();
  private:
   bool initialized_;
@@ -48,7 +48,7 @@ class ObMergeReader : public common::ObIterator {
   sstable::ObSSTableScanner scanner_;
 };
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #endif //OCEANBASE_CHUNKSERVER_H_

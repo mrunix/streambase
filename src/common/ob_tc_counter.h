@@ -20,7 +20,7 @@
 #include "ob_tl_store.h"
 #include "ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template <class Alloc = DefaultThreadStoreAlloc>
 class ObTcCounter {
@@ -149,6 +149,6 @@ void ObTcCounter<Alloc>::ValueReseter::operator()(void* ptr) {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_OB_TC_COUNTER_H_

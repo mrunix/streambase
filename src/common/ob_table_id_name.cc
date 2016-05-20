@@ -1,7 +1,7 @@
 #include "ob_table_id_name.h"
 #include "utility.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace nb_accessor;
 

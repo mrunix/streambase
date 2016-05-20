@@ -15,9 +15,9 @@
 #include "common/utility.h"
 #include "ob_join_cache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObJoinCache::ObJoinCache() : inited_(false) {
 
@@ -116,4 +116,4 @@ int ObJoinCache::put_row(const ObJoinCacheKey& key, const ObRowCellVec& row_cell
 }
 
 } //end namespace mergeserver
-} //end namespace oceanbase
+} //end namespace sb

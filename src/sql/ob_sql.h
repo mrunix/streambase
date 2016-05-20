@@ -21,7 +21,7 @@
 #include "sql/ob_logical_plan.h"
 #include "sql/ob_multi_phy_plan.h"
 #include "obmysql/ob_mysql_global.h" // for EMySQLFieldType
-namespace oceanbase {
+namespace sb {
 namespace sql {
 struct ObStmtPrepareResult;
 // this class is the main interface for sql module
@@ -107,6 +107,6 @@ class ObSql {
   // data members
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_SQL_H */

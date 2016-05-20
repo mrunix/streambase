@@ -23,7 +23,7 @@
 #include "page_arena.h"
 #include "ob_read_common_data.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 namespace {
 ModulePageAllocator g_page_arena_allocator(ObModIds::OB_MS_CELL_ARRAY);
@@ -512,7 +512,7 @@ int ObCellArray::orderby(int64_t row_width, OrderDesc* order_desc, int64_t desc_
   return topk(row_width, order_desc, desc_size, 0);
 }
 
-int oceanbase::common::ObCellArray::topk(
+int sb::common::ObCellArray::topk(
   const int64_t row_width, OrderDesc* order_desc,
   const int64_t desc_size, const int64_t sharding_row_cnt) {
   int err = OB_SUCCESS;
@@ -576,7 +576,7 @@ int oceanbase::common::ObCellArray::topk(
   return err;
 }
 
-int oceanbase::common::ObCellArray::heap_topk(const int64_t sharding_row_cnt) {
+int sb::common::ObCellArray::heap_topk(const int64_t sharding_row_cnt) {
   int err =  OB_SUCCESS;
 
   if (sharding_row_cnt >= row_num_) {
@@ -617,13 +617,13 @@ int oceanbase::common::ObCellArray::heap_topk(const int64_t sharding_row_cnt) {
   return err;
 }
 
-void oceanbase::common::ObCellArray::get_topk_heap(
+void sb::common::ObCellArray::get_topk_heap(
   int64_t*& heap, int64_t& heap_size) const {
   heap = heap_;
   heap_size = heap_size_;
 }
 
-int oceanbase::common::ObCellArray::reverse_rows(const int64_t row_width_in) {
+int sb::common::ObCellArray::reverse_rows(const int64_t row_width_in) {
   int err = 0;
   if (row_width_in < 0 || cell_num_ % row_width_in != 0) {
     err = OB_INVALID_ARGUMENT;

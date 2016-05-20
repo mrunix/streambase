@@ -27,7 +27,7 @@
     ret;                                                \
    })
 
-namespace oceanbase {
+namespace sb {
 using namespace sql;
 namespace updateserver {
 ObPhyOperator* ObUpsPhyOperatorFactory::get_one(ObPhyOperatorType type, common::ModuleArena& allocator) {
@@ -73,4 +73,4 @@ void ObUpsPhyOperatorFactory::release_one(sql::ObPhyOperator* opt) {
 }
 
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb

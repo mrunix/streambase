@@ -2,8 +2,8 @@
 #include "task_server_param.h"
 #include <string>
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 static const char* OBTS_SECTION = "task_server";
 static const char* OBTS_PORT = "port";

@@ -17,7 +17,7 @@
 #include "ob_slab.h"
 #include "ob_malloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 using namespace tbsys;
 using namespace tbutil;

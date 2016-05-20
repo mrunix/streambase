@@ -28,10 +28,10 @@
 #include "sql/ob_sstable_block_scanner.h"
 #include "test_helper.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
-using namespace oceanbase::sql;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::sstable;
+using namespace sb::sql;
 
 class TestObSSTableBlockScanner : public ::testing::Test {
  public:
@@ -295,7 +295,7 @@ class TestObSSTableBlockScanner : public ::testing::Test {
   ObNewRange query_range_;
   ObSimpleColumnIndexes indexes_;
 
-  oceanbase::sql::ObSSTableBlockScanner scanner_;
+  sb::sql::ObSSTableBlockScanner scanner_;
 
   char block_internal_buffer[block_internal_bufsiz];
   ObSSTableBlockReader::BlockDataDesc block_desc_;

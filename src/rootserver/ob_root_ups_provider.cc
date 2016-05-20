@@ -14,8 +14,8 @@
  *
  */
 #include "ob_root_ups_provider.h"
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
 ObRootUpsProvider::ObRootUpsProvider(const common::ObServer& ups)
   : ups_(ups) {

@@ -15,7 +15,7 @@
  */
 #include "ob_row.h"
 #include "common/utility.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObRow::ObRow()
   : row_desc_(NULL) {

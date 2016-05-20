@@ -6,7 +6,7 @@ BaseMainTest::BaseMainTest() {
   test_flag = 0;
 }
 
-oceanbase::common::BaseMain* BaseMainTest::get_instance() {
+sb::common::BaseMain* BaseMainTest::get_instance() {
   if (instance_ == NULL) {
     instance_ = new BaseMainTest();
   }

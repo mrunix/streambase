@@ -18,7 +18,7 @@
 
 #include "ob_phy_operator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObDoubleChildrenPhyOperator: public ObPhyOperator {
  public:
@@ -44,7 +44,7 @@ class ObDoubleChildrenPhyOperator: public ObPhyOperator {
   ObPhyOperator* right_op_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_DOUBLE_CHILDREN_PHY_OPERATOR_H */
 

@@ -15,7 +15,7 @@
  */
 #include "ob_strings.h"
 #include "common/utility.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 ObStrings::ObStrings() {
 }
 

@@ -19,7 +19,7 @@
 #include "common/ob_action_flag.h"
 #include "ob_read_worker.h"
 
-namespace oceanbase {
+namespace sb {
 namespace syschecker {
 using namespace tbsys;
 using namespace common;
@@ -1106,4 +1106,4 @@ int ObReadWorker::check_scanner_result(const ObOpParam& read_param,
 }
 
 } // end namespace syschecker
-} // end namespace oceanbase
+} // end namespace sb

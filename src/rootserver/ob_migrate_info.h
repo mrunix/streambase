@@ -21,7 +21,7 @@
 #include "common/ob_data_source_desc.h"
 #include "common/ob_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 struct ObMigrateInfo {
   // types
@@ -69,7 +69,7 @@ class ObMigrateInfos {
   int64_t size_;
 };
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_MIGRATE_INFO_H */
 

@@ -3,8 +3,8 @@
 #include"common/ob_file_client.h"
 #include "common/ob_tbnet_callback.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 static const int32_t server_port = 8515;
 ObServer file_server(ObServer::IPV4, "127.0.0.1", server_port);

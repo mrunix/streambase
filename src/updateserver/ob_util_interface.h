@@ -51,7 +51,7 @@
     return common::OB_NOT_IMPLEMENT; \
   }
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObUtilInterface {
  public:

@@ -28,7 +28,7 @@
 #include "common/ob_tsi_factory.h"
 #include "ob_multi_wakeup.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 #define ATOMIC_CAS(val, cmpv, newv) __sync_val_compare_and_swap((val), (cmpv), (newv))
 namespace MultiWakeupComponent {

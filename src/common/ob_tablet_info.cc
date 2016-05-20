@@ -14,7 +14,7 @@
 #include "utility.h"
 #include "ob_tablet_info.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 // --------------------------------------------------------
@@ -451,5 +451,5 @@ int64_t ObTableImportInfoList::to_string(char* buffer, const int64_t length) con
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 

@@ -5,9 +5,9 @@
 #include "sql/ob_multi_logic_plan.h"
 #include "sql/ob_logical_plan.h"
 #include "common/ob_string_buf.h"
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
-using namespace oceanbase::sql::test;
+using namespace sb::common;
+using namespace sb::sql;
+using namespace sb::sql::test;
 
 class ObFakeTable2 : public ObFakeTable {
  public:

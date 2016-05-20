@@ -16,7 +16,7 @@
 #include "ob_tablet_scan_fuse.h"
 #include "common/ob_row_fuse.h"
 #include "common/utility.h"
-using namespace oceanbase::sql;
+using namespace sb::sql;
 
 ObTabletScanFuse::ObTabletScanFuse()
   : sstable_scan_(NULL),
@@ -247,7 +247,7 @@ int ObTabletScanFuse::compare_rowkey(const ObRowkey& rowkey1, const ObRowkey& ro
   return rowkey1.compare(rowkey2);
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObTabletScanFuse, PHY_TABLET_SCAN_FUSE);
 }

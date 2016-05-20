@@ -9,10 +9,10 @@
 #include "common/ob_range2.h"
 #include "common/utility.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 void get_table_name(const ObTableSchema& table, ObObj& value) {
   ObString table_name;
@@ -209,7 +209,7 @@ const JoininfoMap JOININFO_OR_MAP[10] = {
 }
 
 
-int oceanbase::common::dump_joininfo(const ObSchemaManagerV2& schema_mgr, common::ObClientHelper* client_helper, ObMutator* mutator) {
+int sb::common::dump_joininfo(const ObSchemaManagerV2& schema_mgr, common::ObClientHelper* client_helper, ObMutator* mutator) {
   int ret = OB_SUCCESS;
   const int32_t rowkey_obj_count = 2;
   ObRowkey rowkey;
@@ -262,7 +262,7 @@ int oceanbase::common::dump_joininfo(const ObSchemaManagerV2& schema_mgr, common
   return ret;
 }
 
-int oceanbase::common::dump_columns(const ObSchemaManagerV2& schema_mgr, common::ObClientHelper* client_helper, ObMutator* mutator) {
+int sb::common::dump_columns(const ObSchemaManagerV2& schema_mgr, common::ObClientHelper* client_helper, ObMutator* mutator) {
   int ret = OB_SUCCESS;
   const int32_t rowkey_obj_count = 2;
   ObRowkey rowkey;
@@ -311,7 +311,7 @@ int oceanbase::common::dump_columns(const ObSchemaManagerV2& schema_mgr, common:
 }
 
 
-int oceanbase::common::dump_tables(const ObSchemaManagerV2& schema_mgr, common::ObClientHelper* client_helper, ObMutator* mutator) {
+int sb::common::dump_tables(const ObSchemaManagerV2& schema_mgr, common::ObClientHelper* client_helper, ObMutator* mutator) {
   int ret = OB_SUCCESS;
 
   const int32_t rowkey_obj_count = 1;
@@ -361,7 +361,7 @@ int oceanbase::common::dump_tables(const ObSchemaManagerV2& schema_mgr, common::
   return ret;
 }
 
-int oceanbase::common::clean_table(const ObString& table_name, const ObString& select_column, common::ObClientHelper* client_helper, ObMutator* mutator) {
+int sb::common::clean_table(const ObString& table_name, const ObString& select_column, common::ObClientHelper* client_helper, ObMutator* mutator) {
   int ret = OB_SUCCESS;
   ObScanParam* param = NULL;
   ObVersionRange version_range;
@@ -453,7 +453,7 @@ int oceanbase::common::clean_table(const ObString& table_name, const ObString& s
   return ret;
 }
 
-int oceanbase::common::dump_schema_manager(const ObSchemaManagerV2& schema_mgr, common::ObClientHelper* client_helper, const ObServer& update_server) {
+int sb::common::dump_schema_manager(const ObSchemaManagerV2& schema_mgr, common::ObClientHelper* client_helper, const ObServer& update_server) {
   int ret = OB_SUCCESS;
   ObMutator* mutator = NULL;
 

@@ -3,8 +3,8 @@
 #include "common/ob_malloc.h"
 #include "common/ob_string.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 TEST(TestObReadParam, basicTest) {
   char buf[1024];
   int64_t pos = 0;
@@ -158,7 +158,7 @@ TEST(TestObScanParam, TestColumnId) {
 }
 
 int main(int argc, char** argv) {
-  oceanbase::common::ob_init_memory_pool();
+  sb::common::ob_init_memory_pool();
 
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

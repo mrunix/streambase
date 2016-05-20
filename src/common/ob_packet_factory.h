@@ -5,7 +5,7 @@
 #include "ob_packet.h"
 #include "thread_buffer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObPacketFactory {
  public:

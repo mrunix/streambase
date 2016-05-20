@@ -16,7 +16,7 @@
 
 #include "ob_inc_seq.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace updateserver;
 
 const int64_t RWLock::N_THREAD;

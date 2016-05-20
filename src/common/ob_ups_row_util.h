@@ -20,7 +20,7 @@
 #include "ob_ups_row.h"
 #include "common/ob_string_buf.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObUpsRowUtil {
  public:

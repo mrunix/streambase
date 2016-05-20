@@ -25,7 +25,7 @@
 
 #include "tbsys.h"
 
-namespace oceanbase {
+namespace sb {
 //forward decleration
 namespace tests {
 namespace common {
@@ -148,6 +148,6 @@ class ObFetchRunnable : public tbsys::CDefaultRunnable {
   char* usr_opt_;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_OB_FETCH_RUNNABLE_H_

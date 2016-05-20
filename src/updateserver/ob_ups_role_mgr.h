@@ -19,8 +19,8 @@
 #include <tbsys.h>
 #include "ob_ups_utils.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace updateserver {
 /// @brief ObUpsRoleMgr管理了进程的角色和状态
 class ObUpsRoleMgr {
@@ -124,6 +124,6 @@ class ObUpsRoleMgr {
   State state_;
 };
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_UPDATESERVER_OB_UPS_ROLE_MGR_H_

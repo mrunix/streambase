@@ -21,7 +21,7 @@
 #include "ob_lsync_server_param.h"
 #include "ob_lsync_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace lsync {
 const static int SIG_INC_LOG_LEVEL = SIGUSR1;
 const static int SIG_DEC_LOG_LEVEL = SIGUSR2;

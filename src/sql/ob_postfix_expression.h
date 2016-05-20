@@ -30,9 +30,9 @@
 #include "common/ob_expr_obj.h"
 #include "common/ob_se_array.h"
 #include "ob_phy_operator.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRowkeyInfo;
 };

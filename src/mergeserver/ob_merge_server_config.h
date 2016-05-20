@@ -24,10 +24,10 @@
 #include "common/ob_server_config.h"
 #include "common/ob_system_config.h"
 #include "sql/ob_sql_config_provider.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 union UValue {
   int32_t i32;

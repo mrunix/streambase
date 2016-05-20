@@ -13,7 +13,7 @@
  */
 #include "ob_server_getter.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 int ObStoredServer::set_server(const ObServer& server) {
   int err = OB_SUCCESS;
@@ -35,4 +35,4 @@ int ObStoredServer::get_server(ObServer& server) const {
   return err;
 }
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb

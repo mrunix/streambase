@@ -25,8 +25,8 @@
 #include "ob_ms_async_rpc.h"
 
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 ObMergerRpcEvent::ObMergerRpcEvent() {
   client_request_id_ = OB_INVALID_ID;

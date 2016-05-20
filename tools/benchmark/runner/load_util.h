@@ -22,7 +22,7 @@
 #include "common/ob_get_param.h"
 #include "common/ob_fifo_stream.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class LoadUtil {
  public:

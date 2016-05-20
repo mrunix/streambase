@@ -17,9 +17,9 @@
 
 #include "common/ob_define.h"
 
-using oceanbase::common::OB_MAX_ERROR_CODE;
+using sb::common::OB_MAX_ERROR_CODE;
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 class ObMySQLState {
  public:
@@ -71,6 +71,6 @@ class ObMySQLState {
 };
 
 } // end of namespace obmysql
-} // end of namespace oceanbase
+} // end of namespace sb
 
 #endif /* _OB_MYSQL_STATE_H_ */

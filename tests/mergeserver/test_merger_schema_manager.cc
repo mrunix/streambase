@@ -9,7 +9,7 @@
 #include "common/ob_schema_manager.h"
 
 using namespace std;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();

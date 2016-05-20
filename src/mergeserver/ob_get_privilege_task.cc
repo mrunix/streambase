@@ -13,10 +13,10 @@
 #include "ob_get_privilege_task.h"
 #include "sql/ob_result_set.h"
 #include "common/ob_privilege.h"
-using namespace oceanbase;
-using namespace oceanbase::mergeserver;
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::mergeserver;
+using namespace sb::sql;
+using namespace sb::common;
 
 const ObString& ObGetPrivilegeTask::get_users = ObString::make_string("SELECT /*+read_consistency(WEAK) */ u.user_name,u.user_id,u.pass_word,u.info,u.priv_all,u.priv_alter,u.priv_create,u.priv_create_user,u.priv_delete,u.priv_drop,u.priv_grant_option,u.priv_insert,u.priv_update,u.priv_select,u.priv_replace, u.is_locked  FROM __all_user u");
 const ObString& ObGetPrivilegeTask::get_table_privileges = ObString::make_string("SELECT /*+read_consistency(WEAK) */t.user_id,t.table_id,t.priv_all,t.priv_alter,t.priv_create,t.priv_create_user,t.priv_delete,t.priv_drop,t.priv_grant_option,t.priv_insert,t.priv_update,t.priv_select, priv_replace FROM __all_table_privilege t");

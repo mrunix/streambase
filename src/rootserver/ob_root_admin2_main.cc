@@ -17,8 +17,8 @@
 #include "ob_root_admin2.h"
 #include "common/ob_define.h"
 #include "common/ob_malloc.h"
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
 int main(int argc, char* argv[]) {
   int ret = OB_SUCCESS;

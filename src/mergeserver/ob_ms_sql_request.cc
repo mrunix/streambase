@@ -9,8 +9,8 @@
 #include "common/ob_profile_fill_log.h"
 #include "ob_ms_server_counter.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 uint64_t ObMsSqlRequest::id_allocator_ = 0;
 

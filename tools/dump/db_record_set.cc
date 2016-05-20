@@ -16,10 +16,10 @@
 #include "db_record_set.h"
 #include "db_record.h"
 
-namespace oceanbase {
+namespace sb {
 namespace api {
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int DbRecordSet::Iterator::get_record(DbRecord** recp) {
   if (last_err_ == OB_SUCCESS)

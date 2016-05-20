@@ -25,7 +25,7 @@
 #include "common/ob_rowkey.h"
 #include "ob_tablet_location_list.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // cache
 class ObTabletLocationCache {

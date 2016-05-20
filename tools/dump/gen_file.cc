@@ -3,7 +3,7 @@
 #include "common/file_utils.h"
 
 using namespace std;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int64_t linenr  = 0;
 int64_t single = 0;

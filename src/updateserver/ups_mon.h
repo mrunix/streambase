@@ -23,7 +23,7 @@
 #include "common/ob_packet_factory.h"
 #include "common/ob_result.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class UpsMon {
  public:
@@ -60,6 +60,6 @@ class UpsMon {
 }; // end class UpsMon
 
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_UPDATESERVER_UPS_MON_H_

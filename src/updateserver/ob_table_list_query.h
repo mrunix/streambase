@@ -18,7 +18,7 @@
 #include "sql/ob_multiple_scan_merge.h"
 #include "ob_ups_utils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class IObSingleTableQuery {
  public:
@@ -102,6 +102,6 @@ class ObTableListQuery {
   sql::ObMultipleScanMerge* merger_;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_UPDATESERVER_OB_TABLE_LIST_QUERY_H__ */

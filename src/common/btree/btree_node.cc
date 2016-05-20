@@ -1,7 +1,7 @@
 #include "btree_alloc.h"
 #include "btree_node.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * BTree节点
@@ -475,4 +475,4 @@ int32_t BtreeNode::print(int32_t level, int32_t max_level, char* pbuf) {
 #endif
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

@@ -4,7 +4,7 @@
 #include "ob_define.h"
 #include "ob_string.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 enum MatchState {
   INIT = 0,

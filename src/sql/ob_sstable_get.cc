@@ -113,7 +113,7 @@ int ObSSTableGet::get_next_row(const common::ObRowkey*& rowkey, const common::Ob
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObSSTableGet, PHY_SSTABLE_GET);
 }

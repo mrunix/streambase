@@ -6,7 +6,7 @@
 #include <vector>
 #include "common/utility.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 using namespace tbsys;
 
 struct QueueMsg {

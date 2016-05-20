@@ -22,7 +22,7 @@
 #include "common/ob_define.h"
 
 class ObCompressor;
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObNewRange;
 class BloomFilter;

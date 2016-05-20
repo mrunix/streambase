@@ -24,8 +24,8 @@
 #include "common/ob_define.h"
 #include <time.h>
 
-using namespace oceanbase::clustermanager;
-using namespace oceanbase::common;
+using namespace sb::clustermanager;
+using namespace sb::common;
 
 OcmServer::OcmServer()
   : packet_factory_(NULL), queue_thread_(NULL),

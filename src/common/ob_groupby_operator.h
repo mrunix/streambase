@@ -19,7 +19,7 @@
 #include "hash/ob_hashmap.h"
 #include "ob_groupby.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRowkey;
 class ObGroupByOperator : public ObCellArray {

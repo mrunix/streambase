@@ -16,7 +16,7 @@
 
 #include "ob_compact_cell_util.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /* 得到各种类型的空间占用大小 */
 static int get_type_size(enum ObObjType type) {

@@ -9,8 +9,8 @@
 #include "common/ob_common_param.h"
 #include "common/ob_malloc.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 uint64_t ObMergerRequest::id_allocator_ = 0;
 

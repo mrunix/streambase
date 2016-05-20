@@ -22,7 +22,7 @@
 #include <crypt.h>
 #include <unistd.h>
 #include <stdlib.h>
-namespace oceanbase {
+namespace sb {
 namespace common {
 DES_crypt::DES_crypt() {
   data_.initialized = 0;

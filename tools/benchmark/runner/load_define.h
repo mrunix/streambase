@@ -28,7 +28,7 @@
 
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 // err code
 static const int QUEUE_EMPTY = 10001;

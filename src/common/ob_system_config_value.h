@@ -19,9 +19,9 @@
 
 #include "common/ob_define.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObSystemConfigValue {
  public:

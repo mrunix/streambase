@@ -4,8 +4,8 @@
 #include "common/ob_schema_service.h"
 #include "common/ob_schema_service_impl.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 
 ObRootDDLOperator::ObRootDDLOperator(): schema_client_(NULL), root_server_(NULL) {
 }

@@ -20,7 +20,7 @@
 #include "common/ob_transaction.h"
 #include "sql/ob_result_set.h"
 #include "sql/ob_sql_session_info.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObEndTrans: public ObNoChildrenPhyOperator {
  public:
@@ -70,6 +70,6 @@ inline void ObEndTrans::set_trans_param(const ObTransID& trans_id, bool is_rollb
   req_.rollback_ = is_rollback;
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_END_TRANS_H */

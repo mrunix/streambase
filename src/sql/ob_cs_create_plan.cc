@@ -16,7 +16,7 @@
 
 #include "ob_cs_create_plan.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace sql;
 
 int ObCSCreatePlan::get_basic_column_and_join_info(

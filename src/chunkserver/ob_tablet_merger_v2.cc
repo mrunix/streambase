@@ -25,7 +25,7 @@
 #include "ob_chunk_merge.h"
 #include "ob_tablet_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 using namespace tbutil;
 using namespace common;

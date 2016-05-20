@@ -27,7 +27,7 @@
 #define SQL_QUERY_RS_ADDR \
   "select cluster_id,svr_ip,svr_port,svr_role from __all_server where svr_type='rootserver' order by cluster_id,svr_role DESC;"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace liboblog {
 ObLogServerSelector::ObLogServerSelector() : inited_(false),

@@ -21,7 +21,7 @@
 #include "ob_sstable_block_reader.h"
 #include "ob_sstable_row_cache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 class ObScanColumnIndexes;
 
@@ -137,6 +137,6 @@ class ObSSTableBlockGetter {
   ObSSTableBlockReader reader_;
 };
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif  //OCEANBASE_SSTABLE_OB_SSTABLE_BLOCK_GETTER_H_

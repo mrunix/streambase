@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "ob_placement_hashset.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace hash;
 

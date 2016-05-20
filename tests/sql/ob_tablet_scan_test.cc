@@ -27,7 +27,7 @@
 #include "ob_fake_sql_ups_rpc_proxy.h"
 #include "chunkserver/ob_chunk_server_main.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sql;
 using namespace sstable;
@@ -66,7 +66,7 @@ int int64_cmp(const void* a1, const void* a2) {
   }
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 namespace test {
 static const int64_t sstable_file_id = 268801;

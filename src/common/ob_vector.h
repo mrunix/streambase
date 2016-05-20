@@ -18,7 +18,7 @@
 
 #include "common/page_arena.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template <typename T> class ob_vector_traits;
 
@@ -199,7 +199,7 @@ class ObSortedVector {
 };
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #include "ob_vector.ipp"
 

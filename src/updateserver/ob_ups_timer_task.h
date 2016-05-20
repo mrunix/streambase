@@ -17,7 +17,7 @@
 
 #include "common/ob_timer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObUpsCheckKeepAliveTask : public common::ObTimerTask {
  public:

@@ -22,7 +22,7 @@
 #include "ob_mod_define.h"
 #include "ob_allocator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObTSIBlockAllocator;
 /// @fn int oceanbase/common::ob_init_memory_pool(int64_t block_size)

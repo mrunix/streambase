@@ -17,7 +17,7 @@
 #include "common/ob_define.h"
 #include <gtest/gtest.h>
 #include <sys/time.h>
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class ObNumberTest: public ::testing::Test {
  public:

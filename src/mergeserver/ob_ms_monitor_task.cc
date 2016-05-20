@@ -19,8 +19,8 @@
 #include "ob_ms_monitor_task.h"
 #include "common/ob_malloc.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 ObMergerMonitorTask::ObMergerMonitorTask() {
   old_drop_counter_ = 0;

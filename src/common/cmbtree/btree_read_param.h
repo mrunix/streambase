@@ -18,7 +18,7 @@
 
 #include "btree_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace cmbtree {
 /**
@@ -76,6 +76,6 @@ void BtreeReadParam<K, V>::print() {
 
 } // end namespace cmbtree
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif

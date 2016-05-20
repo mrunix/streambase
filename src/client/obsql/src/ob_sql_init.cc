@@ -9,7 +9,7 @@
 #include <malloc.h>
 
 using namespace std;
-using namespace oceanbase::common;
+using namespace sb::common;
 //define global var
 
 pthread_mutex_t init_mutex = PTHREAD_MUTEX_INITIALIZER;

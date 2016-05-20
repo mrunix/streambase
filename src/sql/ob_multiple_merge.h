@@ -20,7 +20,7 @@
 #include "ob_phy_operator.h"
 #include "common/ob_ups_row.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 using namespace common;
 

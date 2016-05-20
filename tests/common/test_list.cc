@@ -1,6 +1,6 @@
 #include "ob_list.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 int main(int argc, char** argv) {

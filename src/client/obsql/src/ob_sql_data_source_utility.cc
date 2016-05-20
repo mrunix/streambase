@@ -6,7 +6,7 @@
 #include "common/ob_malloc.h"
 #include "tblog.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 //static int copy_ds(ObDataSource *dest, ObDataSource *src)
 //{
 //  int ret = OB_SQL_SUCCESS;

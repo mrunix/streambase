@@ -16,8 +16,8 @@
 #include "ob_create_table_stmt.h"
 #include "ob_schema_checker.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObCreateTableStmt::ObCreateTableStmt(ObStringBuf* name_pool)
   : ObBasicStmt(ObBasicStmt::T_CREATE_TABLE) {

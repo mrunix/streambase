@@ -16,8 +16,8 @@
 #include "common/ob_counter.h"
 #include "mergeserver/ob_ms_counter_infos.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 using namespace testing;
 using namespace std;
 

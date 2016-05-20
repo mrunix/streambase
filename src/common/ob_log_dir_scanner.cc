@@ -18,7 +18,7 @@
 
 #include "ob_log_entry.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int ObLogFile::assign(const char* filename, FileType& type) {
   int ret = OB_SUCCESS;

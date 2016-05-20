@@ -8,7 +8,7 @@
 /**
  * 测试BtreeReadHandle
  */
-namespace oceanbase {
+namespace sb {
 namespace common {
 typedef KeyBtree<TestKey, int32_t> StringBtree;
 TEST(BtreeWriteHandleTest, put) {
@@ -200,4 +200,4 @@ TEST(BtreeWriteHandleTest, key_write_handle) {
   btree.clear();
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

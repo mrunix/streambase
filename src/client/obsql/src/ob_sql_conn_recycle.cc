@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stddef.h>
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 static void* conn_recycle_task(void* arg) {
   UNUSED(arg);

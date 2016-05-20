@@ -24,9 +24,9 @@
 #include "ob_sstable_block_index_v2.h"
 #include "ob_sstable_trailer.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 ObSSTableBlockScanner::ObSSTableBlockScanner(const ObScanColumnIndexes& column_indexes)
   : initialize_status_(OB_NOT_INIT), sstable_data_store_style_(OB_SSTABLE_STORE_DENSE),
@@ -485,7 +485,7 @@ int ObSSTableBlockScanner::locate_end_pos(const common::ObNewRange& range,
 
 
 }//end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb
 
 
 

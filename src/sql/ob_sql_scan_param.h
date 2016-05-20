@@ -10,12 +10,12 @@
 #include "common/ob_composite_column.h"
 #include "ob_sql_read_param.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
 class ObSqlScanParamTest_serialize_test_Test;
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObSqlScanParam : public ObSqlReadParam {
  public:

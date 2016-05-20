@@ -25,7 +25,7 @@ namespace {
 const uint64_t DISK_NO_MASK = ((1UL << 8) - 1);
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 struct ObSSTableId {
   ObSSTableId(): sstable_file_id_(0), sstable_file_offset_(0) {}

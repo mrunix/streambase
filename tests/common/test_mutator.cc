@@ -27,7 +27,7 @@
 #define TRUE 1
 
 using namespace std;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int init_mem_pool() {
   ob_init_memory_pool(2 * 1024L * 1024L);
@@ -36,7 +36,7 @@ int init_mem_pool() {
 static int init_mem_pool_ret = init_mem_pool();
 static CharArena  allocator_;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace common {
 
@@ -428,7 +428,7 @@ TEST_F(TestMutator, test_del_row) {
   int64_t ext_val = 0;
   mutation->cell_info.value_.get_ext(ext_val);
   EXPECT_TRUE(ObActionFlag::OP_DEL_ROW == ext_val);
-  EXPECT_EQ((uint64_t) oceanbase::common::OB_INVALID_ID, mutation->cell_info.column_id_);
+  EXPECT_EQ((uint64_t) sb::common::OB_INVALID_ID, mutation->cell_info.column_id_);
   EXPECT_TRUE(mutation->cell_info.column_name_.ptr() == NULL);
   EXPECT_TRUE(mutation->cell_info.column_name_.length() == 0);
 
@@ -493,7 +493,7 @@ TEST_F(TestMutator, test_del_row_id) {
   int64_t ext_val = 0;
   mutation->cell_info.value_.get_ext(ext_val);
   EXPECT_TRUE(ObActionFlag::OP_DEL_ROW == ext_val);
-  EXPECT_EQ((uint64_t) oceanbase::common::OB_INVALID_ID, mutation->cell_info.column_id_);
+  EXPECT_EQ((uint64_t) sb::common::OB_INVALID_ID, mutation->cell_info.column_id_);
   EXPECT_TRUE(mutation->cell_info.column_name_.ptr() == NULL);
   EXPECT_TRUE(mutation->cell_info.column_name_.length() == 0);
 
@@ -1050,7 +1050,7 @@ TEST_F(TestMutator, test_mutator_different_tablename_and_same_rowkey) {
 
 } // end namespace common
 } // end namespace tests
-} // end namespace oceanbase
+} // end namespace sb
 
 
 int main(int argc, char** argv) {

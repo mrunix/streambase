@@ -35,7 +35,7 @@
 #include "ob_when_filter.h"
 #include "ob_dual_table_scan.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace sql;
 
 #define CASE_CLAUSE(OP_TYPE, OP) \

@@ -19,8 +19,8 @@
 #include "obmysql/ob_mysql_global.h"
 #include "common/ob_define.h"
 
-using namespace oceanbase;
-using namespace oceanbase::obmysql;
+using namespace sb;
+using namespace sb::obmysql;
 
 int main(int argc, char* argv[]) {
   ::testing::InitGoogleTest(&argc, argv);

@@ -23,7 +23,7 @@
 #include "ob_scanner.h"
 #include "ob_ms_list.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObClientManager;
 class ThreadSpecificBuffer;

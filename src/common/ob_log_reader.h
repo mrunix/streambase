@@ -20,7 +20,7 @@
 #include "ob_atomic.h"
 #include "ob_log_cursor.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * 日志读取类, 从一个指定的日志id开始, 遇到日志文件结束, 则打开下一个日志文件
@@ -132,6 +132,6 @@ class ObLogReader {
   bool has_max_;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_OB_LOG_READER_H_

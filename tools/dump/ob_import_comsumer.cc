@@ -4,10 +4,10 @@
 #include <string>
 #include "common/ob_tsi_factory.h"
 using namespace std;
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
-ImportComsumer::ImportComsumer(oceanbase::api::OceanbaseDb* db, ObRowBuilder* builder, const TableParam& param) : param_(param) {
+ImportComsumer::ImportComsumer(sb::api::OceanbaseDb* db, ObRowBuilder* builder, const TableParam& param) : param_(param) {
   db_ = db;
   builder_ = builder;
   assert(db_ != NULL);

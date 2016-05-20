@@ -17,7 +17,7 @@
 
 #include "ob_lz_query.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 class ObAdgroupImpressionCount : public ObLzQuery {
  public:
@@ -41,6 +41,6 @@ class ObAdgroupImpressionCount : public ObLzQuery {
   DISALLOW_COPY_AND_ASSIGN(ObAdgroupImpressionCount);
 };
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_OLAPDRIVE_ADGROUP_IMPFESSION_COUNT_H

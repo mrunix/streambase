@@ -15,7 +15,7 @@
 #include "common/ob_profile_log.h"
 #include "common/ob_schema_manager.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace chunkserver;
 using namespace common;
 

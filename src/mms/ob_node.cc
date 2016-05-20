@@ -17,8 +17,8 @@
 #include "updateserver/ob_ups_utils.h"
 #include "common/ob_trace_log.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mms;
+using namespace sb::common;
+using namespace sb::mms;
 
 ObNode::ObNode(): rpc_buffer_(RESPONSE_PACKET_BUFFER_SIZE), thread_buffer_(RESPONSE_PACKET_BUFFER_SIZE), check_lease_task_(this) {
   base_server_ = NULL;

@@ -16,7 +16,7 @@
 #include "common/ob_common_stat.h"
 #include "ob_root_stat_key.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootStatManager : public common::ObStatManager {
  public:

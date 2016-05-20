@@ -21,7 +21,7 @@
 #include "utility.h"
 #include <ob_string_buf.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 #if 0
@@ -353,5 +353,5 @@ DEFINE_GET_SERIALIZE_SIZE(ObRange) {
 #endif
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 

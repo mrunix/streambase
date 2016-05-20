@@ -1,8 +1,8 @@
 #include "ob_compact_sstable_writer_buffer.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 void ObCompactSSTableWriterBuffer::reset() {
   //cur_key_
@@ -344,4 +344,4 @@ void ObCompactSSTableWriterBuffer::update_record_header(
   record_header_.set_header_checksum();
 }
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb

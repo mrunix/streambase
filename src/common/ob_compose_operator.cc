@@ -14,7 +14,7 @@
  */
 
 #include "ob_compose_operator.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObComposeOperator::ObComposeOperator() {
   initialize();
@@ -118,4 +118,4 @@ int ObComposeOperator::get_cell(ObInnerCellInfo** cell, bool* is_row_changed) {
   return result_array_->get_cell(cell, is_row_changed);
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

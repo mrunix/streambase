@@ -25,7 +25,7 @@
 #include "ob_update_reload_config.h"
 #include "ob_update_server_config.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObUpdateServerMain : public common::BaseMain {
   static const int SIG_RESET_MEMORY_LIMIT = 34;

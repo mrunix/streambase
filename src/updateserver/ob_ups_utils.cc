@@ -34,9 +34,9 @@
 #include "ob_sstable_mgr.h"
 #include "ob_ups_table_mgr.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 Dummy __dummy__;
 GConf g_conf = {true, 0, true};
 

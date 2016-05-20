@@ -21,7 +21,7 @@
 #include "common/ob_file.h"
 #include "common/ob_mod_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstable {
 class ObBlockMembuf {
  public:

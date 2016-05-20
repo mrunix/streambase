@@ -23,7 +23,7 @@
 #include "ob_chunk_server_main.h"
 #include "common/file_directory_utils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 const char* ObDiskManager::PROC_MOUNTS_FILE = "/proc/mounts";
 const int32_t ObDiskManager::PROC_MOUNTS_FILE_SIZE = 4096;

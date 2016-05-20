@@ -22,14 +22,14 @@
 //#include "test_utils.h"
 #include <execinfo.h>
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::updateserver;
+using namespace sb::sql;
 
 //error code
 const int ERROR_CODE_TRY_FAILED = 100;
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 class CONST {
  public:
@@ -1587,9 +1587,9 @@ TEST(UPS_MVCC, apply) {
 }
 
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 
-using namespace oceanbase::test;
+using namespace sb::test;
 
 void printUsage(char* pszProgName) {
   fprintf(stderr, "\nUsage: %s [-c Core_Num]\n\n", pszProgName);

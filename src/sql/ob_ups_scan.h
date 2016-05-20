@@ -23,7 +23,7 @@
 #include "common/ob_range.h"
 
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 
 namespace sql {
@@ -111,6 +111,6 @@ class ObUpsScan: public ObRowkeyPhyOperator {
   bool is_read_consistency_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_UPS_SCAN_H */

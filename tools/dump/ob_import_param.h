@@ -6,7 +6,7 @@
 #include "tokenizer.h"
 #include "common/ob_schema.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 struct ColumnDesc {
   std::string name;

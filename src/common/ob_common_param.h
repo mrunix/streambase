@@ -6,7 +6,7 @@
 #include "ob_range.h"
 #include "ob_rowkey.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // CellInfo only with table_id + column_id + rowkey + vlaue
 struct ObInnerCellInfo {

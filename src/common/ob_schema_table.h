@@ -18,7 +18,7 @@
 #include "common/ob_server.h"
 #include "common/ob_client_helper.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 //映射表单信息到ob表单
 typedef void (*table_field)(const ObTableSchema& table, ObObj& value);

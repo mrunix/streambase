@@ -19,7 +19,7 @@
 
 #include "packet/ob_mysql_command_packet.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 class ObMySQLPacketQueueHandler {
  public:

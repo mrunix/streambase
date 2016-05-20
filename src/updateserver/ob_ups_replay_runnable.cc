@@ -18,8 +18,8 @@
 #include "common/utility.h"
 #include "ob_update_server.h"
 #include "ob_update_server_main.h"
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
 ObUpsReplayRunnable::ObUpsReplayRunnable() {
   is_initialized_ = false;

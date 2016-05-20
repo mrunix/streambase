@@ -11,7 +11,7 @@
 class TestSSTableSchema_construct_Test;
 class TestSSTableSchema_add_column_def_Test;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObSchemaManagerV2;
 }
@@ -285,6 +285,6 @@ int build_sstable_schema(const uint64_t table_id,
  */
 int build_sstable_schema(const common::ObSchemaManagerV2& schema, ObSSTableSchema& sstable_schema);
 
-} // namespace oceanbase::sstable
+} // namespace sb::sstable
 } // namespace Oceanbase
 #endif

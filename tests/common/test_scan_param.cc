@@ -7,7 +7,7 @@
 
 static CharArena allocator_;
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 int main(int argc, char** argv) {

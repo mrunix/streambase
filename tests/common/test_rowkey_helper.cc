@@ -20,7 +20,7 @@
 #include "common/ob_malloc.h"
 #include "common/utility.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 TEST(TestRowkeyHelper, basic_test) {

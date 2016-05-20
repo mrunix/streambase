@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "common/ob_resource_pool.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class A {
  public:

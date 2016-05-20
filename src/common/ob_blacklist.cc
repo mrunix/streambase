@@ -1,7 +1,7 @@
 #include "ob_define.h"
 #include "ob_blacklist.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObBlackList::ObBlackList(): lock_(tbsys::WRITE_PRIORITY) {
   count_ = 0;

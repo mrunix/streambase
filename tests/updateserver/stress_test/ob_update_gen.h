@@ -20,7 +20,7 @@
 #include "ob_generator.h"
 #include "ob_random.h"
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 class ObUpdateGen : public ObGenerator {
  public:
@@ -34,6 +34,6 @@ class ObUpdateGen : public ObGenerator {
   ObRandom ran_;
 };
 } // end namespace test
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_TEST_OB_GENERATOR_H_

@@ -32,11 +32,11 @@
 #include "test_ups_table_mgr_helper.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
-using namespace oceanbase::updateserver::test;
+using namespace sb::common;
+using namespace sb::updateserver;
+using namespace sb::updateserver::test;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace updateserver {
 
@@ -735,7 +735,7 @@ TEST_F(TestApplyWithCondition, test_preprocess_with_data_in_memtable) {
 
 } // end namespace updateserver
 } // end namespace tests
-} // end namespace oceanbase
+} // end namespace sb
 
 
 int main(int argc, char** argv) {

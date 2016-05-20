@@ -3,7 +3,7 @@
 
 #include "common/ob_fifo_stream.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class QueryInfo {
  public:

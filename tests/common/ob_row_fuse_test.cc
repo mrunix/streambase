@@ -21,7 +21,7 @@
 #include "common/ob_row.h"
 #include "common/ob_row_desc.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 #define OK(value) ASSERT_EQ(OB_SUCCESS, (value))

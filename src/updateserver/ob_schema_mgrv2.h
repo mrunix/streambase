@@ -37,7 +37,7 @@
 
 #define DEFAULT_COLUMN_GROUP_ID 0
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 
 class CommonSchemaManagerWrapper {

@@ -3,10 +3,10 @@
 #include "common/utility.h"
 #include "ob_server_client.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 ObChunkServerClient::ObChunkServerClient()
   : timeout_(1000000) {
@@ -32,7 +32,7 @@ int ObChunkServerClient::cs_get(const ObGetParam& get_param, ObScanner& scanner)
 /*
   int ObChunkServerClient::cs_dump_tablet_image(
   const int32_t index, const int32_t disk_no,
-  oceanbase::common::ObString &image_buf)
+  sb::common::ObString &image_buf)
   {
   int ret = OB_SUCCESS;
   const int64_t timeout = 1000000;  // send_request timeout millionseconds
@@ -106,7 +106,7 @@ int ObChunkServerClient::rs_dump_cs_info(ObChunkServerManager& obcsm) {
 }
 
 
-int ObChunkServerClient::fetch_stats(oceanbase::common::ObStatManager& obsm) {
+int ObChunkServerClient::fetch_stats(sb::common::ObStatManager& obsm) {
   return send_request(OB_FETCH_STATS, obsm, timeout_);
 }
 
@@ -388,5 +388,5 @@ int ObChunkServerClient::fetch_update_server_list(ObUpsList& server_list) {
   return send_request(OB_GET_UPS, server_list, timeout_);
 }
 } // end of namespace tools
-} // end of namespace oceanbase
+} // end of namespace sb
 

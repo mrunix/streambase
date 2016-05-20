@@ -19,7 +19,7 @@
 #include "ob_sql_expression.h"
 #include "common/dlist.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObFilter: public ObSingleChildPhyOperator {
  public:
@@ -53,6 +53,6 @@ class ObFilter: public ObSingleChildPhyOperator {
   common::DList filters_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_FILTER_H */

@@ -24,10 +24,10 @@
 #include <tblog.h>
 #include <gtest/gtest.h>
 
-//using namespace oceanbase::chunkserver;
-using namespace oceanbase::common;
+//using namespace sb::chunkserver;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace chunkserver {
 
@@ -313,7 +313,7 @@ TEST_F(TestObStringBuf, test_set_string_buf_size_use_user_define) {
 
 } // end namespace chunkserver
 } // end namespace tests
-} // end namespace oceanbase
+} // end namespace sb
 
 
 int main(int argc, char** argv) {

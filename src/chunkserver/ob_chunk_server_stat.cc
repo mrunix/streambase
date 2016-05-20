@@ -17,7 +17,7 @@
 
 #include "ob_chunk_server_stat.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 /* empty */
 }

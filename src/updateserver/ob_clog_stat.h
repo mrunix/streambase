@@ -14,7 +14,7 @@
 #include "common/ob_define.h"
 #include "common/utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 struct ObWarnStat {
   int64_t max_value_limit_;
@@ -119,4 +119,4 @@ struct ObClogStat {
   ObWarnStat net_warn_stat_;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb

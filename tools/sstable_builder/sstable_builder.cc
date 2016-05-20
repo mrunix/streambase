@@ -11,11 +11,11 @@
 
 #include <vector>
 #include <string>
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
 char DELIMETER = '\1';
 char NULL_FLAG = '\2';
@@ -915,8 +915,8 @@ int SSTableBuilder::process_rowkey(int fields) {
 }
 }
 
-using namespace oceanbase;
-using namespace oceanbase::chunkserver;
+using namespace sb;
+using namespace sb::chunkserver;
 
 int init(const char* schema_file, const char* syntax_file,
          const uint64_t param_table_id, bool is_skip_invalid_row) {

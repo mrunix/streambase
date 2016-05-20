@@ -1,7 +1,7 @@
 #include "btree_node.h"
 #include "btree_read_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * BTree搜索过程的辅助结构
@@ -31,4 +31,4 @@ void BtreeReadParam::print() {
 #endif
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

@@ -14,8 +14,8 @@
  *
  */
 #include "ob_revoke_stmt.h"
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
 ObRevokeStmt::ObRevokeStmt(const ObRevokeStmt& other)
   : ObBasicStmt(other.get_stmt_type(), other.get_query_id()) {

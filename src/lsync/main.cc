@@ -17,8 +17,8 @@
 #include "ob_lsync_server_main.h"
 
 
-using namespace oceanbase::common;
-using namespace oceanbase::lsync;
+using namespace sb::common;
+using namespace sb::lsync;
 
 int main(int argc, char** argv) {
   int ret = OB_SUCCESS;

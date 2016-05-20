@@ -18,7 +18,7 @@
 
 #include "ob_schema_service.h"
 #include "ob_schema.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObSchemaHelper {
  public:

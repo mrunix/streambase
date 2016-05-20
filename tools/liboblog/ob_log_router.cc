@@ -20,7 +20,7 @@
 #include "tbsys.h"
 #include "ob_log_router.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace liboblog {
 ObLogRouter::ObLogRouter() : inited_(false),

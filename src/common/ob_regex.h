@@ -23,7 +23,7 @@
 
 #include <regex.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRegex {
  public:

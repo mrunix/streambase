@@ -20,7 +20,7 @@
 #include "sql/ob_no_children_phy_operator.h"
 #include "ob_cs_create_plan.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObTabletRead: public ObNoChildrenPhyOperator, public ObCSCreatePlan {
  protected:

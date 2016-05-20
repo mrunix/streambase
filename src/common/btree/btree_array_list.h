@@ -3,7 +3,7 @@
 
 #include "btree_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * 用于list遍历
@@ -155,7 +155,7 @@ class BtreeArrayList {
   // 下面不要定义变量, 保证copy_node_放在最后一个
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif
 

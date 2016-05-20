@@ -15,7 +15,7 @@
 #define _OB_LOCK_FILTER_H 1
 #include "ob_husk_filter.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace sql {
 class ObLockFilter: public ObHuskFilter<PHY_LOCK_FILTER> {
@@ -32,6 +32,6 @@ class ObLockFilter: public ObHuskFilter<PHY_LOCK_FILTER> {
   ObLockFlag lock_flag_;
 };
 }; // end namespace sql
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* _OB_LOCK_FILTER_H */

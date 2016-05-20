@@ -23,8 +23,8 @@
 #include "ob_trigger_handler.h"
 #include "ob_sessionctx_factory.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
 ObTriggerCallback::ObTriggerCallback()
   : handler_(NULL), init_(false) {

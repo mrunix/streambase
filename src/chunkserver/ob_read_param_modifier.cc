@@ -19,8 +19,8 @@
 #include "common/utility.h"
 
 namespace {
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
+using namespace sb::common;
+using namespace sb::chunkserver;
 
 int allocate_range_buffer(ObNewRange& range, ObMemBuf& buffer) {
   int err = OB_SUCCESS;
@@ -74,9 +74,9 @@ int get_ups_read_param(ObReadParam& param,  const ObScanner& cs_result) {
 }
 }
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 bool is_finish_scan(const ObScanParam& param, const ObNewRange& result_range) {
   bool ret = false;
@@ -229,8 +229,8 @@ int get_next_param(
 }
 
 int get_ups_param(
-  oceanbase::common::ObScanParam& param,
-  const oceanbase::common::ObScanner& cs_result,
+  sb::common::ObScanParam& param,
+  const sb::common::ObScanner& cs_result,
   ObMemBuf& range_buffer) {
   int err = OB_SUCCESS;
   bool is_fullfill = false;
@@ -311,4 +311,4 @@ int get_ups_param(ObGetParam& param, const ObScanner& cs_result) {
   return err;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

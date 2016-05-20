@@ -18,8 +18,8 @@
 #include "ob_merge_server_service.h"
 #include "common/ob_malloc.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 ObMergerLeaseTask::ObMergerLeaseTask() {
   service_ = NULL;

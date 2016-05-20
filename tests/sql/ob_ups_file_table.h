@@ -20,7 +20,7 @@
 #include "common/ob_ups_row.h"
 #include "ob_file_table.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 namespace test {
 class ObUpsFileTable : public ObFileTable {

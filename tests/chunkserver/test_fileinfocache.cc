@@ -20,12 +20,12 @@
 #include "ob_fileinfo_cache.h"
 #include "gtest/gtest.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace chunkserver;
 using namespace sstable;
 using namespace common;
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 bool& get_succ() {
   static bool succ = true;

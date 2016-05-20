@@ -20,8 +20,8 @@
 #include "ob_log_entry.h"
 #include "ob_log_cursor.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace common {
 struct DebugLog {
   enum { MAGIC = 0xde6a9de6a901 };
@@ -138,6 +138,6 @@ int ObLogGenerator::write_log(const LogCommand cmd, T& data) {
   return err;
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* __OB_COMMON_OB_LOG_GENERATOR_H__ */

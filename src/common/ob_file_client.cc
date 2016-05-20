@@ -2,8 +2,8 @@
 #include "ob_crc64.h"
 #include "ob_trace_log.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 ObFileClient::ObFileClient():
   inited_(false), client_(NULL),

@@ -1,7 +1,7 @@
 #ifndef OCEANBASE_COMMON_DOUBLE_LIST_H_
 #define OCEANBASE_COMMON_DOUBLE_LIST_H_
 #include "ob_define.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 class DList;

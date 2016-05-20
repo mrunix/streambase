@@ -13,7 +13,7 @@
 
 #include "ob_root_table_operation.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 ObRootTableOperation::ObRootTableOperation() {
   config_ = NULL;

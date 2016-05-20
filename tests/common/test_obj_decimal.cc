@@ -2,9 +2,9 @@
 #include "common/ob_decimal_helper.h"
 #include <gtest/gtest.h>
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace common {
 class ObjTest : public ObObj {

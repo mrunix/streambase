@@ -17,8 +17,8 @@
 #include "ob_ups_executor.h"
 #include "common/utility.h"
 #include "common/ob_trace_log.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObGetCurTimePhyOperator::~ObGetCurTimePhyOperator() {
   reset();
@@ -137,7 +137,7 @@ void ObGetCurTimePhyOperator::reuse() {
   reset();
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObGetCurTimePhyOperator, PHY_CUR_TIME);
 }

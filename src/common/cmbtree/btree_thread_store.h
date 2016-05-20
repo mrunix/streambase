@@ -24,7 +24,7 @@
 
 # define UINT32_MAX		(4294967295U)
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace cmbtree {
 class DefaultThreadStoreAlloc {
@@ -323,6 +323,6 @@ int BtreeThreadStore<Type, Initializer, Alloc>::for_each_item_ptr(Function& f) c
 
 } // end namespace cmbtree
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_CMBTREE_BTREE_THREAD_STORE_H__

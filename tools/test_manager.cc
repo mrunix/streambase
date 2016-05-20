@@ -26,10 +26,10 @@
 #include "sstable/ob_sstable_reader.h"
 #include "sstable/ob_sstable_trailer.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
-using namespace oceanbase::chunkserver;
-using namespace oceanbase::common::serialization;
+using namespace sb::common;
+using namespace sb::sstable;
+using namespace sb::chunkserver;
+using namespace sb::common::serialization;
 
 ObTabletManager tablet_mgr;
 

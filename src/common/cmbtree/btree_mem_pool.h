@@ -21,7 +21,7 @@
 #include "btree_tid.h"
 #include "btree_thread_store.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace cmbtree {
 template<class K, class V, class Alloc>
@@ -432,6 +432,6 @@ void* BtreeMemPool<K, V, Alloc>::alloc_block_(bool is_memset) {
 
 } // end namespace cmbtree
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_CMBTREE_BTREE_MEM_POOL_H_

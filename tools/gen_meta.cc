@@ -26,9 +26,9 @@
 #include "chunkserver/ob_tablet_image.h"
 
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
-using namespace oceanbase::chunkserver;
+using namespace sb::common;
+using namespace sb::sstable;
+using namespace sb::chunkserver;
 
 const char* g_sstable_directory = NULL;
 

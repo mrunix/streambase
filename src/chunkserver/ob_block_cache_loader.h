@@ -19,7 +19,7 @@
 #include "sstable/ob_block_index_cache.h"
 #include "ob_tablet_image.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRowkey;
 }
@@ -132,6 +132,6 @@ class ObBlockCacheLoader {
 };
 
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_CHUNKSERVER_OB_BLOCK_CACHE_LOADER_H_

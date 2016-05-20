@@ -17,9 +17,9 @@
 #include "common/data_buffer.h"
 #include "client_rpc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obsql {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class ObTabletShower {
  public:

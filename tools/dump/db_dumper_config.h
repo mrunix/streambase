@@ -26,7 +26,7 @@
 
 #define DUMP_CONFIG (DbDumpConfigMgr::get_instance())
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class DbTableConfig {
  public:

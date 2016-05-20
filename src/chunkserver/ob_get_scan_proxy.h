@@ -17,7 +17,7 @@
 
 #include "ob_rpc_proxy.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObTablet;
 class ObTabletManager;

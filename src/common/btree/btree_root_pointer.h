@@ -5,7 +5,7 @@
 #include "btree_define.h"
 #include "btree_array_list.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * 用于指向root节点的指针对象
@@ -180,7 +180,7 @@ class BtreeRootPointerList {
 
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif
 

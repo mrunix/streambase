@@ -1,9 +1,9 @@
 #include "task_utils.h"
 #include "common/ob_action_flag.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 static char body_delima = '\001';
 static char line_delima = '\n';

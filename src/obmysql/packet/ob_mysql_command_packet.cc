@@ -1,8 +1,8 @@
 #include "ob_mysql_command_packet.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 ObMySQLCommandPacket::ObMySQLCommandPacket() : type_(0), req_(NULL), next_(NULL), receive_ts_(-1) {
 

@@ -19,7 +19,7 @@
 #include <pthread.h>
 #include "ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 /**
@@ -68,7 +68,7 @@ class ThreadSpecificBuffer {
 };
 
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #endif //OCEANBASE_COMMON_THREAD_BUFFER_H_

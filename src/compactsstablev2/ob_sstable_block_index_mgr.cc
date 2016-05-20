@@ -1,8 +1,8 @@
 #include "ob_sstable_block_index_mgr.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObSSTableBlockIndexMgr::search_batch_blocks_by_key(
   const ObRowkey& key, const SearchMode mode,
@@ -377,4 +377,4 @@ int ObSSTableBlockIndexMgr::check_border(
 }
 
 }//end namespace compactsstblev2
-}//end namespace oceanbase
+}//end namespace sb

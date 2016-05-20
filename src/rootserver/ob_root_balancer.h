@@ -32,7 +32,7 @@
 #include "ob_data_source_mgr.h"
 #include "ob_root_balancer_runnable.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObBootState;
 class ObRootTable2;
@@ -272,7 +272,7 @@ inline void ObRootBalancer::set_restart_server(ObRestartServer* restart_server) 
   restart_server_ = restart_server;
 }
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ROOT_BALANCER_H */
 

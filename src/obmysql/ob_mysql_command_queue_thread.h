@@ -26,7 +26,7 @@
 #include "common/ob_server.h"
 #include "common/ob_lighty_queue.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 class ObMySQLCommandQueueThread : public tbsys::CDefaultRunnable {
  public:
@@ -63,5 +63,5 @@ class ObMySQLCommandQueueThread : public tbsys::CDefaultRunnable {
   common::ObServer host_;
 };
 }// end namespace obmysql
-}// end namespace oceanbase
+}// end namespace sb
 #endif

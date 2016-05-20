@@ -23,7 +23,7 @@
 #include "ob_packet_queue_handler.h"
 #include "ob_trace_id.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 class PriorityPacketQueueThread : public tbsys::CDefaultRunnable {

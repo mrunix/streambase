@@ -20,7 +20,7 @@
 #include "common/ob_kv_storecache.h"
 #include "ob_row_cell_vec.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 struct ObJoinCacheValue {
   const ObRowCellVec* row_cell_vec_;
@@ -57,8 +57,8 @@ struct ObJoinCacheKey {
 
   int64_t hash()const {
     uint32_t hash_val = 0;
-    hash_val = oceanbase::common::murmurhash2(&table_id_, sizeof(table_id_), hash_val);
-    hash_val = oceanbase::common::murmurhash2(&end_version_, sizeof(end_version_), hash_val);
+    hash_val = sb::common::murmurhash2(&table_id_, sizeof(table_id_), hash_val);
+    hash_val = sb::common::murmurhash2(&end_version_, sizeof(end_version_), hash_val);
     if (NULL != row_key_.get_obj_ptr() && 0 < row_key_.get_obj_cnt()) {
       hash_val = row_key_.murmurhash2(hash_val);
     }

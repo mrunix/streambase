@@ -14,13 +14,13 @@
 #include "ob_lock_filter.h"
 
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObLockFilter, PHY_LOCK_FILTER);
 }
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 int64_t ObLockFilter::to_string(char* buf, const int64_t buf_len) const {
   int64_t pos = 0;
@@ -57,4 +57,4 @@ int64_t ObLockFilter::get_serialize_size(void) const {
   return serialization::encoded_length_i32(lock_flag_);
 }
 }; // end namespace sql
-}; // end namespace oceanbase
+}; // end namespace sb

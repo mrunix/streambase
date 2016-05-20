@@ -17,9 +17,9 @@
 #include "ob_chunk_server_config.h"
 #include "common/ob_system_config_key.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
-using namespace oceanbase::chunkserver;
+using namespace sb::common;
+using namespace sb::sstable;
+using namespace sb::chunkserver;
 
 ObChunkServerConfig::ObChunkServerConfig() {
 }

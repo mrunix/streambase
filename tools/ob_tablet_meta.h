@@ -25,7 +25,7 @@
 #include "common/hash/ob_hashmap.h"
 
 
-namespace oceanbase {
+namespace sb {
 namespace obsolete {
 namespace chunkserver {
 struct ObSSTableId {
@@ -101,7 +101,7 @@ class ObTabletMeta {
 
   friend bool operator==(const ObTabletMeta& lhs, const ObTabletMeta& rhs);
   int add_entry_nocopy(IndexEntry& entry);
-  int clone_index_entry(IndexEntry& o, IndexEntry& d, oceanbase::common::CharArena* arena);
+  int clone_index_entry(IndexEntry& o, IndexEntry& d, sb::common::CharArena* arena);
  private:
   bool inited;
   bool meta_loaded;

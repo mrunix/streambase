@@ -1,6 +1,6 @@
 #include "ob_ups_compact_cell_writer.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace updateserver;
 
 ObUpsCompactCellWriter::ObUpsCompactCellWriter() : mem_tank_(NULL),

@@ -21,7 +21,7 @@
 #include "ob_rpc_event.h"
 #include "common/ob_packet.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObPacket;
 class ObScanner;

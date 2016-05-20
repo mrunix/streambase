@@ -1,21 +1,21 @@
 #include "ob_session_mgr.h"
 #include "ob_define.h"
 #include "ob_atomic.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
-__thread ObSessionManager::SessionInfo* oceanbase::common::ObSessionManager::thread_session_info_ = NULL;
+using namespace sb;
+using namespace sb::common;
+__thread ObSessionManager::SessionInfo* sb::common::ObSessionManager::thread_session_info_ = NULL;
 volatile uint32_t ObSessionManager::session_id_generator_ = ObSessionManager::INVALID_SESSION_ID;
 
-oceanbase::common::ObSessionManager::ObSessionManager() {
+sb::common::ObSessionManager::ObSessionManager() {
   session_worker_count_ = 0;
 }
 
-oceanbase::common::ObSessionManager::~ObSessionManager() {
+sb::common::ObSessionManager::~ObSessionManager() {
   session_worker_count_ = 0;
 }
 
 
-ObSessionManager::SessionInfo* oceanbase::common::ObSessionManager::get_session_info(const uint32_t session_id) {
+ObSessionManager::SessionInfo* sb::common::ObSessionManager::get_session_info(const uint32_t session_id) {
   UNUSED(session_id);
   ObSessionManager::SessionInfo* res = NULL;
   if (NULL == thread_session_info_) {
@@ -34,7 +34,7 @@ ObSessionManager::SessionInfo* oceanbase::common::ObSessionManager::get_session_
   return res;
 }
 
-int oceanbase::common::ObSessionManager::session_begin(const ObScanParam& scan_param,
+int sb::common::ObSessionManager::session_begin(const ObScanParam& scan_param,
                                                        const uint64_t peer_port,  uint64_t& session_id, const pthread_t tid, const pid_t pid) {
   int err = OB_SUCCESS;
   SessionInfo* session_info = NULL;
@@ -73,7 +73,7 @@ int oceanbase::common::ObSessionManager::session_begin(const ObScanParam& scan_p
   return err;
 }
 
-int oceanbase::common::ObSessionManager::session_begin(const ObGetParam& get_param,
+int sb::common::ObSessionManager::session_begin(const ObGetParam& get_param,
                                                        const uint64_t peer_port, uint64_t& session_id, const pthread_t tid, const pid_t pid) {
   int err = OB_SUCCESS;
   SessionInfo* session_info = NULL;
@@ -114,7 +114,7 @@ int oceanbase::common::ObSessionManager::session_begin(const ObGetParam& get_par
 
 
 
-int oceanbase::common::ObSessionManager::session_end(const uint64_t session_id) {
+int sb::common::ObSessionManager::session_end(const uint64_t session_id) {
   int err = OB_SUCCESS;
   SessionInfo* session_info = get_session_info(static_cast<uint32_t>(session_id));
   if (NULL == session_info) {
@@ -132,7 +132,7 @@ int oceanbase::common::ObSessionManager::session_end(const uint64_t session_id) 
   return err;
 }
 
-void oceanbase::common::ObSessionManager::kill_session(const uint64_t session_id) {
+void sb::common::ObSessionManager::kill_session(const uint64_t session_id) {
   SessionInfo* session_info = NULL;
   for (uint32_t i = 0; i < MAX_SESSION_WORKER_COUNT; i++) {
     session_info = session_infos_per_thread_ + i;
@@ -145,7 +145,7 @@ void oceanbase::common::ObSessionManager::kill_session(const uint64_t session_id
   }
 }
 
-bool oceanbase::common::ObSessionManager::session_alive(const uint64_t session_id) {
+bool sb::common::ObSessionManager::session_alive(const uint64_t session_id) {
   int err = OB_SUCCESS;
   bool res = false;
   SessionInfo* session_info = get_session_info(static_cast<uint32_t>(session_id));
@@ -162,7 +162,7 @@ bool oceanbase::common::ObSessionManager::session_alive(const uint64_t session_i
   return res;
 }
 
-void oceanbase::common::ObSessionManager::get_sessions(char* buf, int64_t buf_size, int64_t& pos) {
+void sb::common::ObSessionManager::get_sessions(char* buf, int64_t buf_size, int64_t& pos) {
   if ((NULL != buf) && (0 < buf_size)) {
     SessionInfo* session_info = NULL;
     uint64_t session_seq_lock = 0;
@@ -185,7 +185,7 @@ void oceanbase::common::ObSessionManager::get_sessions(char* buf, int64_t buf_si
   }
 }
 
-const char* oceanbase::common::ObSessionManager::get_session(const uint64_t session_id) {
+const char* sb::common::ObSessionManager::get_session(const uint64_t session_id) {
   int err = OB_SUCCESS;
   const char* res = NULL;
   SessionInfo* session_info = get_session_info(static_cast<uint32_t>(session_id));

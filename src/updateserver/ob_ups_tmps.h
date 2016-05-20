@@ -35,7 +35,7 @@
 #include "ob_ups_stat.h"
 #include "ob_update_server_main.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 using namespace common;
 

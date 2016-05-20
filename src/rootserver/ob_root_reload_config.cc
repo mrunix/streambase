@@ -17,9 +17,9 @@
 #include "ob_root_reload_config.h"
 #include "ob_root_server2.h"
 
-using namespace oceanbase;
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::rootserver;
+using namespace sb::common;
 
 ObRootReloadConfig::ObRootReloadConfig(const ObRootServerConfig& config)
   : config_(config), root_server_(NULL) {

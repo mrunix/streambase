@@ -5,7 +5,7 @@
 #include "rpc_stub.h"
 #include "task_info.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class TaskManager {
  public:

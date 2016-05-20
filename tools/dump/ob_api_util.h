@@ -24,7 +24,7 @@
 #include "common/ob_result.h"
 #include "common/utility.h"
 
-void dump_obstring(const oceanbase::common::ObString& str, char* desc) {
+void dump_obstring(const sb::common::ObString& str, char* desc) {
   TBSYS_LOG(INFO, "%s,%d:%d:%d:%d:%d:%d:%d:%d", desc,
             str.ptr()[0],
             str.ptr()[1],

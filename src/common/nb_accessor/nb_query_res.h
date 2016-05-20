@@ -27,7 +27,7 @@
 
 #include "nb_table_row.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace nb_accessor {
 typedef EasyArray<const char*> SC;

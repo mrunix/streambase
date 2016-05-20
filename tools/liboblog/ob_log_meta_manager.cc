@@ -22,7 +22,7 @@
 #include "common/ob_obj_cast.h"
 #include "ob_log_meta_manager.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace liboblog {
 ObLogDBNameBuilder::ObLogDBNameBuilder() : inited_(false),

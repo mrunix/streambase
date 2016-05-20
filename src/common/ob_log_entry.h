@@ -13,7 +13,7 @@
 
 #include "ob_record_header.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 extern const char* DEFAULT_CKPT_EXTENSION;
 
@@ -143,7 +143,7 @@ struct ObLogEntry {
   NEED_SERIALIZE_AND_DESERIALIZE;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif  //OCEANBASE_COMMON_OB_LOG_ENTRY_H_
 

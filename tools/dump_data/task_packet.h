@@ -2,7 +2,7 @@
 #ifndef _TASK_PACKET_H_
 #define _TASK_PACKET_H_
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 static const uint64_t INVALID_ID = 0;
 static const int64_t DEFAULT_VERSION = 1;

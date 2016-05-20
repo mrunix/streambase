@@ -14,8 +14,8 @@
  *
  */
 #include "ob_schema_service_ups_provider.h"
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
 ObSchemaServiceUpsProvider::ObSchemaServiceUpsProvider(const ObUpsManager& ups_manager)
   : ups_manager_(ups_manager) {

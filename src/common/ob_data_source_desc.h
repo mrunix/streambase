@@ -18,7 +18,7 @@
 #include "ob_range2.h"
 #include "ob_server.h"
 #include "ob_string.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 static const char* const proxy_uri_prefix = "proxy://";

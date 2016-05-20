@@ -7,10 +7,10 @@
 #include "common/ob_range.h"
 #include "common/ob_scan_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obsql {
 
-using namespace oceanbase::common;
+using namespace sb::common;
 using namespace std;
 
 class SelectStmt: public Stmt {

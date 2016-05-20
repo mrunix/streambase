@@ -15,7 +15,7 @@
  */
 #include "ob_scan_helper_impl.h"
 #include "common/utility.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObScanHelperImpl::ObScanHelperImpl(): scan_timeout_us_(0), mutate_timeout_us_(0),
   scan_retry_times_(OB_TABLET_MAX_REPLICA_COUNT), ms_provider_(NULL),

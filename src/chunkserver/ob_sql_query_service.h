@@ -20,7 +20,7 @@
 #include "sql/ob_sql_scan_param.h"
 #include "common/ob_new_scanner.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 using namespace sql;
 

@@ -15,8 +15,8 @@
  */
 #include <gtest/gtest.h>
 #include "rootserver/ob_root_config.h"
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
 TEST(ObRootConfigTest, basic_test) {
   ObRootConfig rconf;

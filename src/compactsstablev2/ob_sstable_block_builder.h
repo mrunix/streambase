@@ -16,7 +16,7 @@ class TestSSTableBlockBuilder_add_row2_Test;
 class TestSSTableBlockBuilder_build_block1_Test;
 class TestSSTableBlockBuilder_reset1_Test;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 class ObSSTableBlockBuilder {
  public:
@@ -130,6 +130,6 @@ class ObSSTableBlockBuilder {
   int64_t row_index_buf_size_;
 };
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 #endif
 

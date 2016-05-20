@@ -1,7 +1,7 @@
 #ifndef LOAD_RPC_PACKET_H_
 #define LOAD_RPC_PACKET_H_
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 enum PacketCode {
   GET_PACKET_REQUEST = 10,

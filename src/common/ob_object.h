@@ -8,7 +8,7 @@
 #include "ob_obj_type.h"
 #include "ob_number.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace common {
 class ObjTest;

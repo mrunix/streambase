@@ -18,7 +18,7 @@
 #include <stdint.h>
 #include <string.h>
 
-namespace oceanbase {
+namespace sb {
 namespace liboblog {
 
 typedef std::vector<std::string*> ColMap;

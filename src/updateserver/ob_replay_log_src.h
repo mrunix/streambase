@@ -20,7 +20,7 @@
 #include "ob_prefetch_log_buffer.h"
 #include "ob_remote_log_src.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class IObServerGetter;
 };
@@ -58,6 +58,6 @@ class ObReplayLogSrc {
   mutable common::SpinRWLock pc_lock_;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_UPDATESERVER_OB_REPLAY_LOG_SRC_H__ */

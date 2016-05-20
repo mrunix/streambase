@@ -12,9 +12,9 @@
 #include "ob_crc64.h"
 #include "utility.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-const char* oceanbase::common::DEFAULT_CKPT_EXTENSION = "checkpoint";
+const char* sb::common::DEFAULT_CKPT_EXTENSION = "checkpoint";
 
 int ObLogEntry::fill_header(const char* log_data, const int64_t data_len) {
   int ret = OB_SUCCESS;

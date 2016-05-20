@@ -21,7 +21,7 @@
 #include "ob_ups_mutator.h"
 #include "ob_session_mgr.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObTriggerMsg;
 };

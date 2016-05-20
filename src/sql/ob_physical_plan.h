@@ -23,7 +23,7 @@
 #include "common/ob_se_array.h"
 #include "common/dlist.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObTableRpcScan;
 class ObResultSet;
@@ -114,9 +114,9 @@ class ObPhysicalPlan: public common::DLink {
   static const int64_t COMMON_OP_NUM = 16;
   static const int64_t COMMON_SUB_QUERY_NUM = 6;
   static const int64_t COMMON_BASE_TABLE_NUM = 64;
-  typedef oceanbase::common::ObSEArray<ObPhyOperator*, COMMON_OP_NUM> OperatorStore;
-  typedef oceanbase::common::ObSEArray<ObPhyOperator*, COMMON_SUB_QUERY_NUM> SubQueries;
-  typedef oceanbase::common::ObSEArray<ObTableVersion, COMMON_BASE_TABLE_NUM> BaseTableStore;
+  typedef sb::common::ObSEArray<ObPhyOperator*, COMMON_OP_NUM> OperatorStore;
+  typedef sb::common::ObSEArray<ObPhyOperator*, COMMON_SUB_QUERY_NUM> SubQueries;
+  typedef sb::common::ObSEArray<ObTableVersion, COMMON_BASE_TABLE_NUM> BaseTableStore;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(ObPhysicalPlan);
@@ -255,6 +255,6 @@ inline void ObPhysicalPlan::free(ObPhysicalPlan* plan) {
 }
 
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_PHYSICAL_PLAN_H */

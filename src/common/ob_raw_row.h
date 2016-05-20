@@ -18,7 +18,7 @@
 #include "common/ob_define.h"
 #include "common/ob_object.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRow;
 
@@ -105,7 +105,7 @@ inline const ObObj* ObRawRow::get_obj_array(int64_t& array_size) const {
   return cells_;
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_RAW_ROW_H */
 

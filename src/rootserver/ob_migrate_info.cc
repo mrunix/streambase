@@ -16,8 +16,8 @@
  */
 #include "ob_migrate_info.h"
 #include "common/ob_define.h"
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
 ObMigrateInfo::ObMigrateInfo()
   : stat_(STAT_FREE), data_source_desc_(), src_server_(), dest_server_(), start_time_(0) {

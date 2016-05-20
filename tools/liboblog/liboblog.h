@@ -34,7 +34,7 @@
 #include "MD.h"
 #include "BR.h"
 
-namespace oceanbase {
+namespace sb {
 namespace liboblog {
 class IObLogSpec {
  public:

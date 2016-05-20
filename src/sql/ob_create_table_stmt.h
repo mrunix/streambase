@@ -25,7 +25,7 @@
 #include "sql/ob_column_def.h"
 #include "parse_node.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObCreateTableStmt : public ObBasicStmt {
  public:

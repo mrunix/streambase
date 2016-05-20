@@ -21,7 +21,7 @@
 #include "thread_buffer.h"
 #include "ob_packet.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObPacketLightyQueueItem;
 class ObPacketLightyQueue {
@@ -55,6 +55,6 @@ class ObPacketLightyQueue {
   ThreadSpecificBuffer* thread_buffer_;
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_LIGHTY_QUEUE_H__ */

@@ -18,7 +18,7 @@
 #include <stdint.h>
 #include "common/ob_range2.h"
 #include "ob_tablet_meta_table_row.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObTabletMetaTable;
 class ObTabletMetaTableRowIterator {
@@ -86,7 +86,7 @@ inline int ObTabletMetaTable::check_range(const KeyRange& key_range) const {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_TABLET_META_TABLE_H */
 

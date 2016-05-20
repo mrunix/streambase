@@ -14,8 +14,8 @@
 #include <string.h>
 #include "ob_encrypted_helper.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 const uint32_t ObEncryptedHelper::sha_const_key[5] = {
   0x67452301,

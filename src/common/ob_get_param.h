@@ -18,7 +18,7 @@
 #include "ob_rowkey.h"
 #include "page_arena.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObSchemaManagerV2;
 

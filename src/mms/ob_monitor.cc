@@ -17,9 +17,9 @@
 #include "common/ob_trace_log.h"
 #include "common/ob_define.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mms;
-using namespace oceanbase::common::hash;
+using namespace sb::common;
+using namespace sb::mms;
+using namespace sb::common::hash;
 
 ObMonitor::ObMonitor(): node_map_(), rpc_buffer_(RESPONSE_PACKET_BUFFER_SIZE),
   thread_buffer_(RESPONSE_PACKET_BUFFER_SIZE) {

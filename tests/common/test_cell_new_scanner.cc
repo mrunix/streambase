@@ -18,7 +18,7 @@
 #include <gtest/gtest.h>
 #include "common/ob_new_scanner.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 #define OK(value) ASSERT_EQ(OB_SUCCESS, (value))

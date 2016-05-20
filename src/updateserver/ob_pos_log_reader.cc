@@ -16,9 +16,9 @@
 #include "common/ob_define.h"
 #include "ob_pos_log_reader.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 ObPosLogReader::ObPosLogReader() {
   memset(log_dir_, 0, sizeof(log_dir_));
@@ -77,4 +77,4 @@ int ObPosLogReader::get_log(const int64_t start_id, ObLogLocation& start_locatio
   return err;
 }
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb

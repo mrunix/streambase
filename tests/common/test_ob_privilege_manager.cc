@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include "common/ob_privilege_manager.h"
 #include "common/ob_privilege.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 class ObPrivilegeManagerTest: public ::testing::Test {
  public:

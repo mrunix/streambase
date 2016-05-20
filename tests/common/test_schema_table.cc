@@ -5,8 +5,8 @@
 #include "common/ob_schema_table.h"
 #include "stdlib.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 
 bool str_equal(const char* expected, ObObj value) {

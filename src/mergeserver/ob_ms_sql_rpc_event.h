@@ -3,7 +3,7 @@
 
 #include "ob_sql_rpc_event.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObPacket;
 class ObNewScanner;

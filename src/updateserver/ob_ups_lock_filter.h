@@ -17,7 +17,7 @@
 #include "sql/ob_lock_filter.h"
 #include "ob_memtable.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObUpsLockFilter: public sql::ObLockFilter {
  public:
@@ -38,6 +38,6 @@ class ObUpsLockFilter: public sql::ObLockFilter {
 };
 
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_UPDATESERVER_OB_UPS_LOCK_FILTER_H__ */

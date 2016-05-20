@@ -1,7 +1,7 @@
 #include "schema_printer.h"
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obsql {
 using namespace common;
 
@@ -14,14 +14,14 @@ int ObSchemaPrinter::output() {
   fprintf(stderr, "name=%s\n", schema_mgr_.get_app_name());
 
   /* There is no interface of ObSchemaManager.max_table_id_, so we have to scan them one by one */
-  for (const oceanbase::common::ObTableSchema* it = schema_mgr_.table_begin(); it != schema_mgr_.table_end(); ++ it) {
+  for (const sb::common::ObTableSchema* it = schema_mgr_.table_begin(); it != schema_mgr_.table_end(); ++ it) {
     if (max_table_id < it->get_table_id())
       max_table_id = it->get_table_id();
   }
 
   fprintf(stderr, "max_table_id=%ld\n", max_table_id);
 
-  for (const oceanbase::common::ObTableSchema* it = schema_mgr_.table_begin(); it != schema_mgr_.table_end(); ++it) {
+  for (const sb::common::ObTableSchema* it = schema_mgr_.table_begin(); it != schema_mgr_.table_end(); ++it) {
     fprintf(stderr, "\n[%s]\n", it->get_table_name());
     fprintf(stderr, "table_id=%ld\n", it->get_table_id());
     fprintf(stderr, "table_type=%d\n", it->get_table_type());
@@ -51,7 +51,7 @@ int ObSchemaPrinter::output() {
   return ret;
 }
 
-int ObSchemaPrinter::column_output(const oceanbase::common::ObTableSchema* table) {
+int ObSchemaPrinter::column_output(const sb::common::ObTableSchema* table) {
   int ret = OB_SUCCESS;
   uint64_t table_id = table->get_table_id();
   int32_t  column_size;
@@ -62,7 +62,7 @@ int ObSchemaPrinter::column_output(const oceanbase::common::ObTableSchema* table
             columns[i].get_id(),
             columns[i].get_name(),
             get_type_string(columns + i));
-    (columns[i].get_type() == oceanbase::common::ObVarcharType) ?
+    (columns[i].get_type() == sb::common::ObVarcharType) ?
     fprintf(stderr, ",%ld\n", columns[i].get_size()) : fprintf(stderr, "\n");
   }
 
@@ -70,7 +70,7 @@ int ObSchemaPrinter::column_output(const oceanbase::common::ObTableSchema* table
 }
 
 /* This ugly implementation is because that there is no interface to get join column size */
-int ObSchemaPrinter::join_output(const oceanbase::common::ObTableSchema* table) {
+int ObSchemaPrinter::join_output(const sb::common::ObTableSchema* table) {
   int       ret = OB_SUCCESS;
   bool      is_first = true;
   uint64_t  table_id = table->get_table_id();
@@ -104,16 +104,16 @@ int ObSchemaPrinter::join_output(const oceanbase::common::ObTableSchema* table) 
           fprintf(stderr, "join=rowkey[%d,%d]%%%s:", start_pos, end_pos,
                           schema_mgr_.get_table_name(joininfo->get_table_id_joined()));
 
-          const oceanbase::common::ObSchema* joinschema =
+          const sb::common::ObSchema* joinschema =
             schema_mgr_.get_table_schema(joininfo->get_table_id_joined());
 
-          for (const oceanbase::common::ObColumnSchema* it = joinschema->column_begin();
+          for (const sb::common::ObColumnSchema* it = joinschema->column_begin();
                it != joinschema->column_end(); ++it)
           {
-            uint64_t lcid = oceanbase::common::OB_INVALID_ID;
+            uint64_t lcid = sb::common::OB_INVALID_ID;
 
             lcid = joininfo->find_left_column_id(it->get_id());
-            if (lcid != oceanbase::common::OB_INVALID_ID)
+            if (lcid != sb::common::OB_INVALID_ID)
             {
               if (isfirst)
               {
@@ -133,36 +133,36 @@ int ObSchemaPrinter::join_output(const oceanbase::common::ObTableSchema* table) 
   return ret;
 }
 
-const char* ObSchemaPrinter::get_type_string(const oceanbase::common::ObColumnSchemaV2* column) {
+const char* ObSchemaPrinter::get_type_string(const sb::common::ObColumnSchemaV2* column) {
   switch (column->get_type()) {
-  case oceanbase::common::ObNullType:
+  case sb::common::ObNullType:
     return "";
     break;
-  case oceanbase::common::ObIntType:
+  case sb::common::ObIntType:
     return "int";
     break;
-  case oceanbase::common::ObFloatType:
+  case sb::common::ObFloatType:
     return "float";
     break;
-  case oceanbase::common::ObDoubleType:
+  case sb::common::ObDoubleType:
     return "double";
     break;
-  case oceanbase::common::ObDateTimeType:
+  case sb::common::ObDateTimeType:
     return "datetime";
     break;
-  case oceanbase::common::ObPreciseDateTimeType:
+  case sb::common::ObPreciseDateTimeType:
     return "precise_datetime";
     break;
-  case oceanbase::common::ObVarcharType:
+  case sb::common::ObVarcharType:
     return "varchar";
     break;
-  case oceanbase::common::ObSeqType:
+  case sb::common::ObSeqType:
     return "sequence";
     break;
-  case oceanbase::common::ObCreateTimeType:
+  case sb::common::ObCreateTimeType:
     return "create_time";
     break;
-  case oceanbase::common::ObModifyTimeType:
+  case sb::common::ObModifyTimeType:
     return "modify_time";
     break;
   default:

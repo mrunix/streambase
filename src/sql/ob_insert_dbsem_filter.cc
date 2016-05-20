@@ -16,12 +16,12 @@
 #include "ob_insert_dbsem_filter.h"
 #include "common/utility.h"
 #include "sql/ob_physical_plan.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObInsertDBSemFilter, PHY_INSERT_DB_SEM_FILTER);
 }
 }
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace sql {
 ObInsertDBSemFilter::ObInsertDBSemFilter() : could_insert_(false),
@@ -157,4 +157,4 @@ DEFINE_GET_SERIALIZE_SIZE(ObInsertDBSemFilter) {
   return insert_values_.get_serialize_size();
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb

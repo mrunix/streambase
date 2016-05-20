@@ -3,8 +3,8 @@
 #include "common/ob_result.h"
 #include "base_client.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 
 ObClientServerStub::ObClientServerStub()
   : frame_buffer_(FRAME_BUFFER_SIZE) {
@@ -242,9 +242,9 @@ int ObClientServerStub::ups_apply(const ObMutator& mutator) {
   return ret;
 }
 
-int ObClientServerStub::get_cs_tablet_image(const oceanbase::common::ObServer& remote_server,
+int ObClientServerStub::get_cs_tablet_image(const sb::common::ObServer& remote_server,
                                             const int32_t disk_no,
-                                            oceanbase::common::ObString& image_buf) {
+                                            sb::common::ObString& image_buf) {
   int ret = OB_SUCCESS;
   const int64_t timeout = 1000000;  // send_request timeout millionseconds
   ObDataBuffer data_buff;
@@ -366,8 +366,8 @@ int ObClientServerStub::get_cs_and_ms() {
   return ret;
 }
 
-int ObClientServerStub::fetch_stats(const oceanbase::common::ObServer& remote_server,
-                                    oceanbase::common::ObStatManager& obsm) {
+int ObClientServerStub::fetch_stats(const sb::common::ObServer& remote_server,
+                                    sb::common::ObStatManager& obsm) {
   int ret = OB_SUCCESS;
   const int64_t timeout = 1000000;  // send_request timeout millionseconds
   ObDataBuffer data_buff;

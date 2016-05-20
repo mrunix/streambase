@@ -25,9 +25,9 @@
 #include "common/ob_result.h"
 #include "common/serialization.h"
 #include "common/utility.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace lsync {
 const int OB_LSYNC_MAX_STR_LEN = (1 << 10);
 /*
@@ -251,7 +251,7 @@ class ObLsyncServer: public ObBaseServer {
   ThreadSpecificBuffer thread_buffer_;
 };
 } // end namespace lsync
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // __OCEANBASE_LSYNC_OB_LSYNC_SERVER_H__
 

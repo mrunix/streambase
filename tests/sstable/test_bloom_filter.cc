@@ -22,8 +22,8 @@
 #include "common/murmur_hash.h"
 #include "common/ob_bloomfilter.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 using namespace std;
 
 //generate the key string

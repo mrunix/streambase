@@ -22,7 +22,7 @@
 #include "ob_malloc.h"
 #include "ob_regex.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObRegex::ObRegex() {
   init_ = false;

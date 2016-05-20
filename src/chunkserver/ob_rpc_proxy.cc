@@ -26,9 +26,9 @@
 #include "common/ob_statistics.h"
 #include "common/ob_common_stat.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObMergerRpcProxy::ObMergerRpcProxy():
   ups_list_lock_(tbsys::WRITE_PRIORITY),
@@ -891,4 +891,4 @@ int ObMergerRpcProxy::sql_ups_scan(const common::ObScanParam& scan_param,
 }
 
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

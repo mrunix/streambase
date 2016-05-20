@@ -21,7 +21,7 @@
 #define  OCEANBASE_COMMON_ALLOCATOR_H_
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObIAllocator {
  public:

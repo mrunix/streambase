@@ -6,7 +6,7 @@
 #include "common/ob_schema.h"
 #include "utils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 using namespace hash;
 class ObColumnSchema {

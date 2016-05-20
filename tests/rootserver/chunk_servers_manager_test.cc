@@ -3,9 +3,9 @@
 #include <tbsys.h>
 #include <unistd.h>
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::rootserver;
 TEST(ObChunkServerManagerTest, find) {
   ObChunkServerManager chunk_m;
   {

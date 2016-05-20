@@ -22,8 +22,8 @@
 #include "rootserver/ob_root_rpc_stub.h"
 #include "tbsys.h"
 #include <cstdio>
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 
 struct MyArguments {
   const char* rs_host;

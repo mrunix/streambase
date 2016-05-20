@@ -19,7 +19,7 @@
 
 #include "ob_mysql_packet.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 /**
  * This packet is response to COM_STMT_PREPARE

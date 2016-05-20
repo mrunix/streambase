@@ -16,13 +16,13 @@
 #include "sql/ob_sql_scan_param.h"
 #include "common/ob_new_scanner.h"
 #include "common/ob_range2.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
-using namespace oceanbase::mergeserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::sql;
+using namespace sb::mergeserver;
 using namespace std;
 
-void oceanbase::mergeserver::ObMsSqlSortedOperator::sharding_result_t::init(ObNewScanner& sharding_res, const ObNewRange& query_range,
+void sb::mergeserver::ObMsSqlSortedOperator::sharding_result_t::init(ObNewScanner& sharding_res, const ObNewRange& query_range,
     const ObSqlScanParam& param, ObRowkey& last_process_rowkey, const int64_t fullfilled_item_num) {
   sharding_res_ = &sharding_res;
   sharding_query_range_ = &query_range;
@@ -31,21 +31,21 @@ void oceanbase::mergeserver::ObMsSqlSortedOperator::sharding_result_t::init(ObNe
   fullfilled_item_num_ = fullfilled_item_num;
 }
 
-bool oceanbase::mergeserver::ObMsSqlSortedOperator::sharding_result_t::operator <(const sharding_result_t& other) const {
+bool sb::mergeserver::ObMsSqlSortedOperator::sharding_result_t::operator <(const sharding_result_t& other) const {
   bool res = false;
   res = (sharding_query_range_->compare_with_startkey2(*other.sharding_query_range_) < 0);
   return res;
 }
 
-oceanbase::mergeserver::ObMsSqlSortedOperator::ObMsSqlSortedOperator() {
+sb::mergeserver::ObMsSqlSortedOperator::ObMsSqlSortedOperator() {
   reset();
 }
 
 
-oceanbase::mergeserver::ObMsSqlSortedOperator::~ObMsSqlSortedOperator() {
+sb::mergeserver::ObMsSqlSortedOperator::~ObMsSqlSortedOperator() {
 }
 
-void oceanbase::mergeserver::ObMsSqlSortedOperator::reset() {
+void sb::mergeserver::ObMsSqlSortedOperator::reset() {
   cur_sharding_result_idx_ = 0;
   scan_param_ = NULL;
   seamless_result_count_  = 0;
@@ -53,7 +53,7 @@ void oceanbase::mergeserver::ObMsSqlSortedOperator::reset() {
   sharding_result_arr_.clear();
 }
 
-int oceanbase::mergeserver::ObMsSqlSortedOperator::set_param(const ObSqlScanParam& scan_param) {
+int sb::mergeserver::ObMsSqlSortedOperator::set_param(const ObSqlScanParam& scan_param) {
   int err = OB_SUCCESS;
   reset();
   scan_param_ = &scan_param;
@@ -62,7 +62,7 @@ int oceanbase::mergeserver::ObMsSqlSortedOperator::set_param(const ObSqlScanPara
 }
 
 // note: keep in mind that "readed" scanners' rowkey buffer were freed already
-void oceanbase::mergeserver::ObMsSqlSortedOperator::sort(bool& is_finish, ObNewScanner* last_sharding_res) {
+void sb::mergeserver::ObMsSqlSortedOperator::sort(bool& is_finish, ObNewScanner* last_sharding_res) {
   /*
    * 1. sort unread scanners
    * 2. check if first sorted unread scanner's start key equals to last seamed end key
@@ -127,7 +127,7 @@ void oceanbase::mergeserver::ObMsSqlSortedOperator::sort(bool& is_finish, ObNewS
 }
 
 
-int oceanbase::mergeserver::ObMsSqlSortedOperator::add_sharding_result(ObNewScanner& sharding_res, const ObNewRange& query_range,
+int sb::mergeserver::ObMsSqlSortedOperator::add_sharding_result(ObNewScanner& sharding_res, const ObNewRange& query_range,
     bool& is_finish, ObStringBuf& rowkey_buffer) {
   bool is_fullfilled = false;
   int64_t fullfilled_item_num = 0;
@@ -203,7 +203,7 @@ int oceanbase::mergeserver::ObMsSqlSortedOperator::add_sharding_result(ObNewScan
 //////////// Row inferface ////////////
 ///////////////////////////////////////
 
-int oceanbase::mergeserver::ObMsSqlSortedOperator::get_next_row(oceanbase::common::ObRow& row) {
+int sb::mergeserver::ObMsSqlSortedOperator::get_next_row(sb::common::ObRow& row) {
   int err = OB_SUCCESS;
   while (OB_SUCCESS == err) {
     if (cur_sharding_result_idx_ >= seamless_result_count_) {

@@ -70,7 +70,7 @@ class ObDeleteReplicasTest_delete_when_rereplication_Test;
 class ObDeleteReplicasTest_delete_when_report_Test;
 class ObBalanceTest_test_shutdown_servers_Test;
 class ObRootServerTest;
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObSchemaManagerV2;
 class ObRange;

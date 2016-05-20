@@ -16,7 +16,7 @@
  */
 #include "ob_common_stat.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 const char* ObStatSingleton::rs_map[] = {
   "succ_get_count",

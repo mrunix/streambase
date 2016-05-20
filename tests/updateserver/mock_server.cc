@@ -14,12 +14,12 @@
 #include "tbnet.h"
 #include "tbsys.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
 static const int MOCK_SERVER_LISTEN_PORT = 8888;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace updateserver {
 class MockServer : public ObSingleServer {
@@ -171,7 +171,7 @@ class MockServer : public ObSingleServer {
 }
 
 int main(int argc, char** argv) {
-  using namespace oceanbase::tests::updateserver;
+  using namespace sb::tests::updateserver;
   ob_init_memory_pool();
   MockServer mock_server;
   mock_server.start();

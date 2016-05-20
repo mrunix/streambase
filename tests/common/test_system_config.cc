@@ -19,7 +19,7 @@
 #include "common/ob_system_config_key.h"
 #include "common/ob_malloc.h"
 
-using namespace oceanbase;
+using namespace sb;
 
 int main(int argc, char* argv[]) {
   ob_init_memory_pool();

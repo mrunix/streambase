@@ -19,12 +19,12 @@
 #include "chunkserver/ob_tablet.h"
 #include "chunkserver/ob_chunk_server_main.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
+using namespace sb::common;
+using namespace sb::chunkserver;
 
 extern const char* g_sstable_directory;
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 uint64_t get_sstable_disk_no(const uint64_t sstable_file_id) {
   return (sstable_file_id & DISK_NO_MASK);

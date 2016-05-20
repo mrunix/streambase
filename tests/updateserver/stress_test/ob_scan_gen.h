@@ -21,7 +21,7 @@
 #include "ob_generator.h"
 #include "ob_random.h"
 
-namespace oceanbase {
+namespace sb {
 namespace test {
 class ObScanGen : public ObGenerator {
  public:
@@ -35,6 +35,6 @@ class ObScanGen : public ObGenerator {
   common::ObStringBuf string_buf_;
 };
 } // end namespace test
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_TEST_OB_SCAN_GEN_H_

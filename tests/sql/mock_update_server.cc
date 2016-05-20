@@ -7,9 +7,9 @@
 #include "common/ob_tablet_info.h"
 #include "common/ob_read_common_data.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
-using namespace oceanbase::sql::test;
+using namespace sb::common;
+using namespace sb::sql;
+using namespace sb::sql::test;
 
 int MockUpdateServer::initialize() {
   set_listen_port(UPDATE_SERVER_PORT);

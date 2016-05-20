@@ -1,6 +1,6 @@
 #include "client_wrapper.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 int MKClient::init(const char* addr, const int port) {

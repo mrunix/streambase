@@ -17,12 +17,12 @@
 #include <getopt.h>
 #include "ob_lsync_server_main.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 const char* build_date();
 const char* build_time();
 
-namespace oceanbase {
+namespace sb {
 namespace lsync {
 // static void set_log_level(int level)
 // {

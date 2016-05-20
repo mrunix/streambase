@@ -1,8 +1,8 @@
 #include "ob_sstable_scan_column_indexes.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObSSTableScanColumnIndexes::add_column_id(const ColumnType type,
                                               const int64_t index, const uint64_t column_id) {
@@ -66,4 +66,4 @@ int64_t ObSSTableScanColumnIndexes::to_string(
   return pos;
 }
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb

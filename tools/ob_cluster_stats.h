@@ -21,7 +21,7 @@
 #include "ob_server_stats.h"
 #include "common/ob_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 
 class ObClusterStats : public ObServerStats {

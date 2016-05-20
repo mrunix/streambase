@@ -20,7 +20,7 @@
 #include "common/ob_rpc_stub.h"
 #include "common/ob_new_scanner.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 
 namespace chunkserver {

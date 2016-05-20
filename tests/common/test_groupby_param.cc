@@ -14,8 +14,8 @@
 #include "common/ob_groupby.h"
 #include "common/ob_read_common_data.h"
 #include "common/ob_action_flag.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 using namespace testing;
 using namespace std;
 
@@ -534,7 +534,7 @@ TEST(ObGroupByParam, return_info) {
   ASSERT_EQ(buffer.write_string(str, &stored_cname), OB_SUCCESS);
   EXPECT_EQ(param.add_column(stored_expr, stored_cname , false), OB_SUCCESS);
 
-  (const_cast<oceanbase::common::ObArrayHelpers<bool>*>(&param.get_return_infos()))->clear();
+  (const_cast<sb::common::ObArrayHelpers<bool>*>(&param.get_return_infos()))->clear();
   EXPECT_EQ(param.serialize(serialize_buf, buf_len, pos), OB_SUCCESS);
   data_len = pos;
   pos = 0;

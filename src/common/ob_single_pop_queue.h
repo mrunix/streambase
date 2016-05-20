@@ -5,7 +5,7 @@
 #include "common/ob_define.h"
 #include "common/ob_malloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // only one thread can get head item
 template <typename T>

@@ -1,8 +1,8 @@
 #include "ob_mysql_state.h"
 #include "common/ob_define.h"
 #include <tbsys.h>
-using namespace oceanbase::common;
-using namespace oceanbase::obmysql;
+using namespace sb::common;
+using namespace sb::obmysql;
 
 ObMySQLState::StObErrorStringMap ObMySQLState::maps_[OB_MAX_ERROR_CODE] = {};
 const ObMySQLState ObMySQLState::instance_;

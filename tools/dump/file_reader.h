@@ -67,7 +67,7 @@ class FileReader {
 
   bool eof_;
 
-  oceanbase::common::FileUtils file_;
+  sb::common::FileUtils file_;
 };
 
 class EncodingFileReader : public FileReader {

@@ -11,7 +11,7 @@
 #include "ob_packet_factory.h"
 #include "ob_packet_queue.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObBaseServer {
  public:

@@ -28,10 +28,10 @@
 #include "common/ob_server_ext.h"
 #include "ob_mms_heartbeat_task.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mms {
-using oceanbase::common::ObServer;
-using oceanbase::common::ObLease;
+using sb::common::ObServer;
+using sb::common::ObLease;
 
 const int64_t DEFAULT_LEASE_TIEMOUT = 5000000L;
 /**************************************
@@ -235,6 +235,6 @@ class ObMonitor : public tbnet::IPacketQueueHandler {
 };
 
 } // end namespace mms
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_MMS_OB_MONITOR_H_

@@ -19,7 +19,7 @@
 #include "common/serialization.h"
 #include "common/ob_row_util.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 using namespace common;
 using namespace common::serialization;
@@ -1119,4 +1119,4 @@ int ObSSTableWriter::check_row_count() {
   return ret;
 }
 } // end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb

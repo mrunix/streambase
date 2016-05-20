@@ -23,7 +23,7 @@
 #include "common/ob_array.h"
 #include "common/ob_bit_set.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace sql {
 class ObCSCreatePlan {

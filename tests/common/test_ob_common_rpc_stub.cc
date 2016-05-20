@@ -25,11 +25,11 @@
 #include "ob_common_rpc_stub.h"
 
 using namespace std;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 const int32_t MOCK_SERVER_LISTEN_PORT = 8888;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace common {
 class TesObCommontRpcStub : public ::testing::Test {
@@ -141,7 +141,7 @@ TEST_F(TesObCommontRpcStub, test_grant_lease) {
 
 } // end namespace updateserver
 } // end namespace tests
-} // end namespace oceanbase
+} // end namespace sb
 
 
 int main(int argc, char** argv) {

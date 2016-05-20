@@ -18,7 +18,7 @@
 #include "ob_on_disk_log_locator.h"
 #include "ob_located_log_reader.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObPosLogReader {
  public:
@@ -36,5 +36,5 @@ class ObPosLogReader {
   ObLocatedLogReader located_log_reader_;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 #endif // OCEANBASE_UPDATESERVER_OB_POS_LOG_READER_H_

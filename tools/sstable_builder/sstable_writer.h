@@ -29,7 +29,7 @@
 #include "sstable/ob_sstable_block_index_builder.h"
 #include "sstable/ob_sstable_block_builder.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 /**
  * the class is used to write a sstable, the format of sstable
@@ -332,7 +332,7 @@ class SSTableWriter {
   int64_t data_size_;                        //data size
   int64_t write_buf_size_;                   //real write buffer size
 };
-} // namespace oceanbase::chunkserver
+} // namespace sb::chunkserver
 } // namespace Oceanbase
 
 #endif // OCEANBASE_CHUNKSERVER_SSTABLE_WRITER_H_

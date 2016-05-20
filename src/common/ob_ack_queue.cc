@@ -16,7 +16,7 @@
 #include "easy_io.h"
 #include "ob_client_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct __ACK_QUEUE_UNIQ_TYPE__ {};
 typedef TypeUniqReg<ObAckQueue, __ACK_QUEUE_UNIQ_TYPE__> TUR;
@@ -188,4 +188,4 @@ int ObAckQueue::callback(void* data) {
   return ret;
 }
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb

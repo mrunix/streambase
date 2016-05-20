@@ -14,8 +14,8 @@
 #include "common/ob_schema.h"
 #include "common/ob_crc64.h"
 #include "rootserver/ob_root_table2.h"
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 int main(int argc, char* argv[]) {
   if (argc != 3) {
     printf("usage %s in_file_name out_file_name\n", argv[0]);

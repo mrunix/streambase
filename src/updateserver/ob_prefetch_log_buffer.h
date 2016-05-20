@@ -17,7 +17,7 @@
 #include "common/ob_spin_rwlock.h"
 #include "ob_log_buffer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 // ObPrefetchLogBuffer在备机重放日志时实现取日志和重放并行化，
 // 当replay线程每次调用get_log()获取日志检测到prefetch_log_buffer有剩余空间时，便提交一个异步取日志任务。
@@ -47,5 +47,5 @@ class ObPrefetchLogBuffer : public ObLogBuffer {
   mutable common::SpinRWLock write_lock_;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 #endif /* __OB_UPDATESERVER_OB_PREFETCH_LOG_BUFFER_H__ */

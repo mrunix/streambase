@@ -35,9 +35,9 @@
 #include "common/ob_common_stat.h"
 #include "ob_proxy_reader.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace proxyserver {
 ObProxyService::ObProxyService()
   : proxy_server_(NULL), inited_(false) {
@@ -532,4 +532,4 @@ int ObProxyService::proxy_fetch_range(
 }
 
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

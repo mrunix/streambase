@@ -39,14 +39,14 @@
 #include "common/location/ob_tablet_location_list.h"
 #include "ob_location_list_cache_loader.h"
 #include "../common/test_rowkey_helper.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::mergeserver;
 using namespace testing;
 using namespace std;
 static CharArena allocator_;
 
-class MockAsyncRpcStub : public oceanbase::mergeserver::ObMergerAsyncRpcStub {
+class MockAsyncRpcStub : public sb::mergeserver::ObMergerAsyncRpcStub {
  public:
   MockAsyncRpcStub() {
     get_rpc_count_ = 0;

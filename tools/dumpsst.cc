@@ -45,11 +45,11 @@
 #include <dirent.h>
 #include <string.h>
 
-//using oceanbase::obsolete::chunkserver::ObTabletMeta;
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
-using namespace oceanbase::chunkserver;
+//using sb::obsolete::chunkserver::ObTabletMeta;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::sstable;
+using namespace sb::chunkserver;
 
 const char* g_sstable_directory = NULL;
 const int64_t LARGE_BUFSIZ = 1024 * 512L; // 512KB

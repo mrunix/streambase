@@ -26,7 +26,7 @@
 #include "ob_rowkey_phy_operator.h"
 #include "ob_last_rowkey_interface.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObMultiVersionTabletImage;
 class ObTablet;
@@ -94,6 +94,6 @@ class ObSSTableScan : public ObRowkeyPhyOperator, public ObLastRowkeyInterface {
   int64_t row_counter_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_SSTABLE_SCAN_H */

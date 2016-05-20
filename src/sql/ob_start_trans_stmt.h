@@ -16,7 +16,7 @@
 #ifndef _OB_START_TRANS_STMT_H
 #define _OB_START_TRANS_STMT_H 1
 #include "ob_basic_stmt.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObStartTransStmt: public ObBasicStmt {
  public:
@@ -58,6 +58,6 @@ inline void ObStartTransStmt::print(FILE* fp, int32_t level, int32_t index) {
   fprintf(fp, "</ObStartTransStmt>\n");
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_START_TRANS_STMT_H */

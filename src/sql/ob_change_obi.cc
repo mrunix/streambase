@@ -18,7 +18,7 @@
 #include "ob_change_obi.h"
 #include "ob_sql.h"
 
-using namespace oceanbase::sql;
+using namespace sb::sql;
 
 ObChangeObi::ObChangeObi()
   : context_(NULL), result_set_out_(NULL), master_cluster_index_(-1),

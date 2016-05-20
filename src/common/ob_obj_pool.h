@@ -6,7 +6,7 @@
 #include "common/ob_spin_lock.h"
 #include "common/ob_tl_store.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template <typename T>
 class ObObjPool {

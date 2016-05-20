@@ -18,7 +18,7 @@
 #include "ob_ms_sql_proxy.h"
 #include "sql/ob_sql_context.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObGetPrivilegeTask : public common::ObTimerTask {
  public:
@@ -40,7 +40,7 @@ class ObGetPrivilegeTask : public common::ObTimerTask {
 
 };
 }// namespace mergeserver
-}// namespace oceanbase
+}// namespace sb
 
 
 

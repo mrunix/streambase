@@ -18,7 +18,7 @@
 #include "common/ob_log_entry.h"
 #include "rootserver/ob_root_log_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootLogManager;
 class ObRootLogReplay : public common::ObLogReplayRunnable {

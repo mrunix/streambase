@@ -18,9 +18,9 @@
 #include "common/ob_malloc.h"
 #include "compactsstable/ob_compact_row.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::compactsstable;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::compactsstable;
 
 
 TEST(ObCompactRow, test_basic_row) {

@@ -20,7 +20,7 @@
 #include "common/ob_simple_condition.h"
 #include "common/ob_easy_array.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace nb_accessor {
 class ScanConds : public EasyArray<ObSimpleCond> {

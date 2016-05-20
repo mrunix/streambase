@@ -18,7 +18,7 @@
 #include "common/ob_malloc.h"
 #include "common/utility.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace compactsstable {
 namespace {
@@ -749,4 +749,4 @@ int32_t ObCompactRow::calc_col_num() {
   return col_num;
 }
 } //end namespace compactsstable
-} //end namespace oceanbase
+} //end namespace sb

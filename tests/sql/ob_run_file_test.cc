@@ -17,8 +17,8 @@
 #include "sql/ob_run_file.h"
 #include "ob_fake_table.h"
 #include "common/ob_row_util.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 class ObRunFileTest: public ::testing::Test {
  public:

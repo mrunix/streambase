@@ -21,8 +21,8 @@
 #include "common/ob_cluster_server.h"
 #include "common/ob_extra_tables_schema.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 
 // only one server for this tablet
 static const char* size = "occupy_size";

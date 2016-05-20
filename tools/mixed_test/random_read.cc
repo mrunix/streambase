@@ -5,7 +5,7 @@
 #include "utils.h"
 #include "row_checker.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 struct CmdLine {

@@ -25,7 +25,7 @@
 #include "sstable/ob_sstable_schema.h"
 #include "common/compress/ob_compressor.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 class DumpSSTable {
  public:

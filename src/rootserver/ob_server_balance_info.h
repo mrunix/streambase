@@ -16,7 +16,7 @@
 #include "common/ob_range.h"
 #include "common/ob_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObServerDiskInfo {
  public:

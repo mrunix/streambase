@@ -20,7 +20,7 @@
 #include "ob_bit_set.h"
 #define USERNAME_MAP_BUCKET_NUM 100
 #define USERTABLE_MAP_BUCKET_NUM 100
-namespace oceanbase {
+namespace sb {
 namespace common {
 // do not need serialization and deserialization
 class ObPrivilege {
@@ -113,5 +113,5 @@ class ObPrivilege {
   int64_t version_;
 };
 }// namespace common
-}//namespace oceanbase
+}//namespace sb
 #endif

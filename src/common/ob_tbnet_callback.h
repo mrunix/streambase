@@ -19,7 +19,7 @@
 
 #include "easy_io_struct.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObTbnetCallback {
  public:

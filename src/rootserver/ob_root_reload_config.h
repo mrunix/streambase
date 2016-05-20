@@ -20,7 +20,7 @@
 #include "common/ob_reload_config.h"
 #include "ob_root_server_config.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 /* forward declearation */
 class ObRootServer2;
@@ -39,6 +39,6 @@ class ObRootReloadConfig
   ObRootServer2* root_server_;
 };
 } // end of namespace rootserver
-} // end of namespace oceanbase
+} // end of namespace sb
 
 #endif /* _OB_ROOT_RELOAD_CONFIG_H_ */

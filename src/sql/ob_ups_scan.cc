@@ -3,7 +3,7 @@
 #include "common/utility.h"
 #include "common/ob_profile_log.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace sql;
 
 void ObUpsScan::reset() {
@@ -161,7 +161,7 @@ int ObUpsScan::set_child(int32_t child_idx, ObPhyOperator& child_operator) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObUpsScan, PHY_UPS_SCAN);
 }

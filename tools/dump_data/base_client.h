@@ -7,7 +7,7 @@
 #include "common/ob_client_manager.h"
 #include "common/ob_packet_factory.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class BaseClient: public common::ObBaseClient {
  public:

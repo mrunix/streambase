@@ -15,7 +15,7 @@
  */
 #include "common/ob_se_array.h"
 #include <gtest/gtest.h>
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class ObSEArrayTest: public ::testing::Test {
  public:

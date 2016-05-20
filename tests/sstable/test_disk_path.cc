@@ -17,9 +17,9 @@
 #include "sstable/ob_disk_path.h"
 #include "common/ob_common_stat.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 uint64_t get_sstable_disk_no(const uint64_t sstable_file_id) {
   return (sstable_file_id & DISK_NO_MASK);

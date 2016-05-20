@@ -22,8 +22,8 @@
 #include "common/hash/ob_hashmap.h"
 #include "common/ob_list.h"
 
-using namespace oceanbase::common::hash;
-namespace oceanbase {
+using namespace sb::common::hash;
+namespace sb {
 namespace sql {
 class ObSQLSessionInfoTraversal {
  public:

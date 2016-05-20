@@ -21,8 +21,8 @@
 #include "common/ob_string_buf.h"
 #include "updateserver/ob_memtable.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
 class MockMemIterator : public ObIterator {
  public:

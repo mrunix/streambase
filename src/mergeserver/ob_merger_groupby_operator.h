@@ -20,7 +20,7 @@
 #include "common/ob_array_helper.h"
 #include "common/ob_scanner.h"
 #include "common/ob_range2.h"
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMergerGroupByOperator : public common::ObInnerIterator {
  public:

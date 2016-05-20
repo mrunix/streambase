@@ -16,8 +16,8 @@
 
 #include "ob_root_server_state.h"
 #include "ob_root_server2.h"
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 
 int ObRootServerState::init(ObRootServer2* root_server, tbsys::CRWLock* server_manager_lock, const ObChunkServerManager* server_manager) {
   int ret = OB_SUCCESS;

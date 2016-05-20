@@ -3,7 +3,7 @@
 #include "common/utility.h"
 #include "common/ob_server.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int main(int argc, char** argv) {
   UNUSED(argc);

@@ -7,7 +7,7 @@
 #include "task_output.h"
 
 using namespace std;
-using namespace oceanbase::tools;
+using namespace sb::tools;
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);

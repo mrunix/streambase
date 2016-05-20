@@ -35,7 +35,7 @@
 
 #define UPS ObUpdateServerMain::get_instance()->get_update_server()
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class FakeWriteGuard {
  public:

@@ -20,7 +20,7 @@
 #include "common/utility.h"
 #include "sql/ob_phy_operator_type.h"
 #include "ob_global_factory.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 // T should be a derived class of common::DLink
 template<typename T>
@@ -338,5 +338,5 @@ void ObTCFactory<T, MAX_CLASS_NUM, MODID, MEM_LIMIT, MAX_FREE_LIST_LENGTH>::stat
             total_mem_size, total_length, total_max_length);
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 #endif /* _OB_TC_FACTORY_H */

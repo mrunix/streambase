@@ -16,7 +16,7 @@
 
 #include "ob_row_fuse.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 /*
  * 将一个ups的行付给一个普通行

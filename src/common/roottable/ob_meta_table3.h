@@ -21,7 +21,7 @@
 #include "common/ob_cached_allocator.h"
 #include "ob_tablet_meta_table.h"
 #include "ob_scan_helper.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObScanner;
 class ObMutator;
@@ -81,7 +81,7 @@ class ObMetaTable3: public common::ObTabletMetaTable {
   ObArray<MyIterator*> iterators_;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_META_TABLE3_H */
 

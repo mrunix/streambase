@@ -21,8 +21,8 @@
 #include "ob_ps_store.h"
 #include "common/hash/ob_hashmap.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace sql {
 typedef int64_t ObPsStoreKey;
 class ObPsStoreAtomicOp {

@@ -21,7 +21,7 @@
 #include "common/serialization.h"
 #include "sstable/ob_sstable_trailer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 static const int OB_SSTABLE_STORE_DENSEV1  = 1;
 static const int OB_SSTABLE_STORE_SPARSEV1 = 2;

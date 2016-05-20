@@ -16,7 +16,7 @@
 #define OCEANBASE_UPDATESERVER_OB_FETCHED_LOG_SRC_H_
 #include "common/ob_log_cursor.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 // 备向主请求时，会带上session信息，第一次请求时为空，主UPS会返回给备一个非空
 // 的session, 后续请求时，备带上主返回的session。
@@ -62,5 +62,5 @@ struct ObFetchedLog {
   int64_t to_string(char* buf, const int64_t len) const;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 #endif //OCEANBASE_UPDATESERVER_OB_FETCHED_LOG_SRC_H_

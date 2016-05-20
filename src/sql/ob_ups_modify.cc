@@ -13,7 +13,7 @@
  */
 #include "ob_ups_modify.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 int64_t ObUpsModifyWithDmlType::to_string(char* buf, const int64_t buf_len) const {
   int64_t pos = 0;
@@ -53,5 +53,5 @@ int64_t ObUpsModifyWithDmlType::get_serialize_size(void) const {
 REGISTER_PHY_OPERATOR(ObUpsModify, PHY_UPS_MODIFY);
 REGISTER_PHY_OPERATOR(ObUpsModifyWithDmlType, PHY_UPS_MODIFY_WITH_DML_TYPE);
 }; // end namespace sql
-}; // end namespace oceanbase
+}; // end namespace sb
 

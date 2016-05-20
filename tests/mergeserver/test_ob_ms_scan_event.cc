@@ -24,9 +24,9 @@
 #include "../common/test_rowkey_helper.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
-using namespace oceanbase::mergeserver::test;
+using namespace sb::common;
+using namespace sb::mergeserver;
+using namespace sb::mergeserver::test;
 
 const uint64_t timeout = 10000000;
 const char* addr = "127.0.0.1";

@@ -15,7 +15,7 @@
 #include "common/ob_packet.h"
 #include "common/ob_tbnet_callback.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 const int64_t bl = 256;

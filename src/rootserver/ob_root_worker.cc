@@ -52,9 +52,9 @@ const int WRITE_THREAD_FLAG = 1;
 const int LOG_THREAD_FLAG = 2;
 const int32_t ADDR_BUF_LEN = 64;
 }
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObRootWorker::ObRootWorker(ObConfigManager& config_mgr, ObRootServerConfig& rs_config)
   : config_mgr_(config_mgr), config_(rs_config), is_registered_(false),
@@ -2901,7 +2901,7 @@ int ObRootWorker::rt_stat(const int32_t version, common::ObDataBuffer& in_buff,
   return ret;
 }
 
-using oceanbase::common::databuff_printf;
+using sb::common::databuff_printf;
 
 int ObRootWorker::do_stat(int stat_key, char* buf, const int64_t buf_len, int64_t& pos) {
   int ret = OB_SUCCESS;

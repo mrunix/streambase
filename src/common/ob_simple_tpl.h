@@ -8,7 +8,7 @@
 #ifndef __OB_COMMON_OB_SIMPLE_TPL_H__
 #define __OB_COMMON_OB_SIMPLE_TPL_H__
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template<typename Type1, typename Type2>
 struct Pair {
@@ -197,5 +197,5 @@ class ObHandyAllocatorWrapper: public Allocator {
   }
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 #endif /* __OB_COMMON_OB_SIMPLE_TPL_H__ */

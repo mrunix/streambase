@@ -13,7 +13,7 @@
  */
 
 #include "ob_data_source_desc.h"
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 ObDataSourceDesc::ObDataSourceDesc() {

@@ -20,7 +20,7 @@
 #include "ob_define.h"
 #include "ob_common_rpc_stub.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObCheckRunnable : public tbsys::CDefaultRunnable {
  public:
@@ -77,5 +77,5 @@ class ObCheckRunnable : public tbsys::CDefaultRunnable {
   int64_t renew_lease_timeout_;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 #endif // OCEANBASE_COMMON_OB_CHECK_RUNNABLE_H_

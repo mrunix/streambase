@@ -16,8 +16,8 @@
 #include "ob_project.h"
 #include "ob_sql_expression.h"
 #include "common/utility.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObProject::ObProject()
   : columns_(common::OB_MALLOC_BLOCK_SIZE, ModulePageAllocator(ObModIds::OB_SQL_ARRAY)),
@@ -135,7 +135,7 @@ int ObProject::get_next_row(const common::ObRow*& row) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObProject, PHY_PROJECT);
 }

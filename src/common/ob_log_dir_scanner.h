@@ -17,7 +17,7 @@
 
 #include "ob_vector.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObLogFile {
   char name[OB_MAX_FILE_NAME_LENGTH];
@@ -115,6 +115,6 @@ class ObLogDirScanner {
   bool is_initialized_;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_OB_LOG_DIR_SCANNER_H_

@@ -1,6 +1,6 @@
 #include "ob_fileinfo_cache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 using namespace common;
 using namespace compactsstablev2;

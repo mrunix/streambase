@@ -17,7 +17,7 @@
  */
 
 #include "common/ob_array_helper.h"
-//using namespace oceanbase::common;
+//using namespace sb::common;
 
 typedef enum { //rowKeySubType
   ROWKEY_MIN = -1,
@@ -46,7 +46,7 @@ char* string_split_by_str(char*& str1,
                           bool whole_words_only);
 char* string_split_by_ch(char*& str, const int ch);
 int parse_number_range(const char* number_string,
-                       oceanbase::common::ObArrayHelper<int32_t>& disk_array);
+                       sb::common::ObArrayHelper<int32_t>& disk_array);
 char* duplicate_str(const char* str);
 int64_t atoi64(const char* str);
 char* strlwr(char* str);

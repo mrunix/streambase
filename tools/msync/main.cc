@@ -16,8 +16,8 @@
 #include <getopt.h>
 #include "ob_msync_client_main.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::msync;
+using namespace sb::common;
+using namespace sb::msync;
 
 namespace {
 const char* PUBLIC_SECTION_NAME = "public";

@@ -25,7 +25,7 @@
 
 using namespace std;
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 namespace test {
 class ObFakeUpsMultiGet : public ObUpsMultiGet {

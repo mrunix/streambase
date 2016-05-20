@@ -21,9 +21,9 @@
 #include "common/ob_string_buf.h"
 #include "common/ob_tablet_info.h" // ObTabletLocation
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /// server and access err times
 struct ObTabletLocationItem {

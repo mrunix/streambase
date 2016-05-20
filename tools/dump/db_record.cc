@@ -29,10 +29,10 @@
 #include <iostream>
 #include <string>
 
-namespace oceanbase {
+namespace sb {
 namespace api {
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 DbRecord::~DbRecord() {
   reset();

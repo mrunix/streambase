@@ -20,7 +20,7 @@
 #include "hash/ob_hashutils.h"
 #include "ob_balance_filter.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObBalanceFilter::ObBalanceFilter() : inited_(false),
   bucket_node_num_(0),

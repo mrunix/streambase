@@ -8,8 +8,8 @@
 #include "common/ob_scan_param.h"
 #include "common/ob_range2.h"
 #include "../../common/test_rowkey_helper.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 
 const char* msolap::target_table_name_cstr = "olap";
@@ -57,7 +57,7 @@ void msolap::gen_key_range(OlapConf& conf, uint32_t& start_key, uint32_t& end_ke
 }
 
 char msolap::olap_get_column_name(const uint64_t column_id) {
-  oceanbase::common::ObString cname;
+  sb::common::ObString cname;
   static __thread char c ;
   c = static_cast<char>('a' + (column_id - min_column_id));
   return c;

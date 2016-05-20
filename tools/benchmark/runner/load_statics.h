@@ -20,7 +20,7 @@
 
 #include "load_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 struct NewStatics {
   int64_t execute_count;

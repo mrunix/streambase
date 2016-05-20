@@ -21,7 +21,7 @@
 #include "ob_merge_reader.h"
 #include "common/ob_cell_array.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObTabletManager;
 

@@ -22,10 +22,10 @@
 #include "common/utility.h"
 #include "sstable/ob_sstable_reader.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 ObMergeReader::ObMergeReader(ObTabletManager& manager)
   :  initialized_(false), tablet_(NULL),
@@ -37,7 +37,7 @@ ObMergeReader::~ObMergeReader() {
   reset();
 }
 
-int ObMergeReader::scan(const oceanbase::common::ObScanParam& scan_param) {
+int ObMergeReader::scan(const sb::common::ObScanParam& scan_param) {
   int ret = OB_SUCCESS;
 
   TBSYS_LOG(DEBUG, "ObMergeReader::scan begin");
@@ -103,7 +103,7 @@ int ObMergeReader::get_cell(ObCellInfo** cell, bool* is_row_changed) {
 }
 
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb
 
 
 

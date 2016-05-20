@@ -15,9 +15,9 @@
  */
 #include "ob_merge_groupby.h"
 #include "common/utility.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
-using namespace oceanbase::common::serialization;
+using namespace sb::sql;
+using namespace sb::common;
+using namespace sb::common::serialization;
 
 ObMergeGroupBy::ObMergeGroupBy()
   : last_input_row_(NULL) {
@@ -160,7 +160,7 @@ PHY_OPERATOR_ASSIGN(ObMergeGroupBy) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObMergeGroupBy, PHY_MERGE_GROUP_BY);
 }

@@ -20,7 +20,7 @@
 #include "btree_tid.h"
 #include "qlock.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace cmbtree {
 /**
@@ -1522,7 +1522,7 @@ int16_t BtreeLeafNode<K, V>::get_right_part_length_(int16_t pos) {
 
 } // end namespace cmbtree
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif
 

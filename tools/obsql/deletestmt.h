@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "stmt.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obsql {
 
 using namespace common;

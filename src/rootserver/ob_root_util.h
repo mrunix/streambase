@@ -20,14 +20,14 @@
 #include "common/ob_tablet_info.h"
 #include <stdint.h>
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootUtil {
  public:
   static int delete_tablets(ObRootRpcStub& rpc_stub, const ObChunkServerManager& server_manager, common::ObTabletReportInfoList& delete_list, const int64_t timeout);
 };
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ROOT_UTIL_H */
 

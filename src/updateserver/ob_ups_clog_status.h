@@ -21,7 +21,7 @@
 #include "ob_obi_slave_stat.h"
 #include "ob_slave_sync_type.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 struct ObUpsCLogStatus {
   ObUpsCLogStatus(): obi_slave_stat_(UNKNOWN_SLAVE), slave_sync_type_(),
@@ -60,6 +60,6 @@ struct ObUpsCLogStatus {
   int64_t wait_response_;
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_UPDATESERVER_OB_UPS_CLOG_STATUS_H__ */

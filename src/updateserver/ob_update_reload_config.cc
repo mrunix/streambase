@@ -17,9 +17,9 @@
 #include "ob_update_server.h"
 #include "ob_update_reload_config.h"
 
-using namespace oceanbase;
-using namespace oceanbase::updateserver;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::updateserver;
+using namespace sb::common;
 
 ObUpdateReloadConfig::ObUpdateReloadConfig()
   : update_server_(NULL) {

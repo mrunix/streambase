@@ -7,7 +7,7 @@
 #include "common/ob_string.h"
 #include "common/hash/ob_hashmap.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace common::hash;
 

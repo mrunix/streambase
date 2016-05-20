@@ -3,7 +3,7 @@
 
 #include "btree_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 /**
@@ -64,7 +64,7 @@ class BtreeAlloc {
 };
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif
 

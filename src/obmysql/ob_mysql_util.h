@@ -21,9 +21,9 @@
 #include "common/ob_object.h"
 #include "ob_mysql_global.h"
 #include <float.h>              // for FLT_DIG and DBL_DIG
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 enum MYSQL_PROTOCOL_TYPE {
   TEXT = 1,
@@ -31,7 +31,7 @@ enum MYSQL_PROTOCOL_TYPE {
 };
 
 struct ObMySQLTypeMap {
-  /* oceanbase::common::ObObjType ob_type; */
+  /* sb::common::ObObjType ob_type; */
   EMySQLFieldType mysql_type;
   uint64_t length;        /* other than varchar type */
 };
@@ -497,6 +497,6 @@ int ObMySQLUtil::get_ob_type(ObObjType& ob_type, EMySQLFieldType mysql_type) {
   return ret;
 }
 }      // namespace obmysql
-}      // namespace oceanbase
+}      // namespace sb
 
 #endif /* _OB_MYSQL_UTIL_H_ */

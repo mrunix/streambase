@@ -3,7 +3,7 @@
 
 #include "btree_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * BTree每个节点
@@ -158,7 +158,7 @@ class BtreeNode {
   BtreeKeyValuePair pairs_[0];       // key value pair对
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif
 

@@ -21,7 +21,7 @@
 #include "common/ob_new_scanner.h"
 #include "common/ob_transaction.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace sql {
 class PageArenaAllocator : public ObIAllocator {
@@ -90,6 +90,6 @@ class ObUpsResult {
   ObTransID trans_id_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_UPS_RESULT_H */

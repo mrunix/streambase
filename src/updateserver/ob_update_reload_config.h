@@ -19,7 +19,7 @@
 
 #include "common/ob_reload_config.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 /* forward declearation */
 class ObUpdateServer;
@@ -38,6 +38,6 @@ class ObUpdateReloadConfig
   ObUpdateServer* update_server_;
 };
 } // end of namespace updateserver
-} // end of namespace oceanbase
+} // end of namespace sb
 
 #endif /* _OB_UPDATE_RELOAD_CONFIG_H_ */

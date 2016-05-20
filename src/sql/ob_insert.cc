@@ -18,8 +18,8 @@
 #include "mergeserver/ob_ms_rpc_proxy.h"
 #include "common/ob_obj_cast.h"
 #include "common/ob_trace_log.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObInsert::ObInsert()
   : rpc_(NULL), table_id_(OB_INVALID_ID), is_replace_(true) {
@@ -200,7 +200,7 @@ int ObInsert::insert_by_mutator() {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObInsert, PHY_INSERT);
 }

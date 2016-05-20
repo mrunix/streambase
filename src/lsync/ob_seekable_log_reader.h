@@ -20,9 +20,9 @@
 #include "common/ob_define.h"
 #include "common/ob_repeated_log_reader.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace lsync {
 struct ObLsyncLogEntry {
   uint64_t last_file_id;
@@ -103,6 +103,6 @@ class ObSeekableLogReader {
 };
 
 } // end namespace lsync
-} // end namespace oceanbase
+} // end namespace sb
 #endif // _OCEANBASE_LSYNC_OB_SEEKABLE_LOG_READER_H_
 

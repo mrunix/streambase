@@ -19,7 +19,7 @@
 #include "ob_trigger_event_util.h"
 #include "ob_inner_table_operator.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int ObTriggerEventUtil::format(ObString& sql, const int64_t type, const int64_t param) {
   ObServer server;

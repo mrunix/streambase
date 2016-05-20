@@ -8,7 +8,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 static char* fname = (char*)"./test_file.data";

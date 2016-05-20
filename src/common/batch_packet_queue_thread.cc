@@ -23,7 +23,7 @@
 #include "ob_profile_log.h"
 #include "ob_profile_type.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 

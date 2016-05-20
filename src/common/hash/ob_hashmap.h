@@ -28,7 +28,7 @@
 #include "ob_hashtable.h"
 #include "ob_serialization.h"
 #include "common/ob_allocator.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace hash {
 template <class _key_type, class _value_type>
@@ -52,7 +52,7 @@ template <class _key_type, class _value_type,
           class _equal = equal_to<_key_type>,
           class _allocer = SimpleAllocer<typename HashMapTypes<_key_type, _value_type>::AllocType>,
           template <class> class _bucket_array = NormalPointer,
-          class _bucket_allocer = oceanbase::common::ObMalloc>
+          class _bucket_allocer = sb::common::ObMalloc>
 class ObHashMap {
   typedef typename HashMapTypes<_key_type, _value_type>::pair_type pair_type;
   typedef ObHashMap<_key_type, _value_type, _defendmode, _hashfunc, _equal, _allocer, _bucket_array, _bucket_allocer> hashmap;

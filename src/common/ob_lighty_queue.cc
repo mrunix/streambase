@@ -17,7 +17,7 @@
 #include <linux/futex.h>
 #include "utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 #define futex(...) syscall(SYS_futex,__VA_ARGS__)
 static int futex_wake(volatile int* p, int val) {
@@ -234,4 +234,4 @@ void LightyQueue::reset() {
   }
 }
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb

@@ -13,10 +13,10 @@
 
 #include "ob_rs_schema_operation.h"
 
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 ObRsSchemaOperation::ObRsSchemaOperation() {
   schema_manager_ = NULL;

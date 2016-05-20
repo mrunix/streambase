@@ -20,8 +20,8 @@
 #include "ob_sql.h"
 #include "ob_direct_trigger_event_util.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 int ObDirectTriggerEventUtil::refresh_new_config(ObResultSet& result, ObSqlContext& context) {
   int err = OB_SUCCESS;

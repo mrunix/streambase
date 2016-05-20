@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 using namespace std;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObSQLType get_sql_type(const char* q, unsigned long length) {
   TBSYS_LOG(INFO, "query is %s", q);

@@ -17,7 +17,7 @@
 #ifndef OCEANBASE_PROXYREADER_H_
 #define OCEANBASE_PROXYREADER_H_
 
-namespace oceanbase {
+namespace sb {
 namespace proxyserver {
 class ProxyReader {
  public:

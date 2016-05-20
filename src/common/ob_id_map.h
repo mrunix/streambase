@@ -26,7 +26,7 @@
 #include "utility.h"
 
 #define IDMAP_INVALID_ID 0
-namespace oceanbase {
+namespace sb {
 namespace common {
 enum FetchMod {
   FM_SHARED = 0,
@@ -343,6 +343,6 @@ int ObIDMap<T, ID_TYPE>::size() const {
   return static_cast<int>(num_ - 1 - free_list_.get_total());
 }
 } // namespace common
-} // namespace oceanbase
+} // namespace sb
 
 #endif //OCEANBASE_UPDATESERVER_ID_MAP_H_

@@ -16,9 +16,9 @@
 #include "ob_rename.h"
 #include "ob_sql_expression.h"
 #include "common/utility.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
-using namespace oceanbase::common::serialization;
+using namespace sb::sql;
+using namespace sb::common;
+using namespace sb::common::serialization;
 
 ObRename::ObRename():
   table_id_(0), base_table_id_(0),
@@ -152,7 +152,7 @@ int ObRename::get_next_row(const common::ObRow*& row) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObRename, PHY_RENAME);
 }

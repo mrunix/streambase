@@ -20,10 +20,10 @@
 #include "file_directory_utils.h"
 #include "file_utils.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace sstable {
 static const int64_t DEFAULT_COLUMN_DEF_SIZE = 1280;
@@ -46,7 +46,7 @@ TEST_F(TestObSSTableSchema, test_init) {
 
   EXPECT_EQ(0, schema.get_column_count());
 
-  for (int i = 0; i < oceanbase::common::OB_MAX_COLUMN_NUMBER; ++i) {
+  for (int i = 0; i < sb::common::OB_MAX_COLUMN_NUMBER; ++i) {
     column_def = schema.get_column_def(i);
     EXPECT_TRUE(NULL == column_def);
   }
@@ -337,7 +337,7 @@ TEST_F(TestObSSTableSchema, test_add_max_columns_one_table) {
   ObSSTableSchemaColumnDef column_def;
   const ObSSTableSchemaColumnDef* column = NULL;
   int ret = OB_SUCCESS;
-  for (int i = 0; i < oceanbase::common::OB_MAX_COLUMN_NUMBER; ++i) {
+  for (int i = 0; i < sb::common::OB_MAX_COLUMN_NUMBER; ++i) {
     column_def.column_group_id_ = 2;
     column_def.column_name_id_ = static_cast<uint16_t>(i + 2);
     column_def.table_id_ = 1000;
@@ -347,9 +347,9 @@ TEST_F(TestObSSTableSchema, test_add_max_columns_one_table) {
     EXPECT_EQ(OB_SUCCESS, ret);
   }
 
-  EXPECT_EQ(oceanbase::common::OB_MAX_COLUMN_NUMBER, schema.get_column_count());
+  EXPECT_EQ(sb::common::OB_MAX_COLUMN_NUMBER, schema.get_column_count());
 
-  for (int i = 0; i < oceanbase::common::OB_MAX_COLUMN_NUMBER; ++i) {
+  for (int i = 0; i < sb::common::OB_MAX_COLUMN_NUMBER; ++i) {
     column = schema.get_column_def(i);
     EXPECT_EQ(i + 2, (int32_t)column->column_name_id_);
     EXPECT_EQ(2, (int32_t)column->column_group_id_);
@@ -367,7 +367,7 @@ TEST_F(TestObSSTableSchema, test_add_max_columns) {
     column_def.column_group_id_ = 2;
     column_def.column_name_id_ = static_cast<uint16_t>(i + 2);
     column_def.rowkey_seq_ = 0;
-    if (oceanbase::common::OB_MAX_COLUMN_NUMBER > i) {
+    if (sb::common::OB_MAX_COLUMN_NUMBER > i) {
       column_def.table_id_ = 1000;
     } else {
       column_def.table_id_ = 1001;
@@ -383,7 +383,7 @@ TEST_F(TestObSSTableSchema, test_add_max_columns) {
     column = schema.get_column_def(i);
     EXPECT_EQ(i + 2, (int32_t)column->column_name_id_);
     EXPECT_EQ(2, (int32_t)column->column_group_id_);
-    if (oceanbase::common::OB_MAX_COLUMN_NUMBER > i) {
+    if (sb::common::OB_MAX_COLUMN_NUMBER > i) {
       EXPECT_EQ(1000, (int32_t)column->table_id_);
     } else {
       EXPECT_EQ(1001, (int32_t)column->table_id_);
@@ -401,7 +401,7 @@ TEST_F(TestObSSTableSchema, test_reset_schema) {
     column_def.column_group_id_ = 2;
     column_def.column_name_id_ = static_cast<uint16_t>(i + 2);
     column_def.rowkey_seq_ = 0;
-    if (oceanbase::common::OB_MAX_COLUMN_NUMBER > i) {
+    if (sb::common::OB_MAX_COLUMN_NUMBER > i) {
       column_def.table_id_ = 1000;
     } else {
       column_def.table_id_ = 1001;
@@ -417,7 +417,7 @@ TEST_F(TestObSSTableSchema, test_reset_schema) {
     column = schema.get_column_def(i);
     EXPECT_EQ(i + 2, (int32_t)column->column_name_id_);
     EXPECT_EQ(2, (int32_t)column->column_group_id_);
-    if (oceanbase::common::OB_MAX_COLUMN_NUMBER > i) {
+    if (sb::common::OB_MAX_COLUMN_NUMBER > i) {
       EXPECT_EQ(1000, (int32_t)column->table_id_);
     } else {
       EXPECT_EQ(1001, (int32_t)column->table_id_);
@@ -431,7 +431,7 @@ TEST_F(TestObSSTableSchema, test_reset_schema) {
     column_def.column_group_id_ = 2;
     column_def.column_name_id_ = static_cast<uint16_t>(i + 2);
     column_def.rowkey_seq_ = 0;
-    if (oceanbase::common::OB_MAX_COLUMN_NUMBER > i) {
+    if (sb::common::OB_MAX_COLUMN_NUMBER > i) {
       column_def.table_id_ = 1000;
     } else {
       column_def.table_id_ = 1001;
@@ -447,7 +447,7 @@ TEST_F(TestObSSTableSchema, test_reset_schema) {
     column = schema.get_column_def(i);
     EXPECT_EQ(i + 2, (int32_t)column->column_name_id_);
     EXPECT_EQ(2, (int32_t)column->column_group_id_);
-    if (oceanbase::common::OB_MAX_COLUMN_NUMBER > i) {
+    if (sb::common::OB_MAX_COLUMN_NUMBER > i) {
       EXPECT_EQ(1000, (int32_t)column->table_id_);
     } else {
       EXPECT_EQ(1001, (int32_t)column->table_id_);
@@ -608,7 +608,7 @@ TEST_F(TestObSSTableSchema, test_get_table_column_groups_id) {
   EXPECT_EQ(31, schema.get_column_count());
 
   //find an column that doesn't exist
-  uint64_t find[oceanbase::common::OB_MAX_COLUMN_GROUP_NUMBER];
+  uint64_t find[sb::common::OB_MAX_COLUMN_GROUP_NUMBER];
   int64_t size = OB_MAX_COLUMN_NUMBER;
   uint64_t table_id = 10000;
   //uint64_t group_id = 4;
@@ -617,7 +617,7 @@ TEST_F(TestObSSTableSchema, test_get_table_column_groups_id) {
   EXPECT_EQ(0, size);
   for (int i = 1000; i < 1010; ++i) {
     for (int ci = 0; ci < (i - 1000) % 3 + 1; ++ci) {
-      size = oceanbase::common::OB_MAX_COLUMN_GROUP_NUMBER;
+      size = sb::common::OB_MAX_COLUMN_GROUP_NUMBER;
       ret = schema.get_table_column_groups_id(i, find, size);
       EXPECT_EQ(OB_SUCCESS, ret);
       EXPECT_EQ((i - 1000) % 3 + 1, size);
@@ -651,7 +651,7 @@ TEST_F(TestObSSTableSchema, test_get_column_groups_id) {
   EXPECT_EQ(31, schema.get_column_count());
 
   //find an column that doesn't exist
-  uint64_t find[oceanbase::common::OB_MAX_COLUMN_GROUP_NUMBER];
+  uint64_t find[sb::common::OB_MAX_COLUMN_GROUP_NUMBER];
   int64_t size = OB_MAX_COLUMN_GROUP_NUMBER;
   uint64_t table_id = 10000;
   uint64_t group_id = 4;
@@ -660,7 +660,7 @@ TEST_F(TestObSSTableSchema, test_get_column_groups_id) {
   EXPECT_EQ(OB_MAX_COLUMN_GROUP_NUMBER, size);
   for (int i = 1000; i < 1010; ++i) {
     for (int ci = 0; ci < (i - 1000) % 3 + 1; ++ci) {
-      size = oceanbase::common::OB_MAX_COLUMN_GROUP_NUMBER;
+      size = sb::common::OB_MAX_COLUMN_GROUP_NUMBER;
       ret = schema.get_column_groups_id(i, ci, find, size);
       EXPECT_EQ(OB_SUCCESS, ret);
       EXPECT_EQ((i - 1000) % 3 + 1 - ci, size);
@@ -932,7 +932,7 @@ TEST_F(TestObSSTableSchema, test_serialize_and_deserialize) {
 }
 }//end namespace common
 }//end namespace tests
-}//end namespace oceanbase
+}//end namespace sb
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();

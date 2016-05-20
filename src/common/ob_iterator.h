@@ -19,7 +19,7 @@
 
 #include "common/ob_common_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // interface of iterator
 template <typename T>

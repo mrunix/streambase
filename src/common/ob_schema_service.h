@@ -24,7 +24,7 @@
 #include "ob_array.h"
 #include "ob_hint.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 typedef ObObjType ColumnType;
 /* 表单join关系描述，对应于__all_join_info内部表 */

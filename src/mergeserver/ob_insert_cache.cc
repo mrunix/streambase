@@ -1,8 +1,8 @@
 #include "ob_insert_cache.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 InsertCacheWrapValue::InsertCacheWrapValue()
   : bf_(NULL) {

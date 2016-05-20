@@ -3,8 +3,8 @@
 #include "common/ob_cond_info.h"
 #include "common/ob_common_param.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 int ObParamDecoder::decode_cell(const bool is_ext, const ObCellInfo& org_cell,
                                 const ObSchemaManagerV2& schema, ObCellInfo& decoded_cell) {

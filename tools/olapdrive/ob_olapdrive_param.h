@@ -18,7 +18,7 @@
 #include "common/ob_define.h"
 #include "common/ob_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 
 class ObOlapdriveParam {
@@ -110,6 +110,6 @@ class ObOlapdriveParam {
   int64_t log_level_;
 };
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_OLAPDRIVE_PARAM_H

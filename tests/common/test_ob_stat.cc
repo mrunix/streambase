@@ -5,8 +5,8 @@
 #include <fcntl.h>
 
 using namespace std;
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 TEST(ObStat, Serialize) {
   ObStat stat;

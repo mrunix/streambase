@@ -19,7 +19,7 @@
 
 #include "common/ob_rowkey.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObLastRowkeyInterface {
  public:

@@ -16,7 +16,7 @@
 #include <gtest/gtest.h>
 #include <stdint.h>
 #include "common/ob_flag.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 TEST(ObFlagTest, int_flag) {
   const char* section_str = "section1";

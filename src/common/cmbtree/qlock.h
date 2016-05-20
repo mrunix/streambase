@@ -27,7 +27,7 @@
 #endif
 #endif
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace cmbtree {
 #define CAS(x, old_v, new_v) __sync_bool_compare_and_swap(x, old_v, new_v)
@@ -237,6 +237,6 @@ struct QLock {
 };
 }; // end namespace cmbtree
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_CMBTREE_QLOCK_H__ */

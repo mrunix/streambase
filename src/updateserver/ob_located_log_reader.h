@@ -14,8 +14,8 @@
 #ifndef OCEANBASE_UPDATESERVER_OB_LOCATED_LOG_READER_H_
 #define OCEANBASE_UPDATESERVER_OB_LOCATED_LOG_READER_H_
 #include "common/ob_define.h"
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace updateserver {
 class IObLocatedLogReader {
  public:
@@ -50,5 +50,5 @@ class ObLocatedLogReader : public IObLocatedLogReader {
   bool dio_; // 是否使用DirectIO
 };
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 #endif // OCEANBASE_UPDATESERVER_OB_LOCATED_LOG_READER_H_

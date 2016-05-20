@@ -15,10 +15,10 @@
 #include "ob_chunk_server_task_dispatcher.h"
 #include <algorithm>
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 
 class ObMsSqlRpcEvent;
@@ -133,17 +133,17 @@ class ObMsSqlSubScanRequest {
 };
 
 inline int ObMsSqlSubScanRequest::reset_cs_replicas(const int32_t replica_cnt, const ObChunkServerItem* cs_vec) {
-  int err = oceanbase::common::OB_SUCCESS;
+  int err = sb::common::OB_SUCCESS;
   if ((replica_cnt <= 0) || (NULL == cs_vec)) {
-    err = oceanbase::common::OB_INVALID_ARGUMENT;
+    err = sb::common::OB_INVALID_ARGUMENT;
   }
-  if (oceanbase::common::OB_SUCCESS == err) {
+  if (sb::common::OB_SUCCESS == err) {
     total_replica_count_ = 0;
     tried_replica_count_ = 0;
     last_tried_replica_idx_ = -1;
     for (int32_t i = 0; (i < replica_cnt) && (i < ObTabletLocationList::MAX_REPLICA_COUNT); i++) {
       cs_replicas_[i] = cs_vec[i];
-      cs_replicas_[i].status_ = oceanbase::common::ObChunkServerItem::UNREQUESTED;
+      cs_replicas_[i].status_ = sb::common::ObChunkServerItem::UNREQUESTED;
       total_replica_count_ ++;
     }
   }

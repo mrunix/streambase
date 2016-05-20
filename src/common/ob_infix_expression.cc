@@ -19,7 +19,7 @@
 #include "ob_infix_expression.h"
 #include "ob_object.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 DEFINE_SERIALIZE(ObInfixExpression) {
   int err = OB_SUCCESS;

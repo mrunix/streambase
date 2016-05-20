@@ -26,7 +26,7 @@
 
 #define CPU_CACHE_LINE 64
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObBalanceFilter : public tbsys::CDefaultRunnable {
   struct BucketNode {

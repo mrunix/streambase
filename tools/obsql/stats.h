@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include "common/ob_server.h"
 
-namespace oceanbase {
-using namespace oceanbase::common;
+namespace sb {
+using namespace sb::common;
 namespace obsql {
 class Stats {
  public:

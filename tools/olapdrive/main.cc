@@ -14,8 +14,8 @@
 #include "common/ob_define.h"
 #include "ob_olapdrive_main.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::olapdrive;
+using namespace sb::common;
+using namespace sb::olapdrive;
 
 namespace {
 const char* PUBLIC_SECTION_NAME = "public";

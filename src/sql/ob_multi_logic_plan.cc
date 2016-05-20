@@ -2,9 +2,9 @@
 #include "parse_malloc.h"
 #include "common/ob_string.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
-using namespace oceanbase::common;
+using namespace sb::common;
 ObMultiLogicPlan::ObMultiLogicPlan() {
 }
 ObMultiLogicPlan::~ObMultiLogicPlan() {

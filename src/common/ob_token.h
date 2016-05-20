@@ -30,7 +30,7 @@
 #include "common/ob_mod_define.h"
 #include "common/ob_perm_components.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObToken : public IToken {
  public:

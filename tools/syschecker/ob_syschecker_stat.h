@@ -22,7 +22,7 @@
 #include "common/ob_atomic.h"
 #include "common/ob_timer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace syschecker {
 enum ObSyscheckerCmd {
   CMD_GET,
@@ -176,6 +176,6 @@ class ObSyscheckerStat {
   bool is_check_result_;
 };
 } // end namespace syschecker
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_SYSCHECKER_STAT_H_

@@ -22,7 +22,7 @@
 #include "tbsys.h"
 #include "load_param.h"
 #include "common/hash/ob_hashmap.h"
-namespace oceanbase {
+namespace sb {
 namespace tools {
 struct QueryInfo;
 class LoadRpc;

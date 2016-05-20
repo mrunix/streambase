@@ -23,7 +23,7 @@
 #include "common/ob_obi_role.h"
 #include "sql/ob_sql_context.h"
 #include "sql/ob_result_set.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 struct ObRsUps {
   int64_t cluster_id_;

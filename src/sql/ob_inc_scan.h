@@ -27,7 +27,7 @@
 #include "common/ob_resource_pool.h"
 #include "common/utility.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 
 namespace sql {
@@ -121,6 +121,6 @@ class ObIncScan: public ObNoChildrenPhyOperator {
   bool hotspot_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_INC_SCAN_H */

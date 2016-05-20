@@ -17,7 +17,7 @@
 #include "ob_sessionctx_factory.h"
 #include "ob_update_server_main.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 #define UPS ObUpdateServerMain::get_instance()->get_update_server()
 class SessionGuard {
@@ -145,5 +145,5 @@ class SessionGuard {
 };
 #undef UPS
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 #endif /* __OB_UPDATESERVER_OB_SESSION_GUARD_H__ */

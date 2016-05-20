@@ -23,7 +23,7 @@
 #include "mergeserver/ob_ms_tablet_location_proxy.h"
 #include "ob_update_server_main.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 using namespace common;
 using namespace mergeserver;
@@ -83,7 +83,7 @@ int ObClientWrapper::init(ObMergerRpcStub* rpc_stub,
 }
 
 
-int ObClientWrapper::get_cell(oceanbase::common::ObCellInfo * *cell) {
+int ObClientWrapper::get_cell(sb::common::ObCellInfo * *cell) {
   return ups_rpc_agent_.get_cell(cell);
 }
 
@@ -117,4 +117,4 @@ int ObClientWrapper::get(const ObGetParam& get_param, const ObSchemaManagerV2& s
   return ret;
 }
 }//end of namespace updateserver
-}//end of namespace oceanbase
+}//end of namespace sb

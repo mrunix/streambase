@@ -20,7 +20,7 @@
 #include "ob_common_param.h"
 #include "ob_simple_filter.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObSimpleFilter::ObSimpleFilter() {
   conditions_.init(sizeof(condition_buf_) / sizeof(condition_buf_[0]), condition_buf_);

@@ -18,7 +18,7 @@
 #include "common/ob_string.h"
 #include "common/ob_kv_storecache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 struct ObQueryCacheValue {
   int64_t expire_time_;

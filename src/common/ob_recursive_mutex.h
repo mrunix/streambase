@@ -21,7 +21,7 @@
 #include "tbsys.h"
 #include "ob_spin_lock.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRecursiveMutex {
  public:

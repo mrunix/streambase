@@ -6,9 +6,9 @@
 #include "ob_read_param_decoder.h"
 #include <unistd.h>
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
-using namespace oceanbase::mergeserver::test;
+using namespace sb::common;
+using namespace sb::mergeserver;
+using namespace sb::mergeserver::test;
 
 namespace {
 const char* OBSP_SCHEMA_FILE_NAME = "test_schema.ini";

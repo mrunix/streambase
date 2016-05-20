@@ -34,13 +34,13 @@
    op;})
 
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObTableRpcScan, PHY_TABLE_RPC_SCAN);
 }
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 ObTableRpcScan::ObTableRpcScan() :
   rpc_scan_(), scalar_agg_(NULL), group_(NULL), group_columns_sort_(), limit_(),
@@ -572,4 +572,4 @@ ObPhyOperatorType ObTableRpcScan::get_type() const {
   return PHY_TABLE_RPC_SCAN;
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb

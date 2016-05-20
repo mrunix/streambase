@@ -5,7 +5,7 @@
 #include "stmt.h"
 #include "common/ob_object.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obsql {
 
 using namespace common;

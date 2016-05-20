@@ -15,7 +15,7 @@
 #define __OB_COMMON_OB_DELAY_GUARD_H__
 #include "Time.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObDelayGuard {
  public:
@@ -34,6 +34,6 @@ struct ObDelayGuard {
   int64_t start_time_;
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_DELAY_GUARD_H__ */

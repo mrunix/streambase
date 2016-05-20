@@ -15,7 +15,7 @@
  */
 #include "ob_root_table3.h"
 #include "common/utility.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObRootTable3::ObRootTable3(common::ObFirstTabletEntryMeta& the_meta, ObSchemaService& schema_service,
                            ObScanHelper& scan_helper, ObCachedAllocator<ObScanner>& scanner_allocator,

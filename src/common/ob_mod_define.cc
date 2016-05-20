@@ -1,21 +1,21 @@
 #include "ob_mod_define.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ExpStat g_malloc_size_stat("size");
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
-ObModInfo oceanbase::common::OB_MOD_SET[G_MAX_MOD_NUM];
+ObModInfo sb::common::OB_MOD_SET[G_MAX_MOD_NUM];
 
-oceanbase::common::ObModSet::ObModSet() {
+sb::common::ObModSet::ObModSet() {
   init_ob_mod_set();
   mod_num_ = std::min<int32_t>(ObModIds::OB_MOD_END, G_MAX_MOD_NUM);
 }
 
-int32_t oceanbase::common::ObModSet::get_mod_id(const char* mod_name)const {
+int32_t sb::common::ObModSet::get_mod_id(const char* mod_name)const {
   int32_t result = 0;
   if (NULL == mod_name) {
     result = 0;
@@ -31,7 +31,7 @@ int32_t oceanbase::common::ObModSet::get_mod_id(const char* mod_name)const {
   return result;
 }
 
-const char* oceanbase::common::ObModSet::get_mod_name(const int32_t mod_id) const {
+const char* sb::common::ObModSet::get_mod_name(const int32_t mod_id) const {
   const char* result = NULL;
   if (mod_id < 0 || mod_id >= mod_num_) {
     result = OB_MOD_SET[0].mod_name_;
@@ -41,6 +41,6 @@ const char* oceanbase::common::ObModSet::get_mod_name(const int32_t mod_id) cons
   return result;
 }
 
-int32_t oceanbase::common::ObModSet::get_max_mod_num()const {
+int32_t sb::common::ObModSet::get_max_mod_num()const {
   return mod_num_;
 }

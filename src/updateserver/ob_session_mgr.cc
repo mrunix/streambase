@@ -21,7 +21,7 @@
 #include "ob_session_mgr.h"
 #include "ob_update_server_main.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace updateserver {
 CallbackMgr::CallbackMgr() : callback_list_(NULL),

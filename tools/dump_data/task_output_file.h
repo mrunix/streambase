@@ -10,7 +10,7 @@
 
 #include <vector>
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class TaskOutputFile {
  public:

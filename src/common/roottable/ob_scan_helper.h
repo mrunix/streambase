@@ -16,7 +16,7 @@
 #ifndef _OB_SCAN_HELPER_H
 #define _OB_SCAN_HELPER_H 1
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObScanParam;
 class ObScanner;
@@ -36,7 +36,7 @@ class ObScanHelper {
   ObScanHelper& operator=(const ObScanHelper& other);
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_SCAN_HELPER_H */
 

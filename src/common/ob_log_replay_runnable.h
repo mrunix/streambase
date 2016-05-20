@@ -22,7 +22,7 @@
 #include "ob_log_entry.h"
 #include "ob_obi_role.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /// 回放日志的线程代码
 /// ObLogReplayRunnable中读取日志数据, 并且调用replay虚函数进行回放
@@ -67,7 +67,7 @@ class ObLogReplayRunnable : public tbsys::CDefaultRunnable {
   int64_t max_log_seq_;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #endif // OCEANBASE_COMMON_OB_LOG_REPLAY_RUNNABLE_H_

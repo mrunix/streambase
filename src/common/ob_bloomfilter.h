@@ -25,7 +25,7 @@
 #include <limits.h>
 #include "ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template <class T, class HashFunc, class Alloc>
 class ObBloomFilter {
@@ -295,7 +295,7 @@ int ObBloomFilter<T, HashFunc, Alloc>::reinit(const uint8_t* buf,
 
 
 }//end namespace common
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif //OCEANBASE_COMMON_BLOOM_FILTER_H_
 

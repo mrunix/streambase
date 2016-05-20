@@ -17,7 +17,7 @@
 #include "common/ob_scanner.h"
 #include "common/ob_iterator.h"
 #include "ob_ms_rpc_event.h"
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMergerSubGetRequest {
  public:

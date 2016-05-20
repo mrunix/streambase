@@ -21,8 +21,8 @@
 #include "common/file_directory_utils.h"
 #include "ob_ups_log_mgr.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace updateserver {
 const char* ObLogReplayPoint::REPLAY_POINT_FILE = "log_replay_point";
 
@@ -709,4 +709,4 @@ int trim_log_buffer(const int64_t offset, const int64_t align_bits,
   return err;
 }
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb

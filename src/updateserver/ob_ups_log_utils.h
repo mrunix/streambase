@@ -19,7 +19,7 @@
 #include "common/ob_log_entry.h"
 #include "common/ob_log_cursor.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 enum ReplayType {
   RT_LOCAL = 0,
@@ -87,5 +87,5 @@ int trim_log_buffer(const int64_t offset, const int64_t align_bits,
                     const char* log_data, const int64_t len, int64_t& end_pos,
                     int64_t& start_id, int64_t& end_id, bool& is_file_end);
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 #endif /* __OB_UPDATESERVER_OB_UPS_LOG_UTILS_H__ */

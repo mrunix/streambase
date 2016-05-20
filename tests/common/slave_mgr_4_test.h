@@ -4,7 +4,7 @@
 #include "common/ob_base_client.h"
 #include "common/ob_packet_factory.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class SlaveMgr4Test {
  public:

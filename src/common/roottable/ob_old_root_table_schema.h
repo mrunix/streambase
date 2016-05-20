@@ -16,7 +16,7 @@
 #ifndef _OB_OLD_ROOT_TABLE_SCHEMA_H
 #define _OB_OLD_ROOT_TABLE_SCHEMA_H 1
 #include "common/ob_string.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace old_root_table_columns {
 static const int64_t MAX_REPLICA_COUNT = 3;
@@ -30,7 +30,7 @@ extern common::ObString COL_IPV4[MAX_REPLICA_COUNT];
 extern common::ObString COL_TABLET_VERSION[MAX_REPLICA_COUNT];
 } // end namespace old_root_table_columns
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_OLD_ROOT_TABLE_SCHEMA_H */
 

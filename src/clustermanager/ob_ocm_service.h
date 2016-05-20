@@ -35,7 +35,7 @@
 #include "ob_ocm_rpc_stub.h"
 #include "common/ob_timer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace clustermanager {
 class OcmServer;
 class ObOcmParam;
@@ -88,7 +88,7 @@ class OcmService: public tbnet::IPacketQueueHandler {
 };
 } // end namespace clustermanager
 
-} // end namespace oceanbase
+} // end namespace sb
 
 
 

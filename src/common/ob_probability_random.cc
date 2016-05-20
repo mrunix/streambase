@@ -2,7 +2,7 @@
 #include "ob_define.h"
 #include "ob_probability_random.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObProbabilityRandom::ObProbabilityRandom(): lock_(tbsys::WRITE_PRIORITY) {
   init_ = false;

@@ -20,7 +20,7 @@
 #include "common/ob_common_param.h"
 #include "ob_row.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // interface of iterator
 class ObRowIterator {

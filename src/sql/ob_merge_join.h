@@ -21,7 +21,7 @@
 #include "common/ob_array.h"
 #include "common/ob_row_store.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 // 要求两个输入left_child和right_child在等值join列上排好序
 // 支持所有join类型
@@ -77,6 +77,6 @@ class ObMergeJoin: public ObJoin {
   bool is_right_iter_end_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_MERGE_JOIN_H */

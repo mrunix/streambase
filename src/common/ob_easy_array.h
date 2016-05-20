@@ -20,7 +20,7 @@
 #include "common/ob_array.h"
 #include "common/ob_object.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template<class T>
 class EasyArray {

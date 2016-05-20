@@ -20,7 +20,7 @@
 #include "common/ob_fileinfo_manager.h"
 #include "ob_aio_buffer_mgr.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 struct ObDataIndexKey {
   uint64_t sstable_id;

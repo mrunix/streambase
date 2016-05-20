@@ -48,7 +48,7 @@
 #include "ob_sessionctx_factory.h"
 #include "ob_lock_mgr.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class MemTable;
 

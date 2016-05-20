@@ -3,9 +3,9 @@
 
 #include "common/serialization.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 template <class T>
 inline int temp_serialize(const T& data, char* buf, const int64_t data_len, int64_t& pos) {

@@ -21,13 +21,13 @@
 #include "ob_fake_table.h"
 
 
-using namespace oceanbase::sql;
-using namespace oceanbase::sql::test;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::sql::test;
+using namespace sb::common;
 
 #define NEW_TABLE_ID 10
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObTableMemScanTest: public ::testing::Test {
  public:

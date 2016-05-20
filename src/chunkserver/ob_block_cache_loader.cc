@@ -19,7 +19,7 @@
 #include "ob_tablet.h"
 #include "ob_block_cache_loader.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 using namespace common;
 using namespace common::serialization;
@@ -127,4 +127,4 @@ int ObBlockCacheLoader::load_block_into_cache(ObBlockIndexCache& index_cache,
   return ret;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

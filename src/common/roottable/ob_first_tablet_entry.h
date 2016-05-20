@@ -32,7 +32,7 @@
 class ObFirstTabletEntryTest_test_insert_Test;
 class ObMetaTableTest;
 class ObRootTableTest;
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObTabletInfo;
 // @note not thread-safe
@@ -144,7 +144,7 @@ struct ObFirstTabletEntryTable::MyRow: public ObTabletMetaTableRow {
 
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_FIRST_TABLET_ENTRY_H */
 

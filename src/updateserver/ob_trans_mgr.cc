@@ -20,7 +20,7 @@
 #include <algorithm>
 #include "ob_trans_mgr.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace updateserver {
 TransNode::TransNode(const TransMgr& trans_mgr) : trans_mgr_(trans_mgr),

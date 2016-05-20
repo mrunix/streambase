@@ -23,7 +23,7 @@
 #include "ob_slave_sync_type.h"
 #include "ob_ups_utils.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 namespace {
 static const int64_t GB_UNIT = 1024L * 1024L * 1024L; // GB
@@ -32,7 +32,7 @@ static const int64_t MB_UNIT = 1024L * 1024L; // MB
 static const int64_t HASH_NODE_SIZE = 32;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObUpdateServerConfig
   : public common::ObServerConfig {

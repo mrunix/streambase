@@ -15,7 +15,7 @@
 #include "ob_schema_mgrv2.h"
 #include "ob_ups_utils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 int ObUpsLockFilter::open() {
   int err = OB_SUCCESS;
@@ -108,4 +108,4 @@ int64_t ObUpsLockFilter::to_string(char* buf, const int64_t buf_len) const {
   return pos;
 }
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb

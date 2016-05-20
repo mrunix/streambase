@@ -17,9 +17,9 @@
 #include "ob_log_buffer.h"
 #include "common/utility.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 // 产生的id只是用于检验session是否匹配，可以不唯一，
 // 因为如果备机传来错误的位置，在读取日志时可以检查到
@@ -146,4 +146,4 @@ int ObCachedPosLogReader:: get_log(ObFetchLogReq& req, ObFetchedLog& result) {
   return err;
 }
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb

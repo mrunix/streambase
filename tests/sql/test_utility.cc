@@ -1,7 +1,7 @@
 
 #include "test_utility.h"
 
-using namespace oceanbase::sql;
+using namespace sb::sql;
 
 
 void test::split(char* line, const char* delimiters, char** tokens, int32_t& count) {

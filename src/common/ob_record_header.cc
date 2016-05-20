@@ -15,7 +15,7 @@
 
 #include "ob_record_header.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObRecordHeader::ObRecordHeader()
   : magic_(0), header_length_(0), version_(0), header_checksum_(0)
@@ -274,4 +274,4 @@ DEFINE_GET_SERIALIZE_SIZE(ObRecordHeader) {
           + serialization::encoded_length_i64(data_checksum_));
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

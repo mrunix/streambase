@@ -16,7 +16,7 @@
 
 #include "ob_tablet_join_cache.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace sql;
 using namespace common;
 

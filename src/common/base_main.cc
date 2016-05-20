@@ -29,7 +29,7 @@ const char* DEFAULT_PID_DIR = "./run";
 const char* DEFAULT_LOG_DIR = "./log";
 }
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 BaseMain* BaseMain::instance_ = NULL;

@@ -19,7 +19,7 @@
 #include "common/ob_timer.h"
 //#include "ob_node.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mms {
 class ObNode;
 class ObMMSCheckleaseTask : public common::ObTimerTask {

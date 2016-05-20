@@ -24,10 +24,10 @@
 #include "sstable/ob_sstable_row.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace sstable {
 #define COMPRESSOR_NAME "lzo_1.0"
@@ -1182,7 +1182,7 @@ TEST_F(TestObSSTableWriter, append_large_row) {
 }
 }//end namespace sstable
 }//end namespace tests
-}//end namespace oceanbase
+}//end namespace sb
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();

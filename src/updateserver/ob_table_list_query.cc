@@ -15,9 +15,9 @@
 #include "ob_table_list_query.h"
 #include "ob_ups_table_mgr.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
-namespace oceanbase {
+using namespace sb::common;
+using namespace sb::sql;
+namespace sb {
 namespace updateserver {
 int ObSingleTableScanQuery::query(BaseSessionCtx* session_ctx, ITableEntity* table_entity, ITableIterator* iter) {
   int err = OB_SUCCESS;
@@ -226,4 +226,4 @@ int ObTableListQuery::query(IObSingleTableQuery* table_query, ObRowDesc* row_des
   return ret;
 }
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb

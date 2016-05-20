@@ -5,7 +5,7 @@
 #include "task_table_conf.h"
 #include <vector>
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class TaskServerParam {
  public:

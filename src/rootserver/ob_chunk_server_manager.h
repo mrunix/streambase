@@ -20,7 +20,7 @@
 #include "ob_migrate_info.h"
 #include "ob_root_server_config.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 // shutdown具体执行的操作:shutdown, restart
 enum ShutdownOperation {

@@ -1,6 +1,6 @@
 #include "ob_root_fetch_thread.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 const int64_t ObRootFetchThread::WAIT_INTERVAL = 100 * 1000; // 100 ms
 

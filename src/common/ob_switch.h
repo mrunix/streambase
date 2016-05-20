@@ -16,7 +16,7 @@
 #include "ob_define.h"
 #include "serialization.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObSwitch {
  public:
@@ -106,6 +106,6 @@ class ObSwitch {
   }
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_SWITCH_H__ */

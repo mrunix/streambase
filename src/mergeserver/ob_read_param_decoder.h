@@ -20,17 +20,17 @@
 #include "common/ob_get_param.h"
 #include "common/ob_schema.h"
 #include "common/ob_result.h"
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 /// change all names (column name, table name) into ids or idx
-int ob_decode_scan_param(oceanbase::common::ObScanParam& org_param,
-                         const oceanbase::common::ObSchemaManagerV2& schema_mgr,
-                         oceanbase::common::ObScanParam& decoded_param,
+int ob_decode_scan_param(sb::common::ObScanParam& org_param,
+                         const sb::common::ObSchemaManagerV2& schema_mgr,
+                         sb::common::ObScanParam& decoded_param,
                          common::ObResultCode* rc = NULL);
-int ob_decode_get_param(const oceanbase::common::ObGetParam& org_param,
-                        const oceanbase::common::ObSchemaManagerV2& schema_mgr,
-                        oceanbase::common::ObGetParam& decoded_param,
-                        oceanbase::common::ObGetParam& org_param_with_name,
+int ob_decode_get_param(const sb::common::ObGetParam& org_param,
+                        const sb::common::ObSchemaManagerV2& schema_mgr,
+                        sb::common::ObGetParam& decoded_param,
+                        sb::common::ObGetParam& org_param_with_name,
                         common::ObResultCode* rc = NULL);
 }
 }

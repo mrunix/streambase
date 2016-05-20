@@ -13,7 +13,7 @@
 // 1. It will not work incrementally.
 // 2. It will not produce the same results on little-endian and big-endian
 //    machines.
-namespace oceanbase {
+namespace sb {
 namespace common {
 uint32_t murmurhash2(const void* key, int32_t len, uint32_t seed) {
   // 'm' and 'r' are mixing constants generated offline.

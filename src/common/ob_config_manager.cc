@@ -19,7 +19,7 @@
 #include "file_utils.h"
 #include "ob_config_manager.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int ObConfigManager::base_init() {
   int ret = OB_SUCCESS;

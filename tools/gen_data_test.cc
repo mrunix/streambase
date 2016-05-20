@@ -21,11 +21,11 @@
 
 char* g_sstable_directory = NULL;
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 static char item_type_value[62] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
                                    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
                                    'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
@@ -1001,8 +1001,8 @@ int GenDataTest::gen_rowkey_recovery_info() {
 }
 
 using namespace std;
-using namespace oceanbase;
-using namespace oceanbase::chunkserver;
+using namespace sb;
+using namespace sb::chunkserver;
 
 int main(int argc, char* argv[]) {
   int ret = 0;

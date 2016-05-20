@@ -3,7 +3,7 @@
 
 #include "mock_server.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class MockRootServer : public MockServer {
  public:

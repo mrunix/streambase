@@ -24,7 +24,7 @@
 #include "page_arena.h"
 
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class TestRowkeyHelper {
  public:

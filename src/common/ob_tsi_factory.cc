@@ -18,7 +18,7 @@
 ////====================================================================
 #include "ob_tsi_factory.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 TSIFactory& get_tsi_fatcory() {
   static TSIFactory instance;

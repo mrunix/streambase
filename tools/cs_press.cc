@@ -26,8 +26,8 @@
 #include "common/murmur_hash.h"
 #include "common_func.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 GFactory GFactory::instance_;
 
@@ -326,7 +326,7 @@ int Worker::get_rowkey_length(const int64_t seed) {
   return  8 + strlen(postfix_buf);
 }
 
-int Worker::get_rowkey(const int64_t seed, oceanbase::common::ObString& rowkey) {
+int Worker::get_rowkey(const int64_t seed, sb::common::ObString& rowkey) {
   //snprintf(rowkey.ptr(), rowkey.length(), "%08ld", seed);
 
   int64_t pos = 0;
@@ -638,7 +638,7 @@ int Worker::unit_get_case(const Param& param,
 
 int Worker::check_query_result(
   const Param& param,
-  const oceanbase::common::ObScanner& scanner,
+  const sb::common::ObScanner& scanner,
   const int64_t* seed_array,
   const int64_t seed_array_size,
   const int64_t* column_id_array,

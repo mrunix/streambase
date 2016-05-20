@@ -6,7 +6,7 @@
 #include "ob_sstable_buffer.h"
 #include "ob_sstable_store_struct.h"
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 class ObSSTableTableSchemaBuilder {
  public:

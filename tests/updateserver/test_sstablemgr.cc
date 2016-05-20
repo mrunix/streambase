@@ -9,7 +9,7 @@
 #define SSTABLE_FNAME2 "10_4-4_7.sst"
 #define SSTABLE_ID2 SSTableMgr::sstable_str2id(SSTABLE_FNAME2, CLOG_ID)
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace updateserver {
 class OBS : public ISSTableObserver {
@@ -167,7 +167,7 @@ class TestSSTableInfo {
 }
 }
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace updateserver;
 

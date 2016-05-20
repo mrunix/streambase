@@ -19,10 +19,10 @@
 #include "ob_block_index_cache.h"
 #include "ob_disk_path.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 using namespace tbsys;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObBlockIndexCache::ObBlockIndexCache()
   : inited_(false), fileinfo_cache_(NULL) {
@@ -424,4 +424,4 @@ int ObBlockIndexCache::get_end_key(
   return ret;
 }
 } //end namespace sstable
-} //end namespace oceanbase
+} //end namespace sb

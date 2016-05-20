@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 #include "ob_probability_random.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);

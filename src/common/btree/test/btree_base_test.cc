@@ -6,7 +6,7 @@
 #include <test_key.h>
 #include <gtest/gtest.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 TEST(BtreeBaseTest, get_read_handle) {
   int64_t value;
@@ -244,4 +244,4 @@ TEST(BtreeBaseTest, destroy) {
   }
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

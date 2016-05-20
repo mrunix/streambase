@@ -20,8 +20,8 @@
 #include "ob_root_worker.h"
 #include "ob_heartbeat_checker.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 
 
 ObHeartbeatChecker::ObHeartbeatChecker(ObRootServer2* root_server): root_server_(root_server) {

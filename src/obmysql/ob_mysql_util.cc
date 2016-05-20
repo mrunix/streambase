@@ -1,6 +1,6 @@
 #include "ob_mysql_util.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 const uint64_t ObMySQLUtil::NULL_ = UINT64_MAX;
 const ObMySQLTypeMap ObMySQLUtil::type_maps_[ObMaxType] = {
@@ -196,4 +196,4 @@ int ObMySQLUtil::store_obstr_nzt(char* buf, int64_t len, ObString str, int64_t& 
 
 
 } // namespace obmysql
-} // namespace oceanbase
+} // namespace sb

@@ -36,7 +36,7 @@
 #include "ob_several_bidword_effect.h"
 #include "ob_several_creative_effect.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 class ObReadWorker : public tbsys::CDefaultRunnable {
  public:
@@ -72,6 +72,6 @@ class ObReadWorker : public tbsys::CDefaultRunnable {
   int64_t lz_query_cnt_;
 };
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_OLAPDRIVE_READ_WORKER_H

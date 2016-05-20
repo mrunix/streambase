@@ -13,32 +13,32 @@
  */
 #include "ob_ms_sql_operator.h"
 #include "sql/ob_sql_scan_param.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
-using namespace oceanbase::mergeserver;
-oceanbase::mergeserver::ObMsSqlOperator::ObMsSqlOperator() {
+using namespace sb;
+using namespace sb::common;
+using namespace sb::sql;
+using namespace sb::mergeserver;
+sb::mergeserver::ObMsSqlOperator::ObMsSqlOperator() {
   scan_param_ = NULL;
   status_ = NOT_INIT;
   last_sharding_res_ = NULL;
   sharding_res_count_ = 0;
 }
 
-oceanbase::mergeserver::ObMsSqlOperator::~ObMsSqlOperator() {
+sb::mergeserver::ObMsSqlOperator::~ObMsSqlOperator() {
   reset();
   status_ = NOT_INIT;
 }
 
 
 
-void oceanbase::mergeserver::ObMsSqlOperator::reset() {
+void sb::mergeserver::ObMsSqlOperator::reset() {
   scan_param_ = NULL;
   sorted_operator_.reset();
   last_sharding_res_ = NULL;
   sharding_res_count_ = 0;
 }
 
-int oceanbase::mergeserver::ObMsSqlOperator::set_param(const ObSqlScanParam& scan_param) {
+int sb::mergeserver::ObMsSqlOperator::set_param(const ObSqlScanParam& scan_param) {
   int err = OB_SUCCESS;
   reset();
   scan_param_ = &scan_param;
@@ -53,7 +53,7 @@ int oceanbase::mergeserver::ObMsSqlOperator::set_param(const ObSqlScanParam& sca
 }
 
 
-int oceanbase::mergeserver::ObMsSqlOperator::add_sharding_result(ObNewScanner& sharding_res,
+int sb::mergeserver::ObMsSqlOperator::add_sharding_result(ObNewScanner& sharding_res,
     const ObNewRange& query_range, const int64_t limit_offset, bool& is_finish, bool& can_free_res, ObStringBuf& rowkey_buffer) {
   int err = OB_SUCCESS;
   UNUSED(limit_offset);
@@ -82,7 +82,7 @@ int oceanbase::mergeserver::ObMsSqlOperator::add_sharding_result(ObNewScanner& s
   return err;
 }
 
-int64_t oceanbase::mergeserver::ObMsSqlOperator::get_mem_size_used()const {
+int64_t sb::mergeserver::ObMsSqlOperator::get_mem_size_used()const {
   int64_t res = 0;
   switch (status_) {
   case USE_SORTED_OPERATOR:
@@ -94,7 +94,7 @@ int64_t oceanbase::mergeserver::ObMsSqlOperator::get_mem_size_used()const {
   return res;
 }
 
-int64_t oceanbase::mergeserver::ObMsSqlOperator::get_result_row_width()const {
+int64_t sb::mergeserver::ObMsSqlOperator::get_result_row_width()const {
   int64_t res = 0;
   if (NULL != scan_param_) {
     res = scan_param_->get_output_column_size();
@@ -107,7 +107,7 @@ int64_t oceanbase::mergeserver::ObMsSqlOperator::get_result_row_width()const {
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 
-int64_t oceanbase::mergeserver::ObMsSqlOperator::get_sharding_result_count() const {
+int64_t sb::mergeserver::ObMsSqlOperator::get_sharding_result_count() const {
   int64_t res = 0;
   if (USE_SORTED_OPERATOR == status_) {
     res = sorted_operator_.get_sharding_result_count();
@@ -116,7 +116,7 @@ int64_t oceanbase::mergeserver::ObMsSqlOperator::get_sharding_result_count() con
 
 }
 
-int64_t oceanbase::mergeserver::ObMsSqlOperator::get_cur_sharding_result_idx() const {
+int64_t sb::mergeserver::ObMsSqlOperator::get_cur_sharding_result_idx() const {
   int64_t res = 0;
   if (USE_SORTED_OPERATOR == status_) {
     res = sorted_operator_.get_cur_sharding_result_idx();
@@ -124,7 +124,7 @@ int64_t oceanbase::mergeserver::ObMsSqlOperator::get_cur_sharding_result_idx() c
   return (res);
 }
 
-int oceanbase::mergeserver::ObMsSqlOperator::get_next_row(oceanbase::common::ObRow& row) {
+int sb::mergeserver::ObMsSqlOperator::get_next_row(sb::common::ObRow& row) {
   int err = OB_SUCCESS;
 
   // xiaochu.yh 2012-6-18

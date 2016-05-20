@@ -22,7 +22,7 @@
 #include "ob_packet_queue.h"
 #include "ob_switch.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 // packet queue的处理线程

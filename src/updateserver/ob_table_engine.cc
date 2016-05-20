@@ -22,7 +22,7 @@
 #include "ob_memtable.h"
 #include "ob_sessionctx_factory.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace updateserver {
 std::pair<int64_t, int64_t> ObCellInfoNode::get_size_and_cnt() const {

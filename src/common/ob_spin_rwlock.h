@@ -29,7 +29,7 @@
 #include "qlock.h"
 #include "tbsys.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class SpinRWLock {
  public:

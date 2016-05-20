@@ -7,7 +7,7 @@
 #include "btree_array_list.h"
 #include "btree_base_handle.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * 用于写的时候用
@@ -98,7 +98,7 @@ class BtreeWriteHandle : public BtreeBaseHandle, BtreeCallback {
   // 下面不要定义变量, 保证放在最后一个
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif
 

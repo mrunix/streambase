@@ -26,7 +26,7 @@
 #include "ob_log_config.h"
 #include "ob_log_meta_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace liboblog {
 class ObLogMutator : public updateserver::ObUpsMutator {
  public:

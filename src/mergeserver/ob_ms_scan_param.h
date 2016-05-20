@@ -15,7 +15,7 @@
 #define MERGESERVER_OB_MS_SCAN_PARAM_H_
 #include "common/ob_scan_param.h"
 #include "common/ob_define.h"
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMergerScanParam {
  public:
@@ -25,10 +25,10 @@ class ObMergerScanParam {
   ~ObMergerScanParam() {
     reset();
   }
-  inline oceanbase::common::ObScanParam* get_cs_param(void) {
+  inline sb::common::ObScanParam* get_cs_param(void) {
     return decoded_org_param_;
   }
-  const oceanbase::common::ObScanParam* get_ms_param(void)const {
+  const sb::common::ObScanParam* get_ms_param(void)const {
     return &ms_scan_param_;
   }
   inline void reset(void) {
@@ -36,10 +36,10 @@ class ObMergerScanParam {
     ms_scan_param_.reset();
   }
 
-  int set_param(oceanbase::common::ObScanParam& param);
+  int set_param(sb::common::ObScanParam& param);
  private:
-  oceanbase::common::ObScanParam*  decoded_org_param_;
-  oceanbase::common::ObScanParam  ms_scan_param_;
+  sb::common::ObScanParam*  decoded_org_param_;
+  sb::common::ObScanParam  ms_scan_param_;
 
 };
 }

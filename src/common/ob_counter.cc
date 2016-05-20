@@ -18,10 +18,10 @@
 #include "ob_define.h"
 #include "common/ob_atomic.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
-oceanbase::common::ObCounter::ObCounter(const int64_t interval_us) {
+sb::common::ObCounter::ObCounter(const int64_t interval_us) {
   clear();
   static_interval_us_ = interval_us;
   if (static_interval_us_ <= 0) {
@@ -31,19 +31,19 @@ oceanbase::common::ObCounter::ObCounter(const int64_t interval_us) {
   pthread_spin_init(&spin_lock_, PTHREAD_PROCESS_PRIVATE);
 }
 
-oceanbase::common::ObCounter::~ObCounter() {
+sb::common::ObCounter::~ObCounter() {
   pthread_spin_destroy(&spin_lock_);
 }
 
 
-void oceanbase::common::ObCounter::clear() {
+void sb::common::ObCounter::clear() {
   cur_idx_ = 0;
   static_interval_us_ = 0;
   passed_interval_count_ = 0;
   memset(intervals_, 0x00, sizeof(intervals_));
 }
 
-void oceanbase::common::ObCounter::set_static_interval(const int64_t interval_us) {
+void sb::common::ObCounter::set_static_interval(const int64_t interval_us) {
   clear();
   static_interval_us_ = interval_us;
   if (static_interval_us_ <= 0) {
@@ -52,12 +52,12 @@ void oceanbase::common::ObCounter::set_static_interval(const int64_t interval_us
   intervals_[cur_idx_].interval_beg_ =   tbsys::CTimeUtil::getTime();
 }
 
-int64_t oceanbase::common::ObCounter::get_static_interval()const {
+int64_t sb::common::ObCounter::get_static_interval()const {
   return static_interval_us_;
 }
 
 
-int32_t oceanbase::common::ObCounter::get_cur_idx(int64_t& now) {
+int32_t sb::common::ObCounter::get_cur_idx(int64_t& now) {
   now = tbsys::CTimeUtil::getTime();
   int64_t current = atomic_add((volatile uint64_t*)&cur_idx_, 0);
   if (now - intervals_[current].interval_beg_ > static_interval_us_) {
@@ -77,7 +77,7 @@ int32_t oceanbase::common::ObCounter::get_cur_idx(int64_t& now) {
   return static_cast<int32_t>(current);
 }
 
-void oceanbase::common::ObCounter::inc(const int64_t timeused_us) {
+void sb::common::ObCounter::inc(const int64_t timeused_us) {
   int64_t now = 0;
   int64_t current = get_cur_idx(now);
   atomic_inc((uint64_t*) & (intervals_[current].count_));
@@ -87,7 +87,7 @@ void oceanbase::common::ObCounter::inc(const int64_t timeused_us) {
 }
 
 
-void oceanbase::common::ObCounter::get_avg(const int64_t interval_count, int64_t& avg_count, int64_t& avg_time_used) {
+void sb::common::ObCounter::get_avg(const int64_t interval_count, int64_t& avg_count, int64_t& avg_time_used) {
   avg_count = 0;
   avg_time_used = 0;
   if (interval_count > 0) {
@@ -124,21 +124,21 @@ void oceanbase::common::ObCounter::get_avg(const int64_t interval_count, int64_t
   }
 }
 
-int64_t oceanbase::common::ObCounter::get_avg_count(const int64_t interval_count) {
+int64_t sb::common::ObCounter::get_avg_count(const int64_t interval_count) {
   int64_t avg_count = 0;
   int64_t avg_time_used = 0;
   get_avg(interval_count, avg_count, avg_time_used);
   return avg_count;
 }
 
-int64_t oceanbase::common::ObCounter::get_avg_time_used(const int64_t interval_count) {
+int64_t sb::common::ObCounter::get_avg_time_used(const int64_t interval_count) {
   int64_t avg_count = 0;
   int64_t avg_time_used = 0;
   get_avg(interval_count, avg_count, avg_time_used);
   return avg_time_used;
 }
 
-int oceanbase::common::ObCounterSet::init(const ObCounterInfos& counter_infos) {
+int sb::common::ObCounterSet::init(const ObCounterInfos& counter_infos) {
   int err = OB_SUCCESS;
   if ((OB_SUCCESS == err) && (counter_infos.get_max_counter_size() > MAX_COUNTER_SIZE)) {
     TBSYS_LOG(WARN, "there are two many counters in counter info [counter_infos.get_max_counter_size():%ld,"
@@ -154,7 +154,7 @@ int oceanbase::common::ObCounterSet::init(const ObCounterInfos& counter_infos) {
   return err;
 }
 
-void oceanbase::common::ObCounterSet::inc(const int64_t counter_id, const int64_t time_used_us) {
+void sb::common::ObCounterSet::inc(const int64_t counter_id, const int64_t time_used_us) {
   int err = OB_SUCCESS;
   if (NULL == infos_) {
     TBSYS_LOG(WARN, "counter set has not been initialized yet");
@@ -169,7 +169,7 @@ void oceanbase::common::ObCounterSet::inc(const int64_t counter_id, const int64_
   }
 }
 
-int64_t oceanbase::common::ObCounterSet::get_avg_count(const int64_t counter_id, const int64_t interval_count) {
+int64_t sb::common::ObCounterSet::get_avg_count(const int64_t counter_id, const int64_t interval_count) {
   int err = OB_SUCCESS;
   int res = 0;
   if (NULL == infos_) {
@@ -186,7 +186,7 @@ int64_t oceanbase::common::ObCounterSet::get_avg_count(const int64_t counter_id,
   return res;
 }
 
-int64_t oceanbase::common::ObCounterSet::get_avg_time_used(const int64_t counter_id, const int64_t interval_count) {
+int64_t sb::common::ObCounterSet::get_avg_time_used(const int64_t counter_id, const int64_t interval_count) {
   int err = OB_SUCCESS;
   int res = 0;
   if (NULL == infos_) {
@@ -204,7 +204,7 @@ int64_t oceanbase::common::ObCounterSet::get_avg_time_used(const int64_t counter
 }
 
 
-int64_t oceanbase::common::ObCounterSet::get_static_interval(const int64_t counter_id) {
+int64_t sb::common::ObCounterSet::get_static_interval(const int64_t counter_id) {
   int err = OB_SUCCESS;
   int res = 0;
   if (NULL == infos_) {
@@ -221,7 +221,7 @@ int64_t oceanbase::common::ObCounterSet::get_static_interval(const int64_t count
   return res;
 }
 
-void oceanbase::common::ObCounterSet::print_static_info(const int64_t log_level) {
+void sb::common::ObCounterSet::print_static_info(const int64_t log_level) {
   static int64_t interval_array[] = {1, 3, 5, 10};
   int64_t level = log_level;
   if (level < std::min<int>((TBSYS_LOG_LEVEL_ERROR), (TBSYS_LOG_LEVEL_DEBUG))) {

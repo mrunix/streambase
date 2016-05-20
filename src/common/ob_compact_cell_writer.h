@@ -25,7 +25,7 @@
 #include "ob_compact_store_type.h"
 #include "ob_row.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /*
  * 紧凑格式写入类

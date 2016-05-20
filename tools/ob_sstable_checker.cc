@@ -121,10 +121,10 @@ int __attribute__((unused)) compare_buf(const char* buf1, const int64_t buf1_len
 }
 }
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
-using namespace oceanbase::sstable;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::chunkserver;
+using namespace sb::sstable;
 
 ObSCRecordHeader* ObSCRecordHeader::deserialize_and_check(char* data_buf,
                                                           const int64_t size,
@@ -729,7 +729,7 @@ ObSCSSTableChecker::~ObSCSSTableChecker() {
 }
 
 
-int oceanbase::chunkserver::ObSCSSTableChecker::check(const char* sstable_fname) {
+int sb::chunkserver::ObSCSSTableChecker::check(const char* sstable_fname) {
   int err = 0;
   int sstable_fd = -1;
   struct stat sstable_stat;
@@ -999,7 +999,7 @@ int oceanbase::chunkserver::ObSCSSTableChecker::check(const char* sstable_fname)
   return err;
 }
 
-int oceanbase::chunkserver::ObSCSSTableChecker::check_row(const char* current_row, const int64_t row_len,
+int sb::chunkserver::ObSCSSTableChecker::check_row(const char* current_row, const int64_t row_len,
                                                           common::ObRowkey& row_key, const int32_t column_count) {
   int ret = OB_SUCCESS;
   int64_t pos = 0;
@@ -1019,7 +1019,7 @@ int oceanbase::chunkserver::ObSCSSTableChecker::check_row(const char* current_ro
   return ret;
 }
 
-int oceanbase::chunkserver::ObSCSSTableChecker::check_rowkey_order(const int sstable_fd) {
+int sb::chunkserver::ObSCSSTableChecker::check_rowkey_order(const int sstable_fd) {
   int err = 0;
   const char* cur_block_end_key = reinterpret_cast<char*>(block_index_) +
                                   block_index_->end_key_char_stream_offset_;
@@ -1214,7 +1214,7 @@ int oceanbase::chunkserver::ObSCSSTableChecker::check_rowkey_order(const int sst
   return err;
 }
 
-int  oceanbase::chunkserver::ObSCSSTableChecker::check_offset_size(const int64_t sstable_file_size) {
+int  sb::chunkserver::ObSCSSTableChecker::check_offset_size(const int64_t sstable_file_size) {
   /// check block offseto
   int err = 0;
   int64_t cur_offset = 0;
@@ -1318,7 +1318,7 @@ int  oceanbase::chunkserver::ObSCSSTableChecker::check_offset_size(const int64_t
   return err;
 }
 
-void  oceanbase::chunkserver::ObSCSSTableChecker::dump() {
+void  sb::chunkserver::ObSCSSTableChecker::dump() {
 #ifdef OB_SSTABLE_CHECKER_DEBUG
   TBSYS_LOG(INFO, "size_: %d \n"
             "trailer_version_: %d \n"

@@ -17,7 +17,7 @@
 
 #include "common/ob_get_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObGetParamCellIterator {
  public:

@@ -26,9 +26,9 @@
 #include "ob_ocm_main.h"
 #include <cstdio>
 #include <malloc.h>
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace clustermanager {
 
 OcmMain::OcmMain()
@@ -80,9 +80,9 @@ void OcmMain::do_signal(const int sig) {
 }
 
 } // end namespace clustermanager
-} // end namespace oceanbase
+} // end namespace sb
 
-using oceanbase::clustermanager::OcmMain;
+using sb::clustermanager::OcmMain;
 int main(int argc, char* argv[]) {
   int ret = OB_SUCCESS;
   OcmMain* ocm = OcmMain::get_instance();

@@ -19,7 +19,7 @@
 #include "common/ob_define.h"
 #include "sql/ob_sql_get_param.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sql;
 

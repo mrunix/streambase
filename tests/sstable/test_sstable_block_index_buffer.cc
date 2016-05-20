@@ -20,10 +20,10 @@
 #include "sstable/ob_sstable_block_index_buffer.h"
 #include "key.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace sstable {
 class TestObSSTableBlockIndexBuffer: public ::testing::Test {
@@ -213,7 +213,7 @@ TEST_F(TestObSSTableBlockIndexBuffer, test_reset) {
 
 }//namespace sstable
 }//namespace test
-}//namespace oceanbase
+}//namespace sb
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();

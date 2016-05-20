@@ -16,7 +16,7 @@
 #define OCEANBASE_UPDATESERVER_OB_LOG_SYNC_DELAY_STAT_H_
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 struct ObEventAccumulator {
   int64_t last_event_id_;

@@ -8,7 +8,7 @@
 #include <stddef.h>
 #include <string.h>
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 /* 连接池的互斥锁 */
 pthread_mutex_t pool_mutex;

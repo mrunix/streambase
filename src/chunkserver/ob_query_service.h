@@ -21,7 +21,7 @@
 #include "ob_get_scan_proxy.h"
 #include "ob_get_cell_stream.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObTabletManager;
 

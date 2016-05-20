@@ -18,7 +18,7 @@
 #include "common/ob_ups_info.h"
 #include "common/roottable/ob_tablet_meta_table_row.h"
 #include "ob_chunk_server_manager.h"
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootLogManager;
 class ObRootServer2;

@@ -35,7 +35,7 @@
 #include "sql/ob_sql_read_strategy.h"
 #include "mergeserver/ob_insert_cache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 // 用于MS进行全表扫描
 class ObRpcScan : public ObPhyOperator {
@@ -149,7 +149,7 @@ class ObRpcScan : public ObPhyOperator {
   common::ObTabletLocationCacheProxy* cache_proxy_;
   mergeserver::ObMergerAsyncRpcStub* async_rpc_;
   ObSQLSessionInfo* session_info_;
-  const oceanbase::mergeserver::ObMergeServerService* merge_service_;
+  const sb::mergeserver::ObMergeServerService* merge_service_;
   common::ObRpcScanHint hint_;
   common::ObObj start_key_objs_[OB_MAX_ROWKEY_COLUMN_NUMBER];
   common::ObObj end_key_objs_[OB_MAX_ROWKEY_COLUMN_NUMBER];
@@ -178,6 +178,6 @@ class ObRpcScan : public ObPhyOperator {
   bool insert_cache_need_revert_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_TABLE_RPC_SCAN_H */

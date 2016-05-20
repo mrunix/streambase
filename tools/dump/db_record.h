@@ -26,7 +26,7 @@
 #include <string>
 #include <map>
 
-namespace oceanbase {
+namespace sb {
 namespace api {
 class DbRecord;
 

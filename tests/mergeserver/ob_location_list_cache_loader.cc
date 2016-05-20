@@ -6,8 +6,8 @@
 #include "ob_location_list_cache_loader.h"
 #include <unistd.h>
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 namespace {
 //const char* location_cache_section_name = "tablet_location_cache";

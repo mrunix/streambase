@@ -8,9 +8,9 @@
 #include "common/ob_log_writer2.h"
 #define LOG_ALIGN OB_DIRECT_IO_ALIGN
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
-namespace oceanbase {
+using namespace sb::common;
+using namespace sb::updateserver;
+namespace sb {
 namespace test {
 template<typename T>
 int64_t get_log_id(const T& t) {
@@ -320,5 +320,5 @@ int write_log_to_end(ObLogWriterV2& log_writer, ObLogGenerator& log_generator, c
   return gen_log_and_handle(&write_log_handler, log_generator, end_id);
 }
 }; // end namespace test
-}; // end namespace oceanbase
+}; // end namespace sb
 #endif /* __OB_UPDATESERVER_LOG_UTILS_H__ */

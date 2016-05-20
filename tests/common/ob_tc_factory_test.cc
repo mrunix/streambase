@@ -15,7 +15,7 @@
  */
 #include <gtest/gtest.h>
 #include "common/ob_tc_factory.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class Base: public DLink {
  public:

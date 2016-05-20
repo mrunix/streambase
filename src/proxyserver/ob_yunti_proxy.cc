@@ -14,7 +14,7 @@
 #include "ob_yunti_proxy.h"
 #include "ob_proxy_server_main.h"
 
-namespace oceanbase {
+namespace sb {
 namespace proxyserver {
 YuntiProxy::YuntiProxy() {
 }

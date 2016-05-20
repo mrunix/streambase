@@ -17,8 +17,8 @@
 #include "ob_chunk_server.h"
 #include "ob_chunk_reload_config.h"
 
-using namespace oceanbase;
-using namespace oceanbase::chunkserver;
+using namespace sb;
+using namespace sb::chunkserver;
 
 ObChunkReloadConfig::ObChunkReloadConfig()
   : chunk_server_(NULL) {

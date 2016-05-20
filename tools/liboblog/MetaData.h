@@ -12,7 +12,7 @@
 
 #include "MD.h"
 
-namespace oceanbase {
+namespace sb {
 namespace liboblog {
 
 // columnµÄÃèÊöĞÅÏ¢

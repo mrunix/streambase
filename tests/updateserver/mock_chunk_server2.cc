@@ -5,9 +5,9 @@
 #include "common/ob_scanner.h"
 #include "common/ob_tablet_info.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
-using namespace oceanbase::updateserver::test;
+using namespace sb::common;
+using namespace sb::updateserver;
+using namespace sb::updateserver::test;
 
 int MockChunkServer::initialize() {
   set_listen_port(CHUNK_SERVER_PORT);

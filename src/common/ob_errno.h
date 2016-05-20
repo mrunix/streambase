@@ -16,10 +16,10 @@
 #ifndef _OB_ERRNO_H
 #define _OB_ERRNO_H 1
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 const char* ob_strerror(int err);
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ERRNO_H */

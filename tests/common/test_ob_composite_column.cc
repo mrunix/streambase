@@ -23,7 +23,7 @@
 #include <ctype.h>
 
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 class ObCellReaderUtil {

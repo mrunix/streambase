@@ -6,8 +6,8 @@
 #include "task_server_param.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 static const int64_t SLEEP_TIME = 4000; // 4s
 static const int64_t TIMEOUT = 1000 * 1000 * 10; // 10s

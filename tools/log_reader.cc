@@ -21,9 +21,9 @@
 #include <string>
 #include <sstream>
 
-using namespace oceanbase::common;
-using namespace oceanbase::common::hash;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::common::hash;
+using namespace sb::updateserver;
 
 void print_usage(char* exe_name) {
   fprintf(stderr, "\n"

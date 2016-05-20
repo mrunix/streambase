@@ -17,7 +17,7 @@
 #define _OB_MERGE_GROUPBY_H 1
 #include "ob_groupby.h"
 #include "ob_aggregate_function.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObScalarAggregate;
 
@@ -66,6 +66,6 @@ inline bool ObMergeGroupBy::get_int_div_as_double() const {
   return aggr_func_.get_int_div_as_double();
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_MERGE_GROUPBY_H */

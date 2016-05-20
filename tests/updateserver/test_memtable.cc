@@ -16,7 +16,7 @@
 #define _US_ if (true) {
 #define _UE_ }
 
-using namespace oceanbase;
+using namespace sb;
 using namespace updateserver;
 using namespace common;
 using namespace common::hash;

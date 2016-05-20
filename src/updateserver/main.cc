@@ -20,8 +20,8 @@
 #include <malloc.h>
 #include "easy_pool.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::updateserver;
 
 namespace {
 static const int DEFAULT_MMAP_MAX_VAL = 655360;

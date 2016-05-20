@@ -24,7 +24,7 @@
 #include "ob_ups_scan.h"
 #include "ob_tablet_fuse.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 
 namespace sql {
@@ -67,6 +67,6 @@ class ObTabletScanFuse: public ObTabletFuse {
   ObRow curr_row_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_TABLET_SCAN_FUSE_H */

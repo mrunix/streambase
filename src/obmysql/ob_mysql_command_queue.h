@@ -22,7 +22,7 @@
 #include "common/thread_buffer.h"
 #include "packet/ob_mysql_command_packet.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 class ObMySQLCommandQueue {
   friend class ObMySQLCommandQueueThread;

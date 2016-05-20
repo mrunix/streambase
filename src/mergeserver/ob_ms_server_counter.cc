@@ -1,9 +1,9 @@
 #include "ob_ms_server_counter.h"
 #include "common/ob_define.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::common::hash;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::common::hash;
+using namespace sb::mergeserver;
 
 
 ObMergerServerCounter::ObMergerServerCounter() {

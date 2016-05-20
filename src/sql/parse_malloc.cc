@@ -4,7 +4,7 @@
 #include "common/ob_string.h"
 #include "common/ob_string_buf.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 /* get memory from the thread obStringBuf, and not release untill thread quits */
 void* parse_malloc(const size_t nbyte, void* malloc_pool) {

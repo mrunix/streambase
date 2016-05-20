@@ -19,7 +19,7 @@
 #include "data_buffer.h"
 #include "ob_result.h"
 #include "ob_obi_role.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObMsgUpsHeartbeat {
   static const int MY_VERSION = 4;
@@ -71,7 +71,7 @@ struct ObMsgRevokeLease {
   int deserialize(const char* buf, const int64_t data_len, int64_t& pos);
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_RS_UPS_MESSAGE_H */
 

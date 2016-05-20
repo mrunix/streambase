@@ -24,7 +24,7 @@
 #include "common/thread_buffer.h"
 
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObTabletManager;
 class ObTabletMerger;

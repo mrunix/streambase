@@ -30,12 +30,12 @@
 #include "chunkserver/ob_chunk_server.h"
 #include "rootserver/ob_root_callback.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
+using namespace sb::common;
+using namespace sb::chunkserver;
 
 const int32_t MOCK_SERVER_LISTEN_PORT = 8866;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace chunkserver {
 class MockRootServer : public ObSingleServer {

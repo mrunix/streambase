@@ -19,8 +19,8 @@
 #include "ob_sql_session_info.h"
 #include "common/ob_common_stat.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 int ObEndTrans::open() {
   int ret = OB_SUCCESS;
@@ -57,7 +57,7 @@ int64_t ObEndTrans::to_string(char* buf, const int64_t buf_len) const {
   return pos;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObEndTrans, PHY_END_TRANS);
 }

@@ -25,7 +25,7 @@
 #include "common/ob_schema.h"
 #include "updateserver/ob_fetched_log.h"
 
-namespace oceanbase {
+namespace sb {
 namespace liboblog {
 class IObLogRpcStub {
  public:

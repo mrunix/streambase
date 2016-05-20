@@ -17,9 +17,9 @@
 #include "ob_read_param_modifier.h"
 #include "common/utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 int ObGetCellStream::next_cell() {
   int ret = OB_SUCCESS;
@@ -327,4 +327,4 @@ int64_t ObGetCellStream::get_data_version() const {
   return cur_result_.get_data_version();
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

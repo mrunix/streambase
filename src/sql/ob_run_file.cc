@@ -15,8 +15,8 @@
  */
 #include "ob_run_file.h"
 #include "common/ob_compact_cell_iterator.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObRunFile::ObRunFile()
   : curr_run_trailer_(NULL), curr_run_row_count_(0) {

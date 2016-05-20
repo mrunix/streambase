@@ -19,7 +19,7 @@
 #include "ob_basic_stmt.h"
 #include "common/ob_strings.h"
 #include "common/ob_define.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObCreateUserStmt: public ObBasicStmt {
  public:
@@ -41,5 +41,5 @@ class ObCreateUserStmt: public ObBasicStmt {
   common::ObStrings users_; // (user1, pass1, user2, pass2, ...)
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 #endif /* _OB_CREATE_USER_STMT_H */

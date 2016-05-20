@@ -16,7 +16,7 @@
 #ifndef _OB_NO_CHILDREN_PHY_OPERATOR_H
 #define _OB_NO_CHILDREN_PHY_OPERATOR_H 1
 #include "sql/ob_phy_operator.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObNoChildrenPhyOperator: public ObPhyOperator {
  public:
@@ -44,6 +44,6 @@ inline int ObNoChildrenPhyOperator::set_child(int32_t child_idx, ObPhyOperator& 
 }
 
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_NO_CHILDREN_PHY_OPERATOR_H */

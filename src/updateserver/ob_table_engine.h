@@ -35,7 +35,7 @@
 #include "ob_ups_compact_cell_iterator.h"
 #include "ob_session_mgr.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 const int64_t CELL_INFO_SIZE_UNIT = 1024L;
 
@@ -165,7 +165,7 @@ struct TEKey {
     static __thread char BUFFER[2][BUFFER_SIZE];
     static __thread uint64_t i = 0;
     snprintf(BUFFER[i % 2], BUFFER_SIZE, "table_id=%lu rowkey=[%s] rowkey_ptr=%p rowkey_length=%ld",
-             table_id, oceanbase::common::to_cstring(row_key), row_key.ptr(), row_key.length());
+             table_id, sb::common::to_cstring(row_key), row_key.ptr(), row_key.length());
     return BUFFER[i++ % 2];
   };
   inline const char* to_cstring() const {

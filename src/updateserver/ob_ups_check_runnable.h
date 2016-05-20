@@ -17,7 +17,7 @@
 
 #include "common/ob_check_runnable.h"
 #include "common/ob_obi_role.h"
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObUpsCheckRunnable : public common::ObCheckRunnable {
  public:

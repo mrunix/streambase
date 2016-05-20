@@ -25,7 +25,7 @@
 #include "ob_schema.h"
 #include "ob_trace_log.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace common {
 class TestMutatorHelper;
@@ -33,7 +33,7 @@ class TestMutatorHelper;
 }
 }
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObMutatorCellInfo {
   // all ext type
@@ -48,7 +48,7 @@ struct ObMutatorCellInfo {
 // ObMutator represents a list of cell mutation.
 // 使用mutator的请注意 从mutator中迭代数据 必须保证经过了反序列化才能正常获取is_row_changed和is_row_finished标记 否则会返回not support
 class ObMutator {
-  friend class oceanbase::tests::common::TestMutatorHelper;
+  friend class sb::tests::common::TestMutatorHelper;
   static const int64_t ALLOCATOR_PAGE_SIZE = 2L * 1024L * 1024L;
  public:
   enum {

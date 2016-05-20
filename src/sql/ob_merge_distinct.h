@@ -20,7 +20,7 @@
 #include "common/ob_define.h"
 #include "common/ob_row.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 struct ObDistinctColumn {
   uint64_t table_id_;
@@ -66,6 +66,6 @@ class ObMergeDistinct: public ObSingleChildPhyOperator {
   char* last_row_buf_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_MERGE_DISTINCT_H */

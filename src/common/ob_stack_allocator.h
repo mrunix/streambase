@@ -18,7 +18,7 @@
 #include "tbsys.h"
 #include "ob_allocator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class DefaultBlockAllocator: public ObIAllocator {
  public:
@@ -109,6 +109,6 @@ class TSIStackAllocator {
   StackAllocator allocator_array_[OB_MAX_THREAD_NUM];
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_STACK_ALLOCATOR_H__ */

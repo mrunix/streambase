@@ -162,7 +162,7 @@
 /* -[digits].E+### */
 #define MAX_DOUBLE_STR_LENGTH (DBL_DIG + 7)
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 enum EMySQLFieldType {
   MYSQL_TYPE_DECIMAL,
@@ -195,6 +195,6 @@ enum EMySQLFieldType {
   MYSQL_TYPE_NOT_DEFINED = 65535
 };
 } // end of namespace obmysql
-}   // end of namespace oceanbase
+}   // end of namespace sb
 
 #endif /* _OB_MYSQL_GLOBAL_H_ */

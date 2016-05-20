@@ -4,7 +4,7 @@
 #include "btree_write_handle.h"
 #include "btree_root_pointer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * 构造
@@ -300,4 +300,4 @@ void BtreeWriteHandle::add_key_to_list(char* key, int32_t value) {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

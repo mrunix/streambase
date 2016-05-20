@@ -17,9 +17,9 @@
 #include "ob_ring_data_buffer.h"
 #include "ob_data_block.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 // x != 0
 bool is_power_of_2(int64_t x) {
@@ -174,6 +174,6 @@ int ObRingDataBuffer::append(const char* buf, const int64_t len) {
   return err;
 }
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb
 
 

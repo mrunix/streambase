@@ -18,7 +18,7 @@
 #include "ob_chunk_server_config.h"
 #include "ob_chunk_reload_config.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 
 class ObChunkServerMain : public common::BaseMain {
@@ -45,7 +45,7 @@ class ObChunkServerMain : public common::BaseMain {
 #define THE_CHUNK_SERVER ObChunkServerMain::get_instance()->get_chunk_server()
 
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #endif //OCEANBASE_CHUNKSERVER_CHUNKSERVERMAIN_H_

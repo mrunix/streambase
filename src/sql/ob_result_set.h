@@ -28,7 +28,7 @@
 #include "obmysql/ob_mysql_global.h" // for EMySQLFieldType
 #include "common/page_arena.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObPsStoreItem;
 class ObSQLSessionInfo;
@@ -454,6 +454,6 @@ inline void ObResultSet::set_params_type(
 }
 
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_RESULT_SET_H */

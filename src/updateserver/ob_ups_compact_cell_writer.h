@@ -23,7 +23,7 @@
 #include "common/ob_compact_cell_writer.h"
 #include "ob_memtank.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 
 namespace updateserver {

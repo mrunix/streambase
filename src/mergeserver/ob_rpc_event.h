@@ -24,7 +24,7 @@
 #include "common/ob_scanner.h"
 #include "easy_io_struct.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObCommonRpcEvent {
  public:

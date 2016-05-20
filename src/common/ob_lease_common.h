@@ -18,7 +18,7 @@
 #define __OCEANBASE_COMMON_OB_LEASE_COMMON_H__
 #include "ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 struct ObLease {
   int64_t lease_time;      // lease start time

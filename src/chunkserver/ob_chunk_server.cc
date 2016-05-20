@@ -22,9 +22,9 @@
 #include "common/ob_profile_log.h"
 #include "common/ob_profile_fill_log.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 
 ObChunkServer::ObChunkServer(ObChunkServerConfig& config,
@@ -436,5 +436,5 @@ int ObChunkServer::do_request(ObPacket* base_packet) {
   return ret;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb
 

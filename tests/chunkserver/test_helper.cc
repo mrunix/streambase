@@ -22,9 +22,9 @@
 #include "chunkserver/ob_chunk_server_config.h"
 #include "../common/test_rowkey_helper.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
-using namespace oceanbase::chunkserver;
+using namespace sb::common;
+using namespace sb::sstable;
+using namespace sb::chunkserver;
 
 static const char* DEF_SSTABLE_PATH = "/tmp/ko/100";
 static CharArena allocator_;

@@ -19,7 +19,7 @@
 #include "ob_sstable_schema.h"
 #include "ob_sstable_trailer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace {
 common::ObMergerSchemaManager* global_sstable_schema_manager = NULL;
 }
@@ -1222,4 +1222,4 @@ int build_sstable_schema(const common::ObSchemaManagerV2& schema,
 }
 
 } // end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb

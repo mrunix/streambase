@@ -16,7 +16,7 @@
 
 #include "ob_compact_cell_writer.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 ObCompactCellWriter::ObCompactCellWriter()

@@ -35,7 +35,7 @@ Otherwise (i.e., at least one row qualifies), the result of the aggregate functi
 #include "ob_single_child_phy_operator.h"
 #include "ob_sql_expression.h"
 #include "common/ob_array.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 struct ObGroupColumn {
   uint64_t table_id_;
@@ -78,6 +78,6 @@ class ObGroupBy: public ObSingleChildPhyOperator {
   int64_t mem_size_limit_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_GROUPBY_H */

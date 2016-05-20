@@ -6,7 +6,7 @@
 #include "common/ob_server.h"
 #include "common/ob_new_scanner.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObCommonSqlRpcEvent {
  public:

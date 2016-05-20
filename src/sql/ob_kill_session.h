@@ -20,7 +20,7 @@
 #include "ob_no_children_phy_operator.h"
 #include "mergeserver/ob_ms_rpc_proxy.h"
 #include "ob_sql_session_mgr.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObKillSession: public ObNoChildrenPhyOperator {
  public:

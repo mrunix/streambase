@@ -13,7 +13,7 @@
  */
 #include "ob_ups_clog_status.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 const char* obi_slave_stat_to_str(const ObiSlaveStat slave_stat) {
   const char* str = NULL;
@@ -167,4 +167,4 @@ int ObUpsCLogStatus::to_str(char* buf, const int64_t len, const bool detail /*=t
   return err;
 }
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb

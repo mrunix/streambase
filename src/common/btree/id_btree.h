@@ -3,7 +3,7 @@
 
 #include "btree_base.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * 以内部生成序号为ID做为key
@@ -354,6 +354,6 @@ int64_t IdBtree<V>::key_compare_func(const char* a, const char* b) {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif

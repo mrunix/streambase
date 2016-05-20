@@ -16,7 +16,7 @@
 #include "common/ob_row_desc.h"
 #include "common/ob_row.h"
 
-namespace oceanbase {
+namespace sb {
 
 namespace chunkserver {
 class ObDataBuilder {

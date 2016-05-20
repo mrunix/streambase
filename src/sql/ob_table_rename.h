@@ -19,7 +19,7 @@
 
 #include "ob_rename.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObTableRename : public ObRename {
  protected:

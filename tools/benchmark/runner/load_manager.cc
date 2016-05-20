@@ -2,9 +2,9 @@
 #include "load_manager.h"
 #include "obmysql/packet/ob_mysql_command_packet.h"
 #include "obmysql/ob_mysql_util.h"
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
-using namespace oceanbase::obmysql;
+using namespace sb::common;
+using namespace sb::tools;
+using namespace sb::obmysql;
 
 LoadManager::LoadManager() {
   max_count_ = DEFAULT_COUNT;

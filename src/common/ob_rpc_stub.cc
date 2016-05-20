@@ -34,7 +34,7 @@ bool is_errno_sensitive(const int error) {
   return bret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // -----------------------------------------------------------
 // serialization parameter for simple types(bool, int, string, float, double).

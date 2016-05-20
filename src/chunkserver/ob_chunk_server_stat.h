@@ -19,7 +19,7 @@
 
 #include "common/ob_statistics.h"
 #include "common/ob_common_stat.h"
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObChunkServerStatManager : public common::ObStatManager {
  public:

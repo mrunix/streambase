@@ -19,7 +19,7 @@
 
 #include "ob_timer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 extern volatile int64_t g_cur_time;
 

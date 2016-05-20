@@ -26,7 +26,7 @@
 #include "ob_query_agent.h"
 #include "ob_tablet_merge_filter.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObTableSchema;
 class ObInnerCellInfo;

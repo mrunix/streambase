@@ -22,7 +22,7 @@
 #include <netdb.h>
 #include "utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 // --------------------------------------------------------
@@ -300,5 +300,5 @@ DEFINE_GET_SERIALIZE_SIZE(ObServer) {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 

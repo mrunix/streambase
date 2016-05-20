@@ -18,7 +18,7 @@
 #include "ob_ocm_main.h"
 #include "ob_ocm_broadcast_task.h"
 
-namespace oceanbase {
+namespace sb {
 namespace clustermanager {
 ObOcmBroadcastTask::ObOcmBroadcastTask() {
 }

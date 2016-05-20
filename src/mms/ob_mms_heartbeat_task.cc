@@ -17,9 +17,9 @@
 #include "ob_monitor.h"
 #include "common/ob_trace_log.h"
 
-using namespace oceanbase;
-using namespace oceanbase::mms;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::mms;
+using namespace sb::common;
 
 ObMMSHeartbeatTask::ObMMSHeartbeatTask(ObMonitor* monitor) {
   if (monitor != NULL) {

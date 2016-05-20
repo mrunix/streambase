@@ -21,7 +21,7 @@
 #include "ob_thread_mempool.h"
 #include "ob_atomic.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObMemList::ObMemList(const int32_t fixed_size) : header_(NULL), size_(0),
   fixed_size_(fixed_size),

@@ -5,7 +5,7 @@
 #include "ob_sstable_block_index_mgr.h"
 #include "ob_sstable_block_cache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 using namespace common;
 
@@ -1946,4 +1946,4 @@ void add_io_stat(const ObIOStat& stat) {
   }
 }
 } // end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb

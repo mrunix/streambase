@@ -1,8 +1,8 @@
 #include "ob_compact_sstable_writer.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObCompactSSTableWriter::set_sstable_param(
   const ObFrozenMinorVersionRange& version_range,
@@ -1296,6 +1296,6 @@ int ObCompactSSTableWriter::write_record_body(const char* block_buf,
   return ret;
 }
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 
 

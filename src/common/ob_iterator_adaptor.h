@@ -23,7 +23,7 @@
 #include "common/ob_ups_row.h"
 #include "sql/ob_rowkey_phy_operator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObObjCastHelper {
  public:

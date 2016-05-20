@@ -59,7 +59,7 @@
 #include "ob_trigger_handler.h"
 #include "ob_util_interface.h"
 #include "common/ob_trace_id.h"
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class ObClientWrapper;
 typedef common::ObPointerArray<common::ObScanner, common::BatchPacketQueueThread::MAX_BATCH_NUM> ScannerArray;

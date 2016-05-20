@@ -17,7 +17,7 @@
 #define _OB_LOCK_USER_STMT_H 1
 #include "ob_basic_stmt.h"
 #include "common/ob_strings.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObLockUserStmt: public ObBasicStmt {
  public:
@@ -40,6 +40,6 @@ class ObLockUserStmt: public ObBasicStmt {
   bool locked_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_LOCK_USER_STMT_H */

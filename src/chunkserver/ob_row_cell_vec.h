@@ -20,7 +20,7 @@
 #include "common/ob_rowkey.h"
 #include "common/ob_schema.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObRowCellVec : public common::ObIterator {
  public:
@@ -33,7 +33,7 @@ class ObRowCellVec : public common::ObIterator {
 
   int add_cell(const common::ObCellInfo& cell);
 
-  inline const oceanbase::common::ObRowkey& get_row_key()const {
+  inline const sb::common::ObRowkey& get_row_key()const {
     return row_key_;
   }
 
@@ -70,7 +70,7 @@ class ObRowCellVec : public common::ObIterator {
   int32_t row_buffer_size_;
   int32_t cur_buffer_offset_;
   ObRow*   row_;
-  oceanbase::common::ObRowkey row_key_;
+  sb::common::ObRowkey row_key_;
   int32_t   consumed_cell_num_;
   bool      is_empty_;
   common::ObCellInfo cur_cell_;

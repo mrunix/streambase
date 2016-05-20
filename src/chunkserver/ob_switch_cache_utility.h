@@ -18,7 +18,7 @@
 #include "ob_block_cache_reader.h"
 #include "ob_block_cache_loader.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObSwitchCacheUtility {
  public:
@@ -70,6 +70,6 @@ class ObSwitchCacheUtility {
   //from sstable file into new block cache
 };
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_CHUNKSERVER_OB_SWITCH_CACHE_UTILITY_H_

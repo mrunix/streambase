@@ -18,7 +18,7 @@
 #include "ob_merger.h"
 #include "ob_action_flag.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObMerger :: ObMerger(bool is_asc) {
   reset();

@@ -27,14 +27,14 @@
 #include "ob_fake_ups_scan.h"
 #include "sql/ob_tablet_scan_fuse.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sql;
 using namespace test;
 
 #define OK(value) ASSERT_EQ(OB_SUCCESS, (value))
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 namespace test {
 class ObTabletJoinTest: public ::testing::Test {

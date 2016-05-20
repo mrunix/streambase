@@ -20,7 +20,7 @@
 #include "ob_define.h"
 #include "file_utils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 FileUtils::FileUtils(): own_fd_(true), fd_(-1) {
@@ -165,4 +165,4 @@ int64_t FileUtils::get_size() {
 }
 
 }//end namespace common
-}//end namespace oceanbase
+}//end namespace sb

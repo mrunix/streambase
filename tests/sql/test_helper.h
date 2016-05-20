@@ -29,9 +29,9 @@
 #include "chunkserver/ob_tablet_manager.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::chunkserver;
+using namespace sb::sstable;
 
 
 void check_string(const ObString& expected, const ObString& real);
@@ -195,7 +195,7 @@ struct CellInfoGen {
   static const int64_t START_ID = 2;
 
   ObCellInfo** cell_infos;
-  oceanbase::sstable::ObSSTableSchema schema;
+  sb::sstable::ObSSTableSchema schema;
   int64_t total_rows;
   int64_t total_columns;
 };

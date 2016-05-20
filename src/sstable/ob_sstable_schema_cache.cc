@@ -14,7 +14,7 @@
 #include <tblog.h>
 #include "ob_sstable_schema_cache.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 using namespace common;
 
@@ -259,4 +259,4 @@ int ObSSTableSchemaCache::destroy() {
   return ret;
 }
 } // end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb

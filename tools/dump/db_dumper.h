@@ -33,8 +33,8 @@
 #include <set>
 #include <algorithm>
 
-using namespace oceanbase::common;
-using namespace oceanbase::api;
+using namespace sb::common;
+using namespace sb::api;
 using namespace tbsys;
 
 class DbDumperMgr;

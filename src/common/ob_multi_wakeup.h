@@ -23,7 +23,7 @@
 #include "common/hash/ob_hashmap.h"
 #include "common/page_arena.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace MultiWakeupComponent {
 static const int64_t PIPE_BUF_WRITE_SIZE = 1;

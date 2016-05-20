@@ -15,7 +15,7 @@
  */
 #include "common/ob_expr_obj.h"
 #include <gtest/gtest.h>
-using namespace oceanbase::common;
+using namespace sb::common;
 
 #define BLOCK_FUNC()  if (true) \
 

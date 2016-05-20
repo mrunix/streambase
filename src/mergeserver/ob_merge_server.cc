@@ -8,9 +8,9 @@
 #include "common/utility.h"
 #include "common/ob_mod_define.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 ObMergeServer::ObMergeServer(ObConfigManager& config_mgr,
                              ObMergeServerConfig& ms_config)

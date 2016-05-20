@@ -24,9 +24,9 @@
 #include "ob_fake_table.h"
 
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
-using namespace oceanbase::sql::test;
+using namespace sb::sql;
+using namespace sb::common;
+using namespace sb::sql::test;
 
 class ObSortedDistinctTest: public ::testing::Test {
  public:

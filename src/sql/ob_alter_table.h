@@ -20,7 +20,7 @@
 #include "common/ob_schema_service.h"
 #include "sql/ob_sql_context.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMergerRootRpcProxy;
 } // end namespace mergeserver
@@ -75,7 +75,7 @@ inline void ObAlterTable::set_sql_context(ObSqlContext& context) {
   local_context_.schema_manager_ = NULL;
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* OCEANBASE_SQL_OB_ALTER_TABLE_H_ */
 

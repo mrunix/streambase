@@ -1,7 +1,7 @@
 #include "ob_file_service.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 
 ObFileService::ObFileService(): server_(NULL), inited_(false), queue_thread_(NULL),

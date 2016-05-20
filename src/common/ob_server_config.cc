@@ -17,7 +17,7 @@
 #include "ob_server_config.h"
 #include "common/ob_config.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObConfigContainer* ObServerConfig::p_container_;
 

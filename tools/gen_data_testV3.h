@@ -31,9 +31,9 @@
 #include "sstable/ob_sstable_schema.h"
 #include "sstable/ob_disk_path.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::sstable;
+using namespace sb::sstable;
 struct Args {
   int64_t disk_num_;   //number of disk the data distrbute on
   int64_t block_size_; //number of kbytes of data block
@@ -135,5 +135,5 @@ class GenDataTestV3 {
   std::map<int32_t, generate_table>generate_table_; //table function map
 };
 }//namespace chunkserver
-}//namespace oceanbase
+}//namespace sb
 #endif

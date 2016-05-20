@@ -1,7 +1,7 @@
 
 #include "ob_ups_info_mgr_rpc_stub.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 ObUpsInfoMgrRpcStub::ObUpsInfoMgrRpcStub()

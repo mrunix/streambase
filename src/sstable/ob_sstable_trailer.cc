@@ -18,7 +18,7 @@
 #include "common/ob_schema.h"
 #include "ob_sstable_trailer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 using namespace tbsys;
 using namespace common;
@@ -789,4 +789,4 @@ void ObSSTableTrailer::dump() const {
             to_cstring(range_));
 }
 } // end namespace sstable
-} // end namespace oceanbase
+} // end namespace sb

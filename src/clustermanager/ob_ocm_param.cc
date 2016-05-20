@@ -38,9 +38,9 @@ const char* OBCM_LOCATION = "location";
 const char* OBCM_HOST_NAME = "hostname";
 }
 
-namespace oceanbase {
+namespace sb {
 namespace clustermanager {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObOcmParam::ObOcmParam() {
   memset(this, 0x00, sizeof(*this));

@@ -18,7 +18,7 @@
 #include "ob_yunti_meta.h"
 #include "common/ob_file.h"
 
-namespace oceanbase {
+namespace sb {
 namespace proxyserver {
 class Proxy {
  public:

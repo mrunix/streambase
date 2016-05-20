@@ -27,8 +27,8 @@
 #include "common/ob_trigger_event_util.h"
 #include "common/ob_config_manager.h"
 
-using namespace oceanbase::rootserver;
-using namespace oceanbase::common;
+using namespace sb::rootserver;
+using namespace sb::common;
 
 ObBootstrap::ObBootstrap(ObRootServer2& root_server): root_server_(root_server), log_worker_(NULL) {
   core_table_count_ = 0;

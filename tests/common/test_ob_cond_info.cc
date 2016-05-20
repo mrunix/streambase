@@ -8,7 +8,7 @@
 #include "ob_cond_info.h"
 #include "test_rowkey_helper.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 static CharArena allocator_;
 

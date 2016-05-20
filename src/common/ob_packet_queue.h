@@ -5,7 +5,7 @@
 #include "ob_packet.h"
 #include "ob_ring_buffer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObPacketQueue {
   friend class ObPacketQueueThread;

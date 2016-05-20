@@ -19,7 +19,7 @@
 #include "btree_define.h"
 #include "btree_read_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace cmbtree {
 /**
@@ -56,6 +56,6 @@ BtreeWriteParam<K, V>::~BtreeWriteParam() {
 
 } // end namespace cmbtree
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif

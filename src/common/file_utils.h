@@ -24,7 +24,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class FileUtils {
  public:
@@ -48,5 +48,5 @@ class FileUtils {
   int32_t fd_;
 };
 }       //end namespace common
-}       //end namespace oceanbase
+}       //end namespace sb
 #endif

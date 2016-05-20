@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include "common/ob_define.h"
 #include "common/ob_string.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 extern int32_t get_char_number_from_name(const char* name);
 extern int32_t get_char_number_from_name(const common::ObString& name);

@@ -17,7 +17,7 @@
 
 #include "ob_lz_query.h"
 
-namespace oceanbase {
+namespace sb {
 namespace olapdrive {
 class ObAdgroupEffectTop10 : public ObLzQuery {
  public:
@@ -45,6 +45,6 @@ class ObAdgroupEffectTop10 : public ObLzQuery {
   DISALLOW_COPY_AND_ASSIGN(ObAdgroupEffectTop10);
 };
 } // end namespace olapdrive
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_OLAPDRIVE_ADGROUP_EFFECT_TOP10_H

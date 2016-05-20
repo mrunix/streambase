@@ -21,7 +21,7 @@
 #include <sstream>
 
 
-namespace oceanbase {
+namespace sb {
 namespace api {
 const char* CS_PORT =   "port";
 const char* MS_PORT =   "ms_port";

@@ -18,7 +18,7 @@
 #include "ob_root_balancer.h"
 #include "ob_root_server_config.h"
 #include "common/ob_role_mgr.h"
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObRootBalancer;
 class ObRootBalancerRunnable : public tbsys::CDefaultRunnable {
@@ -42,7 +42,7 @@ class ObRootBalancerRunnable : public tbsys::CDefaultRunnable {
   tbsys::CThreadCond balance_worker_sleep_cond_;
 };
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_ROOT_BALANCER_RUNNABLE_H */
 

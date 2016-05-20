@@ -1,7 +1,7 @@
 #include "base_server.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 int BaseServer::initialize() {
   int ret = client_manager_.initialize(eio_, &server_handler_);

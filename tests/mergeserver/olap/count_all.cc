@@ -2,8 +2,8 @@
 #include "common/ob_define.h"
 #include "count_all.h"
 #include "olap.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 CountALL CountALL::static_case_;
 bool CountALL::check_result(const uint32_t min_key_include, const uint32_t max_key_include, ObScanner& result,
                             void* arg) {

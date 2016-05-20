@@ -21,7 +21,7 @@
 #include "common/dlist.h"
 class ObAggregateFunctionTest;
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 
 class ObSqlExpression: public common::DLink {
@@ -200,6 +200,6 @@ inline int ObSqlExpression::merge_expr(const ObSqlExpression& expr1, const ObSql
 }
 
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_SQL_EXPRESSION_H */

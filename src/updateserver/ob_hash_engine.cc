@@ -23,7 +23,7 @@
 #include "ob_hash_engine.h"
 #include "ob_ups_utils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 using namespace common;
 using namespace hash;

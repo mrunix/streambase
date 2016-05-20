@@ -26,7 +26,7 @@
 #include "common/ob_general_rpc_stub.h"
 #include "ob_sql_rpc_stub.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObGetParam;
 class ObScanner;

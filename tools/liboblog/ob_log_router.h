@@ -27,7 +27,7 @@
 #include "ob_log_partitioner.h"
 #include "ob_log_meta_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace liboblog {
 class IObLogObserver {
  public:

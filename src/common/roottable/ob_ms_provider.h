@@ -17,7 +17,7 @@
 #define _OB_MS_PROVIDER_H 1
 #include "common/ob_define.h"
 #include <stdint.h>
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObServer;
 class ObScanParam;
@@ -58,7 +58,7 @@ class ObMsProvider {
   ObMsProvider& operator=(const ObMsProvider& other);
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_MS_PROVIDER_H */
 

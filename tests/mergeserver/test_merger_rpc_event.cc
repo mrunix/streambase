@@ -13,8 +13,8 @@
 #include "ob_ms_tablet_location_proxy.h"
 
 using namespace std;
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 #define FUNC() // 
 

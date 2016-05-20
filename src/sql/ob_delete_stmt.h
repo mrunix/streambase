@@ -4,11 +4,11 @@
 #include "common/ob_string.h"
 #include "common/ob_string_buf.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObDeleteStmt : public ObStmt {
  public:
-  ObDeleteStmt(oceanbase::common::ObStringBuf* name_pool);
+  ObDeleteStmt(sb::common::ObStringBuf* name_pool);
   virtual ~ObDeleteStmt();
 
   uint64_t set_delete_table(uint64_t id);

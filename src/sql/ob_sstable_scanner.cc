@@ -25,10 +25,10 @@
 #include "sstable/ob_sstable_writer.h"
 #include "sstable/ob_blockcache.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 ObSSTableScanner::ObSSTableScanner()
   : scan_context_(NULL),
@@ -424,4 +424,4 @@ inline bool ObSSTableScanner::is_empty_sstable() const {
 
 
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb

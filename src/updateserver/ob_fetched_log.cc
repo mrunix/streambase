@@ -16,8 +16,8 @@
 #include "common/utility.h"
 #include "ob_fetched_log.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace updateserver {
 int ObSessionBuffer:: reset() {
   int err = OB_SUCCESS;
@@ -136,4 +136,4 @@ int64_t ObFetchedLog::to_string(char* buf, const int64_t len) const {
 }
 
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb

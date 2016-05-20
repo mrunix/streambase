@@ -23,9 +23,9 @@
 #include "ob_fake_table.h"
 
 
-using namespace oceanbase::sql;
-using namespace oceanbase::sql::test;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::sql::test;
+using namespace sb::common;
 
 class ObPhyOperatorStub : public ObPhyOperator {
  public:

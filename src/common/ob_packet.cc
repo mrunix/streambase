@@ -2,7 +2,7 @@
 #include "ob_thread_mempool.h"
 #include "utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObVarMemPool ObPacket::out_mem_pool_(OB_MAX_PACKET_LENGTH);
 uint32_t ObPacket::global_chid = 0;

@@ -5,7 +5,7 @@
 #include "common/utility.h"
 #include "parse_file.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 void print_usage() {
   fprintf(stderr, "parse_file [OPTION]\n");

@@ -19,8 +19,8 @@
 #include "common/utility.h"
 #include "common/ob_malloc.h"
 #include "common/ob_row_util.h"
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
 ObMergeUnion::ObMergeUnion()
   : get_next_row_func_(NULL), cur_first_query_row_(NULL), cur_second_query_row_(NULL),
@@ -367,7 +367,7 @@ int ObMergeUnion::get_next_row(const ObRow*& row) {
   return (this->*(this->ObMergeUnion::get_next_row_func_))(row);
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObMergeUnion, PHY_MERGE_UNION);
 }

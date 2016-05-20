@@ -26,7 +26,7 @@
 #include "ob_log_generator.h"
 #include "ob_log_data_writer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObILogWriter {
  public:
@@ -92,14 +92,14 @@ class ObLogWriter : public ObILogWriter {
 
   int write_keep_alive_log();
 
-  int async_flush_log(int64_t& end_log_id, TraceLog::LogBuffer& tlog_buffer = oceanbase::common::TraceLog::get_logbuffer());
+  int async_flush_log(int64_t& end_log_id, TraceLog::LogBuffer& tlog_buffer = sb::common::TraceLog::get_logbuffer());
   int64_t get_flushed_clog_id();
   /// @brief 将缓冲区中的日志写入磁盘
   /// flush_log首相将缓冲区中的内容同步到Slave机器
   /// 然后写入磁盘
   /// @retval OB_SUCCESS 成功
   /// @retval otherwise 失败
-  int flush_log(TraceLog::LogBuffer& tlog_buffer = oceanbase::common::TraceLog::get_logbuffer(),
+  int flush_log(TraceLog::LogBuffer& tlog_buffer = sb::common::TraceLog::get_logbuffer(),
                 const bool sync_to_slave = true, const bool is_master = true);
 
   /// @brief 写日志并且写盘
@@ -173,6 +173,6 @@ int ObLogWriter::write_log(const LogCommand cmd, const T& data) {
 }
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_OB_LOG_WRITER_H_

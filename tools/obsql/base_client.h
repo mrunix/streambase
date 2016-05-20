@@ -19,7 +19,7 @@
 #include "common/ob_packet_factory.h"
 #include "common/ob_client_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obsql {
 class BaseClient {
  public:
@@ -48,7 +48,7 @@ class BaseClient {
   common::ObPacketFactory factory_;
   common::ObClientManager client_;
 };
-} // namespace oceanbase::client
+} // namespace sb::client
 } // namespace Oceanbase
 
 #endif //OCEANBASE_OBSQL_BASE_CLIENT_H_

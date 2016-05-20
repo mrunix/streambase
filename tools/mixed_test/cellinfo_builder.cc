@@ -3,7 +3,7 @@
 #include "cellinfo_builder.h"
 #include "utils.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace updateserver;
 

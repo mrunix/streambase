@@ -26,7 +26,7 @@
 #include "btree_mem_pool.h"
 #include "btree_counter.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace cmbtree {
 /**
@@ -1787,7 +1787,7 @@ int32_t BtreeBase<K, V, Alloc>::step_backward_(TScanHandle& handle, int16_t leve
 }
 } // end namespace cmbtree
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif
 

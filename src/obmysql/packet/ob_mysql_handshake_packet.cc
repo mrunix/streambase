@@ -1,8 +1,8 @@
 #include "ob_mysql_handshake_packet.h"
 
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace obmysql {
 ObMySQLHandshakePacket::ObMySQLHandshakePacket() {
   const char* str = "5.5.1";

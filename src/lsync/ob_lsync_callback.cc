@@ -2,7 +2,7 @@
 #include "common/ob_packet.h"
 #include "ob_lsync_server.h"
 #include "tblog.h"
-namespace oceanbase {
+namespace sb {
 namespace lsync {
 int ObLsyncCallback::process(easy_request_t* r) {
   int ret = EASY_OK;

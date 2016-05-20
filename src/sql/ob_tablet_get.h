@@ -28,7 +28,7 @@
 #include "chunkserver/ob_tablet_manager.h"
 #include "ob_tablet_direct_join.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObTabletGet : public ObTabletRead {
  public:

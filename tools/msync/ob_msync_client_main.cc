@@ -17,12 +17,12 @@
 #include <getopt.h>
 #include "ob_msync_client_main.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 const char* build_date();
 const char* build_time();
 
-namespace oceanbase {
+namespace sb {
 namespace msync {
 ObMsyncClientMain* ObMsyncClientMain::get_instance() {
   if (NULL == instance_) {

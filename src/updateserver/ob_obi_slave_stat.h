@@ -16,7 +16,7 @@
 #define OCEANBASE_UPDATESERVER_OB_SLAVE_STAT_H_
 
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 enum ObiSlaveStat {
   MIN_SLAVE_STAT = 0,
@@ -26,6 +26,6 @@ enum ObiSlaveStat {
   MAX_SLAVE_STAT = 4,
 };
 } // end namespace updateserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_UPDATESERVER_OB_SLAVE_STAT_H_

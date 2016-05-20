@@ -17,7 +17,7 @@
 #include "ob_log_generator.h"
 #include "utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 int DebugLog::advance() {
   int err = OB_SUCCESS;
@@ -543,4 +543,4 @@ int ObLogGenerator:: commit(const ObLogCursor& end_cursor) {
   return err;
 }
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

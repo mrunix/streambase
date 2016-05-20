@@ -21,7 +21,7 @@
 #include <tbsys.h>
 #include "ob_ocm_meta.h"
 
-namespace oceanbase {
+namespace sb {
 namespace clustermanager {
 typedef common::ObList<ObOcmMeta> OcmList;
 class ObOcmMetaManager {

@@ -23,7 +23,7 @@
 #include "data_buffer.h"
 #include "ob_server.h"
 #include "ob_packet.h"
-namespace oceanbase {
+namespace sb {
 
 namespace common {
 class ObClientManager {
@@ -172,7 +172,7 @@ class ObClientManager {
 };
 
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #endif //OCEANBASE_COMMON_CLIENT_MANAGER_H_

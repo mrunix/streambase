@@ -20,7 +20,7 @@
 #include "ob_atomic.h"
 #include "tblog.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObiRole {
  public:
@@ -69,7 +69,7 @@ inline const char* ObiRole::get_role_str() const {
 }
 
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_OBI_ROLE_H */
 

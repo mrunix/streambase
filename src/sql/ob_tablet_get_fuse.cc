@@ -17,7 +17,7 @@
 #include "ob_tablet_get_fuse.h"
 #include "common/ob_row_fuse.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sql;
 
@@ -130,7 +130,7 @@ int ObTabletGetFuse::close() {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObTabletGetFuse, PHY_TABLET_GET_FUSE);
 }

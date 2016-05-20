@@ -15,7 +15,7 @@
 
 #include "ob_ups_lease_task.h"
 #include "common/ob_rs_ups_message.h"
-using namespace oceanbase;
+using namespace sb;
 using namespace updateserver;
 
 ObUpsLeaseTask::ObUpsLeaseTask() {

@@ -2,8 +2,8 @@
 #include "common/ob_schema.h"
 #include "common/ob_malloc.h"
 #include "common/file_directory_utils.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 TEST(SchemaTestV2, basicTest) {
   tbsys::CConfig c1;
   ObSchemaManagerV2* schema_manager = new ObSchemaManagerV2();

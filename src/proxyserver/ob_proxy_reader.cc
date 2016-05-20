@@ -15,7 +15,7 @@
 #include "ob_proxy_reader.h"
 #include "ob_proxy_server_main.h"
 
-namespace oceanbase {
+namespace sb {
 namespace proxyserver {
 int ProxyReader::prepare_buffer() {
   int ret = OB_SUCCESS;

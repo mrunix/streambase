@@ -17,7 +17,7 @@
 #define _OB_NUMBER_H 1
 #include <stdint.h>
 #include <iostream>
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObNumber {
  public:
@@ -137,6 +137,6 @@ inline const uint32_t* ObNumber::get_words() const {
 
 std::ostream& operator<<(std::ostream& os, const ObNumber& num);  // for google test
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_NUMBER_H */

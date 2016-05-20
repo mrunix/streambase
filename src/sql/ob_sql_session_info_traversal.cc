@@ -1,7 +1,7 @@
 #include "ob_sql_session_info_traversal.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::sql;
 
 ObSQLSessionInfoTraversal::ObSQLSessionInfoTraversal(hash::ObHashMap<ObSQLSessionKey, ObSQLSessionInfo*>* map)
   : map_(map) {

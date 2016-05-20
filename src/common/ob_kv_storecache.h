@@ -44,7 +44,7 @@
 #include "ob_thread_objpool.h"
 #include "ob_trace_log.h"
 #include "ob_rowkey.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace KVStoreCacheComponent {
 struct NotNeedDeepCopyTag {};

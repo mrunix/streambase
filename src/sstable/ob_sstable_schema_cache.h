@@ -21,7 +21,7 @@
 #include "common/ob_spin_rwlock.h"
 #include "ob_sstable_schema.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 struct ObSchemaNode {
   ObSSTableSchema* schema_;
@@ -136,7 +136,7 @@ class ObSSTableSchemaCache {
   int64_t schema_cnt_;
   common::SpinRWLock rwlock_;
 };
-} // namespace oceanbase::sstable
+} // namespace sb::sstable
 } // namespace Oceanbase
 
 #endif //OCEANBASE_SSTABLE_OB_SSTABLE_SCHEMA_CACHE_H_

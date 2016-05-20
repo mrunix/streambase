@@ -19,11 +19,11 @@
 #include "ob_tablet_merge_filter.h"
 #include "chunkserver/ob_tablet_image.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::chunkserver;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace chunkserver {
 static ObTabletImage g_image;
@@ -420,7 +420,7 @@ TEST_F(TestTabletMergerFilter, test_mult_group_with_valid_expire) {
 }
 }//end namespace chunkserver
 }//end namespace tests
-}//end namespace oceanbase
+}//end namespace sb
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();

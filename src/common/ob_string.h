@@ -7,7 +7,7 @@
 #include "murmur_hash.h"
 #include <algorithm>
 #include <iostream>
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * ObString do not own the buffer's memory

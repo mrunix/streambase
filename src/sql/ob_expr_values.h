@@ -20,7 +20,7 @@
 #include "sql/ob_sql_expression.h"
 #include "common/ob_array.h"
 #include "common/ob_row_desc_ext.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObExprValues: public ObNoChildrenPhyOperator {
  public:
@@ -64,6 +64,6 @@ class ObExprValues: public ObNoChildrenPhyOperator {
   bool do_eval_when_serialize_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_EXPR_VALUES_H */

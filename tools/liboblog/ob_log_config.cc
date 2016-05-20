@@ -48,7 +48,7 @@
 const char* build_date();
 const char* build_time();
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace liboblog {
 ObLogConfig::ObLogConfig() : inited_(false),

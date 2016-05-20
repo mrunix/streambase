@@ -28,7 +28,7 @@
 #include "ob_serialization.h"
 #include "common/ob_atomic.h"
 #include "common/ob_allocator.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace hash {
 template <class _key_type, class _value_type, class _hashfunc, class _equal, class _getkey, class _allocer, class _defendmode,
@@ -200,7 +200,7 @@ template <class _key_type,  // key类型
           class _allocer,    // 内存分配器
           class _defendmode, // 多线程保护模式
           template <class> class _bucket_array,
-          class _bucket_allocer = oceanbase::common::ObMalloc >
+          class _bucket_allocer = sb::common::ObMalloc >
 class ObHashTable {
  public:
   typedef ObHashTableIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array, _bucket_allocer> iterator;

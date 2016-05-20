@@ -19,7 +19,7 @@
 #include "ob_sql_expression.h"
 #include "common/ob_array.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObRename: public ObSingleChildPhyOperator {
  public:
@@ -58,6 +58,6 @@ class ObRename: public ObSingleChildPhyOperator {
   ObRowDesc row_desc_;
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_RENAME_H */

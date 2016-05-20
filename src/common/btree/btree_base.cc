@@ -4,7 +4,7 @@
 #include "btree_root_pointer.h"
 #include "btree_base.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 
 const char* BtreeBase::MIN_KEY = NULL;
@@ -1301,4 +1301,4 @@ void BtreeBase::print(BtreeBaseHandle* handle) {
 #endif
 
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

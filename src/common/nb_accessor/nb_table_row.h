@@ -20,7 +20,7 @@
 #include "common/hash/ob_hashmap.h"
 #include "common/ob_common_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace nb_accessor {
 //用于scan和get操作的结果，表示表单中的一行数据

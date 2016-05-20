@@ -15,7 +15,7 @@
 #include "ob_server_rpc.h"
 #include "common/ob_result.h"
 
-namespace oceanbase {
+namespace sb {
 namespace client {
 using namespace common;
 using namespace common::serialization;
@@ -73,4 +73,4 @@ int ObServerRpc::rs_get_data_servers(const int64_t timeout, const common::ObServ
 
 
 } // end namespace client
-} // end namespace oceanbase
+} // end namespace sb

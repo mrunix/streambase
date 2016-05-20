@@ -19,14 +19,14 @@
 #include "ob_cell_array.h"
 
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObCompositeColumn::ObCompositeColumn()
   : state(NOT_INIT) {
 }
 
 /* 用于cs */
-int ObCompositeColumn::set_expression(const ObObj* expr, oceanbase::common::ObStringBuf&   data_buf) {
+int ObCompositeColumn::set_expression(const ObObj* expr, sb::common::ObStringBuf&   data_buf) {
   int err = OB_SUCCESS;
   if (OB_SUCCESS != (err = postfix_.set_expression(expr, data_buf))) {
     TBSYS_LOG(WARN, "set postfix expression error.");

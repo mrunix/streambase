@@ -39,7 +39,7 @@ struct BufInfo {
 /// @property is program stopped
 bool g_stopped = false;
 
-oceanbase::common::ObVarMemPool g_var_memory_pool(64 * 1024);
+sb::common::ObVarMemPool g_var_memory_pool(64 * 1024);
 
 /// @property fixed memory allocating thread
 void* fixed_malloc_thread(void* arg) {
@@ -47,7 +47,7 @@ void* fixed_malloc_thread(void* arg) {
   memset(memory_buffer, 0, sizeof(memory_buffer));
   for (int64_t i = 0; i < BUFFER_ARRAY_SIZE; i ++) {
     memory_buffer[i].size_ = random() % MAX_BUFFER_SIZE + 1;
-    memory_buffer[i].ptr_ = oceanbase::common::ob_malloc(memory_buffer[i].size_);
+    memory_buffer[i].ptr_ = sb::common::ob_malloc(memory_buffer[i].size_);
     assert(memory_buffer[i].ptr_ != NULL);
     memset(memory_buffer[i].ptr_, 0, memory_buffer[i].size_);
   }
@@ -55,15 +55,15 @@ void* fixed_malloc_thread(void* arg) {
     int64_t idx = random() % BUFFER_ARRAY_SIZE;
     memset(memory_buffer[idx].ptr_, 0, memory_buffer[idx].size_);
     /// free an reallocate
-    oceanbase::common::ob_safe_free(memory_buffer[idx].ptr_);
+    sb::common::ob_safe_free(memory_buffer[idx].ptr_);
     memory_buffer[idx].size_ = 0;
     memory_buffer[idx].size_ = random() % MAX_BUFFER_SIZE + 1;
-    memory_buffer[idx].ptr_ = oceanbase::common::ob_malloc(memory_buffer[idx].size_);
+    memory_buffer[idx].ptr_ = sb::common::ob_malloc(memory_buffer[idx].size_);
     assert(memory_buffer[idx].ptr_ != NULL);
     memset(memory_buffer[idx].ptr_, 0, memory_buffer[idx].size_);
   }
   for (int64_t i = 0; i < BUFFER_ARRAY_SIZE; i ++) {
-    oceanbase::common::ob_safe_free(memory_buffer[i].ptr_);
+    sb::common::ob_safe_free(memory_buffer[i].ptr_);
     memory_buffer[i].size_ = 0;
   }
   return NULL;
@@ -109,7 +109,7 @@ int main(int argc, char** argv) {
   int64_t thread_num = 0;
   signal(SIGINT, signal_handler);
   signal(SIGTERM, signal_handler);
-  assert(oceanbase::common::ob_init_memory_pool() == 0);
+  assert(sb::common::ob_init_memory_pool() == 0);
   for (thread_num = 0; thread_num < THREAD_NUM / 2; thread_num ++) {
     pthread_create(threads + thread_num, NULL, fixed_malloc_thread, NULL);
   }

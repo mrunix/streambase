@@ -19,8 +19,8 @@
 #include "common/ob_ack_queue.h"
 #include "ob_ups_role_mgr.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace updateserver {
 class ObUpsSlaveMgr : private common::ObSlaveMgr {
  public:
@@ -62,6 +62,6 @@ class ObUpsSlaveMgr : private common::ObSlaveMgr {
   ObAckQueue ack_queue_;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_OB_SLAVE_MGR_H_

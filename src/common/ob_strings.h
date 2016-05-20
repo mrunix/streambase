@@ -19,7 +19,7 @@
 #include "ob_string_buf.h"
 #include "ob_array.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * an array of strings
@@ -49,6 +49,6 @@ class ObStrings {
   ObArray<ObString> strs_;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_STRINGS_H */

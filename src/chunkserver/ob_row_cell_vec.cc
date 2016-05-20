@@ -18,9 +18,9 @@
 #include "common/ob_rowkey.h" // ObRowkey
 #include "common/utility.h" // to_cstring
 #include "common/ob_action_flag.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::chunkserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::chunkserver;
 
 ObRowCellVec::ObRowCellVec() {
   row_buffer_ = NULL;

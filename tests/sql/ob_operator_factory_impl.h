@@ -22,7 +22,7 @@
 #include "ob_fake_ups_scan.h"
 #include "ob_fake_ups_multi_get.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObOperatorFactoryImpl : public ObOperatorFactory {
  public:

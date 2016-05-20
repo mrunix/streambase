@@ -1,8 +1,8 @@
 
 #include "tablet_location.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 TabletLocation::TabletLocation() {
   cur_count_ = 0;

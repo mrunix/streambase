@@ -21,10 +21,10 @@
 #include "sstable/ob_sstable_block_index_buffer.h"
 #include "sstable/ob_sstable_block_index_builder.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sstable;
+using namespace sb::common;
+using namespace sb::sstable;
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace sstable {
 static const int64_t table_id = 100;
@@ -282,7 +282,7 @@ TEST_F(TestObSSTableBlockIndexBuilder, test_build_index_block) {
 }
 }//end namespace chunkserver
 }//end namespace tests
-}//end namespace oceanbase
+}//end namespace sb
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();

@@ -22,7 +22,7 @@
 #include "common/ob_server.h"
 #include "common/ob_timer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace mergeserver {
 class ObMergeServer;
 class ObMergerMonitorTask : public common::ObTimerTask {

@@ -10,9 +10,9 @@
 #include "sql/ob_transformer.h"
 #include "sql/ob_schema_checker.h"
 
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::sql;
 
 const char* STR_SQL_TEST = "SQL_TEST_PHY_PLAN";
 const char* STR_SQL_FILE = "sql_file_2.sql";
@@ -33,7 +33,7 @@ int32_t run_sql_test_file(const char* file_name) {
   memset(cmd, 0, OB_MAX_FILE_NAME_LENGTH);
   int64_t pos;
   char  buf[BUF_LEN];
-  oceanbase::common::ObStringBuf str_buf;
+  sb::common::ObStringBuf str_buf;
   ObSchemaChecker schema_checker;
 
   // It is for test only, no more questions about this usage.
@@ -112,7 +112,7 @@ int32_t run_sql_test_file(const char* file_name) {
       fflush(stderr);
       fprintf(stderr, "\n<<Part 3 : LOGICAL PLAN>>\n");
       multi_plan->print();
-      oceanbase::sql::ObSqlContext context;
+      sb::sql::ObSqlContext context;
 
       fprintf(stderr, "\n<<Part 4 : PHYSICAL PLAN>>\n");
       //ObTransformer ob_transformer(str_buf, context);

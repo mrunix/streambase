@@ -40,10 +40,10 @@
 #include "ob_scan_param_loader.h"
 #include "mergeserver/ob_ms_sub_get_request.h"
 #include "../common/test_rowkey_helper.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
-using namespace oceanbase::mergeserver::test;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::mergeserver;
+using namespace sb::mergeserver::test;
 using namespace testing;
 using namespace std;
 static CharArena allocator_;

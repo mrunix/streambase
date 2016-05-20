@@ -22,7 +22,7 @@
 #include "ob_result_set.h"
 #include "ob_sql_context.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObDirectTriggerEventUtil : public ObTriggerEventUtil {
  public:

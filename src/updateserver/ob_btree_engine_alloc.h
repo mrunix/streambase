@@ -4,7 +4,7 @@
 #include "common/btree/btree_alloc.h"
 #include "ob_memtank.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 
 /**
@@ -90,7 +90,7 @@ class UpsBtreeEngineAlloc : public common::BtreeAlloc {
 };
 
 } // end namespace updatesever
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_UPDATESERVER_BTREE_ENGINE_ALLOC_H_
 

@@ -16,7 +16,7 @@
 #ifndef _OB_SORT_HELPER_H
 #define _OB_SORT_HELPER_H 1
 #include "common/ob_row.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObSortHelper {
  public:
@@ -30,7 +30,7 @@ class ObSortHelper {
   ObSortHelper& operator=(const ObSortHelper& other);
 };
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_SORT_HELPER_H */
 

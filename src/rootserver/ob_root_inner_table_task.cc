@@ -16,8 +16,8 @@
 #include "ob_root_async_task_queue.h"
 #include "ob_root_sql_proxy.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::rootserver;
+using namespace sb::common;
+using namespace sb::rootserver;
 
 ObRootInnerTableTask::ObRootInnerTableTask(): cluster_id_(-1), timer_(NULL), queue_(NULL), proxy_(NULL) {
 }

@@ -20,9 +20,9 @@
 #include "mergeserver/ob_read_param_modifier.h"
 #include "common/ob_define.h"
 #include "../common/test_rowkey_helper.h"
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::mergeserver;
 using namespace testing;
 using namespace std;
 

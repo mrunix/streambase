@@ -29,7 +29,7 @@
 #include "ob_scan_param.h"
 #include "ob_scanner.h"
 #include "ob_mutator.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObCommonRpcStub {
  public:

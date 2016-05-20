@@ -16,8 +16,8 @@
 
 #include "ob_set_operator.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObSetOperator::ObSetOperator()
   : row_desc_(NULL), distinct_(false) {

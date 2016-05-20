@@ -15,7 +15,7 @@
 #define __OB_COMMON_OB_MUTEX_TASK_H__
 #include "tbsys.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObMutexTask {
  public:
@@ -32,6 +32,6 @@ class ObMutexTask {
   int64_t finished_count_;
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_MUTEX_TASK_H__ */

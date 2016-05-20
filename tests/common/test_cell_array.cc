@@ -14,7 +14,7 @@
 #include "common/ob_scan_param.h"
 #include "test_rowkey_helper.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 using namespace testing;
 using namespace std;
 

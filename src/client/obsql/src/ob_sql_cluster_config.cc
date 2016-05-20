@@ -57,7 +57,7 @@ static int get_cluster_config(ObServerInfo* server) {
                 g_config_update->clusters_[index].cluster_id_ = static_cast<uint32_t>(atoll(record[0]));
                 g_config_update->clusters_[index].cluster_type_ = atoll(record[1]);
                 g_config_update->clusters_[index].flow_weight_ = static_cast<int16_t>(atoll(record[2]));
-                g_config_update->clusters_[index].server_.ip_ = oceanbase::common::ObServer::convert_ipv4_addr(record[3]);
+                g_config_update->clusters_[index].server_.ip_ = sb::common::ObServer::convert_ipv4_addr(record[3]);
                 g_config_update->clusters_[index].server_.port_ = static_cast<uint32_t>(atoll(record[4]));
                 if (NULL == record[5]) {
                   g_config_update->clusters_[index].read_strategy_ = 0;
@@ -106,7 +106,7 @@ static int get_cluster_config(ObServerInfo* server) {
                     if (NULL == record[0] || NULL == record[1]) {
                       TBSYS_LOG(WARN, "ip or port info is null");
                     } else {
-                      g_config_update->clusters_[index].merge_server_[sindex].ip_ = oceanbase::common::ObServer::convert_ipv4_addr(record[0]);
+                      g_config_update->clusters_[index].merge_server_[sindex].ip_ = sb::common::ObServer::convert_ipv4_addr(record[0]);
                       g_config_update->clusters_[index].merge_server_[sindex].port_ = static_cast<uint32_t>(atoll(record[1]));
                       sindex++;
                     }

@@ -10,9 +10,9 @@
 #include "common/ob_row.h"
 #include "common/ob_row_desc.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::sql;
-using namespace oceanbase::sql::test;
+using namespace sb::common;
+using namespace sb::sql;
+using namespace sb::sql::test;
 
 int MockChunkServer::initialize() {
   set_listen_port(CHUNK_SERVER_PORT);

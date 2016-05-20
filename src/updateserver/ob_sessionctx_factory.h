@@ -27,7 +27,7 @@
 #include "ob_lock_mgr.h"
 #include "common/ob_fifo_allocator.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 typedef BaseSessionCtx ROSessionCtx;
 

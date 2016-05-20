@@ -20,7 +20,7 @@
 #include "ob_ups_utils.h"
 #include "ob_schema_mgrv2.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 using namespace common;
 
@@ -318,7 +318,7 @@ int UpsSchemaMgr::build_sstable_schema(const SchemaHandle schema_handle, sstable
   } else {
     const CommonSchemaManager& schema_mgr = schema_handle->get_schema_mgr();
     sstable_schema.reset();
-    ret = oceanbase::sstable::build_sstable_schema(schema_mgr, sstable_schema);
+    ret = sb::sstable::build_sstable_schema(schema_mgr, sstable_schema);
   }
   return ret;
 }

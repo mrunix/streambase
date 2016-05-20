@@ -22,7 +22,7 @@
 #include "sql/ob_ups_result.h"
 #include "common/ob_transaction.h"
 #include "common/ob_data_source_desc.h"
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObPhysicalPlan;
 class ObUpsResult;

@@ -1,6 +1,6 @@
 #include "ob_kill_session.h"
 
-using namespace oceanbase::sql;
+using namespace sb::sql;
 
 ObKillSession::ObKillSession()
   : rpc_(NULL), session_mgr_(NULL), session_id_(OB_INVALID_ID), is_kill_query_(false), is_global_(false) {

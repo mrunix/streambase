@@ -3,9 +3,9 @@
 #include <gtest/gtest.h>
 #include "file_utils.h"
 #include "file_directory_utils.h"
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 
 namespace tests {
 

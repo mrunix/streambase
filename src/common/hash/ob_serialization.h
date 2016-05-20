@@ -28,7 +28,7 @@
 #include <unistd.h>
 #include "ob_hashutils.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 namespace hash {
 template <class _archive, class _value>

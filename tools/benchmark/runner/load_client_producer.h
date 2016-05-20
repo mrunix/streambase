@@ -24,7 +24,7 @@
 #include "common/ob_fifo_stream.h"
 #include "load_producer.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 struct QueryInfo;
 class LoadRpc;

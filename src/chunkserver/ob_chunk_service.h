@@ -23,7 +23,7 @@
 #include "common/ob_ms_list.h"
 #include "sql/ob_sql_read_param.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObDataBuffer;
 class ObSchemaManager;
@@ -419,7 +419,7 @@ class ObChunkService {
 
 
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #endif //OCEANBASE_CHUNKSERVER_CHUNKSERVICE_H_

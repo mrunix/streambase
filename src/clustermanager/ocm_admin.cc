@@ -24,9 +24,9 @@
 #include "ob_server_ext.h"
 #include "ob_ocm_instance.h"
 
-using namespace oceanbase;
-using namespace oceanbase::clustermanager;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::clustermanager;
+using namespace sb::common;
 
 static const int64_t TIMEOUT_US = 2000000L;
 const char* DEFAULT_SERVER_ADDR = "127.0.0.1";

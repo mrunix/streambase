@@ -8,7 +8,7 @@
 #include "sql/ob_basic_stmt.h"
 #include "parse_node.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 struct ObQueryHint {
   ObQueryHint() {
@@ -61,20 +61,20 @@ struct ColumnItem {
 
 namespace common {
 template <>
-struct ob_vector_traits<oceanbase::sql::TableItem> {
-  typedef oceanbase::sql::TableItem* pointee_type;
-  typedef oceanbase::sql::TableItem value_type;
-  typedef const oceanbase::sql::TableItem const_value_type;
+struct ob_vector_traits<sb::sql::TableItem> {
+  typedef sb::sql::TableItem* pointee_type;
+  typedef sb::sql::TableItem value_type;
+  typedef const sb::sql::TableItem const_value_type;
   typedef value_type* iterator;
   typedef const value_type* const_iterator;
   typedef int32_t difference_type;
 };
 
 template <>
-struct ob_vector_traits<oceanbase::sql::ColumnItem> {
-  typedef oceanbase::sql::ColumnItem* pointee_type;
-  typedef oceanbase::sql::ColumnItem value_type;
-  typedef const oceanbase::sql::ColumnItem const_value_type;
+struct ob_vector_traits<sb::sql::ColumnItem> {
+  typedef sb::sql::ColumnItem* pointee_type;
+  typedef sb::sql::ColumnItem value_type;
+  typedef const sb::sql::ColumnItem const_value_type;
   typedef value_type* iterator;
   typedef const value_type* const_iterator;
   typedef int32_t difference_type;
@@ -118,8 +118,8 @@ class ObStmt : public ObBasicStmt {
     const uint64_t ref_id = common::OB_INVALID_ID);
   int add_column_item(
     ResultPlan& result_plan,
-    const oceanbase::common::ObString& column_name,
-    const oceanbase::common::ObString* table_name = NULL,
+    const sb::common::ObString& column_name,
+    const sb::common::ObString* table_name = NULL,
     ColumnItem** col_item = NULL);
   int add_column_item(const ColumnItem& column_item);
   ColumnItem* get_column_item(

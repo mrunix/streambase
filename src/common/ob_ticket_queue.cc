@@ -14,7 +14,7 @@
 #include "ob_ticket_queue.h"
 #include "ob_malloc.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObTicketQueue::ObTicketQueue(): queue_len_(0), items_(NULL), push_(0), pop_(0)
 {}
@@ -90,4 +90,4 @@ int64_t ObTicketQueue::size() {
 }
 
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb

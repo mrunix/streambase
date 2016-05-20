@@ -16,7 +16,7 @@
 #include "tbsys.h"
 #include "ob_wait_queue.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class IObAsyncClientCallback;
 class ObClientManager;
@@ -66,6 +66,6 @@ class IObAsyncClientCallback {
   virtual int on_ack(ObAckQueue::WaitNode& node) = 0; // 唤醒等待线程
 };
 }; // end namespace common
-}; // end namespace oceanbase
+}; // end namespace sb
 
 #endif /* __OB_COMMON_OB_ACK_QUEUE_H__ */

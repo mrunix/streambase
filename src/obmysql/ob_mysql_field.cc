@@ -2,7 +2,7 @@
 #include "ob_mysql_field.h"
 #include "ob_mysql_util.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 ObMySQLField::ObMySQLField()
   : catalog_("def"), db_(""),
@@ -74,4 +74,4 @@ int ObMySQLField::serialize_pro41(char* buf, const int64_t len, int64_t& pos) co
 }
 
 } // end of namespace obmysql
-} // end of namespace oceanbase
+} // end of namespace sb

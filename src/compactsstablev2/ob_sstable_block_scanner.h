@@ -7,7 +7,7 @@
 #include "common/utility.h"
 #include "ob_sstable_block_reader.h"
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 class ObSSTableBlockScanner {
  public:
@@ -80,5 +80,5 @@ class ObSSTableBlockScanner {
   common::ObCompactCellIterator row_;
 };
 }//end namesapce compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 #endif

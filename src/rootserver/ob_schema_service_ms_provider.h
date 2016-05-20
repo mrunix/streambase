@@ -19,7 +19,7 @@
 #include "common/roottable/ob_ms_provider.h"
 #include "ob_chunk_server_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 // thread-safe ms provider for schema_service
 class ObSchemaServiceMsProvider: public common::ObMsProvider {
@@ -54,7 +54,7 @@ class ObSchemaServiceMsProvider: public common::ObMsProvider {
   tbsys::CRWLock rwlock_;
 };
 } // end namespace rootserver
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_SCHEMA_SERVICE_MS_PROVIDER_H */
 

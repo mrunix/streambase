@@ -30,7 +30,7 @@
 #include "common/ob_row.h"
 #include "common/ob_hint.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObTableRpcScan: public ObTableScan {
  public:
@@ -135,6 +135,6 @@ inline int32_t ObTableRpcScan::get_child_num() const {
   return 0;
 }
 } // end namespace sql
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif /* _OB_TABLE_RPC_SCAN_H */

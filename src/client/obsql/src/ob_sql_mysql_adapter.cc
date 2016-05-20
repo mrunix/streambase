@@ -8,7 +8,7 @@
 #include "ob_sql_util.h"
 #include "ob_sql_data_source_utility.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 void mysql_set_consistence(MYSQL* mysql) {
   ObSQLMySQL* ob_mysql = (ObSQLMySQL*)mysql;

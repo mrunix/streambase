@@ -18,7 +18,7 @@
 #include "common/ob_define.h"
 #include "common/ob_rowkey.h"
 #include "common/ob_server.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObTabletReportInfo;
 class ObScanner;
@@ -125,6 +125,6 @@ struct ObTabletMetaTableColumnSchema {
   virtual ~ObTabletMetaTableColumnSchema() {}
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 #endif /* _OB_TABLET_META_TABLE_ROW_H */
 

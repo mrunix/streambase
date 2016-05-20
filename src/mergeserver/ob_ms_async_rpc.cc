@@ -11,8 +11,8 @@
 #include "ob_ms_sql_get_request.h"
 #include "ob_ms_async_rpc.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 ObMergerAsyncRpcStub::ObMergerAsyncRpcStub() {
   rpc_buffer_ = NULL;

@@ -1,7 +1,7 @@
 #include "utility.h"
 #include "ob_ms_list.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 

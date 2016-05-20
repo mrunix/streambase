@@ -11,7 +11,7 @@
 #include "ob_scanner.h"
 #include "ob_composite_column.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRowkeyInfo;
 class ObScanner;
@@ -254,8 +254,8 @@ class ObScanParam : public ObReadParam {
   ObArrayHelper<bool> basic_return_info_list_;
 
   /// composite columns
-  oceanbase::common::ObCompositeColumn* select_comp_columns_;
-  ObArrayHelper<oceanbase::common::ObCompositeColumn> select_comp_column_list_;
+  sb::common::ObCompositeColumn* select_comp_columns_;
+  ObArrayHelper<sb::common::ObCompositeColumn> select_comp_column_list_;
   bool comp_return_infos_[OB_MAX_COLUMN_NUMBER];
   ObArrayHelper<bool> comp_return_info_list_;
 

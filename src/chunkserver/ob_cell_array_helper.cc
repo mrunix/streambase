@@ -15,9 +15,9 @@
  */
 #include "ob_cell_stream.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObCellArrayHelper::ObCellArrayHelper()
   : cell_array_(NULL), get_param_(NULL) {
@@ -67,4 +67,4 @@ const ObCellInfo& ObCellArrayHelper::operator [](int64_t offset)const {
   return *result;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

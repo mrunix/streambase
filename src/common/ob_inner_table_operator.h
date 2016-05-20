@@ -18,7 +18,7 @@
 #ifndef __OB_COMMON_INNER_TABLE_OPERATOR_H__
 #define __OB_COMMON_INNER_TABLE_OPERATOR_H__
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObString;
 class ObiRole;

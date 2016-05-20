@@ -18,7 +18,7 @@
 #include "ob_lease_common.h"
 #include "tbsys.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 bool ObLease::is_lease_valid(int64_t redun_time) {
   bool ret = true;

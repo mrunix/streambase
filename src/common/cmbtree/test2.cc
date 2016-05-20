@@ -7,7 +7,7 @@
 #include "btree_base.h"
 #include "thread.h"
 
-using namespace oceanbase::common::cmbtree;
+using namespace sb::common::cmbtree;
 
 class Number {
  public:

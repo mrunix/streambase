@@ -24,7 +24,7 @@
 
 using namespace std;
 using namespace tbnet;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class TestPacket : public tbnet::Packet {
  public:
@@ -43,7 +43,7 @@ class TestPacket : public tbnet::Packet {
   }
 };
 
-namespace oceanbase {
+namespace sb {
 namespace tests {
 namespace common {
 
@@ -77,7 +77,7 @@ TEST_F(TestPriorityPacketQueueThread, test_push) {
 
 } // end namespace common
 } // end namespace tests
-} // end namespace oceanbase
+} // end namespace sb
 
 
 int main(int argc, char** argv) {

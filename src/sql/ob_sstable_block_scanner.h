@@ -26,7 +26,7 @@
 #include "sstable/ob_sstable_block_reader.h"
 #include "ob_multi_cg_scanner.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 class ObSimpleColumnIndexes;
 class ObSSTableScanParam;
@@ -103,6 +103,6 @@ class ObSSTableBlockScanner : public ObRowkeyIterator {
   const sstable::ObSimpleColumnIndexes& query_column_indexes_;
 };
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif //OCEANBASE_SSTABLE_OB_SSTABLE_BLOCK_SCANNER_V3_H_

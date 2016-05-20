@@ -21,7 +21,7 @@
 #include "common/ob_define.h"
 #include "common/ob_row.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObRowkey;
 }

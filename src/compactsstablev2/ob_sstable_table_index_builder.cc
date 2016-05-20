@@ -1,8 +1,8 @@
 #include "ob_sstable_table_index_builder.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObSSTableTableIndexBuilder::add_item(const ObSSTableTableIndex& item) {
   int ret = OB_SUCCESS;
@@ -17,5 +17,5 @@ int ObSSTableTableIndexBuilder::add_item(const ObSSTableTableIndex& item) {
   return ret;
 }
 }//end namespace compactsstablev2
-}//end namespace oceanbase
+}//end namespace sb
 

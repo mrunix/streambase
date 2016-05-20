@@ -15,7 +15,7 @@
  */
 #include "common/ob_strings.h"
 #include <gtest/gtest.h>
-using namespace oceanbase::common;
+using namespace sb::common;
 
 class ObStringsTest: public ::testing::Test {
  public:

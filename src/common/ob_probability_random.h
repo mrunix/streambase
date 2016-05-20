@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "tbsys.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // thread safe random class
 class ObProbabilityRandom {

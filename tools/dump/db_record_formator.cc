@@ -22,7 +22,7 @@
 #include <algorithm>
 
 using namespace std;
-using namespace oceanbase::common;
+using namespace sb::common;
 
 enum RowkeyItemType {
   ITEM_INT8 = 1,

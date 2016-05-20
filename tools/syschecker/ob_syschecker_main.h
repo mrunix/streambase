@@ -17,7 +17,7 @@
 #include "common/base_main.h"
 #include "ob_syschecker.h"
 
-namespace oceanbase {
+namespace sb {
 namespace syschecker {
 class ObSyscheckerMain : public common::BaseMain {
  protected:
@@ -43,7 +43,7 @@ class ObSyscheckerMain : public common::BaseMain {
   ObSyschecker checker_;
 };
 } // end namespace syschecker
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif //OCEANBASE_SYSCHECKER_MAIN_H_
 

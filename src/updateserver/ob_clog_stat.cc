@@ -14,9 +14,9 @@
 #include "common/serialization.h"
 #include "ob_clog_stat.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 void ObBatchEventStat::clear_mvalue() {
   mvalue_ = 0;
@@ -146,4 +146,4 @@ int64_t ObClogStat::to_string(char* buf, const int64_t len) const {
   return count >= len ? 0 : count;
 }
 }; // end namespace updateserver
-}; // end namespace oceanbase
+}; // end namespace sb

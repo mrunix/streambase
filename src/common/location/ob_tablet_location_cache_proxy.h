@@ -12,9 +12,9 @@
 #include "ob_tablet_location_cache.h"
 #include "ob_tablet_location_cache_proxy.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 class ObSqlScanParam;
 }
@@ -170,7 +170,7 @@ class ObTabletLocationCacheProxy {
 
   template <typename T>
   int server_fail(const T& scan_param,
-                  ObTabletLocationList& list, const oceanbase::common::ObServer& server) {
+                  ObTabletLocationList& list, const sb::common::ObServer& server) {
     int ret = get_tablet_location(scan_param, list);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(WARN, "fail to get tablet location cache [ret:%d]", ret);
@@ -189,7 +189,7 @@ class ObTabletLocationCacheProxy {
   }
 
   int server_fail(const uint64_t table_id, const common::ObRowkey& search_key,
-                  ObTabletLocationList& list, const oceanbase::common::ObServer& server);
+                  ObTabletLocationList& list, const sb::common::ObServer& server);
 
   template <typename T>
   int renew_location_item(const T& scan_param, ObTabletLocationList& list, bool force_renew = false) {

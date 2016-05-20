@@ -16,7 +16,7 @@
 #include "rootserver/ob_root_server2.h"
 #include "rootserver/ob_root_log_manager.h"
 #include "rootserver/ob_root_worker.h"
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace rootserver {
 ObRootLogWorker::ObRootLogWorker() {

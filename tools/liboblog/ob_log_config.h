@@ -23,7 +23,7 @@
 #include "tbsys.h"
 #include "common/ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace liboblog {
 class ObLogConfig {
  public:

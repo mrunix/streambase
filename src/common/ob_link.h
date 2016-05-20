@@ -18,7 +18,7 @@
 #define OCEANBASE_COMMON_LINK_H_
 #include <stddef.h>
 #include "tbsys.h"
-namespace oceanbase {
+namespace sb {
 namespace common {
 /// @class  single link item
 /// @author wushi(wushi.ly@taobao.com)  (8/18/2010)

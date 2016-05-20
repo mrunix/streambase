@@ -6,8 +6,8 @@
 #include "common/ob_scanner.h"
 #include "ob_ms_dump_util.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 void ObMergerDumpUtil::dump(const ObGetParam& param) {
   ObCellInfo* cur_cell = NULL;

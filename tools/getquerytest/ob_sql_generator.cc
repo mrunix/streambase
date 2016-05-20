@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-using namespace oceanbase::common;
+using namespace sb::common;
 const char* ObSqlGenerator::index_table_name_ = "index_table";
 const char* ObSqlGenerator::get_table_name_ = "get_table";
 int ObSqlGenerator::fail_counter_ = 0;

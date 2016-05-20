@@ -18,10 +18,10 @@
 #include "ob_ups_rpc_proxy.h"
 #include "mergeserver/ob_ms_tablet_location_item.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 ObUpsMergerRpcProxy::ObUpsMergerRpcProxy(const int64_t retry_times, const int64_t timeout,
                                          const ObServer& root_server, const ObServer& merge_server, ObUpsTableMgr& table_mgr,

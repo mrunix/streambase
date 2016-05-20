@@ -22,7 +22,7 @@
 #include "common/hash/ob_hashmap.h"
 #include "parse_node.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 enum ObConfigType {
   MEMORY,

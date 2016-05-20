@@ -19,9 +19,9 @@
 #include "common/ob_object.h"
 #include "ob_mysql_util.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 
 class ObMySQLResultSet;
@@ -147,6 +147,6 @@ class ObMySQLRow {
 }; // end class ObMySQLRow
 
 } // end of namespace obmysql
-} // end of namespace oceanbase
+} // end of namespace sb
 
 #endif /* _OB_MYSQL_ROW_H_ */

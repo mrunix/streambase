@@ -4,8 +4,8 @@
 #include "load_manager.h"
 #include "load_rpc.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 LoadRpc::LoadRpc() {
   frame_ = NULL;

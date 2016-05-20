@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "ob_define.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template<class T>
 class ObArrayHelper {

@@ -18,8 +18,8 @@
 #include "common/utility.h"
 #include "mergeserver/ob_ms_rpc_proxy.h"
 #include "common/ob_obj_cast.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 ObDelete::ObDelete()
   : rpc_(NULL), table_id_(OB_INVALID_ID) {
@@ -147,7 +147,7 @@ int ObDelete::delete_by_mutator() {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObDelete, PHY_DELETE);
 }

@@ -1,7 +1,7 @@
 #include "rowkey_builder.h"
 #include "utils.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 RowkeyBuilder::RowkeyBuilder(const int64_t prefix_start, const int64_t max_suffix_per_prefix, const int64_t suffix_length) :

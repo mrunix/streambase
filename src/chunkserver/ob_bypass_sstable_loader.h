@@ -19,7 +19,7 @@
 #include "common/ob_tablet_info.h"
 #include "sstable/ob_disk_path.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 class ObTabletManager;
 

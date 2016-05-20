@@ -9,10 +9,10 @@
 #include "client_rpc.h"
 #include "common_func.h"
 
-namespace oceanbase {
+namespace sb {
 namespace obsql {
 
-using namespace oceanbase::common;
+using namespace sb::common;
 using namespace std;
 
 class Stmt {

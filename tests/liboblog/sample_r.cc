@@ -5,7 +5,7 @@
 #include "liboblog/liboblog.h"
 
 #define GETTID() syscall(__NR_gettid)
-using namespace oceanbase::liboblog;
+using namespace sb::liboblog;
 
 inline int64_t tv_to_microseconds(const timeval& tp) {
   return (((int64_t) tp.tv_sec) * 1000000 + (int64_t) tp.tv_usec);

@@ -17,7 +17,7 @@
 #include "common/ob_server.h"
 #include "common/ob_array.h"
 
-namespace oceanbase {
+namespace sb {
 namespace client {
 class ObServerManager {
  public:
@@ -50,7 +50,7 @@ class ObServerManager {
   common::ObArray<common::ObServer> chunk_servers_;
 
 };
-} // namespace oceanbase::client
+} // namespace sb::client
 } // namespace Oceanbase
 
 #endif //OCEANBASE_CLIENT_OB_SERVER_MANAGER_H_

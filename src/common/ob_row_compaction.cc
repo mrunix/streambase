@@ -29,7 +29,7 @@
 #include "common/ob_row_compaction.h"
 #include "common/utility.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObRowCompaction::ObRowCompaction() : NODES_NUM_(OB_ALL_MAX_COLUMN_ID + 1),
   nodes_(NULL),

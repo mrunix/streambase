@@ -27,11 +27,11 @@
 #include "common/ob_common_stat.h"
 
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObConfigManager;
 }
-using oceanbase::common::ObConfigManager;
+using sb::common::ObConfigManager;
 namespace chunkserver {
 class ObChunkServer : public common::ObSingleServer {
  public:
@@ -149,7 +149,7 @@ class ObChunkServer : public common::ObSingleServer {
 
 
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb
 
 
 #endif //OCEANBASE_CHUNKSERVER_CHUNKSERVER_H_

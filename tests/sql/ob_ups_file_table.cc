@@ -16,9 +16,9 @@
 
 #include "ob_ups_file_table.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::sql::test;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::sql::test;
+using namespace sb::common;
 
 ObUpsFileTable::ObUpsFileTable(const char* file_name)
   : ObFileTable(file_name) {

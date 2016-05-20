@@ -23,7 +23,7 @@
 
 #define MAX_SYMBOL_COUNT 100
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 
 TEST(Test_ob_infix, infix_test) {

@@ -1,6 +1,6 @@
 #include "ob_record_header_v2.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 void ObRecordHeaderV2::set_header_checksum() {
   header_checksum_ = 0;
@@ -147,5 +147,5 @@ int ObRecordHeaderV2::get_record_header(
   return ret;
 }
 }//end namespace common
-}//end namespace oceanbase
+}//end namespace sb
 

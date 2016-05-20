@@ -19,7 +19,7 @@
 
 #include "ob_multi_file_utils.h"
 
-namespace oceanbase {
+namespace sb {
 using namespace common;
 namespace updateserver {
 MultiFileUtils::MultiFileUtils() {

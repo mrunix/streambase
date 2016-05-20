@@ -22,7 +22,7 @@
 #include "ob_object.h"
 #include "ob_string.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // system supported logic operator
 enum ObLogicOperator {

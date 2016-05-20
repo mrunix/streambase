@@ -54,13 +54,13 @@ class GFactory {
  public:
   GFactory();
   ~GFactory();
-  int initialize(const oceanbase::common::ObServer& root_server);
+  int initialize(const sb::common::ObServer& root_server);
   int start();
   int stop();
   int wait();
   static GFactory& get_instance() { return instance_; }
   inline ObClientServerStub& get_rpc_stub() { return rpc_stub_; }
-  inline oceanbase::obsql::BaseClient& get_base_client() { return client_; }
+  inline sb::obsql::BaseClient& get_base_client() { return client_; }
   inline const std::map<std::string, int>& get_cmd_map() const { return cmd_map_; }
   inline std::map<std::string, std::vector<RowKeySubType> >& get_rowkey_map() { return rowkey_map_; }
 
@@ -69,7 +69,7 @@ class GFactory {
   void init_rowkey_map();
   static GFactory instance_;
   ObClientServerStub rpc_stub_;
-  oceanbase::obsql::BaseClient client_;
+  sb::obsql::BaseClient client_;
   std::map<std::string, int> cmd_map_;
   std::map<std::string, std::vector<RowKeySubType> > rowkey_map_;
 };

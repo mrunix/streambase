@@ -20,7 +20,7 @@
 
 #include "tbsys.h"
 
-namespace oceanbase {
+namespace sb {
 namespace tools {
 class LoadRunner;
 class LoadManager;

@@ -1,6 +1,6 @@
 #include "ob_rowkey_helper.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 int ObRowkeyHelper::prepare_obj_array(const ObRowkeyInfo& info, ObObj* array, const int64_t size) {
   int ret = OB_SUCCESS;

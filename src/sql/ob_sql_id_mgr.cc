@@ -20,9 +20,9 @@
 #include "common/ob_common_stat.h"
 #include <tbsys.h>
 
-using namespace oceanbase::common;
-using namespace oceanbase::common::hash;
-using namespace oceanbase::sql;
+using namespace sb::common;
+using namespace sb::common::hash;
+using namespace sb::sql;
 
 ObSQLIdMgr::ObSQLIdMgr()
   : last_sql_id_(0), sql_str_buf_(ObModIds::OB_SQL_ID_MGR) {
@@ -99,7 +99,7 @@ int64_t ObSQLIdMgr::allocate_new_id() {
 }
 
 struct ObStatPrepareOp {
-  void operator()(oceanbase::common::hash::HashMapPair<SQLIdValue, SQLStat>& entry) {
+  void operator()(sb::common::hash::HashMapPair<SQLIdValue, SQLStat>& entry) {
     ++entry.second.prepare_count_;
     entry.second.last_active_timestamp_ = tbsys::CTimeUtil::getTime();
   };
@@ -121,7 +121,7 @@ struct ObStatExecuteOp {
     : elapsed_us_(0),
       is_slow_(false) {
   }
-  void operator()(oceanbase::common::hash::HashMapPair<SQLIdValue, SQLStat>& entry) {
+  void operator()(sb::common::hash::HashMapPair<SQLIdValue, SQLStat>& entry) {
     ++entry.second.execute_count_;
     entry.second.execute_time_ += elapsed_us_;
     entry.second.last_active_timestamp_ = tbsys::CTimeUtil::getTime();

@@ -10,8 +10,8 @@
 #include <ob_packet_queue_thread.h>
 
 using namespace std;
-using namespace oceanbase;
-using namespace oceanbase::common;
+using namespace sb;
+using namespace sb::common;
 
 int signal_thread_count = 8;
 int wait_thread_count = 100;

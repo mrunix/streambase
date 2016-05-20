@@ -16,16 +16,16 @@
 #include "common/utility.h"
 #include <algorithm>
 using namespace std;
-using namespace oceanbase;
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 ObMergerSubGetRequest::ObMergerSubGetRequest()
   : rowkey_buf_(ObModIds::OB_MS_GET_EVENT) {
   reset();
 }
 
-void ObMergerSubGetRequest::init(PageArena<int64_t, oceanbase::common::ModulePageAllocator>& mem_allocator) {
+void ObMergerSubGetRequest::init(PageArena<int64_t, sb::common::ModulePageAllocator>& mem_allocator) {
   cell_idx_in_org_param_.set_allocator(mem_allocator);
   res_vec_.set_allocator(mem_allocator);
   rowkey_buf_.clear();
@@ -156,7 +156,7 @@ int ObMergerSubGetRequest::has_next() {
   return err;
 }
 
-int  ObMergerSubGetRequest::next(oceanbase::common::ObInnerCellInfo*& cell, int64_t& org_cell_idx) {
+int  ObMergerSubGetRequest::next(sb::common::ObInnerCellInfo*& cell, int64_t& org_cell_idx) {
   int err = OB_SUCCESS;
   bool is_row_changed = false;
   if (NULL == pget_param_) {

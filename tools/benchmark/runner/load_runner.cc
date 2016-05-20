@@ -3,8 +3,8 @@
 #include "load_producer.h"
 #include "load_consumer.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::tools;
+using namespace sb::common;
+using namespace sb::tools;
 
 LoadRunner::LoadRunner() {
   producer_count_ = 0;

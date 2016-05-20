@@ -17,7 +17,7 @@
 #include "sql/ob_sql_scan_param.h"
 #include "ob_daily_merge_checker.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 class ObDataSourceProxyList;
 

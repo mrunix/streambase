@@ -18,7 +18,7 @@
 #include "ob_atomic.h"
 #include <tbsys.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /// @brief ObRoleMgr管理了进程的角色和状态
 class ObRoleMgr {
@@ -115,6 +115,6 @@ class ObRoleMgr {
   State state_;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif // OCEANBASE_COMMON_OB_ROLE_MGR_H_

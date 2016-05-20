@@ -37,7 +37,7 @@
 #include "ob_util_interface.h"
 #include "ob_ups_phy_operator_factory.h"
 
-namespace oceanbase {
+namespace sb {
 namespace updateserver {
 class TransHandlePool : public common::S2MQueueThread {
  public:

@@ -22,7 +22,7 @@
 #include "ob_sstable_scan_param.h"
 #include "ob_scan_column_indexes.h"
 
-namespace oceanbase {
+namespace sb {
 namespace sstable {
 class ObSSTableReader;
 class ObBlockIndexCache;
@@ -219,6 +219,6 @@ class ObColumnGroupScanner : public common::ObIterator {
   ObSSTableBlockScanner scanner_;
 };
 }//end namespace sstable
-}//end namespace oceanbase
+}//end namespace sb
 
 #endif

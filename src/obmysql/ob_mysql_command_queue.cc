@@ -1,7 +1,7 @@
 #include "ob_mysql_command_queue.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace obmysql {
 ObMySQLCommandQueue::ObMySQLCommandQueue() {
   head_ = NULL;

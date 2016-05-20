@@ -15,8 +15,8 @@
  */
 #include "ob_filter.h"
 #include "common/utility.h"
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
 #define destroy_sql_expression_dlist(expr_list)\
   dlist_for_each_del(p, expr_list)\
@@ -100,7 +100,7 @@ int ObFilter::get_next_row(const common::ObRow*& row) {
   return ret;
 }
 
-namespace oceanbase {
+namespace sb {
 namespace sql {
 REGISTER_PHY_OPERATOR(ObFilter, PHY_FILTER);
 }

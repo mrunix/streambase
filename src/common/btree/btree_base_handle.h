@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 /**
  * 用于读的时候用
@@ -45,7 +45,7 @@ class BtreeCallback {
   virtual int callback_done(void* data) = 0;
 };
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb
 
 #endif
 

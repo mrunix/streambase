@@ -19,10 +19,10 @@
 #include "ob_mysql_field.h"
 #include "ob_mysql_row.h"
 
-using namespace oceanbase::sql;
-using namespace oceanbase::common;
+using namespace sb::sql;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace obmysql {
 class ObMySQLResultSet
   : public ObResultSet {

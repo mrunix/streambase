@@ -7,7 +7,7 @@
 #include "common/ob_log_entry.h"
 #include "ob_root_log_manager.h"
 
-namespace oceanbase {
+namespace sb {
 namespace rootserver {
 using namespace common;
 const int ObRootLogManager::UINT64_MAX_LEN = 32;

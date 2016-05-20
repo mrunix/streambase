@@ -21,9 +21,9 @@
 #include <string>
 #include <sstream>
 
-using namespace oceanbase::common;
-using namespace oceanbase::common::hash;
-using namespace oceanbase::updateserver;
+using namespace sb::common;
+using namespace sb::common::hash;
+using namespace sb::updateserver;
 
 int64_t convert_time_string_us(const char* time) {
   tm time_tm;

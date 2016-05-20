@@ -20,7 +20,7 @@
 #include "ob_scanner.h"
 #include "ob_ups_info.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 class ObUpsRpcProxy {
  public:

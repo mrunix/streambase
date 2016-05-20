@@ -4,8 +4,8 @@
 #include "ob_sql_rpc_event.h"
 #include "ob_merge_callback.h"
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 
 uint64_t ObCommonSqlRpcEvent::id_allocator_ = 0;
 

@@ -7,7 +7,7 @@
 #include <string>
 using namespace std;
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 extern bool g_gbk_encoding;
 extern bool g_print_lineno_taggle;

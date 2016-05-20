@@ -17,7 +17,7 @@
 #include "sstable/ob_disk_path.h"
 #include "ob_block_cache_reader.h"
 
-namespace oceanbase {
+namespace sb {
 namespace chunkserver {
 using namespace common;
 using namespace common::serialization;
@@ -227,4 +227,4 @@ int ObBlockCacheReader::get_start_key_of_next_block(ObBlockCache& block_cache,
   return ret;
 }
 } // end namespace chunkserver
-} // end namespace oceanbase
+} // end namespace sb

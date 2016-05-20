@@ -11,8 +11,8 @@
 #include <dmalloc.h>
 #endif
 
-using namespace oceanbase::common;
-using namespace oceanbase::mergeserver;
+using namespace sb::common;
+using namespace sb::mergeserver;
 namespace {
 static const int DEFAULT_MMAP_MAX_VAL = 1024 * 1024 * 1024;
 };

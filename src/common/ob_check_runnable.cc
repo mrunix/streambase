@@ -15,7 +15,7 @@
 #include "ob_check_runnable.h"
 #include "ob_lease_common.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
 ObCheckRunnable::ObCheckRunnable() {
   role_mgr_ = NULL;

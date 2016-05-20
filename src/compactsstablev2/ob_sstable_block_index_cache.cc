@@ -2,9 +2,9 @@
 #include "ob_sstable_block_index_cache.h"
 #include "common/ob_common_stat.h"
 
-using namespace oceanbase::common;
+using namespace sb::common;
 
-namespace oceanbase {
+namespace sb {
 namespace compactsstablev2 {
 int ObSSTableBlockIndexCache::init(const int64_t cache_mem_size) {
   int ret = OB_SUCCESS;
@@ -367,4 +367,4 @@ int ObSSTableBlockIndexCache::check_param(
   return ret;
 }
 } //end namespace sstable
-} //end namespace oceanbase
+} //end namespace sb

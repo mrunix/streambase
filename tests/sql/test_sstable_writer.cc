@@ -3,7 +3,7 @@
 
 #define TABLE_ID 1001
 
-using namespace oceanbase;
+using namespace sb;
 using namespace common;
 using namespace sstable;
 

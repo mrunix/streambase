@@ -29,7 +29,7 @@
 #include "common/ob_string.h"
 #include "common/ob_login_mgr.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 ObLoginInfo::ObLoginInfo() : username_str_(OB_MAX_USERNAME_LENGTH, 0, username_buf_),
   password_str_(OB_MAX_CIPHER_LENGTH, 0, password_buf_) {

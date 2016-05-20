@@ -19,7 +19,7 @@
 
 #include "ob_array_helper.h"
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 template <class T, int64_t N>
 class LimitArray {

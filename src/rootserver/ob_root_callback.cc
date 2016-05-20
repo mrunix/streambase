@@ -4,8 +4,8 @@
 #include "easy_io_struct.h"
 #include "common/ob_packet.h"
 
-using namespace oceanbase::common;
-namespace oceanbase {
+using namespace sb::common;
+namespace sb {
 namespace rootserver {
 int ObRootCallback::process(easy_request_t* r) {
   int ret = EASY_OK;
@@ -41,5 +41,5 @@ int ObRootCallback::process(easy_request_t* r) {
   return ret;
 }
 }//namespace rootserver
-}//namespace oceanbase
+}//namespace sb
 

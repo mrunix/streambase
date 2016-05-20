@@ -16,7 +16,7 @@
 
 #include "ob_fake_sstable_scan.h"
 
-using namespace oceanbase;
+using namespace sb;
 using namespace sql;
 using namespace test;
 

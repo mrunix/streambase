@@ -17,7 +17,7 @@
 #ifndef OCEANBASE_COMMON_OB_OBJECT_TYPE_H_
 #define OCEANBASE_COMMON_OB_OBJECT_TYPE_H_
 
-namespace oceanbase {
+namespace sb {
 namespace common {
 // Obj类型只能增加，不能删除，顺序也不能变，见ob_obj_cast.h
 enum ObObjType {
