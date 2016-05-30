@@ -16,7 +16,7 @@
 #ifndef TBSYS_COND_H
 #define TBSYS_COND_H
 #include "tbsys.h"
-#include "Time.h"
+#include "tbtime.h"
 #include "ThreadException.h"
 
 namespace tbutil {

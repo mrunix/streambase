@@ -14,7 +14,7 @@
  */
 
 #include "ThreadException.h"
-#include "Time.h"
+#include "tbtime.h"
 
 using namespace std;
 namespace tbutil {

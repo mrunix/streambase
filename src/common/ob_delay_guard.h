@@ -13,7 +13,7 @@
  */
 #ifndef __OB_COMMON_OB_DELAY_GUARD_H__
 #define __OB_COMMON_OB_DELAY_GUARD_H__
-#include "Time.h"
+#include "tbtime.h"
 
 namespace sb {
 namespace common {

@@ -14,13 +14,12 @@
  */
 
 #include <Exception.h>
-#include <Time.h>
+#include <tbtime.h>
 #include <stdio.h>
 #include <string.h>
 #include <ThreadPool.h>
 #include <EventHandler.h>
 #include <Handle.h>
-#include <Time.h>
 #include "testBase.h"
 #include "testCommon.h"
 #include <list>

@@ -15,7 +15,7 @@
 
 #include <iomanip>
 #include <sys/time.h>
-#include "Time.h"
+#include "tbtime.h"
 #include "Exception.h"
 
 namespace tbutil {

@@ -3,7 +3,7 @@
 
 #include <pthread.h>
 #include <tbsys.h>
-#include <Time.h>
+#include <tbtime.h>
 #include <Mutex.h>
 #include <Monitor.h>
 #include "common/ob_define.h"

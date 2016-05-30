@@ -21,7 +21,7 @@
 #include <unistd.h>
 #include <bits/time.h>
 #include "TbThread.h"
-#include "Time.h"
+#include "tbtime.h"
 #include "ThreadException.h"
 #include "Cond.h"
 #include "PublicDefine.h"

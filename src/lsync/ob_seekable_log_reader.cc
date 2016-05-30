@@ -1,5 +1,5 @@
 #include "ob_seekable_log_reader.h"
-#include "Time.h"
+#include "tbtime.h"
 
 namespace sb {
 namespace lsync {

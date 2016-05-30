@@ -16,7 +16,7 @@
 #ifndef TBSYS_THREADEXCEPTION_H
 #define TBSYS_THREADEXCEPTION_H
 #include "Exception.h"
-#include "Time.h"
+#include "tbtime.h"
 
 namespace tbutil {
 /**

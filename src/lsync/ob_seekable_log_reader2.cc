@@ -1,7 +1,7 @@
 #include "ob_seekable_log_reader2.h"
 #include "updateserver/ob_on_disk_log_locator.h"
 #include "common/ob_repeated_log_reader.h"
-#include "Time.h"
+#include "tbtime.h"
 
 namespace sb {
 namespace updateserver {

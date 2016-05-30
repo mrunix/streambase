@@ -14,7 +14,7 @@
 
 #include "ob_log_sync_delay_stat.h"
 #include "common/serialization.h"
-#include "Time.h"
+#include "tbtime.h"
 #include "ob_update_server_main.h"
 
 using namespace sb::common;
