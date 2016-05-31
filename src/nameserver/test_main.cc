@@ -11,7 +11,6 @@ sb::common::BaseMain* BaseMainTest::get_instance() {
     instance_ = new BaseMainTest();
   }
   return instance_;
-
 }
 
 int BaseMainTest::do_work() {
