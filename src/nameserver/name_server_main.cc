@@ -4,7 +4,7 @@
  * Copyright (C) 2016 Michael. All rights reserved.
  */
 
-#include "rootserver/ob_root_main.h"
+#include "nameserver/name_server_main.h"
 #include "common/ob_version.h"
 
 namespace sb {
@@ -12,11 +12,11 @@ namespace sb {
 using common::OB_SUCCESS;
 using common::OB_ERROR;
 
-namespace rootserver {
-  
+namespace nameserver {
+
 NameServerMain::NameServerMain()
-  : rs_reload_config_(rs_config_),
-    config_mgr_(rs_config_, rs_reload_config_), worker(config_mgr_, rs_config_) {
+  : ns_reload_config_(ns_config_),
+    config_mgr_(ns_config_, ns_reload_config_), worker(config_mgr_, ns_config_) {
 }
 
 common::BaseMain* NameServerMain::get_instance() {
@@ -27,9 +27,9 @@ common::BaseMain* NameServerMain::get_instance() {
 }
 
 void NameServerMain::print_version() {
-  fprintf(stderr, "rootserver (%s %s)\n", PACKAGE_STRING, RELEASEID);
+  fprintf(stderr, "nameserver (%s %s)\n", PACKAGE_STRING, RELEASEID);
   fprintf(stderr, "BUILD_TIME: %s %s\n\n", build_date(), build_time());
-  fprintf(stderr, "Copyright (c) 2007-2013 Taobao Inc.\n");
+  fprintf(stderr, "Copyright (c) 2016 Michael\n");
 }
 
 static const int START_REPORT_SIG = 49;
@@ -49,7 +49,7 @@ int NameServerMain::do_work() {
   TBSYS_LOG(INFO, "oceanbase-root "
             "build_date=[%s] build_time=[%s]", build_date(), build_time());
 
-  rs_reload_config_.set_root_server(worker.get_root_server());
+  ns_reload_config_.set_name_server(worker.get_name_server());
 
   /* read config from binary config file if it existed. */
   snprintf(dump_config_path,
@@ -67,32 +67,32 @@ int NameServerMain::do_work() {
 
   /* set configuration pass from command line */
   if (0 != cmd_cluster_id_) {
-    rs_config_.cluster_id = static_cast<int64_t>(cmd_cluster_id_);
+    ns_config_.cluster_id = static_cast<int64_t>(cmd_cluster_id_);
   }
-  if (strlen(cmd_rs_ip_) > 0) {
-    rs_config_.root_server_ip.set_value(cmd_rs_ip_); /* rs vip */
+  if (strlen(cmd_ns_ip_) > 0) {
+    ns_config_.name_server_ip.set_value(cmd_ns_ip_); /* rs vip */
   }
-  if (cmd_rs_port_ > 0) {
-    rs_config_.port = cmd_rs_port_; /* listen port */
+  if (cmd_ns_port_ > 0) {
+    ns_config_.port = cmd_ns_port_; /* listen port */
   }
-  if (strlen(cmd_master_rs_ip_) > 0) {
-    rs_config_.master_root_server_ip.set_value(cmd_master_rs_ip_);
+  if (strlen(cmd_master_ns_ip_) > 0) {
+    ns_config_.master_name_server_ip.set_value(cmd_master_ns_ip_);
   }
-  if (cmd_master_rs_port_ > 0) {
-    rs_config_.master_root_server_port = cmd_master_rs_port_;
+  if (cmd_master_ns_port_ > 0) {
+    ns_config_.master_name_server_port = cmd_master_ns_port_;
   }
   if (strlen(cmd_devname_) > 0) {
-    rs_config_.devname.set_value(cmd_devname_);
+    ns_config_.devname.set_value(cmd_devname_);
   }
   if (strlen(cmd_extra_config_) > 0
-      && OB_SUCCESS != (ret = rs_config_.add_extra_config(cmd_extra_config_))) {
+      && OB_SUCCESS != (ret = ns_config_.add_extra_config(cmd_extra_config_))) {
     TBSYS_LOG(ERROR, "Parse extra config error! string: [%s], ret: [%d]",
               cmd_extra_config_, ret);
   }
-  rs_config_.print();
+  ns_config_.print();
 
   if (OB_SUCCESS != ret) {
-  } else if (OB_SUCCESS != (ret = rs_config_.check_all())) {
+  } else if (OB_SUCCESS != (ret = ns_config_.check_all())) {
     TBSYS_LOG(ERROR, "check config failed, ret: [%d]", ret);
   } else {
     // add signal I want to catch
@@ -111,9 +111,9 @@ int NameServerMain::do_work() {
   }
 
   if (OB_SUCCESS != ret) {
-    TBSYS_LOG(ERROR, "start root server failed, ret: [%d]", ret);
+    TBSYS_LOG(ERROR, "start name server failed, ret: [%d]", ret);
   } else {
-    worker.set_io_thread_count((int32_t)rs_config_.io_thread_count);
+    worker.set_io_thread_count((int32_t)ns_config_.io_thread_count);
     ret = worker.start(false);
   }
 

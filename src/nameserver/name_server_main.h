@@ -20,9 +20,9 @@
 #include "common/base_main.h"
 #include "common/ob_define.h"
 #include "common/ob_config_manager.h"
-#include "ob_root_worker.h"
-#include "ob_root_reload_config.h"
-#include "ob_root_server_config.h"
+#include "name_server_worker.h"
+#include "name_server_reload_config.h"
+#include "name_server_server_config.h"
 
 namespace sb {
 namespace nameserver {
@@ -35,10 +35,10 @@ class NameServerMain : public common::BaseMain {
  private:
   virtual void print_version();
   NameServerMain();
-  ObRootServerConfig rs_config_;
-  ObRootReloadConfig rs_reload_config_;
+  NameServerServerConfig ns_config_;
+  NameServerReloadConfig ns_reload_config_;
   common::ObConfigManager config_mgr_;
-  ObRootWorker worker;
+  NameServerWorker worker;
 };
 
 }

@@ -13,6 +13,7 @@
 
 namespace sb {
 namespace common {
+
 class ObBaseServer {
  public:
   static const int MAX_TASK_QUEUE_SIZE = 1000;

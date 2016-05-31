@@ -20,6 +20,7 @@
 #include "ob_packet.h"
 namespace sb {
 namespace common {
+
 class ObPacketQueueHandler {
  public:
   virtual ~ObPacketQueueHandler() {};

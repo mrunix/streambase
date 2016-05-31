@@ -5,6 +5,13 @@ sb::common::ObiRole* __obi_role = NULL;
 #define __debug_init__() __rs = &root_server_; __role_mgr = &role_mgr_;  __obi_role = (typeof(__obi_role))&root_server_.get_obi_role();
 #endif
 
+#ifdef __ns_debug__
+sb::nameserver::NameServer* __ns = NULL;
+sb::common::ObRoleMgr* __role_mgr = NULL;
+sb::common::ObiRole* __obi_role = NULL;
+#define __debug_init__() __rs = &name_server_; __role_mgr = &role_mgr_;  __obi_role = (typeof(__obi_role))&name_server_.get_obi_role();
+#endif
+
 #ifdef __ms_debug__
 sb::mergeserver::ObMergeServer* __ms = NULL;
 sb::common::ObMergerSchemaManager* __ms_schema = NULL;
