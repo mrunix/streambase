@@ -103,7 +103,7 @@ int NameServerTableOperation::generate_root_table() {
   return ret;
 }
 int NameServerTableOperation::report_tablets(const ObTabletReportInfoList& tablets,
-                                         const int32_t server_index, const int64_t frozen_mem_version) {
+                                             const int32_t server_index, const int64_t frozen_mem_version) {
   int ret = OB_SUCCESS;
   UNUSED(frozen_mem_version);
   TBSYS_LOG(INFO, "cs (cs_index=%d) report new tablet.", server_index);

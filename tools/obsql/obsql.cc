@@ -510,8 +510,8 @@ int main(const int argc, char* argv[]) {
     case CMD_SELECT: {
       p = putback_token(token, p);
       sb::obsql::SelectStmt select_stmt(p, strlen(p) + 1,
-                                               GFactory::get_instance().get_rpc_stub(),
-                                               GFactory::get_instance().get_rowkey_map());
+                                        GFactory::get_instance().get_rpc_stub(),
+                                        GFactory::get_instance().get_rowkey_map());
       select_stmt.query();
 
       break;
@@ -519,8 +519,8 @@ int main(const int argc, char* argv[]) {
     case CMD_INSERT: {
       p = putback_token(token, p);
       sb::obsql::InsertStmt insert_stmt(p, strlen(p) + 1,
-                                               GFactory::get_instance().get_rpc_stub(),
-                                               GFactory::get_instance().get_rowkey_map());
+                                        GFactory::get_instance().get_rpc_stub(),
+                                        GFactory::get_instance().get_rowkey_map());
 
       insert_stmt.query();
 
@@ -529,8 +529,8 @@ int main(const int argc, char* argv[]) {
     case CMD_UPDATE: {
       p = putback_token(token, p);
       sb::obsql::UpdateStmt update_stmt(p, strlen(p) + 1,
-                                               GFactory::get_instance().get_rpc_stub(),
-                                               GFactory::get_instance().get_rowkey_map());
+                                        GFactory::get_instance().get_rpc_stub(),
+                                        GFactory::get_instance().get_rowkey_map());
       update_stmt.query();
 
       break;
@@ -538,8 +538,8 @@ int main(const int argc, char* argv[]) {
     case CMD_DELETE: {
       p = putback_token(token, p);
       sb::obsql::DeleteStmt delete_stmt(p, strlen(p) + 1,
-                                               GFactory::get_instance().get_rpc_stub(),
-                                               GFactory::get_instance().get_rowkey_map());
+                                        GFactory::get_instance().get_rpc_stub(),
+                                        GFactory::get_instance().get_rowkey_map());
       delete_stmt.query();
 
       break;

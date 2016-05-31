@@ -19,8 +19,8 @@ using namespace sb::nameserver;
 using namespace sb::common;
 
 NameServerBalancerRunnable::NameServerBalancerRunnable(NameServerServerConfig& config,
-                                               NameServerBalancer& balancer,
-                                               common::ObRoleMgr& role_mgr)
+                                                       NameServerBalancer& balancer,
+                                                       common::ObRoleMgr& role_mgr)
   : config_(config), balancer_(balancer), role_mgr_(role_mgr) {
   balancer_.set_balancer_thread(this);
 }

@@ -61,8 +61,8 @@ bool NameServerTable2::internal_check() const {
 }
 
 int NameServerTable2::find_range(const common::ObNewRange& range,
-                             const_iterator& first,
-                             const_iterator& last) const {
+                                 const_iterator& first,
+                                 const_iterator& last) const {
   int ret = OB_NOT_INIT;
   if (!internal_check()) {
     ret = OB_ERROR;
@@ -135,11 +135,11 @@ int NameServerTable2::find_range(const common::ObNewRange& range,
 
 
 int NameServerTable2::find_key(const uint64_t table_id,
-                           const common::ObRowkey& key,
-                           int32_t adjacent_offset,
-                           const_iterator& first,
-                           const_iterator& last,
-                           const_iterator& ptr) const {
+                               const common::ObRowkey& key,
+                               int32_t adjacent_offset,
+                               const_iterator& first,
+                               const_iterator& last,
+                               const_iterator& ptr) const {
   int ret = OB_SUCCESS;
   if (!internal_check()) {
     ret = OB_ERROR;
@@ -531,8 +531,8 @@ int NameServerTable2::modify(const const_iterator& it, const int32_t dest_server
 }
 
 int NameServerTable2::replace(const const_iterator& it,
-                          const int32_t src_server_index, const int32_t dest_server_index,
-                          const int64_t tablet_version) {
+                              const int32_t src_server_index, const int32_t dest_server_index,
+                              const int64_t tablet_version) {
   int ret = OB_SUCCESS;
   if (OB_INVALID_INDEX != src_server_index) {
     for (int32_t i = 0; i < OB_SAFE_COPY_COUNT; i++) {
@@ -550,7 +550,7 @@ int NameServerTable2::replace(const const_iterator& it,
 
 //only used in name server's init process
 int NameServerTable2::add(const common::ObTabletInfo& tablet, const int32_t server_index,
-                      const int64_t tablet_version, const int64_t seq) {
+                          const int64_t tablet_version, const int64_t seq) {
   int ret = OB_ERROR;
   UNUSED(seq);
   if (tablet_info_manager_ != NULL) {
@@ -1166,7 +1166,7 @@ int NameServerTable2::get_range_pos_type(const common::ObNewRange& range, const 
   return ret;
 }
 int NameServerTable2::split_range(const common::ObTabletInfo& reported_tablet_info, const const_iterator& pos,
-                              const int64_t tablet_version, const int32_t server_index) {
+                                  const int64_t tablet_version, const int32_t server_index) {
   int ret = OB_ERROR;
   ObNewRange range = reported_tablet_info.range_;
   ObTabletInfo will_add_table;
@@ -1358,7 +1358,7 @@ int NameServerTable2::split_range(const common::ObTabletInfo& reported_tablet_in
   return ret;
 }
 int NameServerTable2::add_range(const common::ObTabletInfo& reported_tablet_info, const const_iterator& pos,
-                            const int64_t tablet_version, const int32_t server_index) {
+                                const int64_t tablet_version, const int32_t server_index) {
   int ret = OB_ERROR;
   ObNewRange range = reported_tablet_info.range_;
   ObTabletInfo will_add_table;

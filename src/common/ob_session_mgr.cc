@@ -35,7 +35,7 @@ ObSessionManager::SessionInfo* sb::common::ObSessionManager::get_session_info(co
 }
 
 int sb::common::ObSessionManager::session_begin(const ObScanParam& scan_param,
-                                                       const uint64_t peer_port,  uint64_t& session_id, const pthread_t tid, const pid_t pid) {
+                                                const uint64_t peer_port,  uint64_t& session_id, const pthread_t tid, const pid_t pid) {
   int err = OB_SUCCESS;
   SessionInfo* session_info = NULL;
   session_id = gen_session_id();
@@ -74,7 +74,7 @@ int sb::common::ObSessionManager::session_begin(const ObScanParam& scan_param,
 }
 
 int sb::common::ObSessionManager::session_begin(const ObGetParam& get_param,
-                                                       const uint64_t peer_port, uint64_t& session_id, const pthread_t tid, const pid_t pid) {
+                                                const uint64_t peer_port, uint64_t& session_id, const pthread_t tid, const pid_t pid) {
   int err = OB_SUCCESS;
   SessionInfo* session_info = NULL;
   session_id = gen_session_id();

@@ -92,11 +92,11 @@ int NameServerOperationData::init_schema_mgr(const common::ObSchemaManagerV2* sc
   return schema_helper_.generate_schema(schema_mgr);
 }
 int NameServerOperationData::change_table_schema(const common::ObSchemaManagerV2* schema_mgr,
-                                             const char* table_name, const uint64_t new_table_id) {
+                                                 const char* table_name, const uint64_t new_table_id) {
   return schema_helper_.change_table_schema(schema_mgr, table_name, new_table_id);
 }
 int NameServerOperationData::report_tablets(const ObTabletReportInfoList& tablets,
-                                        const int32_t server_index, const int64_t frozen_mem_version) {
+                                            const int32_t server_index, const int64_t frozen_mem_version) {
   int ret = OB_SUCCESS;
   UNUSED(frozen_mem_version);
   ret = root_table_.report_tablets(tablets, server_index, frozen_mem_version);

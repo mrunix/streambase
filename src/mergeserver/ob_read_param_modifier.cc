@@ -22,9 +22,9 @@ using namespace sb::common;
 using namespace sb::mergeserver;
 
 int sb::mergeserver::get_next_param(const sb::common::ObGetParam& org_param,
-                                           const sb::common::ObScanner& result,
-                                           int64_t& got_cell, bool& finish,
-                                           sb::common::ObGetParam* get_param) {
+                                    const sb::common::ObScanner& result,
+                                    int64_t& got_cell, bool& finish,
+                                    sb::common::ObGetParam* get_param) {
   ObReadParam* read_param = get_param;
   finish = false;
   int64_t item_count = 0;
@@ -93,7 +93,7 @@ int sb::mergeserver::get_next_param(const sb::common::ObGetParam& org_param,
 }
 
 bool sb::mergeserver::is_finish_scan(const ScanFlag::Direction scan_direction,  const ObNewRange& org_range,
-                                            const ObNewRange& result_range) {
+                                     const ObNewRange& result_range) {
   bool ret = false;
   if (ScanFlag::FORWARD == scan_direction) {
     if (result_range.compare_with_endkey2(org_range) >= 0) {
@@ -143,8 +143,8 @@ int allocate_range_buffer(ObNewRange& range, ObMemBuffer& buffer) {
 }
 
 int sb::mergeserver::get_next_param(const ObScanParam& org_scan_param,
-                                           const sb::common::ObScanner& prev_scan_result,
-                                           ObScanParam* scan_param, ObMemBuffer& range_buffer) {
+                                    const sb::common::ObScanner& prev_scan_result,
+                                    ObScanParam* scan_param, ObMemBuffer& range_buffer) {
   int err = OB_SUCCESS;
   const ObReadParam& org_read_param = org_scan_param;
   ObReadParam* read_param = scan_param;
@@ -285,11 +285,11 @@ int get_next_range_for_trivail_scan(const ObNewRange& org_scan_range,
 }
 
 int sb::mergeserver::get_next_range(const sb::common::ObScanParam& org_scan_param,
-                                           const ObScanner& prev_scan_result,
-                                           const int64_t prev_limit_offset,
-                                           ObNewRange& cur_range,
-                                           int64_t& cur_limit_offset,
-                                           ObStringBuf& buf) {
+                                    const ObScanner& prev_scan_result,
+                                    const int64_t prev_limit_offset,
+                                    ObNewRange& cur_range,
+                                    int64_t& cur_limit_offset,
+                                    ObStringBuf& buf) {
   int err = OB_SUCCESS;
   cur_limit_offset = 0;
   cur_range.reset();
@@ -414,11 +414,11 @@ int get_next_range_for_trivail_scan(const ObNewRange& org_scan_range,
 }
 
 int sb::mergeserver::get_next_range(const sb::sql::ObSqlScanParam& org_scan_param,
-                                           const ObNewScanner& prev_scan_result,
-                                           const int64_t prev_limit_offset,
-                                           ObNewRange& cur_range,
-                                           int64_t& cur_limit_offset,
-                                           ObStringBuf& buf) {
+                                    const ObNewScanner& prev_scan_result,
+                                    const int64_t prev_limit_offset,
+                                    ObNewRange& cur_range,
+                                    int64_t& cur_limit_offset,
+                                    ObStringBuf& buf) {
   int err = OB_SUCCESS;
   cur_limit_offset = 0;
   cur_range.reset();

@@ -25,9 +25,9 @@ NameServerOperationHelper::NameServerOperationHelper()
 NameServerOperationHelper::~NameServerOperationHelper() {
 }
 int NameServerOperationHelper::init(const NameServer* name_server,
-                                const NameServerServerConfig* config,
-                                const NameServerRpcStub* rpc_stub,
-                                const ObChunkServerManager* server_manager) {
+                                    const NameServerServerConfig* config,
+                                    const NameServerRpcStub* rpc_stub,
+                                    const ObChunkServerManager* server_manager) {
   int ret = OB_SUCCESS;
   if (NULL == name_server || NULL == config
       || NULL == rpc_stub || NULL == server_manager) {
@@ -45,8 +45,8 @@ int NameServerOperationHelper::init(const NameServer* name_server,
 }
 
 int NameServerOperationHelper::start_operation(const common::ObSchemaManagerV2* schema_mgr,
-                                           const ObBypassTaskInfo& table_name_id,
-                                           const int64_t frozen_version) {
+                                               const ObBypassTaskInfo& table_name_id,
+                                               const int64_t frozen_version) {
   int ret = OB_SUCCESS;
   if (NULL == schema_mgr) {
     TBSYS_LOG(WARN, "INVALID ARGUMENT. schema_mgr=%p, table_name_id.count()=%ld", schema_mgr, table_name_id.count());
@@ -113,8 +113,8 @@ int NameServerOperationHelper::clean_root_table(const common::ObSchemaManagerV2*
   return ret;
 }
 int NameServerOperationHelper::import_all_table(const int64_t frozen_version,
-                                            const common::ObSchemaManagerV2* schema_mgr,
-                                            const ObBypassTaskInfo& table_name_id) {
+                                                const common::ObSchemaManagerV2* schema_mgr,
+                                                const ObBypassTaskInfo& table_name_id) {
   int ret = OB_SUCCESS;
   TBSYS_LOG(INFO, "start to import all table.");
   if (NULL == schema_mgr) {
@@ -141,7 +141,7 @@ int NameServerOperationHelper::import_all_table(const int64_t frozen_version,
 }
 
 int NameServerOperationHelper::bypass_process(const int64_t frozen_version, const common::ObSchemaManagerV2* schema_mgr,
-                                          const ObBypassTaskInfo& table_name_id) {
+                                              const ObBypassTaskInfo& table_name_id) {
   int ret = OB_SUCCESS;
   if (NULL == schema_mgr) {
     TBSYS_LOG(WARN, "INVALID ARGUMENT. schema_mgr=%p, table_name_id.count()=%ld", schema_mgr, table_name_id.count());
@@ -227,14 +227,14 @@ int NameServerOperationHelper::check_delete_tables_process() {
   return ret;
 }
 void NameServerOperationHelper::delete_tables_done(const int cs_index,
-                                               const uint64_t table_id, const bool is_succ) {
+                                                   const uint64_t table_id, const bool is_succ) {
   TBSYS_LOG(INFO, "cs_index=%d  delete table finished. table_id=%lu, is_succ=%s",
             cs_index, table_id, is_succ ? "true" : "false");
   done_count_ ++;
 }
 int NameServerOperationHelper::request_cs_load_bypass_table(const int64_t frozen_version,
-                                                        const common::ObBypassTaskInfo& table_name_id,
-                                                        const int64_t expect_cs) {
+                                                            const common::ObBypassTaskInfo& table_name_id,
+                                                            const int64_t expect_cs) {
   int ret = OB_SUCCESS;
   common::ObTableImportInfoList import_info;
   import_info.tablet_version_ = frozen_version;
@@ -271,7 +271,7 @@ int NameServerOperationHelper::request_cs_load_bypass_table(const int64_t frozen
   return ret;
 }
 int NameServerOperationHelper::cs_load_sstable_done(const int cs_index,
-                                                const common::ObTableImportInfoList& table_list, const bool is_load_succ) {
+                                                    const common::ObTableImportInfoList& table_list, const bool is_load_succ) {
   int ret = OB_SUCCESS;
   UNUSED(table_list);
   if (!is_load_succ) {
@@ -290,7 +290,7 @@ int NameServerOperationHelper::cs_load_sstable_done(const int cs_index,
 }
 
 int NameServerOperationHelper::report_tablets(const ObTabletReportInfoList& tablets,
-                                          const int32_t server_index, const int64_t frozen_mem_version) {
+                                              const int32_t server_index, const int64_t frozen_mem_version) {
   int ret = OB_SUCCESS;
   UNUSED(frozen_mem_version);
   if (process_ != REPORT_TABLET) {

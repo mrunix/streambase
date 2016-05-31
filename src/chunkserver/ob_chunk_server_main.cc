@@ -50,9 +50,9 @@ int ObChunkServerMain::do_work() {
   }
 
   /* set rs address if command line has past in */
-  if (strlen(cmd_rs_ip_) > 0 && cmd_rs_port_ != 0) {
-    cs_config_.root_server_ip.set_value(cmd_rs_ip_);
-    cs_config_.root_server_port = cmd_rs_port_;
+  if (strlen(cmd_ns_ip_) > 0 && cmd_ns_port_ != 0) {
+    cs_config_.root_server_ip.set_value(cmd_ns_ip_);
+    cs_config_.root_server_port = cmd_ns_port_;
   }
   if (cmd_port_ != 0) {
     cs_config_.port = cmd_port_;

@@ -253,7 +253,7 @@ int NameServerLogWorker::report_cs_load(const ObServer& server, const int64_t ca
 }
 
 int NameServerLogWorker::cs_migrate_done(const int32_t result, const ObDataSourceDesc& desc,
-                                     const int64_t occupy_size, const uint64_t crc_sum, const uint64_t row_checksum, const int64_t row_count) {
+                                         const int64_t occupy_size, const uint64_t crc_sum, const uint64_t row_checksum, const int64_t row_count) {
   int ret = OB_SUCCESS;
 
   char* log_data = static_cast<char*>(ob_malloc(OB_MAX_PACKET_LENGTH, ObModIds::OB_RS_LOG_WORKER));
@@ -323,7 +323,7 @@ int NameServerLogWorker::add_range_for_load_data(const common::ObTabletReportInf
 }
 
 int NameServerLogWorker::report_tablets(const common::ObServer& server, const common::ObTabletReportInfoList& tablets,
-                                    const int64_t timestamp) {
+                                        const int64_t timestamp) {
   int ret = OB_SUCCESS;
   char* log_data = NULL;
   log_data = static_cast<char*>(ob_malloc(OB_MAX_PACKET_LENGTH, ObModIds::OB_RS_LOG_WORKER));
@@ -434,7 +434,7 @@ int NameServerLogWorker::remove_table(const common::ObArray<uint64_t>& deleted_t
 }
 
 int NameServerLogWorker::add_load_table(const ObString& table_name, const uint64_t table_id, const uint64_t old_table_id,
-                                    const ObString& uri, const int64_t start_time, const int64_t tablet_version) {
+                                        const ObString& uri, const int64_t start_time, const int64_t tablet_version) {
   int ret = OB_SUCCESS;
   char* log_data = NULL;
   log_data = static_cast<char*>(ob_malloc(OB_MAX_PACKET_LENGTH, ObModIds::OB_RS_LOG_WORKER));
@@ -545,7 +545,7 @@ int NameServerLogWorker::add_new_tablet(const ObTabletInfo tablet, const ObArray
 }
 
 int NameServerLogWorker::batch_add_new_tablet(const common::ObTabletInfoList& tablets,
-                                          int** server_indexs, int* count, const int64_t mem_version) {
+                                              int** server_indexs, int* count, const int64_t mem_version) {
   int ret = OB_SUCCESS;
 
   char* log_data = NULL;

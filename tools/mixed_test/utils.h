@@ -52,7 +52,7 @@ extern int64_t range_rand(int64_t start, int64_t end, int64_t rand);
 extern void build_string(char* buffer, int64_t len, int64_t seed);
 
 extern sb::common::ObCellInfo* copy_cell(sb::updateserver::MemTank& mem_tank,
-                                                const sb::common::ObCellInfo* ci);
+                                         const sb::common::ObCellInfo* ci);
 
 extern void trans_name2id(sb::common::ObCellInfo& ci,
                           const sb::common::ObSchema& schema);

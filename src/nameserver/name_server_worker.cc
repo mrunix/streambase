@@ -1102,8 +1102,8 @@ int NameServerWorker::schedule_after_restart_task(const int64_t delay, bool repe
   return ret;
 }
 int NameServerWorker::rt_get_update_server_info(const int32_t version, ObDataBuffer& in_buff,
-                                            easy_request_t* req, const uint32_t channel_id, ObDataBuffer& out_buff,
-                                            bool use_inner_port /* = false*/) {
+                                                easy_request_t* req, const uint32_t channel_id, ObDataBuffer& out_buff,
+                                                bool use_inner_port /* = false*/) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -1144,7 +1144,7 @@ int NameServerWorker::rt_get_update_server_info(const int32_t version, ObDataBuf
 }
 
 int NameServerWorker::rt_scan(const int32_t version, ObDataBuffer& in_buff,
-                          easy_request_t* req, const uint32_t channel_id, ObDataBuffer& out_buff) {
+                              easy_request_t* req, const uint32_t channel_id, ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -1200,8 +1200,8 @@ int NameServerWorker::rt_scan(const int32_t version, ObDataBuffer& in_buff,
 
 
 int NameServerWorker::rt_sql_scan(const int32_t version,
-                              ObDataBuffer& in_buff, easy_request_t* req,
-                              const uint32_t channel_id, ObDataBuffer& out_buff) {
+                                  ObDataBuffer& in_buff, easy_request_t* req,
+                                  const uint32_t channel_id, ObDataBuffer& out_buff) {
   UNUSED(channel_id);
   UNUSED(req);
   const int32_t RS_SCAN_VERSION = 1;
@@ -1273,7 +1273,7 @@ int NameServerWorker::rt_sql_scan(const int32_t version,
 }
 
 int NameServerWorker::rt_get(const int32_t version, ObDataBuffer& in_buff,
-                         easy_request_t* req, const uint32_t channel_id, ObDataBuffer& out_buff) {
+                             easy_request_t* req, const uint32_t channel_id, ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -1346,7 +1346,7 @@ int NameServerWorker::rt_get(const int32_t version, ObDataBuffer& in_buff,
 }
 
 int NameServerWorker::rt_fetch_schema(const int32_t version, common::ObDataBuffer& in_buff,
-                                  easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                      easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
@@ -1413,7 +1413,7 @@ int NameServerWorker::rt_fetch_schema(const int32_t version, common::ObDataBuffe
 }
 
 int NameServerWorker::rt_after_restart(const int32_t version, common::ObDataBuffer& in_buff,
-                                   easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                       easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(in_buff);
   UNUSED(version);
   UNUSED(req);
@@ -1434,7 +1434,7 @@ int NameServerWorker::rt_after_restart(const int32_t version, common::ObDataBuff
   return ret;
 }
 int NameServerWorker::rt_fetch_schema_version(const int32_t version, common::ObDataBuffer& in_buff,
-                                          easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                              easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
@@ -1469,7 +1469,7 @@ int NameServerWorker::rt_fetch_schema_version(const int32_t version, common::ObD
 }
 
 int NameServerWorker::rt_report_tablets(const int32_t version, common::ObDataBuffer& in_buff,
-                                    easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                        easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 2;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -1520,7 +1520,7 @@ int NameServerWorker::rt_report_tablets(const int32_t version, common::ObDataBuf
   return ret;
 }
 int NameServerWorker::rt_waiting_job_done(const int32_t version, common::ObDataBuffer& in_buff,
-                                      easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                          easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -1561,7 +1561,7 @@ int NameServerWorker::rt_waiting_job_done(const int32_t version, common::ObDataB
 }
 
 int NameServerWorker::rt_delete_tablets(const int32_t version, common::ObDataBuffer& in_buff,
-                                    easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                        easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   UNUSED(version);
   UNUSED(req);
@@ -1600,7 +1600,7 @@ int NameServerWorker::rt_delete_tablets(const int32_t version, common::ObDataBuf
 }
 
 int NameServerWorker::rt_cs_delete_tablets(const int32_t version, common::ObDataBuffer& in_buff,
-                                       easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                           easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   UNUSED(version);
   int ret = OB_SUCCESS;
@@ -1639,7 +1639,7 @@ int NameServerWorker::rt_cs_delete_tablets(const int32_t version, common::ObData
 }
 
 int NameServerWorker::rt_register(const int32_t version, common::ObDataBuffer& in_buff,
-                              easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                  easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -1702,7 +1702,7 @@ int NameServerWorker::rt_register(const int32_t version, common::ObDataBuffer& i
 }
 
 int NameServerWorker::rt_register_ms(const int32_t version, common::ObDataBuffer& in_buff,
-                                 easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                     easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -1781,7 +1781,7 @@ int NameServerWorker::rt_register_ms(const int32_t version, common::ObDataBuffer
 }
 
 int NameServerWorker::rt_migrate_over(const int32_t version, common::ObDataBuffer& in_buff,
-                                  easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                      easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int CS_MIGRATE_OVER_VERSION = 3;
   int ret = OB_SUCCESS;
   common::ObResultCode result_msg;
@@ -1856,7 +1856,7 @@ int NameServerWorker::rt_migrate_over(const int32_t version, common::ObDataBuffe
 }
 
 int NameServerWorker::rt_report_capacity_info(const int32_t version, common::ObDataBuffer& in_buff,
-                                          easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                              easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -1907,7 +1907,7 @@ int NameServerWorker::rt_report_capacity_info(const int32_t version, common::ObD
 
 // for chunk server
 int NameServerWorker::rt_heartbeat(const int32_t version, common::ObDataBuffer& in_buff,
-                               easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                   easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 2;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -1938,7 +1938,7 @@ int NameServerWorker::rt_heartbeat(const int32_t version, common::ObDataBuffer& 
 }
 // for merge server
 int NameServerWorker::rt_heartbeat_ms(const int32_t version, common::ObDataBuffer& in_buff,
-                                  easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                      easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 3;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -1993,7 +1993,7 @@ int NameServerWorker::rt_heartbeat_ms(const int32_t version, common::ObDataBuffe
 }
 
 int NameServerWorker::rt_check_tablet_merged(const int32_t version, common::ObDataBuffer& in_buff,
-                                         easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                             easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   int err = OB_SUCCESS;
   common::ObResultCode result_msg;
@@ -2050,7 +2050,7 @@ int NameServerWorker::rt_check_tablet_merged(const int32_t version, common::ObDa
 }
 
 int NameServerWorker::rt_dump_cs_info(const int32_t version, common::ObDataBuffer& in_buff,
-                                  easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                      easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   UNUSED(in_buff);
   UNUSED(version);
@@ -2063,7 +2063,7 @@ int NameServerWorker::rt_dump_cs_info(const int32_t version, common::ObDataBuffe
 }
 
 int NameServerWorker::rt_fetch_stats(const int32_t version, common::ObDataBuffer& in_buff,
-                                 easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                     easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
@@ -2104,7 +2104,7 @@ common::ThreadSpecificBuffer::Buffer* NameServerWorker::get_rpc_buffer() const {
 }
 
 int NameServerWorker::rt_ping(const int32_t version, common::ObDataBuffer& in_buff,
-                          easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                              easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
@@ -2128,7 +2128,7 @@ int NameServerWorker::rt_ping(const int32_t version, common::ObDataBuffer& in_bu
 }
 
 int NameServerWorker::rt_slave_quit(const int32_t version, common::ObDataBuffer& in_buff,
-                                easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                    easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
 
@@ -2171,7 +2171,7 @@ int NameServerWorker::rt_slave_quit(const int32_t version, common::ObDataBuffer&
 }
 
 int NameServerWorker::rt_update_server_report_freeze(const int32_t version, common::ObDataBuffer& in_buff,
-                                                 easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                                     easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   int64_t frozen_version = 1;
@@ -2227,7 +2227,7 @@ int NameServerWorker::rt_update_server_report_freeze(const int32_t version, comm
 
 
 int NameServerWorker::rt_slave_register(const int32_t version, common::ObDataBuffer& in_buff,
-                                    easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                        easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   if (version != MY_VERSION) {
@@ -2335,7 +2335,7 @@ int NameServerWorker::slave_register_(common::ObFetchParam& fetch_param) {
 }
 
 int NameServerWorker::rt_renew_lease(const int32_t version, common::ObDataBuffer& in_buff,
-                                 easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                     easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   int ret = OB_SUCCESS;
   if (version != MY_VERSION) {
@@ -2398,7 +2398,7 @@ int NameServerWorker::rt_set_obi_role_to_slave(const int32_t version, common::Ob
 }
 
 int NameServerWorker::rt_grant_lease(const int32_t version, common::ObDataBuffer& in_buff,
-                                 easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                     easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   int ret = OB_SUCCESS;
   if (version != MY_VERSION) {
@@ -2438,7 +2438,7 @@ int NameServerWorker::rt_grant_lease(const int32_t version, common::ObDataBuffer
 }
 
 int NameServerWorker::rt_slave_write_log(const int32_t version, common::ObDataBuffer& in_buffer,
-                                     easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buffer) {
+                                         easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buffer) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -2504,7 +2504,7 @@ int NameServerWorker::rt_slave_write_log(const int32_t version, common::ObDataBu
 }
 
 int NameServerWorker::rt_get_boot_state(const int32_t version, common::ObDataBuffer& in_buff,
-                                    easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                        easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(version);
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
@@ -2526,7 +2526,7 @@ int NameServerWorker::rt_get_boot_state(const int32_t version, common::ObDataBuf
 }
 
 int NameServerWorker::rt_get_obi_role(const int32_t version, common::ObDataBuffer& in_buff,
-                                  easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                      easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(version);
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
@@ -2557,7 +2557,7 @@ int NameServerWorker::rt_get_obi_role(const int32_t version, common::ObDataBuffe
   return ret;
 }
 int NameServerWorker::rt_force_cs_to_report(const int32_t version, common::ObDataBuffer& in_buff,
-                                        easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                            easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   UNUSED(version);
@@ -2580,7 +2580,7 @@ int NameServerWorker::rt_force_cs_to_report(const int32_t version, common::ObDat
 }
 
 int NameServerWorker::rt_set_obi_role(const int32_t version, common::ObDataBuffer& in_buff,
-                                  easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                      easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   UNUSED(version);
@@ -2605,7 +2605,7 @@ int NameServerWorker::rt_set_obi_role(const int32_t version, common::ObDataBuffe
 }
 
 int NameServerWorker::rt_get_last_frozen_version(const int32_t version, common::ObDataBuffer& in_buff,
-                                             easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                                 easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   UNUSED(version);
@@ -2624,7 +2624,7 @@ int NameServerWorker::rt_get_last_frozen_version(const int32_t version, common::
   return ret;
 }
 int NameServerWorker::ns_check_root_table(const int32_t version, common::ObDataBuffer& in_buff,
-                                      easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                          easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   int err = OB_SUCCESS;
   common::ObResultCode result_msg;
@@ -2669,7 +2669,7 @@ int NameServerWorker::ns_check_root_table(const int32_t version, common::ObDataB
 }
 
 int NameServerWorker::ns_dump_cs_tablet_info(const int32_t version, common::ObDataBuffer& in_buff,
-                                         easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                             easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   int err = OB_SUCCESS;
   common::ObResultCode result_msg;
@@ -2713,7 +2713,7 @@ int NameServerWorker::ns_dump_cs_tablet_info(const int32_t version, common::ObDa
 }
 
 int NameServerWorker::rt_admin(const int32_t version, common::ObDataBuffer& in_buff,
-                           easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                               easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   UNUSED(version);
@@ -2847,7 +2847,7 @@ int NameServerWorker::do_admin_without_return(int admin_cmd) {
 }
 
 int NameServerWorker::rt_change_log_level(const int32_t version, common::ObDataBuffer& in_buff,
-                                      easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                          easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   UNUSED(version);
@@ -2877,7 +2877,7 @@ int NameServerWorker::rt_change_log_level(const int32_t version, common::ObDataB
 }
 
 int NameServerWorker::rt_stat(const int32_t version, common::ObDataBuffer& in_buff,
-                          easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                              easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   UNUSED(version);
@@ -2927,7 +2927,7 @@ int NameServerWorker::do_stat(int stat_key, char* buf, const int64_t buf_len, in
   return ret;
 }
 int NameServerWorker::rt_get_master_ups_config(const int32_t version, common::ObDataBuffer& in_buff,
-                                           easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                               easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(version);
   UNUSED(in_buff);
   static const int my_version = 1;
@@ -2956,7 +2956,7 @@ int NameServerWorker::rt_get_master_ups_config(const int32_t version, common::Ob
 }
 
 int NameServerWorker::rt_ups_heartbeat_resp(const int32_t version, common::ObDataBuffer& in_buff,
-                                        easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                            easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   UNUSED(req);
   UNUSED(channel_id);
@@ -2984,7 +2984,7 @@ int NameServerWorker::rt_ups_heartbeat_resp(const int32_t version, common::ObDat
 }
 
 int NameServerWorker::rt_get_ups(const int32_t version, common::ObDataBuffer& in_buff,
-                             easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                 easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   UNUSED(in_buff);
   common::ObUpsList ups_list;
@@ -3011,7 +3011,7 @@ int NameServerWorker::rt_get_ups(const int32_t version, common::ObDataBuffer& in
 }
 
 int NameServerWorker::rt_ups_register(const int32_t version, common::ObDataBuffer& in_buff,
-                                  easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                      easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static int MY_VERSION = 1;
   int ret = OB_SUCCESS;
   ObMsgUpsRegister msg;
@@ -3043,7 +3043,7 @@ int NameServerWorker::rt_ups_register(const int32_t version, common::ObDataBuffe
   return ret;
 }
 int NameServerWorker::rt_set_master_ups_config(const int32_t version, common::ObDataBuffer& in_buff,
-                                           easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                               easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
@@ -3072,7 +3072,7 @@ int NameServerWorker::rt_set_master_ups_config(const int32_t version, common::Ob
   return ret;
 }
 int NameServerWorker::rt_set_ups_config(const int32_t version, common::ObDataBuffer& in_buff,
-                                    easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                        easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
@@ -3105,7 +3105,7 @@ int NameServerWorker::rt_set_ups_config(const int32_t version, common::ObDataBuf
 }
 
 int NameServerWorker::rt_ups_slave_failure(const int32_t version, common::ObDataBuffer& in_buff,
-                                       easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                           easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   ObMsgUpsSlaveFailure msg;
   if (msg.MY_VERSION != version) {
@@ -3130,7 +3130,7 @@ int NameServerWorker::rt_ups_slave_failure(const int32_t version, common::ObData
 }
 
 int NameServerWorker::rt_change_ups_master(const int32_t version, common::ObDataBuffer& in_buff,
-                                       easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                           easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int32_t MY_VERSION = 1;
   ObServer ups_addr;
@@ -3162,7 +3162,7 @@ int NameServerWorker::rt_change_ups_master(const int32_t version, common::ObData
 }
 
 int NameServerWorker::rt_get_cs_list(const int32_t version, common::ObDataBuffer& in_buff,
-                                 easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                     easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
@@ -3185,7 +3185,7 @@ int NameServerWorker::rt_get_cs_list(const int32_t version, common::ObDataBuffer
 }
 
 int NameServerWorker::rt_get_row_checksum(const int32_t version, common::ObDataBuffer& in_buff,
-                                      easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                          easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   int64_t tablet_version = 0;
@@ -3218,7 +3218,7 @@ int NameServerWorker::rt_get_row_checksum(const int32_t version, common::ObDataB
 }
 
 int NameServerWorker::rt_get_ms_list(const int32_t version, common::ObDataBuffer& in_buff,
-                                 easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                     easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
@@ -3262,7 +3262,7 @@ int NameServerWorker::rt_get_proxy_list(const int32_t version, common::ObDataBuf
 }
 
 int NameServerWorker::rt_cs_import_tablets(const int32_t version, common::ObDataBuffer& in_buff,
-                                       easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                           easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   uint64_t table_id = OB_INVALID_ID;
   int64_t tablet_version = 0;
@@ -3292,7 +3292,7 @@ int NameServerWorker::rt_cs_import_tablets(const int32_t version, common::ObData
 }
 
 int NameServerWorker::rt_restart_cs(const int32_t version, ObDataBuffer& in_buff,
-                                easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                    easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   int32_t count = 0;
@@ -3362,7 +3362,7 @@ int NameServerWorker::rt_restart_cs(const int32_t version, ObDataBuffer& in_buff
 }
 
 int NameServerWorker::rt_shutdown_cs(const int32_t version, ObDataBuffer& in_buff,
-                                 easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                     easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   int32_t count = 0;
@@ -3429,8 +3429,8 @@ common::ThreadSpecificBuffer* NameServerWorker::get_thread_buffer() {
 }
 template <class Queue>
 int NameServerWorker::submit_async_task_(const PacketCode pcode, Queue& qthread, int32_t task_queue_size,
-                                     const int32_t version, common::ObDataBuffer& in_buff, easy_request_t* req,
-                                     const uint32_t channel_id, const int64_t timeout) {
+                                         const int32_t version, common::ObDataBuffer& in_buff, easy_request_t* req,
+                                         const uint32_t channel_id, const int64_t timeout) {
   int ret = OB_SUCCESS;
   ObPacket* ob_packet = NULL;
   if (NULL == (ob_packet = dynamic_cast<ObPacket*>(packet_factory_.createPacket(pcode)))) {
@@ -3464,7 +3464,7 @@ int NameServerWorker::submit_async_task_(const PacketCode pcode, Queue& qthread,
 
 template <class Queue>
 int NameServerWorker::submit_async_task_(const PacketCode pcode, Queue& qthread,
-                                     int32_t task_queue_size, const ObDataBuffer* data_buffer, const common::ObPacket* packet) {
+                                         int32_t task_queue_size, const ObDataBuffer* data_buffer, const common::ObPacket* packet) {
   int ret = OB_SUCCESS;
   ObPacket* ob_packet = NULL;
   if (NULL == (ob_packet = dynamic_cast<ObPacket*>(packet_factory_.createPacket(pcode)))) {
@@ -3502,7 +3502,7 @@ int NameServerWorker::submit_async_task_(const PacketCode pcode, Queue& qthread,
   return ret;
 }
 int NameServerWorker::rt_split_tablet(const int32_t version, common::ObDataBuffer& in_buff,
-                                  easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                      easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   int err = OB_SUCCESS;
   UNUSED(in_buff);
@@ -3546,7 +3546,7 @@ int NameServerWorker::rt_split_tablet(const int32_t version, common::ObDataBuffe
 }
 
 int NameServerWorker::rt_create_table(const int32_t version, common::ObDataBuffer& in_buff,
-                                  easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                      easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   common::ObResultCode res;
@@ -3593,7 +3593,7 @@ int NameServerWorker::rt_create_table(const int32_t version, common::ObDataBuffe
 }
 
 int NameServerWorker::rt_alter_table(const int32_t version, common::ObDataBuffer& in_buff,
-                                 easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                     easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   common::ObResultCode res;
@@ -3634,7 +3634,7 @@ int NameServerWorker::rt_alter_table(const int32_t version, common::ObDataBuffer
 }
 
 int NameServerWorker::rt_drop_table(const int32_t version, common::ObDataBuffer& in_buff,
-                                easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                    easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   common::ObResultCode res;
@@ -3674,7 +3674,7 @@ int NameServerWorker::rt_drop_table(const int32_t version, common::ObDataBuffer&
 }
 
 int NameServerWorker::rt_execute_sql(const int32_t version, common::ObDataBuffer& in_buff,
-                                 easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                     easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(version);
   UNUSED(req);              /* NULL */
   UNUSED(channel_id);
@@ -3726,7 +3726,7 @@ int NameServerWorker::rt_execute_sql(const int32_t version, common::ObDataBuffer
 }
 
 int NameServerWorker::rt_handle_trigger_event(const int32_t version, common::ObDataBuffer& in_buff,
-                                          easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                              easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(version);
 
   int ret = OB_SUCCESS;
@@ -3808,7 +3808,7 @@ int NameServerWorker::rt_handle_trigger_event(const int32_t version, common::ObD
 }
 
 int NameServerWorker::rt_get_master_obi_rs(const int32_t version, common::ObDataBuffer& in_buff,
-                                       easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                           easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(version);
   UNUSED(in_buff);
   int ret = OB_SUCCESS;
@@ -3848,8 +3848,8 @@ int NameServerWorker::rt_get_master_obi_rs(const int32_t version, common::ObData
 }
 
 int NameServerWorker::rt_set_config(const int32_t version,
-                                common::ObDataBuffer& in_buff, easy_request_t* req,
-                                const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                    common::ObDataBuffer& in_buff, easy_request_t* req,
+                                    const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(version);
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
@@ -3879,8 +3879,8 @@ int NameServerWorker::rt_set_config(const int32_t version,
 }
 
 int NameServerWorker::rt_get_config(const int32_t version,
-                                common::ObDataBuffer& in_buff, easy_request_t* req,
-                                const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                    common::ObDataBuffer& in_buff, easy_request_t* req,
+                                    const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(version);
   UNUSED(in_buff);
   int ret = OB_SUCCESS;
@@ -3905,8 +3905,8 @@ int NameServerWorker::rt_get_config(const int32_t version,
 }
 //for bypass
 int NameServerWorker::rt_check_task_process(const int32_t version, common::ObDataBuffer& in_buff,
-                                        easy_request_t* req, const uint32_t channel_id,
-                                        common::ObDataBuffer& out_buff) {
+                                            easy_request_t* req, const uint32_t channel_id,
+                                            common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   UNUSED(version);
   UNUSED(req);
@@ -3922,7 +3922,7 @@ int NameServerWorker::rt_check_task_process(const int32_t version, common::ObDat
 }
 
 int NameServerWorker::rt_prepare_bypass_process(const int32_t version, common::ObDataBuffer& in_buff,
-                                            easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                                easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -3962,7 +3962,7 @@ int NameServerWorker::rt_prepare_bypass_process(const int32_t version, common::O
   return ret;
 }
 int NameServerWorker::ns_cs_load_bypass_sstable_done(const int32_t version, common::ObDataBuffer& in_buff,
-                                                 easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                                     easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -4013,7 +4013,7 @@ int NameServerWorker::ns_cs_load_bypass_sstable_done(const int32_t version, comm
   return ret;
 }
 int NameServerWorker::rt_cs_delete_table_done(const int32_t version, common::ObDataBuffer& in_buff,
-                                          easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                              easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -4066,7 +4066,7 @@ int NameServerWorker::rt_cs_delete_table_done(const int32_t version, common::ObD
   return ret;
 }
 int NameServerWorker::rt_start_bypass_process(const int32_t version, common::ObDataBuffer& in_buff,
-                                          easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                              easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -4116,7 +4116,7 @@ int NameServerWorker::submit_check_task_process() {
   return ret;
 }
 int NameServerWorker::rt_write_schema_to_file(const int32_t version, common::ObDataBuffer& in_buff,
-                                          easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                              easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
@@ -4149,7 +4149,7 @@ int NameServerWorker::rt_write_schema_to_file(const int32_t version, common::ObD
   return ret;
 }
 int NameServerWorker::rt_change_table_id(const int32_t version, common::ObDataBuffer& in_buff,
-                                     easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                         easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int32_t MY_VERSION = 1;
   int64_t table_id = 0;
@@ -4175,7 +4175,7 @@ int NameServerWorker::rt_change_table_id(const int32_t version, common::ObDataBu
 }
 
 int NameServerWorker::rt_start_import(const int32_t version, common::ObDataBuffer& in_buff,
-                                  easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                      easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int32_t MY_VERSION = 1;
   ObString table_name;
@@ -4221,7 +4221,7 @@ int NameServerWorker::rt_start_import(const int32_t version, common::ObDataBuffe
 }
 
 int NameServerWorker::rt_import(const int32_t version, common::ObDataBuffer& in_buff,
-                            easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int32_t MY_VERSION = 1;
   ObString table_name;
@@ -4271,7 +4271,7 @@ int NameServerWorker::rt_import(const int32_t version, common::ObDataBuffer& in_
 }
 
 int NameServerWorker::rt_start_kill_import(const int32_t version, common::ObDataBuffer& in_buff,
-                                       easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                           easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int32_t MY_VERSION = 1;
   ObString table_name;
@@ -4312,7 +4312,7 @@ int NameServerWorker::rt_start_kill_import(const int32_t version, common::ObData
 }
 
 int NameServerWorker::rt_kill_import(const int32_t version, common::ObDataBuffer& in_buff,
-                                 easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                     easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int32_t MY_VERSION = 1;
   ObString table_name;
@@ -4353,7 +4353,7 @@ int NameServerWorker::rt_kill_import(const int32_t version, common::ObDataBuffer
 }
 
 int NameServerWorker::rt_get_import_status(const int32_t version, common::ObDataBuffer& in_buff,
-                                       easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                           easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int32_t MY_VERSION = 1;
   ObString table_name;
@@ -4398,7 +4398,7 @@ int NameServerWorker::rt_get_import_status(const int32_t version, common::ObData
 }
 
 int NameServerWorker::rt_set_import_status(const int32_t version, common::ObDataBuffer& in_buff,
-                                       easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                           easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int32_t MY_VERSION = 1;
   ObString table_name;
@@ -4444,7 +4444,7 @@ int NameServerWorker::rt_set_import_status(const int32_t version, common::ObData
 }
 
 int NameServerWorker::rt_force_create_table(const int32_t version, common::ObDataBuffer& in_buff,
-                                        easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                            easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   common::ObResultCode res;
@@ -4485,7 +4485,7 @@ int NameServerWorker::rt_force_create_table(const int32_t version, common::ObDat
 }
 
 int NameServerWorker::rt_force_drop_table(const int32_t version, common::ObDataBuffer& in_buff,
-                                      easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                          easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   common::ObResultCode res;
@@ -4526,7 +4526,7 @@ int NameServerWorker::rt_force_drop_table(const int32_t version, common::ObDataB
 }
 
 int NameServerWorker::rt_notify_switch_schema(const int32_t version, common::ObDataBuffer& in_buff,
-                                          easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                              easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(in_buff);
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;

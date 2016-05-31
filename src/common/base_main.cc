@@ -37,15 +37,15 @@ bool BaseMain::restart_ = false;
 bool PACKET_RECORDER_FLAG = false;
 
 BaseMain::BaseMain(const bool daemon)
-  : cmd_cluster_id_(0), cmd_rs_port_(0), cmd_master_rs_port_(0), cmd_port_(0),
+  : cmd_cluster_id_(0), cmd_ns_port_(0), cmd_master_ns_port_(0), cmd_port_(0),
     cmd_inner_port_(0), cmd_obmysql_port_(0), pid_dir_(DEFAULT_PID_DIR),
     log_dir_(DEFAULT_LOG_DIR), server_name_(NULL), use_daemon_(daemon) {
   setlocale(LC_ALL, "");
   memset(config_, 0, sizeof(config_));
-  memset(cmd_rs_ip_, 0, sizeof(cmd_rs_ip_));
+  memset(cmd_ns_ip_, 0, sizeof(cmd_ns_ip_));
   memset(cmd_data_dir_, 0, sizeof(cmd_data_dir_));
   memset(cmd_prefix_dir_, 0, sizeof(cmd_prefix_dir_));
-  memset(cmd_master_rs_ip_, 0, sizeof(cmd_master_rs_ip_));
+  memset(cmd_master_ns_ip_, 0, sizeof(cmd_master_ns_ip_));
   memset(cmd_datadir_, 0, sizeof(cmd_datadir_));
   memset(cmd_appname_, 0, sizeof(cmd_appname_));
   memset(cmd_devname_, 0, sizeof(cmd_devname_));
@@ -164,13 +164,13 @@ void BaseMain::parse_cmd_line(const int argc,  char* const argv[]) {
   while ((opt = getopt_long(argc, argv, opt_string, longopts, NULL)) != -1) {
     switch (opt) {
     case 'r':
-      snprintf(cmd_rs_ip_, OB_IP_STR_BUFF, "%s", optarg);
+      snprintf(cmd_ns_ip_, OB_IP_STR_BUFF, "%s", optarg);
       break;
     case 'f':
       snprintf(proxy_config_file_, sizeof(proxy_config_file_), "%s", optarg);
       break;
     case 'R':
-      snprintf(cmd_master_rs_ip_, OB_IP_STR_BUFF, "%s", optarg);
+      snprintf(cmd_master_ns_ip_, OB_IP_STR_BUFF, "%s", optarg);
       break;
     case 'c':
       snprintf(config_, sizeof(config_), "%s", optarg);
@@ -220,31 +220,31 @@ void BaseMain::parse_cmd_line(const int argc,  char* const argv[]) {
   }
 
   for (int64_t del = 0; del < OB_IP_STR_BUFF; del++) {
-    if (':' == cmd_rs_ip_[del]) {
-      cmd_rs_ip_[del++] = '\0';
+    if (':' == cmd_ns_ip_[del]) {
+      cmd_ns_ip_[del++] = '\0';
       char* endptr = NULL;
-      cmd_rs_port_ = static_cast<int32_t>(
-                       strtol(cmd_rs_ip_ + del, &endptr, 10));
-      if (endptr != cmd_rs_ip_ + del + strlen(cmd_rs_ip_ + del)) {
+      cmd_ns_port_ = static_cast<int32_t>(
+                       strtol(cmd_ns_ip_ + del, &endptr, 10));
+      if (endptr != cmd_ns_ip_ + del + strlen(cmd_ns_ip_ + del)) {
         TBSYS_LOG(WARN, "rs address truncated!");
       }
-      if (cmd_rs_port_ >= 65536 || cmd_rs_port_ <= 0) {
-        TBSYS_LOG(ERROR, "rs port invalid: [%d]", cmd_rs_port_);
+      if (cmd_ns_port_ >= 65536 || cmd_ns_port_ <= 0) {
+        TBSYS_LOG(ERROR, "rs port invalid: [%d]", cmd_ns_port_);
       }
       break;
     }
   }
 
   for (int64_t del = 0; del < OB_IP_STR_BUFF; del++) {
-    if (':' == cmd_master_rs_ip_[del]) {
-      cmd_master_rs_ip_[del++] = '\0';
+    if (':' == cmd_master_ns_ip_[del]) {
+      cmd_master_ns_ip_[del++] = '\0';
       char* endptr = NULL;
-      cmd_master_rs_port_ = static_cast<int32_t>(
-                              strtol(cmd_master_rs_ip_ + del, &endptr, 10));
-      if (endptr != cmd_master_rs_ip_ + del + strlen(cmd_master_rs_ip_ + del)) {
+      cmd_master_ns_port_ = static_cast<int32_t>(
+                              strtol(cmd_master_ns_ip_ + del, &endptr, 10));
+      if (endptr != cmd_master_ns_ip_ + del + strlen(cmd_master_ns_ip_ + del)) {
         TBSYS_LOG(WARN, "Master obi rs address truncated!");
-      } else if (cmd_master_rs_port_ >= 65536 || cmd_master_rs_port_ <= 0) {
-        TBSYS_LOG(ERROR, "Master Obi rs port invalid: [%d]", cmd_master_rs_port_);
+      } else if (cmd_master_ns_port_ >= 65536 || cmd_master_ns_port_ <= 0) {
+        TBSYS_LOG(ERROR, "Master Obi rs port invalid: [%d]", cmd_master_ns_port_);
       }
       break;
     }

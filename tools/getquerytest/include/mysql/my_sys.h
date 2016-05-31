@@ -284,7 +284,7 @@ extern my_bool timed_mutexes;
 typedef struct wild_file_pack {	/* Struct to hold info when selecting files */
   uint		wilds;		/* How many wildcards */
   uint		not_pos;	/* Start of not-theese-files */
-  char **	wild;		/* Pointer to wildcards */
+  char** 	wild;		/* Pointer to wildcards */
 } WF_PACK;
 
 enum loglevel {

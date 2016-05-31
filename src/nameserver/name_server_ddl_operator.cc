@@ -313,7 +313,7 @@ int NameServerDDLOperator::alter_table_schema(const TableSchema& old_schema, Alt
 }
 
 int NameServerDDLOperator::check_alter_column(const TableSchema& old_schema,
-                                          AlterTableSchema::AlterColumnSchema& alter_column) {
+                                              AlterTableSchema::AlterColumnSchema& alter_column) {
   int ret = OB_SUCCESS;
   ObObjType data_type = alter_column.column_.data_type_;
   // create or modify datetime column not allow
@@ -332,7 +332,7 @@ int NameServerDDLOperator::check_alter_column(const TableSchema& old_schema,
 
 // set old column id or allocate new column id
 int NameServerDDLOperator::set_column_info(const TableSchema& old_schema, const char* column_name,
-                                       uint64_t& max_column_id, AlterTableSchema::AlterColumnSchema& alter_column) {
+                                           uint64_t& max_column_id, AlterTableSchema::AlterColumnSchema& alter_column) {
   int ret = OB_SUCCESS;
   const ColumnSchema* old_column = old_schema.get_column_schema(column_name);
   // column already exist

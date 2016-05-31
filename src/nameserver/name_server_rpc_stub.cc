@@ -23,7 +23,7 @@ int NameServerRpcStub::init(const ObClientManager* client_mgr, common::ThreadSpe
 }
 
 int NameServerRpcStub::slave_register(const ObServer& master, const ObServer& slave_addr,
-                                  ObFetchParam& fetch_param, const int64_t timeout) {
+                                      ObFetchParam& fetch_param, const int64_t timeout) {
   int err = OB_SUCCESS;
   ObDataBuffer data_buff;
 
@@ -204,7 +204,7 @@ int NameServerRpcStub::migrate_tablet(const common::ObServer& dest_server, const
 }
 
 int NameServerRpcStub::create_tablet(const common::ObServer& cs, const common::ObNewRange& range,
-                                 const int64_t mem_version, const int64_t timeout_us) {
+                                     const int64_t mem_version, const int64_t timeout_us) {
   int ret = OB_SUCCESS;
   ObDataBuffer msgbuf;
   static char buff[OB_MAX_PACKET_LENGTH];
@@ -347,7 +347,7 @@ int NameServerRpcStub::get_obi_role(const common::ObServer& master, const int64_
 }
 
 int NameServerRpcStub::heartbeat_to_cs(const common::ObServer& cs, const int64_t lease_time, const int64_t frozen_mem_version,
-                                   const int64_t schema_version, const int64_t config_version) {
+                                       const int64_t schema_version, const int64_t config_version) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 3;
   ObDataBuffer msgbuf;
@@ -374,7 +374,7 @@ int NameServerRpcStub::heartbeat_to_cs(const common::ObServer& cs, const int64_t
 }
 
 int NameServerRpcStub::heartbeat_to_ms(const common::ObServer& ms, const int64_t lease_time, const int64_t frozen_mem_version,
-                                   const int64_t schema_version, const common::ObiRole& role, const int64_t privilege_version, const int64_t config_version) {
+                                       const int64_t schema_version, const common::ObiRole& role, const int64_t privilege_version, const int64_t config_version) {
   int ret = OB_SUCCESS;
   ObDataBuffer msgbuf;
   static const int MY_VERSION = 4;
@@ -532,7 +532,7 @@ int NameServerRpcStub::shutdown_cs(const common::ObServer& cs, bool is_restart, 
 }
 
 int NameServerRpcStub::get_split_range(const common::ObServer& ups, const int64_t timeout_us,
-                                   const uint64_t table_id, const int64_t forzen_version, ObTabletInfoList& tablets) {
+                                       const uint64_t table_id, const int64_t forzen_version, ObTabletInfoList& tablets) {
   int ret = OB_SUCCESS;
   ObDataBuffer msgbuf;
   if (NULL == client_mgr_) {
@@ -585,7 +585,7 @@ int NameServerRpcStub::get_split_range(const common::ObServer& ups, const int64_
 }
 
 int NameServerRpcStub::table_exist_in_cs(const ObServer& cs, const int64_t timeout_us,
-                                     const uint64_t table_id, bool& is_exist_in_cs) {
+                                         const uint64_t table_id, bool& is_exist_in_cs) {
   int ret = OB_SUCCESS;
   ObDataBuffer msgbuf;
   if (NULL == client_mgr_) {
@@ -663,7 +663,7 @@ int NameServerRpcStub::execute_sql(const ObServer& ms, const ObString sql, int64
   return ret;
 }
 int NameServerRpcStub::request_cs_load_bypass_tablet(const common::ObServer& chunkserver,
-                                                 const common::ObTableImportInfoList& import_info, const int64_t timeout_us) {
+                                                     const common::ObTableImportInfoList& import_info, const int64_t timeout_us) {
   int ret = OB_SUCCESS;
   int MY_VERSION = 1;
   ObDataBuffer msgbuf;
@@ -702,7 +702,7 @@ int NameServerRpcStub::request_cs_load_bypass_tablet(const common::ObServer& chu
   return ret;
 }
 int NameServerRpcStub::request_cs_delete_table(const common::ObServer& chunkserver,
-                                           const uint64_t table_id, const int64_t timeout_us) {
+                                               const uint64_t table_id, const int64_t timeout_us) {
   int ret = OB_SUCCESS;
   int MY_VERSION = 1;
   ObDataBuffer msgbuf;
@@ -830,13 +830,13 @@ int NameServerRpcStub::get_boot_state(const common::ObServer& master, const int6
   return ret;
 }
 int NameServerRpcStub::fetch_range_table(const ObServer& data_source, const ObString& table_name,
-                                     ObList<ObNewRange*>& range_table , ModuleArena& allocator, int64_t timeout) {
+                                         ObList<ObNewRange*>& range_table , ModuleArena& allocator, int64_t timeout) {
   ObString uri;
   return fetch_range_table(data_source, table_name, uri, range_table, allocator, timeout);
 }
 
 int NameServerRpcStub::fetch_range_table(const ObServer& data_source, const ObString& table_name, const ObString& uri,
-                                     ObList<ObNewRange*>& range_table , common::ModuleArena& allocator, int64_t timeout) {
+                                         ObList<ObNewRange*>& range_table , common::ModuleArena& allocator, int64_t timeout) {
   //TODO: refact this method after the root table refact, ranges received in a package could be inserted to root table
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
@@ -965,7 +965,7 @@ int NameServerRpcStub::fetch_range_table(const ObServer& data_source, const ObSt
 }
 
 int NameServerRpcStub::fetch_proxy_list(const common::ObServer& ms, const common::ObString& table_name,
-                                    const int64_t cluster_id, ObDataSourceProxyList& proxy_list, int64_t timeout) {
+                                        const int64_t cluster_id, ObDataSourceProxyList& proxy_list, int64_t timeout) {
   int ret = OB_SUCCESS;
   char sql_buf[OB_SQL_LENGTH];
   ObString select_stmt;
@@ -1109,7 +1109,7 @@ int NameServerRpcStub::fill_proxy_list(ObDataSourceProxyList& proxy_list, common
 }
 
 int NameServerRpcStub::fetch_slave_cluster_list(const common::ObServer& ms,
-                                            const ObServer& master_rs, ObServer* slave_cluster_rs, int64_t& ns_count, int64_t timeout) {
+                                                const ObServer& master_rs, ObServer* slave_cluster_rs, int64_t& ns_count, int64_t timeout) {
   int ret = OB_SUCCESS;
   char sql_buf[OB_SQL_LENGTH];
   ObString select_stmt;
@@ -1178,7 +1178,7 @@ int NameServerRpcStub::fetch_slave_cluster_list(const common::ObServer& ms,
 }
 
 int NameServerRpcStub::fill_slave_cluster_list(ObNewScanner& scanner, const ObServer& master_rs,
-                                           ObServer* slave_cluster_rs, int64_t& ns_count) {
+                                               ObServer* slave_cluster_rs, int64_t& ns_count) {
   int ret = OB_SUCCESS;
   ObRow row;
   const ObObj* cell = NULL;
@@ -1244,7 +1244,7 @@ int NameServerRpcStub::fill_slave_cluster_list(ObNewScanner& scanner, const ObSe
 }
 
 int NameServerRpcStub::get_import_status(const common::ObServer& rs, const common::ObString& table_name,
-                                     const uint64_t table_id, int32_t& status, const int64_t timeout_us) {
+                                         const uint64_t table_id, int32_t& status, const int64_t timeout_us) {
   int ret = OB_SUCCESS;
   ObDataBuffer msgbuf;
   int32_t version = 1;
@@ -1275,7 +1275,7 @@ int NameServerRpcStub::get_import_status(const common::ObServer& rs, const commo
 }
 
 int NameServerRpcStub::set_import_status(const common::ObServer& rs, const common::ObString& table_name,
-                                     const uint64_t table_id, const int32_t status, const int64_t timeout_us) {
+                                         const uint64_t table_id, const int32_t status, const int64_t timeout_us) {
   int ret = OB_SUCCESS;
   const int32_t version = 1;
   ObDataBuffer msgbuf;
@@ -1306,7 +1306,7 @@ int NameServerRpcStub::set_import_status(const common::ObServer& rs, const commo
 }
 
 int NameServerRpcStub::import(const common::ObServer& rs, const common::ObString& table_name,
-                          const uint64_t table_id, const common::ObString& uri,  const int64_t start_time, const int64_t timeout_us) {
+                              const uint64_t table_id, const common::ObString& uri,  const int64_t start_time, const int64_t timeout_us) {
   int ret = OB_SUCCESS;
   const int32_t version = 1;
   ObDataBuffer msgbuf;
@@ -1339,7 +1339,7 @@ int NameServerRpcStub::import(const common::ObServer& rs, const common::ObString
 }
 
 int NameServerRpcStub::kill_import(const common::ObServer& rs, const common::ObString& table_name,
-                               const uint64_t table_id, const int64_t timeout_us) {
+                                   const uint64_t table_id, const int64_t timeout_us) {
   int ret = OB_SUCCESS;
   const int32_t version = 1;
   ObDataBuffer msgbuf;

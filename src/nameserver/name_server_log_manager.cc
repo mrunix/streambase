@@ -124,8 +124,8 @@ int NameServerLogManager::init(NameServer* name_server, common::ObSlaveMgr* slav
 }
 
 int NameServerLogManager::write_log_hook(const bool is_master,
-                                     const ObLogCursor start_cursor, const ObLogCursor end_cursor,
-                                     const char* log_data, const int64_t len) {
+                                         const ObLogCursor start_cursor, const ObLogCursor end_cursor,
+                                         const char* log_data, const int64_t len) {
   int err = OB_SUCCESS;
   UNUSED(is_master);
   UNUSED(log_data);

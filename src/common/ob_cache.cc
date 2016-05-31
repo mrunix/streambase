@@ -46,9 +46,9 @@ sb::common::ObCachePair::ObCachePair() {
 
 
 void sb::common::ObCachePair::init(ObCacheBase& cache, char* key,
-                                          const int32_t key_size,
-                                          char* value, const int32_t value_size,
-                                          void* cache_item_handle) {
+                                   const int32_t key_size,
+                                   char* value, const int32_t value_size,
+                                   void* cache_item_handle) {
   revert();
   key_.assign(key, key_size);
   value_.assign(value, value_size);

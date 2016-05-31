@@ -71,17 +71,17 @@ int ObRootMain::do_work() {
   if (0 != cmd_cluster_id_) {
     rs_config_.cluster_id = static_cast<int64_t>(cmd_cluster_id_);
   }
-  if (strlen(cmd_rs_ip_) > 0) {
-    rs_config_.root_server_ip.set_value(cmd_rs_ip_); /* rs vip */
+  if (strlen(cmd_ns_ip_) > 0) {
+    rs_config_.root_server_ip.set_value(cmd_ns_ip_); /* rs vip */
   }
-  if (cmd_rs_port_ > 0) {
-    rs_config_.port = cmd_rs_port_; /* listen port */
+  if (cmd_ns_port_ > 0) {
+    rs_config_.port = cmd_ns_port_; /* listen port */
   }
-  if (strlen(cmd_master_rs_ip_) > 0) {
-    rs_config_.master_root_server_ip.set_value(cmd_master_rs_ip_);
+  if (strlen(cmd_master_ns_ip_) > 0) {
+    rs_config_.master_root_server_ip.set_value(cmd_master_ns_ip_);
   }
-  if (cmd_master_rs_port_ > 0) {
-    rs_config_.master_root_server_port = cmd_master_rs_port_;
+  if (cmd_master_ns_port_ > 0) {
+    rs_config_.master_root_server_port = cmd_master_ns_port_;
   }
   if (strlen(cmd_devname_) > 0) {
     rs_config_.devname.set_value(cmd_devname_);

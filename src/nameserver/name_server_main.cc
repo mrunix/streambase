@@ -32,15 +32,15 @@ void NameServerMain::print_version() {
   fprintf(stderr, "Copyright (c) 2016 Michael\n");
 }
 
-static const int START_REPORT_SIG = 49;
-static const int START_MERGE_SIG = 50;
-static const int DUMP_ROOT_TABLE_TO_LOG = 51;
+static const int START_REPORT_SIG            = 49;
+static const int START_MERGE_SIG             = 50;
+static const int DUMP_ROOT_TABLE_TO_LOG      = 51;
 static const int DUMP_AVAILABLE_SEVER_TO_LOG = 52;
-static const int SWITCH_SCHEMA = 53;
-static const int RELOAD_CONFIG = 54;
-static const int DO_CHECK_POINT = 55;
-static const int DROP_CURRENT_MERGE = 56;
-static const int CREATE_NEW_TABLE = 57;
+static const int SWITCH_SCHEMA               = 53;
+static const int RELOAD_CONFIG               = 54;
+static const int DO_CHECK_POINT              = 55;
+static const int DROP_CURRENT_MERGE          = 56;
+static const int CREATE_NEW_TABLE            = 57;
 
 int NameServerMain::do_work() {
   int ret = OB_SUCCESS;

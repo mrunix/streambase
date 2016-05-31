@@ -857,10 +857,10 @@ bool check_scan_param_compatibility(const ObScanParam& scan_param_in , common::O
 }
 
 int sb::mergeserver::ob_decode_get_param(const sb::common::ObGetParam& org_param,
-                                                const sb::common::ObSchemaManagerV2& schema_mgr,
-                                                sb::common::ObGetParam& decoded_param,
-                                                sb::common::ObGetParam& org_param_with_name,
-                                                common::ObResultCode* rc) {
+                                         const sb::common::ObSchemaManagerV2& schema_mgr,
+                                         sb::common::ObGetParam& decoded_param,
+                                         sb::common::ObGetParam& org_param_with_name,
+                                         common::ObResultCode* rc) {
   int err = OB_SUCCESS;
   ObCellInfo cell;
   ObCellInfo cell_with_name;
@@ -956,9 +956,9 @@ int sb::mergeserver::ob_decode_get_param(const sb::common::ObGetParam& org_param
 }
 
 int sb::mergeserver::ob_decode_scan_param(ObScanParam& org_param,
-                                                 const ObSchemaManagerV2& schema_mgr,
-                                                 ObScanParam& decoded_param,
-                                                 common::ObResultCode* rc) {
+                                          const ObSchemaManagerV2& schema_mgr,
+                                          ObScanParam& decoded_param,
+                                          common::ObResultCode* rc) {
   UNUSED(rc);
   int err = OB_SUCCESS;
   decoded_param.reset();

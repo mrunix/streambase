@@ -54,7 +54,7 @@ int sb::mergeserver::ObMsSqlOperator::set_param(const ObSqlScanParam& scan_param
 
 
 int sb::mergeserver::ObMsSqlOperator::add_sharding_result(ObNewScanner& sharding_res,
-    const ObNewRange& query_range, const int64_t limit_offset, bool& is_finish, bool& can_free_res, ObStringBuf& rowkey_buffer) {
+                                                          const ObNewRange& query_range, const int64_t limit_offset, bool& is_finish, bool& can_free_res, ObStringBuf& rowkey_buffer) {
   int err = OB_SUCCESS;
   UNUSED(limit_offset);
   can_free_res = false;

@@ -26,7 +26,7 @@ NameServerInnerTableTask::~NameServerInnerTableTask() {
 }
 
 int NameServerInnerTableTask::init(const int cluster_id, NameServerSQLProxy& proxy, ObTimer& timer,
-                               NameServerAsyncTaskQueue& queue) {
+                                   NameServerAsyncTaskQueue& queue) {
   int ret = OB_SUCCESS;
   if (cluster_id < 0) {
     TBSYS_LOG(WARN, "check init param failed:cluster_id[%d]", cluster_id);

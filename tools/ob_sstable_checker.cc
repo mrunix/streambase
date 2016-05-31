@@ -1000,7 +1000,7 @@ int sb::chunkserver::ObSCSSTableChecker::check(const char* sstable_fname) {
 }
 
 int sb::chunkserver::ObSCSSTableChecker::check_row(const char* current_row, const int64_t row_len,
-                                                          common::ObRowkey& row_key, const int32_t column_count) {
+                                                   common::ObRowkey& row_key, const int32_t column_count) {
   int ret = OB_SUCCESS;
   int64_t pos = 0;
   common::ObObj obj;

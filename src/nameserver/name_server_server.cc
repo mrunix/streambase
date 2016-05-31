@@ -1317,7 +1317,7 @@ int NameServer::try_create_new_tables(int64_t frozen_version) {
 }
 
 int NameServer::split_table_range(const int64_t frozen_version, const uint64_t table_id,
-                                     common::ObTabletInfoList& tablets) {
+                                  common::ObTabletInfoList& tablets) {
   int err = OB_SUCCESS;
   //step1: get master ups
   ObServer master_ups;
@@ -1466,8 +1466,8 @@ int NameServer::create_tablet_with_range(const int64_t frozen_version, const ObT
 }
 
 int NameServer::create_empty_tablet_with_range(const int64_t frozen_version,
-                                                  NameServerTable2* root_table, const common::ObTabletInfo& tablet,
-                                                  int32_t& created_count, int* t_server_index) {
+                                               NameServerTable2* root_table, const common::ObTabletInfo& tablet,
+                                               int32_t& created_count, int* t_server_index) {
   int ret = OB_SUCCESS;
   int32_t server_index[OB_SAFE_COPY_COUNT];
   if (NULL == root_table) {
@@ -1565,8 +1565,8 @@ void NameServer::dump_migrate_info() const {
 }
 
 int NameServer::get_deleted_tables(const common::ObSchemaManagerV2& old_schema,
-                                      const common::ObSchemaManagerV2& new_schema,
-                                      common::ObArray<uint64_t>& deleted_tables) {
+                                   const common::ObSchemaManagerV2& new_schema,
+                                   common::ObArray<uint64_t>& deleted_tables) {
   int ret = OB_SUCCESS;
   deleted_tables.clear();
   const ObTableSchema* it = old_schema.table_begin();
@@ -1665,7 +1665,7 @@ int NameServer::regist_chunk_server(const ObServer& server, const char* server_v
 }
 
 void NameServer::commit_task(const ObTaskType type, const ObRole role, const ObServer& server,
-                                int32_t inner_port, const char* server_version, const int32_t cluster_role) {
+                             int32_t inner_port, const char* server_version, const int32_t cluster_role) {
   NameServerAsyncTaskQueue::ObSeqTask task;
   task.type_ = type;
   task.role_ = role;
@@ -1696,7 +1696,7 @@ void NameServer::commit_task(const ObTaskType type, const ObRole role, const ObS
 }
 
 int NameServer::regist_merge_server(const common::ObServer& server, const int32_t sql_port,
-                                       const bool is_listen_ms, const char* server_version, int64_t time_stamp) {
+                                    const bool is_listen_ms, const char* server_version, int64_t time_stamp) {
   int ret = OB_SUCCESS;
   TBSYS_LOG(INFO, "regist merge server:addr[%s], sql_port[%d], server_version[%s], is_listen_ms=%s",
             to_cstring(server), sql_port, server_version, is_listen_ms ? "true" : "false");
@@ -1755,7 +1755,7 @@ int NameServer::update_capacity_info(const common::ObServer& server, const int64
  * 迁移完成操作
  */
 int NameServer::migrate_over(const int32_t result, const ObDataSourceDesc& desc,
-                                const int64_t occupy_size, const uint64_t crc_sum, const uint64_t row_checksum, const int64_t row_count) {
+                             const int64_t occupy_size, const uint64_t crc_sum, const uint64_t row_checksum, const int64_t row_count) {
   int ret = OB_SUCCESS;
   const ObNewRange& range = desc.range_;
   const ObServer& src_server = desc.src_server_;
@@ -1883,7 +1883,7 @@ int NameServer::migrate_over(const int32_t result, const ObDataSourceDesc& desc,
 }
 
 int NameServer::make_out_cell(ObCellInfo& out_cell, NameServerTable2::const_iterator first,
-                                 NameServerTable2::const_iterator last, ObScanner& scanner, const int32_t max_row_count, const int32_t max_key_len) const {
+                              NameServerTable2::const_iterator last, ObScanner& scanner, const int32_t max_row_count, const int32_t max_key_len) const {
   static ObString s_root_1_port(static_cast<int32_t>(strlen(ROOT_1_PORT)), static_cast<int32_t>(strlen(ROOT_1_PORT)), (char*)ROOT_1_PORT);
   static ObString s_root_1_ms_port(static_cast<int32_t>(strlen(ROOT_1_MS_PORT)), static_cast<int32_t>(strlen(ROOT_1_MS_PORT)), (char*)ROOT_1_MS_PORT);
   static ObString s_root_1_ipv6_1(static_cast<int32_t>(strlen(ROOT_1_IPV6_1)), static_cast<int32_t>(strlen(ROOT_1_IPV6_1)), (char*)ROOT_1_IPV6_1);
@@ -2147,7 +2147,7 @@ int NameServer::get_rowkey_info(const uint64_t table_id, ObRowkeyInfo& info) con
 }
 
 int NameServer::find_root_table_key(const uint64_t table_id, const ObString& table_name,
-                                       const int32_t max_key_len, const common::ObRowkey& key, ObScanner& scanner) {
+                                    const int32_t max_key_len, const common::ObRowkey& key, ObScanner& scanner) {
   int ret = OB_SUCCESS;
   if (table_id == OB_INVALID_ID || 0 == table_id) {
     ret = OB_INVALID_ARGUMENT;
@@ -2265,7 +2265,7 @@ int NameServer::get_server_index(const common::ObServer& server) const {
   return ret;
 }
 int NameServer::report_tablets(const ObServer& server, const ObTabletReportInfoList& tablets,
-                                  const int64_t frozen_mem_version) {
+                               const int64_t frozen_mem_version) {
   int return_code = OB_SUCCESS;
   int server_index = get_server_index(server);
   if (server_index == OB_INVALID_INDEX) {
@@ -2288,7 +2288,7 @@ int NameServer::report_tablets(const ObServer& server, const ObTabletReportInfoL
  * 收到汇报消息后调用
  */
 int NameServer::got_reported(const ObTabletReportInfoList& tablets, const int server_index,
-                                const int64_t frozen_mem_version, const bool for_bypass/*=false*/, const bool is_replay_log /*=false*/) {
+                             const int64_t frozen_mem_version, const bool for_bypass/*=false*/, const bool is_replay_log /*=false*/) {
   int ret = OB_SUCCESS;
   TBSYS_LOG(INFO, "will add tablet info to root_table_for_query");
   delete_list_.reset();
@@ -2326,7 +2326,7 @@ int NameServer::got_reported(const ObTabletReportInfoList& tablets, const int se
  * 要调用采用写拷贝机制的处理函数
  */
 int NameServer::got_reported_for_query_table(const ObTabletReportInfoList& tablets,
-                                                const int32_t server_index, const int64_t frozen_mem_version, const bool for_bypass) {
+                                             const int32_t server_index, const int64_t frozen_mem_version, const bool for_bypass) {
   UNUSED(frozen_mem_version);
   int ret = OB_SUCCESS;
   int64_t have_done_index = 0;
@@ -2424,8 +2424,8 @@ int NameServer::got_reported_for_query_table(const ObTabletReportInfoList& table
  * 写拷贝机制的,处理汇报消息
  */
 int NameServer::got_reported_with_copy(const ObTabletReportInfoList& tablets,
-                                          const int32_t server_index, const int64_t have_done_index,
-                                          const bool for_bypass) {
+                                       const int32_t server_index, const int64_t have_done_index,
+                                       const bool for_bypass) {
   int ret = OB_SUCCESS;
   ObTabletReportInfo* p_table_info = NULL;
   ObServerStatus* new_server_status = server_manager_.get_server_status(server_index);
@@ -2693,7 +2693,7 @@ int NameServer::get_row_checksum(const int64_t tablet_version, const uint64_t ta
 
 // the array size of server_index should be larger than expected_num
 void NameServer::get_available_servers_for_new_table(int* server_index,
-                                                        int32_t expected_num, int32_t& results_num) {
+                                                     int32_t expected_num, int32_t& results_num) {
   //tbsys::CThreadGuard guard(&server_manager_mutex_);
   results_num = 0;
   int64_t mnow = tbsys::CTimeUtil::getTime();
@@ -2724,7 +2724,7 @@ void NameServer::get_available_servers_for_new_table(int* server_index,
 }
 
 int NameServer::slave_batch_create_new_table(const common::ObTabletInfoList& tablets,
-                                                int32_t** t_server_index, int32_t* replicas_num, const int64_t mem_version) {
+                                             int32_t** t_server_index, int32_t* replicas_num, const int64_t mem_version) {
   int ret = OB_SUCCESS;
   int64_t index = tablets.get_tablet_size();
   ObArray<int32_t> server_array;
@@ -2949,7 +2949,7 @@ int NameServer::fetch_mem_version(int64_t& mem_version) {
 }
 
 int NameServer::create_new_table(const bool did_replay, const common::ObTabletInfo& tablet,
-                                    const common::ObArray<int32_t>& chunkservers, const int64_t mem_version) {
+                                 const common::ObArray<int32_t>& chunkservers, const int64_t mem_version) {
   int ret = OB_SUCCESS;
   NameServerTable2* root_table_for_create = NULL;
   tbsys::CThreadGuard mutex_gard(&root_table_build_mutex_);
@@ -3637,7 +3637,7 @@ int NameServer::recover_from_check_point(const int server_status, const uint64_t
 }
 
 int NameServer::receive_new_frozen_version(const int64_t rt_version, const int64_t frozen_version,
-                                              const int64_t last_frozen_time, bool did_replay) {
+                                           const int64_t last_frozen_time, bool did_replay) {
   int ret = OB_SUCCESS;
   UNUSED(rt_version);
   if (config_.is_import) {
@@ -4159,7 +4159,7 @@ int NameServer::register_ups(const common::ObServer& addr, int32_t inner_port, i
 }
 
 int NameServer::receive_ups_heartbeat_resp(const common::ObServer& addr, ObUpsStatus stat,
-                                              const common::ObiRole& obi_role) {
+                                           const common::ObiRole& obi_role) {
   int ret = OB_SUCCESS;
   if (NULL == ups_manager_) {
     TBSYS_LOG(ERROR, "ups_manager is NULL");
@@ -4648,7 +4648,7 @@ int NameServer::check_bypass_process() {
 }
 
 int NameServer::bypass_meta_data_finished(const OperationType type, NameServerTable2* root_table,
-                                             ObTabletInfoManager* tablet_manager, common::ObSchemaManagerV2* schema_mgr) {
+                                          ObTabletInfoManager* tablet_manager, common::ObSchemaManagerV2* schema_mgr) {
   int ret = OB_SUCCESS;
   TBSYS_LOG(INFO, "bypass new meta data is ready. try to refresh name_server's");
   switch (type) {
@@ -4817,13 +4817,13 @@ bool NameServer::is_bypass_process() {
   return state_.get_bypass_flag();
 }
 int NameServer::cs_load_sstable_done(const ObServer& cs,
-                                        const common::ObTableImportInfoList& table_list, const bool is_load_succ) {
+                                     const common::ObTableImportInfoList& table_list, const bool is_load_succ) {
   int32_t cs_index = get_server_index(cs);
   return operation_helper_.cs_load_sstable_done(cs_index, table_list, is_load_succ);
 }
 
 int NameServer::cs_delete_table_done(const ObServer& cs,
-                                        const uint64_t table_id, const bool is_succ) {
+                                     const uint64_t table_id, const bool is_succ) {
   int ret = OB_SUCCESS;
   if (is_loading_data()) {
     if (is_succ) {
@@ -5335,7 +5335,7 @@ int NameServer::kill_import(const ObString& table_name, const uint64_t table_id)
 }
 
 int NameServer::get_import_status(const ObString& table_name,
-                                     const uint64_t table_id, ObLoadDataInfo::ObLoadDataStatus& status) {
+                                  const uint64_t table_id, ObLoadDataInfo::ObLoadDataStatus& status) {
   int ret = OB_SUCCESS;
 
   if (!is_master()) {
@@ -5353,7 +5353,7 @@ int NameServer::get_import_status(const ObString& table_name,
 }
 
 int NameServer::set_import_status(const ObString& table_name,
-                                     const uint64_t table_id, const ObLoadDataInfo::ObLoadDataStatus status) {
+                                  const uint64_t table_id, const ObLoadDataInfo::ObLoadDataStatus status) {
   int ret = OB_SUCCESS;
 
   if (!is_master()) {

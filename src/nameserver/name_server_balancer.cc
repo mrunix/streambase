@@ -312,7 +312,7 @@ uint64_t NameServerBalancer::nb_get_next_table_id(int32_t table_count, int32_t s
 }
 
 int NameServerBalancer::nb_find_dest_cs(NameServerTable2::const_iterator meta, int64_t low_bound, int32_t cs_num,
-                                    int32_t& dest_cs_idx, ObChunkServerManager::iterator& dest_it) {
+                                        int32_t& dest_cs_idx, ObChunkServerManager::iterator& dest_it) {
   int ret = OB_ENTRY_NOT_EXIST;
   dest_cs_idx = OB_INVALID_INDEX;
   if (0 < cs_num) {
@@ -406,8 +406,8 @@ int NameServerBalancer::nb_check_rereplication(NameServerTable2::const_iterator 
 }
 
 int NameServerBalancer::nb_select_copy_src(NameServerTable2::const_iterator it,
-                                       int32_t& src_cs_idx, ObChunkServerManager::iterator& src_it,
-                                       int64_t& tablet_version) {
+                                           int32_t& src_cs_idx, ObChunkServerManager::iterator& src_it,
+                                           int64_t& tablet_version) {
   int ret = OB_ENTRY_NOT_EXIST;
   src_cs_idx = OB_INVALID_INDEX;
   int32_t min_count = INT32_MAX;
@@ -532,7 +532,7 @@ int NameServerBalancer::nb_add_copy(NameServerTable2::const_iterator it, const O
 }
 
 int NameServerBalancer::nb_check_add_migrate(NameServerTable2::const_iterator it, const ObTabletInfo* tablet, int64_t avg_count,
-                                         int32_t cs_num, int64_t migrate_out_per_cs) {
+                                             int32_t cs_num, int64_t migrate_out_per_cs) {
   int ret = OB_SUCCESS;
   int64_t delta_count = config_->balance_tolerance_count;
   for (int i = 0; i < OB_SAFE_COPY_COUNT; ++i) {
@@ -664,7 +664,7 @@ int NameServerBalancer::nb_del_copy(NameServerTable2::const_iterator it, const O
 }
 
 void NameServerBalancer::check_table_rereplication(const uint64_t table_id,
-                                               const int64_t avg_count, const int64_t cs_num, bool& scan_next_table) {
+                                                   const int64_t avg_count, const int64_t cs_num, bool& scan_next_table) {
   OB_ASSERT(config_);
   RereplicationAction ract;
   int64_t delta_count = config_->balance_tolerance_count;
@@ -734,7 +734,7 @@ int NameServerBalancer::do_rereplication_by_table(const uint64_t table_id, bool&
 }
 
 int NameServerBalancer::do_rereplication_by_table(const uint64_t table_id, bool& scan_next_table,
-                                              bool& need_replicate, bool& table_found, int64_t& total_tablet_count, int64_t& safe_tablet_count) {
+                                                  bool& need_replicate, bool& table_found, int64_t& total_tablet_count, int64_t& safe_tablet_count) {
   check_components();
   int ret = OB_SUCCESS;
   int64_t avg_size = 0;
@@ -884,7 +884,7 @@ bool NameServerBalancer::nb_is_curr_table_balanced(int64_t avg_sstable_count) co
 
 
 int NameServerBalancer::nb_calculate_sstable_count(const uint64_t table_id, int64_t& avg_size, int64_t& avg_count,
-                                               int32_t& cs_count, int64_t& migrate_out_per_cs, int32_t& shutdown_count) {
+                                                   int32_t& cs_count, int64_t& migrate_out_per_cs, int32_t& shutdown_count) {
   bool need_replicate = false;
   bool table_found = false;
   int64_t total_tablet_count = 0;
@@ -894,8 +894,8 @@ int NameServerBalancer::nb_calculate_sstable_count(const uint64_t table_id, int6
 }
 
 int NameServerBalancer::nb_calculate_sstable_count(const uint64_t table_id, int64_t& avg_size, int64_t& avg_count,
-                                               int32_t& cs_count, int64_t& migrate_out_per_cs, int32_t& shutdown_count, bool& need_replicate, bool& table_found,
-                                               int64_t& total_tablet_count, int64_t& safe_tablet_count) {
+                                                   int32_t& cs_count, int64_t& migrate_out_per_cs, int32_t& shutdown_count, bool& need_replicate, bool& table_found,
+                                                   int64_t& total_tablet_count, int64_t& safe_tablet_count) {
   int ret = OB_SUCCESS;
   avg_size = 0;
   avg_count = 0;
@@ -1529,7 +1529,7 @@ void NameServerBalancer::nb_print_shutting_down_progress(char* buf, const int64_
 }
 
 int NameServerBalancer::get_data_load_info(const uint64_t table_id, ObDataSourceDesc::ObDataSourceType& data_source_type,
-                                       ObString*& uri, int64_t& tablet_version) {
+                                           ObString*& uri, int64_t& tablet_version) {
   int ret = OB_NOT_DATA_LOAD_TABLE;
   uri = NULL;
   for (int64_t i = 0; i < MAX_LOAD_INFO_CONCURRENCY; ++i) {
@@ -1908,7 +1908,7 @@ void NameServerBalancer::update_load_table_history(const ObLoadDataInfo& info) {
 }
 
 int NameServerBalancer::add_load_table_from_log(const ObString& table_name, const uint64_t table_id,
-                                            const uint64_t old_table_id, ObString& uri, const int64_t start_time, const int64_t tablet_version) {
+                                                const uint64_t old_table_id, ObString& uri, const int64_t start_time, const int64_t tablet_version) {
   int ret = OB_SUCCESS;
   if (OB_SUCCESS == ret) {
     tbsys::CRLockGuard guard(*root_table_rwlock_);
@@ -2165,8 +2165,8 @@ int NameServerBalancer::read_from_file(const char* filename) {
 }
 
 int NameServerBalancer::fetch_range_list(const ObDataSourceDesc::ObDataSourceType data_source_type,
-                                     ObString& uri, const ObString& table_name, const uint64_t table_id,
-                                     ObList<ObNewRange*>& range_table, ModuleArena& allocator) {
+                                         ObString& uri, const ObString& table_name, const uint64_t table_id,
+                                         ObList<ObNewRange*>& range_table, ModuleArena& allocator) {
   check_components();
   int ret = OB_SUCCESS;
   int64_t retry = 3;
@@ -2245,7 +2245,7 @@ int NameServerBalancer::fetch_range_list(const ObDataSourceDesc::ObDataSourceTyp
 }
 
 int NameServerBalancer::check_import_status_of_all_clusters(const ObString& table_name,
-                                                        const uint64_t table_id, bool& is_finished) {
+                                                            const uint64_t table_id, bool& is_finished) {
   check_components();
   int ret = OB_SUCCESS;
   is_finished = false;
@@ -2331,7 +2331,7 @@ int NameServerBalancer::check_import_status_of_all_clusters(const ObString& tabl
 }
 
 int NameServerBalancer::start_set_import_status(const ObString& table_name, const uint64_t table_id,
-                                            const ObLoadDataInfo::ObLoadDataStatus& status) {
+                                                const ObLoadDataInfo::ObLoadDataStatus& status) {
   check_components();
   int ret = OB_SUCCESS;
   ObServer master_rs;
@@ -2390,7 +2390,7 @@ int NameServerBalancer::start_set_import_status(const ObString& table_name, cons
 }
 
 int NameServerBalancer::get_import_status(const ObString& table_name,
-                                      const uint64_t table_id, ObLoadDataInfo::ObLoadDataStatus& status) {
+                                          const uint64_t table_id, ObLoadDataInfo::ObLoadDataStatus& status) {
   int ret = OB_SUCCESS;
   bool found = false;
   status = ObLoadDataInfo::FAILED;
@@ -2430,7 +2430,7 @@ int NameServerBalancer::get_import_status(const ObString& table_name,
 }
 
 int NameServerBalancer::set_import_status(const ObString& table_name,
-                                      const uint64_t table_id, const ObLoadDataInfo::ObLoadDataStatus& status) {
+                                          const uint64_t table_id, const ObLoadDataInfo::ObLoadDataStatus& status) {
   check_components();
   int ret = OB_SUCCESS;
   bool found = false;
@@ -2600,8 +2600,8 @@ int NameServerBalancer::init_load_data_env() {
 }
 
 int NameServerBalancer::add_load_table_task_info(const ObString& table_name, const uint64_t table_id,
-                                             ObString& uri, const int64_t start_time, ObString& simple_uri,
-                                             ObDataSourceDesc::ObDataSourceType& data_source_type) {
+                                                 ObString& uri, const int64_t start_time, ObString& simple_uri,
+                                                 ObDataSourceDesc::ObDataSourceType& data_source_type) {
   // load_data_lock_ must be locked by caller
   int ret = OB_SUCCESS;
   ObLoadDataInfo* info = NULL;

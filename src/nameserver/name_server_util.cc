@@ -19,7 +19,7 @@ using namespace sb::nameserver;
 using namespace sb::common;
 
 int NameServerUtil::delete_tablets(NameServerRpcStub& rpc_stub, const ObChunkServerManager& server_manager,
-                               ObTabletReportInfoList& delete_list, const int64_t timeout) {
+                                   ObTabletReportInfoList& delete_list, const int64_t timeout) {
   static common::ObTabletReportInfoList delete_msg;
   static tbsys::CThreadMutex delete_msg_lock;
   int ret = OB_SUCCESS;

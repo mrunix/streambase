@@ -41,7 +41,7 @@ NameServerMonitorTable::NameServerMonitorTable() {
 }
 
 NameServerMonitorTable::NameServerMonitorTable(const ObServer& name_server,
-                                       const ObChunkServerManager& cs_manager, const ObUpsManager& ups_manager):
+                                               const ObChunkServerManager& cs_manager, const ObUpsManager& ups_manager):
   nameserver_vip_(name_server), cs_manager_(&cs_manager),
   ups_manager_(&ups_manager) {
 }
@@ -50,7 +50,7 @@ NameServerMonitorTable::~NameServerMonitorTable() {
 }
 
 void NameServerMonitorTable::init(const ObServer& name_server,
-                              const ObChunkServerManager& cs_manager, const ObUpsManager& ups_manager) {
+                                  const ObChunkServerManager& cs_manager, const ObUpsManager& ups_manager) {
   nameserver_vip_ = name_server;
   cs_manager_ = &cs_manager;
   ups_manager_ = &ups_manager;
@@ -274,7 +274,7 @@ int NameServerMonitorTable::find_first_tablet(const ObRowkey& rowkey, const Serv
 }
 
 int NameServerMonitorTable::fill_result(const int pos, const ServerVector& servers,
-                                    int64_t& row_count, ObScanner& result) {
+                                        int64_t& row_count, ObScanner& result) {
   int ret = OB_SUCCESS;
   int index = pos;
   if ((pos < 0) || (pos > servers.size())) {

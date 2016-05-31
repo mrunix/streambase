@@ -219,7 +219,7 @@ int64_t sb::common::ObBaseMemPool::get_memory_size_limit() const {
 
 
 void* sb::common::ObBaseMemPool::malloc_emergency(const int64_t nbyte,
-                                                         const int32_t mod_id, int64_t* got_size) {
+                                                  const int32_t mod_id, int64_t* got_size) {
   return malloc_(nbyte, mod_id, got_size);
 }
 
@@ -263,8 +263,8 @@ sb::common::ObFixedMemPool::ObFixedMemPool() {
 
 
 int sb::common::ObFixedMemPool::init(const int64_t fixed_item_size,
-                                            const int64_t item_num_each_block,
-                                            const ObMemPoolModSet* mod_set/* = NULL*/) {
+                                     const int64_t item_num_each_block,
+                                     const ObMemPoolModSet* mod_set/* = NULL*/) {
   int err = 0;
   int64_t real_fixed_item_size = fixed_item_size;
   int64_t real_item_num_each_block = item_num_each_block;
@@ -339,7 +339,7 @@ void sb::common::ObFixedMemPool::print_mod_memory_usage(bool print_to_std) {
 
 
 int64_t sb::common::ObFixedMemPool::recycle_memory_block(ObDLink*& block_it,
-    bool check_unfreed_mem) {
+                                                         bool check_unfreed_mem) {
   int64_t memory_freed = 0;
   char* buf_allocated = NULL;
   MemBlockInfo* info = CONTAINING_RECORD(block_it, MemBlockInfo, block_link_);
@@ -623,7 +623,7 @@ int64_t sb::common::ObVarMemPool::get_used_block_num()const {
 }
 
 int64_t sb::common::ObVarMemPool::recycle_memory_block(ObDLink*& block_it,
-    bool check_unfreed_mem) {
+                                                       bool check_unfreed_mem) {
   int64_t memory_freed = 0;
   char* buf_allocated = NULL;
   MemBlockInfo* info = CONTAINING_RECORD(block_it, MemBlockInfo, block_link_);

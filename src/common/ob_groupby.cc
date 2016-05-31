@@ -37,7 +37,7 @@ sb::common::ObAggregateColumn::~ObAggregateColumn() {
 }
 
 sb::common::ObAggregateColumn::ObAggregateColumn(ObString& org_column_name, ObString& as_column_name,
-                                                        const int64_t as_column_idx, const ObAggregateFuncType& func_type) {
+                                                 const int64_t as_column_idx, const ObAggregateFuncType& func_type) {
   org_column_name_ = org_column_name;
   as_column_name_ = as_column_name;
   org_column_idx_ = -1;
@@ -46,7 +46,7 @@ sb::common::ObAggregateColumn::ObAggregateColumn(ObString& org_column_name, ObSt
 }
 
 sb::common::ObAggregateColumn::ObAggregateColumn(const int64_t org_column_idx,  const int64_t as_column_idx,
-                                                        const ObAggregateFuncType& func_type) {
+                                                 const ObAggregateFuncType& func_type) {
   org_column_idx_ = org_column_idx;
   as_column_idx_ = as_column_idx;
   func_type_ = func_type;
@@ -112,7 +112,7 @@ bool sb::common::ObAggregateColumn::operator==(const ObAggregateColumn& other)co
 }
 
 int sb::common::ObAggregateColumn::get_first_aggregate_obj(const ObObj& first_obj,
-    ObObj& agg_obj)const {
+                                                           ObObj& agg_obj)const {
   int err = OB_SUCCESS;
   switch (func_type_) {
   case MAX:
@@ -210,7 +210,7 @@ sb::common::ObGroupKey::~ObGroupKey() {
 }
 
 int sb::common::ObGroupKey::init(const ObCellArray& cell_array, const ObGroupByParam& param,
-                                        const int64_t row_beg, const int64_t row_end, const int32_t type) {
+                                 const int64_t row_beg, const int64_t row_end, const int32_t type) {
   int err = OB_SUCCESS;
   if (ORG_KEY != type && AGG_KEY != type) {
     TBSYS_LOG(WARN, "param error, unknow key type [type:%d]", type);
@@ -494,7 +494,7 @@ ObString sb::common::ObGroupByParam::COUNT_ROWS_COLUMN_NAME = ObString(static_ca
     static_cast<int32_t>(strlen("*")), const_cast<char*>("*"));
 
 int sb::common::ObGroupByParam::add_aggregate_column(const ObString& org_column_name, const ObString& as_column_name,
-                                                            const ObAggregateFuncType aggregate_func, bool is_return) {
+                                                     const ObAggregateFuncType aggregate_func, bool is_return) {
   int err = OB_SUCCESS;
   ObString stored_org_column_name = org_column_name;
   ObString stored_as_column_name = as_column_name;
@@ -534,7 +534,7 @@ int sb::common::ObGroupByParam::add_aggregate_column(const ObString& org_column_
 }
 
 int sb::common::ObGroupByParam::add_aggregate_column(const int64_t org_column_idx,
-                                                            const ObAggregateFuncType aggregate_func, bool is_return) {
+                                                     const ObAggregateFuncType aggregate_func, bool is_return) {
   int err = OB_SUCCESS;
 
   if (OB_SUCCESS == err) {
@@ -666,7 +666,7 @@ int sb::common::ObGroupByParam::add_having_cond(const ObString& expr) {
 }
 
 int sb::common::ObGroupByParam::add_having_cond(const ObString& column_name, const ObLogicOperator& cond_op,
-                                                       const ObObj& cond_value) {
+                                                const ObObj& cond_value) {
   int err = OB_SUCCESS;
   ObString stored_column_name = column_name;
   ObObj stored_cond_value = cond_value;
@@ -809,7 +809,7 @@ int64_t sb::common::ObGroupByParam::get_target_cell_idx(const ObGroupKey& key, c
 }
 
 int sb::common::ObGroupByParam::calc_org_group_key_hash_val(const ObCellArray& cells, const int64_t row_beg,
-    const int64_t row_end, uint32_t& val)const {
+                                                            const int64_t row_end, uint32_t& val)const {
   uint32_t hash_val = 0;
   int err = OB_SUCCESS;
   if (row_beg < 0
@@ -841,7 +841,7 @@ int sb::common::ObGroupByParam::calc_org_group_key_hash_val(const ObCellArray& c
 }
 
 int sb::common::ObGroupByParam::calc_agg_group_key_hash_val(const ObCellArray& cells, const int64_t row_beg,
-    const int64_t row_end, uint32_t& val)const {
+                                                            const int64_t row_end, uint32_t& val)const {
   uint32_t hash_val = 0;
   int err = OB_SUCCESS;
   if (row_beg < 0
@@ -875,8 +875,8 @@ int sb::common::ObGroupByParam::calc_agg_group_key_hash_val(const ObCellArray& c
 
 
 int sb::common::ObGroupByParam::aggregate(const ObCellArray& org_cells,  const int64_t org_row_beg,
-                                                 const int64_t org_row_end, ObCellArray& aggregate_cells,
-                                                 const int64_t aggregate_row_beg, const int64_t aggregate_row_end)const {
+                                          const int64_t org_row_end, ObCellArray& aggregate_cells,
+                                          const int64_t aggregate_row_beg, const int64_t aggregate_row_end)const {
   int err = OB_SUCCESS;
   bool first_row_of_group = false;
   int64_t max_org_idx = org_row_end - org_row_beg;

@@ -39,7 +39,7 @@ class NameServerMonitorTable {
  public:
   NameServerMonitorTable();
   NameServerMonitorTable(const common::ObServer& name_server,
-                     const ObChunkServerManager& cs_manager, const ObUpsManager& ups_manager);
+                         const ObChunkServerManager& cs_manager, const ObUpsManager& ups_manager);
   virtual ~NameServerMonitorTable();
  public:
   typedef common::ObVector<common::ObClusterServer> ServerVector;

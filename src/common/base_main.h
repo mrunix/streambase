@@ -11,12 +11,15 @@
 ================================================================*/
 #ifndef OCEANBASE_ROOTSERVER_BASE_MAIN_H_
 #define OCEANBASE_ROOTSERVER_BASE_MAIN_H_
-#include <tbsys.h>
 
+#include <tbsys.h>
 #include "ob_define.h"
+
 namespace sb {
 namespace common {
+
 extern bool PACKET_RECORDER_FLAG;
+
 class BaseMain {
  public:
   //static BaseMain* instance() {
@@ -46,15 +49,15 @@ class BaseMain {
   char proxy_config_file_[OB_MAX_FILE_NAME_LENGTH];
   char cmd_data_dir_[OB_MAX_FILE_NAME_LENGTH];
   char cmd_prefix_dir_[OB_MAX_FILE_NAME_LENGTH];
-  char cmd_rs_ip_[OB_IP_STR_BUFF];
-  char cmd_master_rs_ip_[OB_IP_STR_BUFF];
+  char cmd_ns_ip_[OB_IP_STR_BUFF];
+  char cmd_master_ns_ip_[OB_IP_STR_BUFF];
   char cmd_datadir_[OB_MAX_FILE_NAME_LENGTH];
   char cmd_appname_[OB_MAX_APP_NAME_LENGTH];
   char cmd_devname_[OB_MAX_APP_NAME_LENGTH];
   char cmd_extra_config_[OB_MAX_EXTRA_CONFIG_LENGTH];
   int32_t cmd_cluster_id_;
-  int32_t cmd_rs_port_;
-  int32_t cmd_master_rs_port_;
+  int32_t cmd_ns_port_;
+  int32_t cmd_master_ns_port_;
   int32_t cmd_port_;
   int32_t cmd_inner_port_;
   int32_t cmd_obmysql_port_;

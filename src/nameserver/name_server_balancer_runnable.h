@@ -24,8 +24,8 @@ class NameServerBalancer;
 class NameServerBalancerRunnable : public tbsys::CDefaultRunnable {
  public:
   NameServerBalancerRunnable(NameServerServerConfig& config,
-                         NameServerBalancer& balancer,
-                         common::ObRoleMgr& role_mgr);
+                             NameServerBalancer& balancer,
+                             common::ObRoleMgr& role_mgr);
   virtual ~NameServerBalancerRunnable();
   void run(tbsys::CThread* thread, void* arg);
   void wakeup();
