@@ -11,7 +11,6 @@ ADD_SUBDIRECTORY(chunkserver)
 ADD_SUBDIRECTORY(updateserver)
 ADD_SUBDIRECTORY(lsync)
 ADD_SUBDIRECTORY(client)
-ADD_SUBDIRECTORY(proxyserver)
 ADD_SUBDIRECTORY(importserver)
 
 ADD_SUBDIRECTORY(nameserver)
