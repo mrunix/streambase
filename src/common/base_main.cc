@@ -139,7 +139,7 @@ void BaseMain::add_signal_catched(const int sig) {
 
 void BaseMain::parse_cmd_line(const int argc,  char* const argv[]) {
   int opt = 0;
-  const char* opt_string = "n:M:p:i:C:c:a:m:o:z:D:P:hNVt:f:";
+  const char* opt_string = "n:M:p:i:C:c:a:m:o:z:D:P:hNVt:";
   struct option longopts[] = {
     {"nameserver", 1, NULL, 'n'},
     {"port", 1, NULL, 'p'},
@@ -157,7 +157,6 @@ void BaseMain::parse_cmd_line(const int argc,  char* const argv[]) {
     {"no_daemon", 0, NULL, 'N'},
     {"extra_config", 0, NULL, 'o'},
     {"ms_type", 0, NULL, 't'},
-    {"proxy_config_file", 0, NULL, 'f'},
     {0, 0, 0, 0}
   };
 
@@ -165,9 +164,6 @@ void BaseMain::parse_cmd_line(const int argc,  char* const argv[]) {
     switch (opt) {
     case 'n':
       snprintf(cmd_ns_ip_, OB_IP_STR_BUFF, "%s", optarg);
-      break;
-    case 'f':
-      snprintf(proxy_config_file_, sizeof(proxy_config_file_), "%s", optarg);
       break;
     case 'M':
       snprintf(cmd_master_ns_ip_, OB_IP_STR_BUFF, "%s", optarg);
@@ -296,15 +292,6 @@ void BaseMain::print_usage(const char* prog_name) {
             "\t-p|--port PORT\n"
             "\t-n|--nameserver IP:PORT\n"
             "\t-z|--mysql_port PORT\n"
-            "\t-N|--no_daemon\n"
-            "\t-V|--version\n");
-  } else if (0 == strcmp("proxyserver", prog_name)) {
-    fprintf(stderr, "proxyserver\n"
-            "\t-h|--help\n"
-            "\t-i|--interface DEV\n"
-            "\t-p|--port PORT\n"
-            "\t-f|--proxy config\n"
-            "\t-o|--extra_config name=value[,...]\n"
             "\t-N|--no_daemon\n"
             "\t-V|--version\n");
   } else {

@@ -43,7 +43,6 @@ class BaseMain {
   virtual void parse_cmd_line(const int argc, char* const argv[]);
   virtual int do_work() = 0;
   char config_[OB_MAX_FILE_NAME_LENGTH];
-  char proxy_config_file_[OB_MAX_FILE_NAME_LENGTH];
   char cmd_data_dir_[OB_MAX_FILE_NAME_LENGTH];
   char cmd_prefix_dir_[OB_MAX_FILE_NAME_LENGTH];
   char cmd_ns_ip_[OB_IP_STR_BUFF];
