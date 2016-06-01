@@ -22,9 +22,6 @@ extern bool PACKET_RECORDER_FLAG;
 
 class BaseMain {
  public:
-  //static BaseMain* instance() {
-  //  return instance_;
-  //}
   virtual ~BaseMain();
   virtual int start(const int argc, char* argv[]);
   virtual void destroy();

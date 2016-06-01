@@ -139,18 +139,18 @@ void BaseMain::add_signal_catched(const int sig) {
 
 void BaseMain::parse_cmd_line(const int argc,  char* const argv[]) {
   int opt = 0;
-  const char* opt_string = "r:R:p:i:C:c:n:m:o:z:D:P:hNVt:f:";
+  const char* opt_string = "n:M:p:i:C:c:a:m:o:z:D:P:hNVt:f:";
   struct option longopts[] = {
-    {"rootserver", 1, NULL, 'r'},
+    {"nameserver", 1, NULL, 'n'},
     {"port", 1, NULL, 'p'},
     {"data_dir", 1, NULL, 'D'},
     {"prefix_dir", 1, NULL, 'P'},
     {"interface", 1, NULL, 'i'},
     {"config", 1, NULL, 'c'},
     {"cluster_id", 1, NULL, 'C'},
-    {"appname", 1, NULL, 'n'},
+    {"appname", 1, NULL, 'a'},
     {"inner_port", 1, NULL, 'm'},
-    {"master_rootserver", 1, NULL, 'R'},
+    {"master_nameserver", 1, NULL, 'M'},
     {"mysql_port", 1, NULL, 'z'},
     {"help", 0, NULL, 'h'},
     {"version", 0, NULL, 'V'},
@@ -163,13 +163,13 @@ void BaseMain::parse_cmd_line(const int argc,  char* const argv[]) {
 
   while ((opt = getopt_long(argc, argv, opt_string, longopts, NULL)) != -1) {
     switch (opt) {
-    case 'r':
+    case 'n':
       snprintf(cmd_ns_ip_, OB_IP_STR_BUFF, "%s", optarg);
       break;
     case 'f':
       snprintf(proxy_config_file_, sizeof(proxy_config_file_), "%s", optarg);
       break;
-    case 'R':
+    case 'M':
       snprintf(cmd_master_ns_ip_, OB_IP_STR_BUFF, "%s", optarg);
       break;
     case 'c':
@@ -193,7 +193,7 @@ void BaseMain::parse_cmd_line(const int argc,  char* const argv[]) {
     case 'i':
       snprintf(cmd_devname_, sizeof(cmd_devname_), "%s", optarg);
       break;
-    case 'n':
+    case 'a':
       snprintf(cmd_appname_, sizeof(cmd_appname_), "%s", optarg);
       break;
     case 'm':
@@ -252,26 +252,26 @@ void BaseMain::parse_cmd_line(const int argc,  char* const argv[]) {
 }
 
 void BaseMain::print_usage(const char* prog_name) {
-  if (0 == strcmp("rootserver", prog_name)) {
-    fprintf(stderr, "rootserver\n"
+  if (0 == strcmp("nameserver", prog_name)) {
+    fprintf(stderr, "nameserver\n"
             "\t-c|--config BIN_CONFIG_FILE\n"
             "\t-h|--help\n"
             "\t-i|--interface DEV\n"
             "\t-o|--extra_config name=value[,...]\n"
-            "\t-r|--rootserver IP:PORT\n"
+            "\t-n|--nameserver IP:PORT\n"
             "\t-C|--cluster_id CLUSTER_ID\n"
             "\t-N|--no_daemon\n"
-            "\t-R|--master_rootserver IP:PORT\n"
+            "\t-M|--master_nameserver IP:PORT\n"
             "\t-V|--version\n");
   } else if (0 == strcmp("chunkserver", prog_name)) {
     fprintf(stderr, "chunkserver\n"
             "\t-c|--config BIN_CONFIG_FILE\n"
             "\t-h|--help\n"
             "\t-i|--interface DEV\n"
-            "\t-n|--appname APPLICATION_NAME\n"
+            "\t-a|--appname APPLICATION_NAME\n"
             "\t-o|--extra_config name=value[,...]\n"
             "\t-p|--port PORT\n"
-            "\t-r|--rootserver IP:PORT\n"
+            "\t-n|--nameserver IP:PORT\n"
             "\t-D|--data_dir CS_DATA_PATH\n"
             "\t-N|--no_daemon\n"
             "\t-V|--version\n");
@@ -281,10 +281,10 @@ void BaseMain::print_usage(const char* prog_name) {
             "\t-h|--help\n"
             "\t-i|--interface DEV\n"
             "\t-m|--inner_port PORT\n"
-            "\t-n|--appname APPLICATION_NAME\n"
+            "\t-a|--appname APPLICATION_NAME\n"
             "\t-o|--extra_config name=value[,...]\n"
             "\t-p|--port PORT\n"
-            "\t-r|--rootserver IP:PORT\n"
+            "\t-n|--nameserver IP:PORT\n"
             "\t-N|--no_daemon\n"
             "\t-V|--version\n");
   } else if (0 == strcmp("mergeserver", prog_name)) {
@@ -294,7 +294,7 @@ void BaseMain::print_usage(const char* prog_name) {
             "\t-i|--interface DEV\n"
             "\t-o|--extra_config name=value[,...]\n"
             "\t-p|--port PORT\n"
-            "\t-r|--rootserver IP:PORT\n"
+            "\t-n|--nameserver IP:PORT\n"
             "\t-z|--mysql_port PORT\n"
             "\t-N|--no_daemon\n"
             "\t-V|--version\n");
