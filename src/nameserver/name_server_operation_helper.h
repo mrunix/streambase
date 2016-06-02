@@ -39,7 +39,7 @@ class NameServerOperationHelper {
  public:
   NameServerOperationHelper();
   ~NameServerOperationHelper();
-  int init(const NameServer* name_server, const NameServerServerConfig* config,
+  int init(const NameServer* name_server, const NameServerConfig* config,
            const NameServerRpcStub* rpc_stub, const ObChunkServerManager* server_manager);
   ObSchemaManagerV2* get_schema_manager();
   NameServerTable2* get_root_table();
@@ -82,7 +82,7 @@ class NameServerOperationHelper {
   int64_t delete_index_;
   int64_t done_count_;
   int64_t total_count_;
-  NameServerServerConfig* config_;
+  NameServerConfig* config_;
   NameServerRpcStub* rpc_stub_;
   ObChunkServerManager* server_manager_;
   NameServerOperationData bypass_data_;

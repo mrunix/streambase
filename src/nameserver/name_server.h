@@ -1,18 +1,21 @@
-/*===============================================================
- *   (C) 2007-2010 Taobao Inc.
+/*
+ * src/nameserver/name_server.h
  *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
+ */
+
+/*
+ * The definition for NameServer.
  *
- *   Version: 0.1 2010-09-26
- *
- *   Authors:
- *          daoan(daoan@taobao.com)
- *          maoqi(maoqi@taobao.com)
- *          xielun.szd(xielun@alipay.com)
- *
- *
- ================================================================*/
-#ifndef OCEANBASE_ROOTSERVER_OB_ROOT_SERVER2_H_
-#define OCEANBASE_ROOTSERVER_OB_ROOT_SERVER2_H_
+ * Library: nameserver
+ * Package: nameserver
+ * Module : ObBootState, NameServer
+ * Author : Michael(Yang Lifeng), 311155@qq.com
+ */
+
+#ifndef SRC_NAMESERVER_NAME_SERVER_H_
+#define SRC_NAMESERVER_NAME_SERVER_H_
+
 #include <tbsys.h>
 
 #include "common/ob_define.h"
@@ -34,7 +37,7 @@
 #include "common/ob_trigger_event.h"
 #include "common/ob_trigger_msg.h"
 #include "name_server_server_state.h"
-#include "common/roottable/name_server_table_service.h"
+#include "common/roottable/ob_root_table_service.h"
 #include "common/roottable/ob_first_tablet_entry_meta.h"
 #include "common/roottable/ob_scan_helper_impl.h"
 #include "common/ob_schema_service.h"
@@ -69,7 +72,7 @@ class ObDeleteReplicasTest_delete_in_init_Test;
 class ObDeleteReplicasTest_delete_when_rereplication_Test;
 class ObDeleteReplicasTest_delete_when_report_Test;
 class ObBalanceTest_test_shutdown_servers_Test;
-class NameServerServerTest;
+class NameServerTest;
 
 namespace sb {
 
@@ -89,9 +92,10 @@ struct TableSchema;
 namespace nameserver {
 class ObBootstrap;
 class NameServerTable2;
-class NameServerServerTester;
+class NameServerTester;
 class NameServerWorker;
 class NameServer;
+
 // 参见《OceanBase自举流程》
 class ObBootState {
  public:
@@ -126,7 +130,7 @@ class NameServer {
   static const char* SCHEMA_FILE_NAME;
   static const char* TMP_SCHEMA_LOCATION;
  public:
-  NameServer(NameServerServerConfig& config);
+  NameServer(NameServerConfig& config);
   virtual ~NameServer();
 
   bool init(const int64_t now, NameServerWorker* worker);
@@ -210,7 +214,7 @@ class NameServer {
   /// if (force_update = true && get_only_core_tables = false) then read new schema from inner table
   int get_schema(const bool froce_update, bool get_only_core_tables, common::ObSchemaManagerV2& out_schema);
   int64_t get_schema_version() const;
-  const NameServerServerConfig& get_config() const;
+  const NameServerConfig& get_config() const;
   ObConfigManager* get_config_mgr();
   int64_t get_privilege_version() const;
   int get_max_tablet_version(int64_t& version) const;
@@ -350,7 +354,7 @@ class NameServer {
   //table_id is OB_INVALID_ID , get all table's row_checksum
   int get_row_checksum(const int64_t tablet_version, const uint64_t table_id, ObRowChecksum& row_checksum);
 
-  friend class NameServerServerTester;
+  friend class NameServerTester;
   friend class NameServerLogWorker;
   friend class ObDailyMergeChecker;
   friend class ObHeartbeatChecker;
@@ -363,7 +367,7 @@ class NameServer {
   friend class ::ObDeleteReplicasTest_delete_when_rereplication_Test;
   friend class ::ObDeleteReplicasTest_delete_when_report_Test;
   friend class ::ObBalanceTest_test_shutdown_servers_Test;
-  friend class ::NameServerServerTest;
+  friend class ::NameServerTest;
   friend class NameServerReloadConfig;
  private:
   bool async_task_queue_empty() {
@@ -465,7 +469,7 @@ class NameServer {
   static const int MIN_BALANCE_TOLERANCE = 1;
 
   common::ObClientHelper client_helper_;
-  NameServerServerConfig& config_;
+  NameServerConfig& config_;
   NameServerWorker* worker_; //who does the net job
   NameServerLogWorker* log_worker_;
 
@@ -528,7 +532,7 @@ class NameServer {
   common::ObSchemaManagerV2* schema_manager_for_cache_;
   mutable tbsys::CRWLock schema_manager_rwlock_;
 
-  NameServerServerState state_;  //RS state
+  NameServerState state_;  //RS state
   int64_t bypass_process_frozen_men_version_; //旁路导入状态下，可以广播的frozen_version
   NameServerOperationHelper operation_helper_;
   NameServerOperationDuty operation_duty_;

@@ -25,8 +25,8 @@ NameServerTableOperation::NameServerTableOperation() {
 NameServerTableOperation::~NameServerTableOperation() {
   destroy_data();
 }
-void NameServerTableOperation::init(const NameServerServerConfig* config) {
-  config_ = const_cast<NameServerServerConfig*>(config);
+void NameServerTableOperation::init(const NameServerConfig* config) {
+  config_ = const_cast<NameServerConfig*>(config);
 }
 void NameServerTableOperation::set_schema_manager(const common::ObSchemaManagerV2* schema_mgr) {
   schema_manager_ = schema_mgr;

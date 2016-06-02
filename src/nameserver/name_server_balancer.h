@@ -82,7 +82,7 @@ class NameServerBalancer {
  public:
   NameServerBalancer();
   virtual ~NameServerBalancer();
-  void set_config(NameServerServerConfig* config);
+  void set_config(NameServerConfig* config);
   void set_ddl_operation_mutex(tbsys::CThreadMutex* mutex_lock);
   void set_root_table(NameServerTable2* root_table);
   void set_root_table_lock(tbsys::CRWLock* root_table_rwlock);
@@ -194,7 +194,7 @@ class NameServerBalancer {
   static const int32_t MAX_LOAD_INFO_CONCURRENCY = 256;
 
   // data members
-  NameServerServerConfig* config_;
+  NameServerConfig* config_;
   NameServerTable2* root_table_;
   ObTabletInfoManager* tablet_manager_;
   ObChunkServerManager* server_manager_;
@@ -238,7 +238,7 @@ inline void NameServerBalancer::set_boot_state(ObBootState* boot_state) {
 inline void NameServerBalancer::set_ddl_operation_mutex(tbsys::CThreadMutex* mutex_lock) {
   mutex_lock_ = mutex_lock;
 }
-inline void NameServerBalancer::set_config(NameServerServerConfig* config) {
+inline void NameServerBalancer::set_config(NameServerConfig* config) {
   config_ = config;
   data_source_mgr_.set_config(config);
 }

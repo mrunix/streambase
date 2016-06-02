@@ -49,7 +49,7 @@ struct CheckArray {
   }
 };
 /// @brief 定义RS的状态
-class NameServerServerState {
+class NameServerState {
  public:
   /// @brief RS状态位
   /// IDLE状态: 缺省状态，即如果RS不在其他状态，它就在该缺省状态
@@ -72,7 +72,7 @@ class NameServerServerState {
   };
 
  public:
-  NameServerServerState() {
+  NameServerState() {
     state_ = UNKNOWN;
     check_and_delete_flag_ = false;
     delete_process_ = NOTALLOW;
@@ -80,7 +80,7 @@ class NameServerServerState {
     is_bypass_ = false;
   }
 
-  virtual ~NameServerServerState() { }
+  virtual ~NameServerState() { }
 
   /// @brief 获取state
   inline State get_state() const {
@@ -132,7 +132,7 @@ class NameServerServerState {
   inline void set_state(const State state, const bool check_and_delete_flag,
                         const bool tablet_merge_flag, const bool interrupt_event = false) {
     tbsys::CThreadGuard guard(&mutex_);
-    if (interrupt_event && NameServerServerState::DAILY_MERGE == state_) {
+    if (interrupt_event && NameServerState::DAILY_MERGE == state_) {
       TBSYS_LOG(INFO, "nameserver in DAILY_MERGE state, refuse to change state");
     } else {
       common::atomic_exchange(reinterpret_cast<uint32_t*>(&state_), state);

@@ -20,7 +20,7 @@ NameServerOperationData::NameServerOperationData() {
 }
 NameServerOperationData::~NameServerOperationData() {
 }
-void NameServerOperationData::init(const NameServerServerConfig* config) {
+void NameServerOperationData::init(const NameServerConfig* config) {
   root_table_.init(config);
 }
 common::ObSchemaManagerV2* NameServerOperationData::get_schema_manager() {

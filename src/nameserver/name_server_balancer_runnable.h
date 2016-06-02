@@ -23,7 +23,7 @@ namespace nameserver {
 class NameServerBalancer;
 class NameServerBalancerRunnable : public tbsys::CDefaultRunnable {
  public:
-  NameServerBalancerRunnable(NameServerServerConfig& config,
+  NameServerBalancerRunnable(NameServerConfig& config,
                              NameServerBalancer& balancer,
                              common::ObRoleMgr& role_mgr);
   virtual ~NameServerBalancerRunnable();
@@ -36,7 +36,7 @@ class NameServerBalancerRunnable : public tbsys::CDefaultRunnable {
   NameServerBalancerRunnable& operator=(const NameServerBalancerRunnable& other);
  private:
   // data members
-  NameServerServerConfig& config_;
+  NameServerConfig& config_;
   NameServerBalancer& balancer_;
   common::ObRoleMgr& role_mgr_;
   tbsys::CThreadCond balance_worker_sleep_cond_;

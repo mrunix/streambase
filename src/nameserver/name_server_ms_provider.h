@@ -27,7 +27,7 @@ class NameServerMsProvider: public common::ObMsProvider {
  public:
   NameServerMsProvider(ObChunkServerManager& server_manager);
   virtual ~NameServerMsProvider();
-  void init(NameServerServerConfig& config, NameServerRpcStub& rpc_stub);
+  void init(NameServerConfig& config, NameServerRpcStub& rpc_stub);
  public:
   int get_ms(common::ObServer& server);
   int get_ms(common::ObServer& server, const bool query_master_cluster);
@@ -44,7 +44,7 @@ class NameServerMsProvider: public common::ObMsProvider {
  private:
   bool init_;
   ObChunkServerManager& server_manager_;
-  NameServerServerConfig* config_;
+  NameServerConfig* config_;
   NameServerRpcStub* rpc_stub_;
 };
 } // end namespace nameserver

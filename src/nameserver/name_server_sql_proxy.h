@@ -27,7 +27,7 @@ class ObChunkServerManager;
 // thread safe sql proxy
 class NameServerSQLProxy {
  public:
-  NameServerSQLProxy(ObChunkServerManager& server_manager, NameServerServerConfig& config, NameServerRpcStub& rpc_stub);
+  NameServerSQLProxy(ObChunkServerManager& server_manager, NameServerConfig& config, NameServerRpcStub& rpc_stub);
   virtual ~NameServerSQLProxy();
  public:
   // exectue sql query

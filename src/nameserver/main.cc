@@ -1,13 +1,13 @@
 /*
  * src/nameserver/main.cc
  *
- * Copyright (C) 2016 Michael. All rights reserved.
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
 
 #include <malloc.h>
 #include "tbsys.h"
 #include "common/ob_malloc.h"
-#include "ob_root_main.h"
+#include "name_server_main.h"
 
 using namespace sb::nameserver;
 using namespace sb::common;

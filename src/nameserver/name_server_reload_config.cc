@@ -1,33 +1,21 @@
-/**
- * (C) 2010-2012 Alibaba Group Holding Limited.
+/*
+ * src/nameserver/name_server_reload_config.h
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * Time-stamp: <2013-04-23 17:05:22 fufeng.syd>
- * Version: $Id$
- * Filename: name_server_reload_config.cc
- *
- * Authors:
- *   Yudi Shi <fufeng.syd@alipay.com>
- *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
 
 #include "name_server_reload_config.h"
-#include "name_server_server.h"
+#include "name_server.h"
 
 using namespace sb;
 using namespace sb::nameserver;
 using namespace sb::common;
 
-NameServerReloadConfig::NameServerReloadConfig(const NameServerServerConfig& config)
+NameServerReloadConfig::NameServerReloadConfig(const NameServerConfig& config)
   : config_(config), name_server_(NULL) {
-
 }
 
 NameServerReloadConfig::~NameServerReloadConfig() {
-
 }
 
 int NameServerReloadConfig::operator()() {
@@ -37,7 +25,7 @@ int NameServerReloadConfig::operator()() {
     TBSYS_LOG(WARN, "NULL name server.");
     ret = OB_NOT_INIT;
   } else {
-    const NameServerServerConfig& config = name_server_->get_config();
+    const NameServerConfig& config = name_server_->get_config();
     //config.print();
 
     if (OB_SUCCESS == ret && NULL != name_server_->ups_manager_) {

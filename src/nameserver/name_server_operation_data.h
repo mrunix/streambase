@@ -22,7 +22,7 @@ class NameServerOperationData {
  public:
   NameServerOperationData();
   ~NameServerOperationData();
-  void init(const NameServerServerConfig* config);
+  void init(const NameServerConfig* config);
   void reset_data();
   void destroy_data();
   OperationType get_operation_type();

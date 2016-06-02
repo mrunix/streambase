@@ -1,16 +1,20 @@
-/*===============================================================
- *   (C) 2007-2010 Taobao Inc.
+/*
+ * src/nameserver/name_server_worker.h
  *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
+ */
+
+/*
+ * The definition for NameServerWorker.
  *
- *   Version: 0.1 2010-09-26
- *
- *   Authors:
- *          daoan(daoan@taobao.com)
- *
- *
- ================================================================*/
-#ifndef OCEANBASE_ROOTSERVER_ROOT_WORKER_H_
-#define OCEANBASE_ROOTSERVER_ROOT_WORKER_H_
+ * Library: nameserver
+ * Package: nameserver
+ * Module : NameServerWorker
+ * Author : Michael(Yang Lifeng), 311155@qq.com
+ */
+
+#ifndef SRC_NAMESERVER_NAME_SERVER_WORKER_H_
+#define SRC_NAMESERVER_NAME_SERVER_WORKER_H_
 
 #include "common/ob_define.h"
 #include "common/ob_base_server.h"
@@ -56,7 +60,7 @@ namespace nameserver {
 
 class NameServerWorker : public common::ObBaseServer, public common::ObPacketQueueHandler {
  public:
-  NameServerWorker(ObConfigManager& config_mgr, NameServerServerConfig& ns_config);
+  NameServerWorker(ObConfigManager& config_mgr, NameServerConfig& ns_config);
   virtual ~NameServerWorker();
 
   /**
@@ -92,7 +96,7 @@ class NameServerWorker : public common::ObBaseServer, public common::ObPacketQue
 
   NameServer& get_name_server();
   ObConfigManager& get_config_mgr();
-  NameServerServerConfig& get_config() const;
+  NameServerConfig& get_config() const;
 
   int send_obi_role(common::ObiRole obi_role);
   common::ObClientManager* get_client_manager();
@@ -221,7 +225,7 @@ class NameServerWorker : public common::ObBaseServer, public common::ObPacketQue
  protected:
   const static int64_t ASYNC_TASK_TIME_INTERVAL = 5000 * 1000;
   ObConfigManager& config_mgr_;
-  NameServerServerConfig& config_;
+  NameServerConfig& config_;
   bool is_registered_;
   NameServer name_server_;
   common::ObPacketQueueThread read_thread_queue_;
@@ -256,7 +260,7 @@ inline ObConfigManager& NameServerWorker::get_config_mgr() {
   return config_mgr_;
 }
 
-inline NameServerServerConfig& NameServerWorker::get_config() const {
+inline NameServerConfig& NameServerWorker::get_config() const {
   return config_;
 }
 

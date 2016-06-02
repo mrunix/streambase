@@ -23,7 +23,7 @@ class NameServerTableOperation {
  public:
   NameServerTableOperation();
   ~NameServerTableOperation();
-  void init(const NameServerServerConfig* config);
+  void init(const NameServerConfig* config);
   void set_schema_manager(const common::ObSchemaManagerV2* schema_mgr);
   NameServerTable2* get_root_table();
   ObTabletInfoManager* get_tablet_info_manager();
@@ -35,7 +35,7 @@ class NameServerTableOperation {
   int check_root_table(ObTabletReportInfoList& delete_list);
   void destroy_data();
  private:
-  NameServerServerConfig* config_;
+  NameServerConfig* config_;
   //保存所有旁路导入汇报的tablet
   NameServerTable2* new_root_table_;
   ObTabletInfoManager* tablet_manager_;

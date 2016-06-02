@@ -25,7 +25,7 @@ NameServerOperationHelper::NameServerOperationHelper()
 NameServerOperationHelper::~NameServerOperationHelper() {
 }
 int NameServerOperationHelper::init(const NameServer* name_server,
-                                    const NameServerServerConfig* config,
+                                    const NameServerConfig* config,
                                     const NameServerRpcStub* rpc_stub,
                                     const ObChunkServerManager* server_manager) {
   int ret = OB_SUCCESS;
@@ -36,7 +36,7 @@ int NameServerOperationHelper::init(const NameServer* name_server,
     ret = OB_INVALID_ARGUMENT;
   } else {
     name_server_ = const_cast<NameServer*>(name_server);
-    config_ = const_cast<NameServerServerConfig*>(config);
+    config_ = const_cast<NameServerConfig*>(config);
     rpc_stub_ = const_cast<NameServerRpcStub*>(rpc_stub);
     server_manager_ = const_cast<ObChunkServerManager*>(server_manager);
     bypass_data_.init(config_);

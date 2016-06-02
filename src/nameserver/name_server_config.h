@@ -1,20 +1,21 @@
-/**
- * (C) 2010-2012 Alibaba Group Holding Limited.
+/*
+ * src/nameserver/name_server_config.h
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * Time-stamp: <2013-05-15 09:16:27 fufeng.syd>
- * Version: $Id$
- * Filename: name_server_server_config.h
- *
- * Authors:
- *   Yudi Shi <fufeng.syd@taobao.com>
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
 
-#ifndef _OB_ROOT_SERVER_CONFIG_H_
-#define _OB_ROOT_SERVER_CONFIG_H_
+/*
+ * The definition for NameServerConfig.
+ *
+ * Library: nameserver
+ * Package: nameserver
+ * Module : NameServerConfig
+ * Author : Michael(Yang Lifeng), 311155@qq.com
+ */
+
+
+#ifndef SRC_NAMESERVER_NAME_SERVER_CONFIG_H_
+#define SRC_NAMESERVER_NAME_SERVER_CONFIG_H_
 
 #include "common/ob_server_config.h"
 #include "common/ob_config.h"
@@ -24,7 +25,8 @@ using namespace sb::common;
 
 namespace sb {
 namespace nameserver {
-class NameServerServerConfig
+
+class NameServerConfig
   : public common::ObServerConfig {
  public:
   int get_name_server(ObServer& server) const;
@@ -42,7 +44,7 @@ class NameServerServerConfig
   DEF_TIME(safe_lost_one_time, "3600s", "safe duration while lost one copy");
   DEF_TIME(safe_wait_init_time, "60s", "time interval for build  root table");
   DEF_BOOL(create_table_in_init, "False", "create tablet switch while init");
-  DEF_BOOL(ddl_system_table_switch, "False", "true: allow to create or drop system tables. false: not allow to create or drop system tables");
+
   DEF_BOOL(monitor_row_checksum, "True", "compare row checksum between master cluster and slave master");
   DEF_TIME(monitor_row_checksum_interval, "1800s", "compare row checksum between master cluster and slave master");
   DEF_TIME(monitor_row_checksum_timeout, "3s", "get master checksum timeout");
@@ -87,14 +89,12 @@ class NameServerServerConfig
   DEF_TIME(load_data_max_timeout_per_range, "3m", "max timeout for cs fetch the data per range");
 
   DEF_TIME(tablet_migrate_disabling_period, "60s", "cs can participate in balance after regist");
-  DEF_BOOL(enable_new_root_table, "False", "new root table switch");
   DEF_INT(obconnector_port, "5433", "obconnector port");
   DEF_TIME(delete_table_time, "10m", "time for cs to delete one table while bypass");
   DEF_TIME(load_sstable_time, "20m", "time for cs to load one table while bypass");
   DEF_TIME(report_tablet_time, "5m", "time for cs to report tablets while bypass");
   DEF_TIME(build_root_table_time, "5m", "time for cs to build new root_table while bypass");
 
-  DEF_BOOL(enable_cache_schema, "True", "cache schema switch");
   DEF_BOOL(is_import, "False", "is import application");
   DEF_BOOL(is_ups_flow_control, "False", "ups flow control switch");
   DEF_INT(read_master_master_ups_percent, "50", "[0,100]", "master master ups read percent");
@@ -102,7 +102,7 @@ class NameServerServerConfig
   DEF_CAP(max_commit_log_size, "64MB", "max commit log size");
   DEF_INT(commit_log_sync_type, "1", "commit log sync type");
 
-  DEF_STR(ns_data_dir, "data/rs", "name server data directory");
+  DEF_STR(ns_data_dir, "data/ns", "name server data directory");
   DEF_STR(commit_log_dir, "data/ns_commitlog", "name server commit log directory");
   DEF_STR(first_meta_filename, "first_tablet_meta", "first meta file name");
   DEF_STR(schema_filename, "etc/schema.ini", "schame file name");
@@ -112,4 +112,5 @@ class NameServerServerConfig
 };
 }
 }
-#endif /* _OB_ROOT_SERVER_CONFIG_H_ */
+#endif /* SRC_NAMESERVER_NAME_SERVER_CONFIG_H_ */
+

@@ -1,15 +1,9 @@
-/*===============================================================
- *   (C) 2007-2010 Taobao Inc.
+/*
+ * src/nameserver/name_server.h
  *
- *
- *   Version: 0.1 2010-09-26
- *
- *   Authors:
- *          daoan(daoan@taobao.com)
- *          maoqi(maoqi@taobao.com)
- *
- *
- ================================================================*/
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
+ */
+
 #include <new>
 #include <string.h>
 #include <cmath>
@@ -164,7 +158,7 @@ const char* NameServer::LOAD_DATA_EXT = "load_data";
 const char* NameServer::SCHEMA_FILE_NAME = "./schema_bypass.ini";
 const char* NameServer::TMP_SCHEMA_LOCATION = "./tmp_schema.ini";
 
-NameServer::NameServer(NameServerServerConfig& config)
+NameServer::NameServer(NameServerConfig& config)
   : config_(config),
     worker_(NULL),
     log_worker_(NULL),
@@ -461,7 +455,7 @@ void NameServer::start_merge_check() {
   TBSYS_LOG(INFO, "start merge check");
 }
 
-const NameServerServerConfig& NameServer::get_config() const {
+const NameServerConfig& NameServer::get_config() const {
   return config_;
 }
 
@@ -4682,9 +4676,9 @@ int NameServer::bypass_meta_data_finished(const OperationType type, NameServerTa
   return ret;
 }
 const char* NameServer::get_bypass_state() const {
-  if (const_cast<NameServerServerState&>(state_).get_bypass_flag()) {
+  if (const_cast<NameServerState&>(state_).get_bypass_flag()) {
     return "DOING";
-  } else if (!const_cast<NameServerServerState&>(state_).get_bypass_flag() && 0 < bypass_process_frozen_men_version_) {
+  } else if (!const_cast<NameServerState&>(state_).get_bypass_flag() && 0 < bypass_process_frozen_men_version_) {
     return "RETRY";
   } else if (0 == bypass_process_frozen_men_version_) {
     return "DONE";

@@ -360,7 +360,7 @@ int ObBootstrap::init_all_cluster() {
   int ret = OB_SUCCESS;
   char buf[OB_MAX_SQL_LENGTH] = {0};
   ObString sql(sizeof(buf), 0, buf);
-  const NameServerServerConfig& config = name_server_.get_config();
+  const NameServerConfig& config = name_server_.get_config();
   ObServer rs;
   int64_t INIT_CLUSTER_FLOW_PERCENT = 0;
   if (role.get_role() == ObiRole::MASTER) {
@@ -377,7 +377,7 @@ int ObBootstrap::init_all_cluster() {
   } else {
     ObServer server;
     NameServerMsProvider ms_provider(const_cast<ObChunkServerManager&>(name_server_.get_server_manager()));
-    ms_provider.init(const_cast<NameServerServerConfig&>(config),
+    ms_provider.init(const_cast<NameServerConfig&>(config),
                      const_cast<NameServerRpcStub&>(name_server_.get_rpc_stub()));
     for (int64_t i = 0; i < config.retry_times; i++) {
       if (OB_SUCCESS != (ret = ms_provider.get_ms(server))) {

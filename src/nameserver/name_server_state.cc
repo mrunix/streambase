@@ -19,7 +19,7 @@
 using namespace sb::common;
 using namespace sb::nameserver;
 
-int NameServerServerState::init(NameServer* name_server, tbsys::CRWLock* server_manager_lock, const ObChunkServerManager* server_manager) {
+int NameServerState::init(NameServer* name_server, tbsys::CRWLock* server_manager_lock, const ObChunkServerManager* server_manager) {
   int ret = OB_SUCCESS;
   if (NULL == server_manager_lock || NULL == server_manager
       || NULL == name_server) {
@@ -35,7 +35,7 @@ int NameServerServerState::init(NameServer* name_server, tbsys::CRWLock* server_
   return ret;
 }
 
-int NameServerServerState::set_daily_merge_error(const char* err_msg, const int64_t length) {
+int NameServerState::set_daily_merge_error(const char* err_msg, const int64_t length) {
   int ret = OB_ERROR;
   if (err_msg == NULL || length > OB_MAX_ERROR_MSG_LEN) {
     TBSYS_LOG(WARN, "invalid argument. err_msg=%p, len=%ld", err_msg, length);
@@ -53,15 +53,15 @@ int NameServerServerState::set_daily_merge_error(const char* err_msg, const int6
   }
   return ret;
 }
-bool NameServerServerState::is_daily_merge_tablet_error()const {
+bool NameServerState::is_daily_merge_tablet_error()const {
   tbsys::CThreadGuard guard(&mutex_);
   return is_daily_merge_error_;
 }
-char* NameServerServerState::get_error_msg() {
+char* NameServerState::get_error_msg() {
   tbsys::CThreadGuard guard(&mutex_);
   return err_msg_;
 }
-void NameServerServerState::clean_daily_merge_error() {
+void NameServerState::clean_daily_merge_error() {
   tbsys::CThreadGuard guard(&mutex_);
   is_daily_merge_error_ = false;
 }

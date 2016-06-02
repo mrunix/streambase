@@ -1,7 +1,7 @@
 /*
  * src/nameserver/name_server_main.cc
  *
- * Copyright (C) 2016 Michael. All rights reserved.
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
 
 #include "nameserver/name_server_main.h"
@@ -29,7 +29,7 @@ common::BaseMain* NameServerMain::get_instance() {
 void NameServerMain::print_version() {
   fprintf(stderr, "nameserver (%s %s)\n", PACKAGE_STRING, RELEASEID);
   fprintf(stderr, "BUILD_TIME: %s %s\n\n", build_date(), build_time());
-  fprintf(stderr, "Copyright (c) 2016 Michael\n");
+  fprintf(stderr, "Copyright (c) 2016 Michael(311155@qq.com)\n");
 }
 
 static const int START_REPORT_SIG            = 49;

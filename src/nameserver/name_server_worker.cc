@@ -1,14 +1,9 @@
-/*===============================================================
- *   (C) 2007-2010 Taobao Inc.
+/*
+ * src/nameserver/name_server_worker.h
  *
- *
- *   Version: 0.1 2010-09-26
- *
- *   Authors:
- *          daoan(daoan@taobao.com)
- *
- *
- ================================================================*/
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
+ */
+
 #include <tbsys.h>
 
 #include "common/ob_define.h"
@@ -56,9 +51,9 @@ namespace sb {
 namespace nameserver {
 using namespace sb::common;
 
-NameServerWorker::NameServerWorker(ObConfigManager& config_mgr, NameServerServerConfig& ns_config)
+NameServerWorker::NameServerWorker(ObConfigManager& config_mgr, NameServerConfig& ns_config)
   : config_mgr_(config_mgr), config_(ns_config), is_registered_(false),
-    name_server_(config_), sql_proxy_(const_cast<ObChunkServerManager&>(name_server_.get_server_manager()), const_cast<NameServerServerConfig&>(ns_config), const_cast<NameServerRpcStub&>(rt_rpc_stub_)) {
+    name_server_(config_), sql_proxy_(const_cast<ObChunkServerManager&>(name_server_.get_server_manager()), const_cast<NameServerConfig&>(ns_config), const_cast<NameServerRpcStub&>(rt_rpc_stub_)) {
   schema_version_ = 0;
 }
 

@@ -20,7 +20,7 @@
 using namespace sb::common;
 using namespace sb::nameserver;
 
-NameServerSQLProxy::NameServerSQLProxy(ObChunkServerManager& server_manager, NameServerServerConfig& config, NameServerRpcStub& rpc_stub)
+NameServerSQLProxy::NameServerSQLProxy(ObChunkServerManager& server_manager, NameServerConfig& config, NameServerRpcStub& rpc_stub)
   : ms_provider_(server_manager), rpc_stub_(rpc_stub) {
   ms_provider_.init(config, rpc_stub);
 }

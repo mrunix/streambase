@@ -27,7 +27,7 @@ NameServerMsProvider::NameServerMsProvider(ObChunkServerManager& server_manager)
 NameServerMsProvider::~NameServerMsProvider() {
 }
 
-void NameServerMsProvider::init(NameServerServerConfig& config, NameServerRpcStub& rpc_stub) {
+void NameServerMsProvider::init(NameServerConfig& config, NameServerRpcStub& rpc_stub) {
   init_ = true;
   config_ = &config;
   rpc_stub_ = &rpc_stub;

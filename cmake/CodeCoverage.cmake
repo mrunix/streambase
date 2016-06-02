@@ -1,8 +1,8 @@
 # Enable Code Coverage
 #
-# 2013-05-22, Michael(Yang Lifeng)
+# 2013-05-22, Michael(Yang Lifeng), 311155@qq.com
 #
-# Copyright (C) 2013 HAIGE
+# Copyright (C) 2013 Michael(311155@qq.com)
 # All rights reserved.
 #
 # USAGE:
