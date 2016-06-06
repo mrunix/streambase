@@ -84,7 +84,7 @@ int ObClientProxy::scan(const ObServer& server, const ObScanParam& scan_param, O
 
   if (OB_SUCCESS == ret) {
     ObDataBuffer data_buff;
-    get_thread_buffer_(data_buff);
+    get_thread_buffer(data_buff);
     ret = scan_param.serialize(data_buff.get_data(), data_buff.get_capacity(), data_buff.get_position());
 
     if (OB_SUCCESS == ret) {
@@ -125,7 +125,7 @@ int ObClientProxy::get(const ObServer& server, const ObGetParam& get_param, ObSc
 
   if (OB_SUCCESS == ret) {
     ObDataBuffer data_buff;
-    get_thread_buffer_(data_buff);
+    get_thread_buffer(data_buff);
     ret = get_param.serialize(data_buff.get_data(), data_buff.get_capacity(), data_buff.get_position());
 
     if (OB_SUCCESS == ret) {
@@ -166,7 +166,7 @@ int ObClientProxy::apply(const ObMutator& mutator) {
 
   if (OB_SUCCESS == ret) {
     ObDataBuffer data_buff;
-    get_thread_buffer_(data_buff);
+    get_thread_buffer(data_buff);
     ret = mutator.serialize(data_buff.get_data(), data_buff.get_capacity(), data_buff.get_position());
 
     if (OB_SUCCESS == ret) {
@@ -194,7 +194,7 @@ int ObClientProxy::apply(const ObMutator& mutator) {
   return ret;
 }
 
-int ObClientProxy::get_thread_buffer_(ObDataBuffer& data_buff) {
+int ObClientProxy::get_thread_buffer(ObDataBuffer& data_buff) {
   int err = OB_SUCCESS;
   ThreadSpecificBuffer::Buffer* buffer = thread_buffer_->get_buffer();
   buffer->reset();

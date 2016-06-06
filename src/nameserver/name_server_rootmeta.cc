@@ -1,30 +1,25 @@
 /*
- *   (C) 2007-2010 Taobao Inc.
+ * src/nameserver/name_server_rootmeta.cc
  *
- *
- *
- *   Version: 0.1
- *
- *   Authors:
- *      daoan <daoan@taobao.com>
- *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
+
 #include <algorithm>
 #include <tbsys.h>
-#include "nameserver/name_server_meta2.h"
+#include "nameserver/name_server_rootmeta.h"
 #include "nameserver/ob_tablet_info_manager.h"
 
 namespace sb {
 using namespace common;
 namespace nameserver {
 
-NameServerMeta2::NameServerMeta2(): tablet_info_index_(OB_INVALID_INDEX), last_dead_server_time_(0), last_migrate_time_(0) {
+RootMeta::RootMeta(): tablet_info_index_(OB_INVALID_INDEX), last_dead_server_time_(0), last_migrate_time_(0) {
   for (int i = 0; i < OB_SAFE_COPY_COUNT; ++i) {
     server_info_indexes_[i] = OB_INVALID_INDEX;
     tablet_version_[i] = 0;
   }
 }
-void NameServerMeta2::dump() const {
+void RootMeta::dump() const {
   for (int32_t i = 0; i < common::OB_SAFE_COPY_COUNT; i++) {
     TBSYS_LOG(INFO, "server_info_index = %d, tablet_version = %ld",
               server_info_indexes_[i], tablet_version_[i]);
@@ -34,7 +29,7 @@ void NameServerMeta2::dump() const {
 
 }
 
-void NameServerMeta2::dump(const int server_index, int64_t& tablet_num) const {
+void RootMeta::dump(const int server_index, int64_t& tablet_num) const {
   for (int32_t i = 0; i < common::OB_SAFE_COPY_COUNT; i++) {
     if (server_index == server_info_indexes_[i]) {
       tablet_num ++;
@@ -43,7 +38,7 @@ void NameServerMeta2::dump(const int server_index, int64_t& tablet_num) const {
     }
   }
 }
-void NameServerMeta2::dump_as_hex(FILE* stream) const {
+void RootMeta::dump_as_hex(FILE* stream) const {
   if (stream != NULL) {
     fprintf(stream, "tablet_info_index %d ", tablet_info_index_);
   }
@@ -54,7 +49,7 @@ void NameServerMeta2::dump_as_hex(FILE* stream) const {
   fprintf(stream, "last_dead_server_time %ld\n", last_dead_server_time_);
   return;
 }
-void NameServerMeta2::read_from_hex(FILE* stream) {
+void RootMeta::read_from_hex(FILE* stream) {
   int __attribute__((unused)) ret;
   if (stream != NULL) {
     ret = fscanf(stream, "tablet_info_index %d ", &tablet_info_index_);
@@ -66,7 +61,7 @@ void NameServerMeta2::read_from_hex(FILE* stream) {
   ret = fscanf(stream, "last_dead_server_time %ld\n", &last_dead_server_time_);
   return;
 }
-DEFINE_SERIALIZE(NameServerMeta2) {
+DEFINE_SERIALIZE(RootMeta) {
   int ret = OB_SUCCESS;
   int64_t tmp_pos = pos;
   if (OB_SUCCESS == ret) {
@@ -91,7 +86,7 @@ DEFINE_SERIALIZE(NameServerMeta2) {
   }
   return ret;
 }
-DEFINE_DESERIALIZE(NameServerMeta2) {
+DEFINE_DESERIALIZE(RootMeta) {
   int ret = OB_SUCCESS;
   int64_t tmp_pos = pos;
   if (OB_SUCCESS == ret) {
@@ -113,7 +108,7 @@ DEFINE_DESERIALIZE(NameServerMeta2) {
   }
   return ret;
 }
-DEFINE_GET_SERIALIZE_SIZE(NameServerMeta2) {
+DEFINE_GET_SERIALIZE_SIZE(RootMeta) {
   int64_t len = serialization::encoded_length_vi32(tablet_info_index_);
   len += serialization::encoded_length_vi64(last_dead_server_time_);
   for (int32_t i = 0; i < OB_SAFE_COPY_COUNT; i++) {
@@ -123,11 +118,11 @@ DEFINE_GET_SERIALIZE_SIZE(NameServerMeta2) {
   return len;
 }
 
-void NameServerMeta2::has_been_migrated() {
+void RootMeta::has_been_migrated() {
   last_migrate_time_ = tbsys::CTimeUtil::getTime();
 }
 
-bool NameServerMeta2::can_be_migrated_now(int64_t disabling_period_us) const {
+bool RootMeta::can_be_migrated_now(int64_t disabling_period_us) const {
   bool ret = false;
   if (0 >= last_migrate_time_) {
     ret = true;
@@ -138,13 +133,13 @@ bool NameServerMeta2::can_be_migrated_now(int64_t disabling_period_us) const {
   return ret;
 }
 
-NameServerMeta2CompareHelper::NameServerMeta2CompareHelper(ObTabletInfoManager* otim): tablet_info_manager_(otim) {
+RootMetaCompareHelper::RootMetaCompareHelper(ObTabletInfoManager* otim): tablet_info_manager_(otim) {
   if (NULL == otim) {
     TBSYS_LOG(ERROR, "tablet_info_manager_ is NULL");
   }
 }
 
-int NameServerMeta2CompareHelper::compare(const int32_t r1, const int32_t r2) const {
+int RootMetaCompareHelper::compare(const int32_t r1, const int32_t r2) const {
   int ret = 0;
   if (tablet_info_manager_ != NULL) {
     const ObTabletInfo* p_r1 = NULL;
@@ -167,7 +162,7 @@ int NameServerMeta2CompareHelper::compare(const int32_t r1, const int32_t r2) co
   }
   return ret;
 }
-bool NameServerMeta2CompareHelper::operator()(const NameServerMeta2& r1, const NameServerMeta2& r2) const {
+bool RootMetaCompareHelper::operator()(const RootMeta& r1, const RootMeta& r2) const {
   int res = compare(r1.tablet_info_index_, r2.tablet_info_index_);
   if (0 == res) {
     //res = static_cast<int> (&r1 - &r2);
@@ -176,11 +171,11 @@ bool NameServerMeta2CompareHelper::operator()(const NameServerMeta2& r1, const N
   return res < 0;
 }
 
-NameServerMeta2RangeLessThan::NameServerMeta2RangeLessThan(ObTabletInfoManager* tim) {
+RootMetaRangeLessThan::RootMetaRangeLessThan(ObTabletInfoManager* tim) {
   tablet_info_manager_ = tim;
 }
 
-bool NameServerMeta2RangeLessThan::operator()(const NameServerMeta2& r1, const ObNewRange& r2) const {
+bool RootMetaRangeLessThan::operator()(const RootMeta& r1, const ObNewRange& r2) const {
   bool ret = true;
   const ObTabletInfo* tablet_info = NULL;
   if (NULL == tablet_info_manager_) {
@@ -195,11 +190,11 @@ bool NameServerMeta2RangeLessThan::operator()(const NameServerMeta2& r1, const O
   return ret;
 }
 
-NameServerMeta2TableIdLessThan::NameServerMeta2TableIdLessThan(ObTabletInfoManager* tim) {
+RootMetaTableIdLessThan::RootMetaTableIdLessThan(ObTabletInfoManager* tim) {
   tablet_info_manager_ = tim;
 }
 
-bool NameServerMeta2TableIdLessThan::operator()(const NameServerMeta2& r1, const ObNewRange& r2) const {
+bool RootMetaTableIdLessThan::operator()(const RootMeta& r1, const ObNewRange& r2) const {
   bool ret = true;
   const ObTabletInfo* tablet_info = NULL;
   if (NULL == tablet_info_manager_) {
@@ -214,5 +209,6 @@ bool NameServerMeta2TableIdLessThan::operator()(const NameServerMeta2& r1, const
   return ret;
 }
 
-} // end namespace nameserver
-} // end namespace sb
+} // nameserver
+} // sb
+

@@ -12,8 +12,8 @@
  *     - some work details if you want
  */
 
-#ifndef OCEANBASE_ROOTSERVER_OB_ROOT_SERVER_STATE_H_
-#define OCEANBASE_ROOTSERVER_OB_ROOT_SERVER_STATE_H_
+#ifndef SRC_NAMESERVER_NAME_SERVER_OB_ROOT_SERVER_STATE_H_
+#define SRC_NAMESERVER_NAME_SERVER_OB_ROOT_SERVER_STATE_H_
 
 #include <tbsys.h>
 #include "common/ob_atomic.h"
@@ -39,7 +39,7 @@ enum CsTabletExistState {
 /// cs_addr_:汇报的CS在cs_list中的位置
 /// label_array_:标记位，0表示正常，-1表示要求CS删除，1表示RT要删除
 struct CheckArray {
-  // NameServerMeta2* root_table_addr_;
+  // RootMeta* root_table_addr_;
   int32_t cs_index_;
   common::ObArray<CsTabletExistState> label_array_;
   bool is_report_;

@@ -11,8 +11,8 @@
  *     - some work details if you want
  *
  */
-#ifndef OCEANBASE_ROOTSERVER_RS_SCHEMA_OPERATION_
-#define OCEANBASE_ROOTSERVER_RS_SCHEMA_OPERATION_
+#ifndef SRC_NAMESERVER_NAME_SERVER_RS_SCHEMA_OPERATION_
+#define SRC_NAMESERVER_NAME_SERVER_RS_SCHEMA_OPERATION_
 #include "common/ob_schema.h"
 
 namespace sb {

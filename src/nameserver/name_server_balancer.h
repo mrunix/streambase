@@ -35,7 +35,7 @@
 namespace sb {
 namespace nameserver {
 class ObBootState;
-class NameServerTable2;
+class RootTable;
 class ObRestartServer;
 class NameServer;
 class NameServerBalancerRunnable;
@@ -84,7 +84,7 @@ class NameServerBalancer {
   virtual ~NameServerBalancer();
   void set_config(NameServerConfig* config);
   void set_ddl_operation_mutex(tbsys::CThreadMutex* mutex_lock);
-  void set_root_table(NameServerTable2* root_table);
+  void set_root_table(RootTable* root_table);
   void set_root_table_lock(tbsys::CRWLock* root_table_rwlock);
   void set_server_manager(ObChunkServerManager* server_manager);
   void set_server_manager_lock(tbsys::CRWLock* server_manager_rwlock);
@@ -148,7 +148,7 @@ class NameServerBalancer {
   int do_rereplication_by_table(const uint64_t table_id, bool& scan_next_table);
   int do_rereplication_by_table(const uint64_t table_id, bool& scan_next_table,
                                 bool& need_replicate, bool& table_found, int64_t& total_tablet_count, int64_t& safe_tablet_count);
-  int nb_find_dest_cs(NameServerTable2::const_iterator meta, int64_t low_bound, int32_t cs_num,
+  int nb_find_dest_cs(RootTable::const_iterator meta, int64_t low_bound, int32_t cs_num,
                       int32_t& dest_cs_idx, ObChunkServerManager::iterator& dest_it);
   uint64_t nb_get_next_table_id(int32_t table_count, int32_t seq = -1);
   int32_t nb_get_table_count();
@@ -161,12 +161,12 @@ class NameServerBalancer {
   void nb_print_migrate_infos() const;
   // @return 0 do not copy, 1 copy immediately, -1 delayed copy
   int need_copy(int32_t available_num, int32_t lost_num);
-  int nb_add_copy(NameServerTable2::const_iterator it, const common::ObTabletInfo* tablet, int64_t low_bound, int32_t cs_num);
-  int nb_del_copy(NameServerTable2::const_iterator it, const common::ObTabletInfo* tablet, int32_t& last_delete_cs_index);
-  int nb_select_copy_src(NameServerTable2::const_iterator it,
+  int nb_add_copy(RootTable::const_iterator it, const common::ObTabletInfo* tablet, int64_t low_bound, int32_t cs_num);
+  int nb_del_copy(RootTable::const_iterator it, const common::ObTabletInfo* tablet, int32_t& last_delete_cs_index);
+  int nb_select_copy_src(RootTable::const_iterator it,
                          int32_t& src_cs_idx, ObChunkServerManager::iterator& src_it, int64_t& tablet_version);
-  int nb_check_rereplication(NameServerTable2::const_iterator it, RereplicationAction& act);
-  int nb_check_add_migrate(NameServerTable2::const_iterator it, const common::ObTabletInfo* tablet, int64_t avg_count,
+  int nb_check_rereplication(RootTable::const_iterator it, RereplicationAction& act);
+  int nb_check_add_migrate(RootTable::const_iterator it, const common::ObTabletInfo* tablet, int64_t avg_count,
                            int32_t cs_num, int64_t migrate_out_per_cs);
 
   bool nb_is_all_tables_balanced(); // only for testing
@@ -195,7 +195,7 @@ class NameServerBalancer {
 
   // data members
   NameServerConfig* config_;
-  NameServerTable2* root_table_;
+  RootTable* root_table_;
   ObTabletInfoManager* tablet_manager_;
   ObChunkServerManager* server_manager_;
   tbsys::CRWLock* root_table_rwlock_;
@@ -242,7 +242,7 @@ inline void NameServerBalancer::set_config(NameServerConfig* config) {
   config_ = config;
   data_source_mgr_.set_config(config);
 }
-inline void NameServerBalancer::set_root_table(NameServerTable2* root_table) {
+inline void NameServerBalancer::set_root_table(RootTable* root_table) {
   root_table_ = root_table;
 }
 inline void NameServerBalancer::set_root_table_lock(tbsys::CRWLock* root_table_rwlock) {

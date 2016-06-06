@@ -42,12 +42,10 @@
 #include "name_server_ups_provider.h"
 #include "name_server_ddl_operator.h"
 
-using namespace sb::common;
-using namespace sb::nameserver;
-
 using sb::common::databuff_printf;
 
 namespace sb {
+using namespace sb::common;
 namespace nameserver {
 
 const int WAIT_SECONDS = 1;
@@ -90,8 +88,7 @@ char max_row_key[sb::common::OB_MAX_ROW_KEY_LENGTH];
 const int NO_REPORTING = 0;
 const int START_REPORTING = 1;
 const int WAIT_REPORT = 3;
-}
-}
+
 
 ObBootState::ObBootState(): state_(OB_BOOT_NO_META) {
 }
@@ -196,7 +193,7 @@ NameServer::~NameServer() {
     schema_manager_for_cache_ = NULL;
   }
   if (root_table_) {
-    OB_DELETE(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, root_table_);
+    OB_DELETE(RootTable, ObModIds::OB_RS_ROOT_TABLE, root_table_);
     root_table_ = NULL;
   }
   if (tablet_manager_) {
@@ -294,8 +291,8 @@ bool NameServer::init(const int64_t now, NameServerWorker* worker) {
       res = false;
     } else if (NULL == (tablet_manager_ = OB_NEW(ObTabletInfoManager, ObModIds::OB_RS_TABLET_MANAGER))) {
       TBSYS_LOG(ERROR, "new ObTabletInfoManager error");
-    } else if (NULL == (root_table_ = OB_NEW(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, tablet_manager_))) {
-      TBSYS_LOG(ERROR, "new NameServerTable2 error");
+    } else if (NULL == (root_table_ = OB_NEW(RootTable, ObModIds::OB_RS_ROOT_TABLE, tablet_manager_))) {
+      TBSYS_LOG(ERROR, "new RootTable error");
     } else if (NULL == (ups_manager_
                         = new(std::nothrow) ObUpsManager(worker_->get_rpc_stub(),
                                                          worker_, config_.network_timeout,
@@ -324,7 +321,7 @@ bool NameServer::init(const int64_t now, NameServerWorker* worker) {
       TBSYS_LOG(ERROR, "no memory");
     } else if (OB_SUCCESS != (err = schema_service_->init(schema_service_scan_helper_, false))) {
       TBSYS_LOG(WARN, "failed to init schema service, err=%d", err);
-    } else if (NULL == (rt_service_ = new(std::nothrow) NameServerTableService(*first_meta_, *schema_service_))) {
+    } else if (NULL == (rt_service_ = new(std::nothrow) RootTableService(*first_meta_, *schema_service_))) {
       TBSYS_LOG(ERROR, "no memory");
     } else if (NULL == (balancer_ = new(std::nothrow) NameServerBalancer())) {
       TBSYS_LOG(ERROR, "no memory");
@@ -502,8 +499,8 @@ int NameServer::boot_recover() {
         ObNewRange key_range;
         key_range.table_id_ = OB_FIRST_TABLET_ENTRY_TID;
         key_range.set_whole_range();
-        NameServerTable2::const_iterator first;
-        NameServerTable2::const_iterator last;
+        RootTable::const_iterator first;
+        RootTable::const_iterator last;
         ret = root_table_->find_range(key_range, first, last);
         if (ret != OB_SUCCESS) {
           TBSYS_LOG(WARN, "cann't find first_tablet_entry's tablet. ret=%d", ret);
@@ -1385,9 +1382,9 @@ int NameServer::create_tablet_with_range(const int64_t frozen_version, const ObT
   int ret = OB_SUCCESS;
   int64_t index = tablets.tablet_list.get_array_index();
   ObTabletInfo* p_table_info = NULL;
-  NameServerTable2* root_table_for_split = OB_NEW(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, NULL);
+  RootTable* root_table_for_split = OB_NEW(RootTable, ObModIds::OB_RS_ROOT_TABLE, NULL);
   if (NULL == root_table_for_split) {
-    TBSYS_LOG(WARN, "new NameServerTable2 fail.");
+    TBSYS_LOG(WARN, "new RootTable fail.");
     ret = OB_ALLOCATE_MEMORY_FAILED;
   }
   if (OB_SUCCESS == ret) {
@@ -1442,7 +1439,7 @@ int NameServer::create_tablet_with_range(const int64_t frozen_version, const ObT
     root_table_for_split = NULL;
   } else {
     if (NULL != root_table_for_split) {
-      OB_DELETE(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, root_table_for_split);
+      OB_DELETE(RootTable, ObModIds::OB_RS_ROOT_TABLE, root_table_for_split);
     }
   }
   for (int64_t i = 0; i < index; i++) {
@@ -1460,7 +1457,7 @@ int NameServer::create_tablet_with_range(const int64_t frozen_version, const ObT
 }
 
 int NameServer::create_empty_tablet_with_range(const int64_t frozen_version,
-                                               NameServerTable2* root_table, const common::ObTabletInfo& tablet,
+                                               RootTable* root_table, const common::ObTabletInfo& tablet,
                                                int32_t& created_count, int* t_server_index) {
   int ret = OB_SUCCESS;
   int32_t server_index[OB_SAFE_COPY_COUNT];
@@ -1578,13 +1575,13 @@ int NameServer::get_deleted_tables(const common::ObSchemaManagerV2& old_schema,
   return ret;
 }
 
-void NameServer::switch_root_table(NameServerTable2* rt, ObTabletInfoManager* ti) {
+void NameServer::switch_root_table(RootTable* rt, ObTabletInfoManager* ti) {
   OB_ASSERT(rt);
   OB_ASSERT(rt != root_table_);
   tbsys::CWLockGuard guard(root_table_rwlock_);
   TBSYS_LOG(INFO, "switch to new root table, old=%p, new=%p", root_table_, rt);
   if (NULL != root_table_) {
-    OB_DELETE(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, root_table_);
+    OB_DELETE(RootTable, ObModIds::OB_RS_ROOT_TABLE, root_table_);
     root_table_ = NULL;
   }
   root_table_ = rt;
@@ -1771,8 +1768,8 @@ int NameServer::migrate_over(const int32_t result, const ObDataSourceDesc& desc,
     int src_server_index = get_server_index(src_server);
     int dest_server_index = get_server_index(dest_server);
 
-    NameServerTable2::const_iterator start_it;
-    NameServerTable2::const_iterator end_it;
+    RootTable::const_iterator start_it;
+    RootTable::const_iterator end_it;
     common::ObTabletInfo* tablet_info = NULL;
     if (OB_SUCCESS == result) {
       tbsys::CThreadGuard mutex_gard(&root_table_build_mutex_);
@@ -1844,7 +1841,7 @@ int NameServer::migrate_over(const int32_t result, const ObDataSourceDesc& desc,
 
           if (OB_SUCCESS == ret && server_manager_.get_migrate_num() != 0
               && balancer_->is_loading_data() == false) {
-            const_cast<NameServerTable2::iterator>(start_it)->has_been_migrated();
+            const_cast<RootTable::iterator>(start_it)->has_been_migrated();
           }
 
           if (is_master()) {
@@ -1876,8 +1873,8 @@ int NameServer::migrate_over(const int32_t result, const ObDataSourceDesc& desc,
   return ret;
 }
 
-int NameServer::make_out_cell(ObCellInfo& out_cell, NameServerTable2::const_iterator first,
-                              NameServerTable2::const_iterator last, ObScanner& scanner, const int32_t max_row_count, const int32_t max_key_len) const {
+int NameServer::make_out_cell(ObCellInfo& out_cell, RootTable::const_iterator first,
+                              RootTable::const_iterator last, ObScanner& scanner, const int32_t max_row_count, const int32_t max_key_len) const {
   static ObString s_root_1_port(static_cast<int32_t>(strlen(ROOT_1_PORT)), static_cast<int32_t>(strlen(ROOT_1_PORT)), (char*)ROOT_1_PORT);
   static ObString s_root_1_ms_port(static_cast<int32_t>(strlen(ROOT_1_MS_PORT)), static_cast<int32_t>(strlen(ROOT_1_MS_PORT)), (char*)ROOT_1_MS_PORT);
   static ObString s_root_1_ipv6_1(static_cast<int32_t>(strlen(ROOT_1_IPV6_1)), static_cast<int32_t>(strlen(ROOT_1_IPV6_1)), (char*)ROOT_1_IPV6_1);
@@ -1913,9 +1910,9 @@ int NameServer::make_out_cell(ObCellInfo& out_cell, NameServerTable2::const_iter
   UNUSED(max_key_len);
   const common::ObTabletInfo* tablet_info = NULL;
   int count = 0;
-  for (NameServerTable2::const_iterator it = first; it <= last; it++) {
+  for (RootTable::const_iterator it = first; it <= last; it++) {
     if (count > max_row_count) break;
-    tablet_info = ((const NameServerTable2*)root_table_)->get_tablet_info(it);
+    tablet_info = ((const RootTable*)root_table_)->get_tablet_info(it);
     if (tablet_info == NULL) {
       TBSYS_LOG(ERROR, "you should not reach this bugs");
       break;
@@ -2152,9 +2149,9 @@ int NameServer::find_root_table_key(const uint64_t table_id, const ObString& tab
     if (root_table_ == NULL) {
       ret = OB_NOT_INIT;
     } else {
-      NameServerTable2::const_iterator first;
-      NameServerTable2::const_iterator last;
-      NameServerTable2::const_iterator ptr;
+      RootTable::const_iterator first;
+      RootTable::const_iterator last;
+      RootTable::const_iterator ptr;
       ret = root_table_->find_key(table_id, key, RETURN_BACH_COUNT, first, last, ptr);
       TBSYS_LOG(DEBUG, "first %p last %p ptr %p", first, last, ptr);
       if (ret == OB_SUCCESS) {
@@ -2203,8 +2200,8 @@ int NameServer::find_root_table_range(const common::ObScanParam& scan_param, ObS
       ret = OB_NOT_INIT;
       TBSYS_LOG(WARN, "scan request in initialize phase");
     } else {
-      NameServerTable2::const_iterator first;
-      NameServerTable2::const_iterator last;
+      RootTable::const_iterator first;
+      RootTable::const_iterator last;
       ObNewRange search_range = key_range;
       search_range.table_id_ = table_id;
       ret = root_table_->find_range(search_range, first, last);
@@ -2341,12 +2338,12 @@ int NameServer::got_reported_for_query_table(const ObTabletReportInfoList& table
     } else {
       tbsys::CRLockGuard guard(root_table_rwlock_);
       ObTabletReportInfo* p_table_info = NULL;
-      NameServerTable2::const_iterator first;
-      NameServerTable2::const_iterator last;
+      RootTable::const_iterator first;
+      RootTable::const_iterator last;
       int64_t index = tablets.tablet_list_.get_array_index();
       int find_ret = OB_SUCCESS;
       common::ObTabletInfo* tablet_info = NULL;
-      int range_pos_type = NameServerTable2::POS_TYPE_ERROR;
+      int range_pos_type = RootTable::POS_TYPE_ERROR;
 
       for (have_done_index = 0; have_done_index < index; ++have_done_index) {
         p_table_info = tablets.tablet_list_.at(have_done_index);
@@ -2362,7 +2359,7 @@ int NameServer::got_reported_for_query_table(const ObTabletReportInfoList& table
           tablet_info = NULL;
           find_ret = root_table_->find_range(p_table_info->tablet_info_.range_, first, last);
           TBSYS_LOG(DEBUG, "root_table_for_query_->find_range ret = %d", find_ret);
-          range_pos_type = NameServerTable2::POS_TYPE_ERROR;
+          range_pos_type = RootTable::POS_TYPE_ERROR;
           if (OB_SUCCESS == find_ret) {
             tablet_info = root_table_->get_tablet_info(first);
             if (NULL != tablet_info) {
@@ -2372,21 +2369,21 @@ int NameServer::got_reported_for_query_table(const ObTabletReportInfoList& table
               TBSYS_LOG(ERROR, "no tablet_info found");
             }
           } else if (OB_FIND_OUT_OF_RANGE == find_ret) {
-            range_pos_type = NameServerTable2::POS_TYPE_ADD_RANGE;
+            range_pos_type = RootTable::POS_TYPE_ADD_RANGE;
             need_add = true;
             break;
           }
 
-          if (range_pos_type == NameServerTable2::POS_TYPE_SPLIT_RANGE) {
+          if (range_pos_type == RootTable::POS_TYPE_SPLIT_RANGE) {
             need_split = true;  //will create a new table to deal with the left
             break;
-          } else if (range_pos_type == NameServerTable2::POS_TYPE_ADD_RANGE) {
+          } else if (range_pos_type == RootTable::POS_TYPE_ADD_RANGE) {
             need_add = true;
             break;
           }
 
           if (NULL != tablet_info &&
-              (range_pos_type == NameServerTable2::POS_TYPE_SAME_RANGE || range_pos_type == NameServerTable2::POS_TYPE_MERGE_RANGE)
+              (range_pos_type == RootTable::POS_TYPE_SAME_RANGE || range_pos_type == RootTable::POS_TYPE_MERGE_RANGE)
              ) {
             if (OB_SUCCESS != write_new_info_to_root_table(p_table_info->tablet_info_,
                                                            p_table_info->tablet_location_.tablet_version_, server_index, first, last, root_table_)) {
@@ -2423,34 +2420,34 @@ int NameServer::got_reported_with_copy(const ObTabletReportInfoList& tablets,
   int ret = OB_SUCCESS;
   ObTabletReportInfo* p_table_info = NULL;
   ObServerStatus* new_server_status = server_manager_.get_server_status(server_index);
-  NameServerTable2::const_iterator first;
-  NameServerTable2::const_iterator last;
+  RootTable::const_iterator first;
+  RootTable::const_iterator last;
   TBSYS_LOG(DEBUG, "root table write on copy");
   if (new_server_status == NULL && !for_bypass) {
     TBSYS_LOG(ERROR, "can not find server");
     ret = OB_ERROR;
   } else {
-    NameServerTable2* root_table_for_split = OB_NEW(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, NULL);
+    RootTable* root_table_for_split = OB_NEW(RootTable, ObModIds::OB_RS_ROOT_TABLE, NULL);
     if (root_table_for_split == NULL) {
-      TBSYS_LOG(ERROR, "new NameServerTable2 error");
+      TBSYS_LOG(ERROR, "new RootTable error");
       ret = OB_ERROR;
     } else {
       tbsys::CRLockGuard guard(root_table_rwlock_);
       *root_table_for_split = *root_table_;
-      int range_pos_type = NameServerTable2::POS_TYPE_UNINIT;
+      int range_pos_type = RootTable::POS_TYPE_UNINIT;
       for (int64_t index = have_done_index; OB_SUCCESS == ret && index < tablets.tablet_list_.get_array_index(); index++) {
         p_table_info = tablets.tablet_list_.at(index);
         if (p_table_info == NULL) {
           TBSYS_LOG(ERROR, "tablets.tablet_list_.at(%ld) should not be NULL", index);
-          range_pos_type = NameServerTable2::POS_TYPE_ERROR;
+          range_pos_type = RootTable::POS_TYPE_ERROR;
         } else {
-          range_pos_type = NameServerTable2::POS_TYPE_ERROR;
+          range_pos_type = RootTable::POS_TYPE_ERROR;
           int find_ret = root_table_for_split->find_range(p_table_info->tablet_info_.range_, first, last);
           if (OB_FIND_OUT_OF_RANGE == find_ret || OB_SUCCESS == find_ret) {
             range_pos_type = root_table_for_split->get_range_pos_type(p_table_info->tablet_info_.range_, first, last);
             TBSYS_LOG(DEBUG, "range_pos_type2 = %d", range_pos_type);
-            if (range_pos_type == NameServerTable2::POS_TYPE_SAME_RANGE || range_pos_type == NameServerTable2::POS_TYPE_MERGE_RANGE) {
-              // TODO: no merge is implemented yet! so range_pos_type == NameServerTable2::POS_TYPE_MERGE_RANGE is not proper
+            if (range_pos_type == RootTable::POS_TYPE_SAME_RANGE || range_pos_type == RootTable::POS_TYPE_MERGE_RANGE) {
+              // TODO: no merge is implemented yet! so range_pos_type == RootTable::POS_TYPE_MERGE_RANGE is not proper
               if (OB_SUCCESS != write_new_info_to_root_table(p_table_info->tablet_info_,
                                                              p_table_info->tablet_location_.tablet_version_, server_index, first, last, root_table_for_split)) {
                 TBSYS_LOG(ERROR, "write new tablet error");
@@ -2460,7 +2457,7 @@ int NameServer::got_reported_with_copy(const ObTabletReportInfoList& tablets,
                 TBSYS_LOG(INFO, "p_table_info->tablet_info_.range_=%s", to_cstring(p_table_info->tablet_info_.range_));
                 //p_table_info->tablet_info_.range_.hex_dump(TBSYS_LOG_LEVEL_ERROR);
               }
-            } else if (range_pos_type == NameServerTable2::POS_TYPE_SPLIT_RANGE) {
+            } else if (range_pos_type == RootTable::POS_TYPE_SPLIT_RANGE) {
               if (first->get_max_tablet_version() >= p_table_info->tablet_location_.tablet_version_) {
                 TBSYS_LOG(ERROR, "same version different range error !! version %ld",
                           p_table_info->tablet_location_.tablet_version_);
@@ -2482,7 +2479,7 @@ int NameServer::got_reported_with_copy(const ObTabletReportInfoList& tablets,
                   //p_table_info->tablet_info_.range_.hex_dump(TBSYS_LOG_LEVEL_ERROR);
                 }
               }
-            } else if (range_pos_type == NameServerTable2::POS_TYPE_ADD_RANGE) {
+            } else if (range_pos_type == RootTable::POS_TYPE_ADD_RANGE) {
               ret = root_table_for_split->add_range(p_table_info->tablet_info_, first,
                                                     p_table_info->tablet_location_.tablet_version_, server_index);
             } else {
@@ -2505,7 +2502,7 @@ int NameServer::got_reported_with_copy(const ObTabletReportInfoList& tablets,
       TBSYS_LOG(ERROR, "update root table failed: ret[%d] root_table_for_split[%p]",
                 ret, root_table_for_split);
       if (root_table_for_split != NULL) {
-        OB_DELETE(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, root_table_for_split);
+        OB_DELETE(RootTable, ObModIds::OB_RS_ROOT_TABLE, root_table_for_split);
       }
     }
 
@@ -2518,7 +2515,7 @@ int NameServer::got_reported_with_copy(const ObTabletReportInfoList& tablets,
  */
 int NameServer::write_new_info_to_root_table(
   const ObTabletInfo& tablet_info, const int64_t tablet_version, const int32_t server_index,
-  NameServerTable2::const_iterator& first, NameServerTable2::const_iterator& last, NameServerTable2* p_root_table) {
+  RootTable::const_iterator& first, RootTable::const_iterator& last, RootTable* p_root_table) {
   int ret = OB_SUCCESS;
   int32_t found_it_index = OB_INVALID_INDEX;
   int64_t max_tablet_version = 0;
@@ -2528,7 +2525,7 @@ int NameServer::write_new_info_to_root_table(
     TBSYS_LOG(ERROR, "can not find server");
     ret = OB_ERROR;
   } else {
-    for (NameServerTable2::const_iterator it = first; it <= last; it++) {
+    for (RootTable::const_iterator it = first; it <= last; it++) {
       ObTabletInfo* p_tablet_write = p_root_table->get_tablet_info(it);
       ObTabletCrcHistoryHelper* crc_helper = p_root_table->get_crc_helper(it);
       if (crc_helper == NULL) {
@@ -2562,7 +2559,7 @@ int NameServer::write_new_info_to_root_table(
       //try to over write dead server or old server;
       ObTabletReportInfo to_delete;
       to_delete.tablet_location_.chunkserver_.set_port(-1);
-      found_it_index = NameServerTable2::find_suitable_pos(it, server_index, tablet_version, &to_delete);
+      found_it_index = RootTable::find_suitable_pos(it, server_index, tablet_version, &to_delete);
       if (found_it_index == OB_INVALID_INDEX) {
         //find the server whose disk have max usage percent
         for (int32_t i = 0; i < OB_SAFE_COPY_COUNT; i++) {
@@ -2725,10 +2722,10 @@ int NameServer::slave_batch_create_new_table(const common::ObTabletInfoList& tab
   tbsys::CThreadGuard mutex_gard(&root_table_build_mutex_);
   common::ObTabletInfo* p_table_info = NULL;
   {
-    NameServerTable2* root_table_for_create = NULL;
-    root_table_for_create = OB_NEW(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, NULL);
+    RootTable* root_table_for_create = NULL;
+    root_table_for_create = OB_NEW(RootTable, ObModIds::OB_RS_ROOT_TABLE, NULL);
     if (root_table_for_create == NULL) {
-      TBSYS_LOG(ERROR, "new NameServerTable2 error");
+      TBSYS_LOG(ERROR, "new RootTable error");
       ret = OB_ERROR;
     }
     if (NULL != root_table_for_create) {
@@ -2747,7 +2744,7 @@ int NameServer::slave_batch_create_new_table(const common::ObTabletInfoList& tab
       root_table_for_create = NULL;
     }
     if (root_table_for_create != NULL) {
-      OB_DELETE(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, root_table_for_create);
+      OB_DELETE(RootTable, ObModIds::OB_RS_ROOT_TABLE, root_table_for_create);
     }
   }
   return ret;
@@ -2757,8 +2754,8 @@ int NameServer::slave_batch_create_new_table(const common::ObTabletInfoList& tab
 int NameServer::remove_replica(const bool did_replay, const common::ObTabletReportInfo& replica) {
   int ret = OB_SUCCESS;
   UNUSED(did_replay);
-  NameServerTable2::const_iterator start_it;
-  NameServerTable2::const_iterator end_it;
+  RootTable::const_iterator start_it;
+  RootTable::const_iterator end_it;
   tbsys::CThreadGuard mutex_gard(&root_table_build_mutex_);
   tbsys::CWLockGuard guard(root_table_rwlock_);
   int find_ret = root_table_->find_range(replica.tablet_info_.range_, start_it, end_it);
@@ -2777,8 +2774,8 @@ int NameServer::remove_replica(const bool did_replay, const common::ObTabletRepo
 // delete the replicas that chunk server remove automaticly when daily merge failed
 int NameServer::delete_replicas(const bool did_replay, const common::ObServer& cs, const common::ObTabletReportInfoList& replicas) {
   int ret = OB_SUCCESS;
-  NameServerTable2::const_iterator start_it;
-  NameServerTable2::const_iterator end_it;
+  RootTable::const_iterator start_it;
+  RootTable::const_iterator end_it;
   // step 1. find server index for delete replicas
   int32_t server_index = get_server_index(cs);
   if (OB_INVALID_INDEX == server_index) {
@@ -2798,7 +2795,7 @@ int NameServer::delete_replicas(const bool did_replay, const common::ObServer& c
       }
       ret = root_table_->find_range(replica->tablet_info_.range_, start_it, end_it);
       if (OB_SUCCESS == ret) {
-        NameServerTable2::const_iterator iter;
+        RootTable::const_iterator iter;
         for (iter = start_it; OB_SUCCESS == ret && iter <= end_it; ++iter) {
           int64_t replica_count = 0;
           int64_t find_index = OB_INVALID_INDEX;
@@ -2844,7 +2841,7 @@ int NameServer::delete_tables(const bool did_replay, const common::ObArray<uint6
   OB_ASSERT(0 < deleted_tables.count());
   int ret = OB_SUCCESS;
   tbsys::CThreadGuard mutex_gard(&root_table_build_mutex_);
-  NameServerTable2* rt1 = OB_NEW(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, NULL);
+  RootTable* rt1 = OB_NEW(RootTable, ObModIds::OB_RS_ROOT_TABLE, NULL);
   if (NULL == rt1) {
     TBSYS_LOG(ERROR, "no memory");
     ret = OB_ALLOCATE_MEMORY_FAILED;
@@ -2871,7 +2868,7 @@ int NameServer::delete_tables(const bool did_replay, const common::ObArray<uint6
     }
   }
   if (rt1 != NULL) {
-    OB_DELETE(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, rt1);
+    OB_DELETE(RootTable, ObModIds::OB_RS_ROOT_TABLE, rt1);
   }
   return ret;
 }
@@ -2945,11 +2942,11 @@ int NameServer::fetch_mem_version(int64_t& mem_version) {
 int NameServer::create_new_table(const bool did_replay, const common::ObTabletInfo& tablet,
                                  const common::ObArray<int32_t>& chunkservers, const int64_t mem_version) {
   int ret = OB_SUCCESS;
-  NameServerTable2* root_table_for_create = NULL;
+  RootTable* root_table_for_create = NULL;
   tbsys::CThreadGuard mutex_gard(&root_table_build_mutex_);
-  root_table_for_create = OB_NEW(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, NULL);
+  root_table_for_create = OB_NEW(RootTable, ObModIds::OB_RS_ROOT_TABLE, NULL);
   if (root_table_for_create == NULL) {
-    TBSYS_LOG(ERROR, "new NameServerTable2 error");
+    TBSYS_LOG(ERROR, "new RootTable error");
     ret = OB_ERROR;
   } else {
     tbsys::CRLockGuard guard(root_table_rwlock_);
@@ -2983,7 +2980,7 @@ int NameServer::create_new_table(const bool did_replay, const common::ObTabletIn
     }
   }
   if (root_table_for_create != NULL) {
-    OB_DELETE(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, root_table_for_create);
+    OB_DELETE(RootTable, ObModIds::OB_RS_ROOT_TABLE, root_table_for_create);
     root_table_for_create = NULL;
   }
   return ret;
@@ -4641,7 +4638,7 @@ int NameServer::check_bypass_process() {
   return ret;
 }
 
-int NameServer::bypass_meta_data_finished(const OperationType type, NameServerTable2* root_table,
+int NameServer::bypass_meta_data_finished(const OperationType type, RootTable* root_table,
                                           ObTabletInfoManager* tablet_manager, common::ObSchemaManagerV2* schema_mgr) {
   int ret = OB_SUCCESS;
   TBSYS_LOG(INFO, "bypass new meta data is ready. try to refresh name_server's");
@@ -4790,7 +4787,7 @@ int NameServer::switch_bypass_schema(common::ObSchemaManagerV2* schema_manager, 
   return ret;
 }
 
-int NameServer::use_new_root_table(NameServerTable2* root_table, ObTabletInfoManager* tablet_manager) {
+int NameServer::use_new_root_table(RootTable* root_table, ObTabletInfoManager* tablet_manager) {
   int ret = OB_SUCCESS;
   if (NULL == root_table || NULL == tablet_manager) {
     TBSYS_LOG(ERROR, "invalid argument. root_table=%p, tablet_manager=%p",
@@ -5531,3 +5528,7 @@ int NameServer::get_ms(ObServer& ms_server) {
   }
   return ret;
 }
+
+}
+}
+

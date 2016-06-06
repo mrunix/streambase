@@ -49,12 +49,11 @@
 #include "ob_root_ddl_operator.h"
 
 using namespace sb::common;
-using namespace sb::rootserver;
-
 using sb::common::databuff_printf;
 
 namespace sb {
 namespace rootserver {
+
 const int WAIT_SECONDS = 1;
 const int RETURN_BACH_COUNT = 8;
 const int MAX_RETURN_BACH_ROW_COUNT = 1000;
@@ -95,8 +94,7 @@ char max_row_key[sb::common::OB_MAX_ROW_KEY_LENGTH];
 const int NO_REPORTING = 0;
 const int START_REPORTING = 1;
 const int WAIT_REPORT = 3;
-}
-}
+
 
 ObBootState::ObBootState(): state_(OB_BOOT_NO_META) {
 }
@@ -5536,3 +5534,7 @@ int ObRootServer2::get_ms(ObServer& ms_server) {
   }
   return ret;
 }
+
+}
+}
+

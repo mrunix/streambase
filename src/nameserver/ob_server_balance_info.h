@@ -9,8 +9,8 @@
 *
 *
 ================================================================*/
-#ifndef OCEANBASE_ROOTSERVER_ROOT_SERVER_BALANCE_INFO_H
-#define OCEANBASE_ROOTSERVER_ROOT_SERVER_BALANCE_INFO_H
+#ifndef SRC_NAMESERVER_NAME_SERVER_ROOT_SERVER_BALANCE_INFO_H
+#define SRC_NAMESERVER_NAME_SERVER_ROOT_SERVER_BALANCE_INFO_H
 #include "common/ob_vector.h"
 #include "common/page_arena.h"
 #include "common/ob_range.h"

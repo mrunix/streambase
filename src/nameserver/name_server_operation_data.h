@@ -11,8 +11,8 @@
  *     - some work details if you want
  *
  */
-#ifndef OCEANBASE_ROOTSERVER_OB_ROOT_OPERATION_DATA_H_
-#define OCEANBASE_ROOTSERVER_OB_ROOT_OPERATION_DATA_H_
+#ifndef SRC_NAMESERVER_NAME_SERVER_OB_ROOT_OPERATION_DATA_H_
+#define SRC_NAMESERVER_NAME_SERVER_OB_ROOT_OPERATION_DATA_H_
 #include "common/ob_bypass_task_info.h"
 #include "nameserver/name_server_table_operation.h"
 #include "nameserver/ob_ns_schema_operation.h"
@@ -28,7 +28,7 @@ class NameServerOperationData {
   OperationType get_operation_type();
   void set_operation_type(const OperationType& type);
   ObSchemaManagerV2* get_schema_manager();
-  NameServerTable2* get_root_table();
+  RootTable* get_root_table();
   ObTabletInfoManager* get_tablet_info_manager();
   int generate_root_table();
   int init_schema_mgr(const common::ObSchemaManagerV2* schema_mgr);
@@ -43,7 +43,7 @@ class NameServerOperationData {
  private:
   OperationType operation_type_;
   common::ObArray<uint64_t> delete_tables_;
-  NameServerTableOperation root_table_;
+  RootTableOperation root_table_;
   ObRsSchemaOperation schema_helper_;
 };
 }

@@ -32,7 +32,7 @@ class ObServerClient {
   template <class Input, class Output>
   int send_request(const int pcode, const Input& param, Output& result, const int64_t timeout);
 
-  int get_thread_buffer_(ObDataBuffer& data_buff);
+  int get_thread_buffer(ObDataBuffer& data_buff);
   ObClientManager* get_rpc() { return &client_; }
 
  private:
@@ -69,7 +69,7 @@ inline int ObServerClient::wait() {
   return transport_.wait();
 }
 
-inline int ObServerClient::get_thread_buffer_(ObDataBuffer& data_buff) {
+inline int ObServerClient::get_thread_buffer(ObDataBuffer& data_buff) {
   int err = OB_SUCCESS;
   ThreadSpecificBuffer::Buffer* buffer = rpc_buffer_.get_buffer();
 
@@ -83,7 +83,7 @@ inline int ObServerClient::send_command(const int pcode, const int64_t timeout) 
   int ret = OB_SUCCESS;
   static const int32_t MY_VERSION = 1;
   ObDataBuffer data_buff;
-  get_thread_buffer_(data_buff);
+  get_thread_buffer(data_buff);
 
   ObClientManager* client_mgr = get_rpc();
   ret = client_mgr->send_request(server_, pcode, MY_VERSION, timeout, data_buff);
@@ -110,7 +110,7 @@ int ObServerClient::send_command(const int pcode, const Input& param, const int6
   int ret = OB_SUCCESS;
   static const int32_t MY_VERSION = 1;
   ObDataBuffer data_buff;
-  get_thread_buffer_(data_buff);
+  get_thread_buffer(data_buff);
 
   ObClientManager* client_mgr = get_rpc();
   ret = temp_serialize(param, data_buff.get_data(), data_buff.get_capacity(), data_buff.get_position());
@@ -141,7 +141,7 @@ int ObServerClient::send_request(const int pcode, Output& result, const int64_t 
   int ret = OB_SUCCESS;
   static const int32_t MY_VERSION = 1;
   ObDataBuffer data_buff;
-  get_thread_buffer_(data_buff);
+  get_thread_buffer(data_buff);
 
   ObClientManager* client_mgr = get_rpc();
   ret = client_mgr->send_request(server_, pcode, MY_VERSION, timeout, data_buff);
@@ -174,7 +174,7 @@ int ObServerClient::send_request(const int pcode, const Input& param,
   int ret = OB_SUCCESS;
   static const int32_t MY_VERSION = 1;
   ObDataBuffer data_buff;
-  get_thread_buffer_(data_buff);
+  get_thread_buffer(data_buff);
 
   ObClientManager* client_mgr = get_rpc();
   ret = temp_serialize(param, data_buff.get_data(),

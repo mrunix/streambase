@@ -1,17 +1,22 @@
-/*===============================================================
-*   (C) 2007-2010 Taobao Inc.
-*
-*
-*   Version: 0.1 2010-10-21
-*
-*   Authors:
-*          daoan(daoan@taobao.com)
-*
-*
-================================================================*/
-#ifndef OCEANBASE_ROOTSERVER_OB_ROOTTABLE2_H_
-#define OCEANBASE_ROOTSERVER_OB_ROOTTABLE2_H_
-#include "nameserver/name_server_meta2.h"
+/*
+ * src/nameserver/name_server_roottable.h
+ *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
+ */
+
+/*
+ * The definition for RootTable.
+ *
+ * Library: nameserver
+ * Package: nameserver
+ * Module : RootTable
+ * Author : Michael(Yang Lifeng), 311155@qq.com
+ */
+
+#ifndef SRC_NAMESERVER_NAME_SERVER_TABLE_H_
+#define SRC_NAMESERVER_NAME_SERVER_TABLE_H_
+
+#include "nameserver/name_server_meta.h"
 #include "nameserver/ob_tablet_info_manager.h"
 #include "common/ob_rowkey.h"
 #include "common/ob_schema.h"
@@ -19,14 +24,15 @@
 
 namespace sb {
 namespace nameserver {
+
 class NameServer;
 class NameServerBalancer;
 
-class NameServerTable2 {
+class RootTable {
  public:
   static const int16_t ROOT_TABLE_MAGIC = static_cast<int16_t>(0xABCD);
-  typedef NameServerMeta2* iterator;
-  typedef const NameServerMeta2*  const_iterator;
+  typedef RootMeta* iterator;
+  typedef const RootMeta*  const_iterator;
   enum {
     POS_TYPE_ADD_RANGE = 0,
     POS_TYPE_SAME_RANGE = 1,
@@ -40,8 +46,8 @@ class NameServerTable2 {
   };
  public:
   friend class NameServer;
-  explicit NameServerTable2(ObTabletInfoManager* tim);
-  virtual ~NameServerTable2();
+  explicit RootTable(ObTabletInfoManager* tim);
+  virtual ~RootTable();
 
   inline iterator begin() { return &(data_holder_[0]); }
   inline iterator end()  { return begin() + meta_table_.get_array_index(); }
@@ -110,7 +116,7 @@ class NameServerTable2 {
    * root table第一次构造的时候使用
    * 整理合并相同的tablet, 生成一份新的root table
    */
-  int shrink_to(NameServerTable2* shrunk_table, common::ObTabletReportInfoList& delete_list);
+  int shrink_to(RootTable* shrunk_table, common::ObTabletReportInfoList& delete_list);
   static int32_t find_suitable_pos(const const_iterator& it, const int32_t server_index,
                                    const int64_t tablet_version, common::ObTabletReportInfo* to_delete = NULL);
   int check_tablet_version(const int64_t tablet_version, int safe_copy_count) const;
@@ -127,7 +133,7 @@ class NameServerTable2 {
  private:
   const_iterator lower_bound(const common::ObNewRange& range) const;
   iterator lower_bound(const common::ObNewRange& range);
-  void merge_one_tablet(NameServerTable2* shrunk_table, const int32_t last_tablet_index,
+  void merge_one_tablet(RootTable* shrunk_table, const int32_t last_tablet_index,
                         const_iterator it, common::ObTabletReportInfo& to_delete);
   bool move_back(const int32_t from_index_inclusive, const int32_t move_step);
   // @pre is sorted
@@ -135,11 +141,14 @@ class NameServerTable2 {
   bool has_been_sorted() const;
   bool internal_check() const;
  private:
-  NameServerMeta2 data_holder_[ObTabletInfoManager::MAX_TABLET_COUNT];
-  common::ObArrayHelper<NameServerMeta2> meta_table_;
+  RootMeta data_holder_[ObTabletInfoManager::MAX_TABLET_COUNT];
+  common::ObArrayHelper<RootMeta> meta_table_;
   ObTabletInfoManager* tablet_info_manager_;
   int32_t sorted_count_;
 };
+
 }
 }
+
 #endif
+

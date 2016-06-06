@@ -71,7 +71,7 @@ class ObCommonRpcStub {
   virtual int scan(const ObServer& ms, const common::ObScanParam& scan_param, common::ObScanner& scanner, const int64_t timeout);
   virtual int mutate(const ObServer& update_server, const common::ObMutator& mutator, const int64_t timeout);
  private:
-  int get_thread_buffer_(ObDataBuffer& data_buff);
+  int get_thread_buffer(ObDataBuffer& data_buff);
 
  private:
   static const int32_t DEFAULT_VERSION;

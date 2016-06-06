@@ -6,6 +6,7 @@
 
 namespace sb {
 namespace common {
+
 class ObDataBuffer {
  public:
   ObDataBuffer() : data_(NULL), capacity_(0), position_(0) {

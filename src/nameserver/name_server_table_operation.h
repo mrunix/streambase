@@ -11,21 +11,21 @@
  *     - some work details if you want
  *
  */
-#ifndef OCEANBASE_ROOTSERVER_OB_ROOT_TABLE_OPERATION_H_
-#define OCEANBASE_ROOTSERVER_OB_ROOT_TABLE_OPERATION_H_
+#ifndef SRC_NAMESERVER_NAME_SERVER_OB_ROOT_TABLE_OPERATION_H_
+#define SRC_NAMESERVER_NAME_SERVER_OB_ROOT_TABLE_OPERATION_H_
 #include "name_server_table2.h"
 #include "ob_tablet_info_manager.h"
 #include "common/ob_schema.h"
 #include "name_server_server_config.h"
 namespace sb {
 namespace nameserver {
-class NameServerTableOperation {
+class RootTableOperation {
  public:
-  NameServerTableOperation();
-  ~NameServerTableOperation();
+  RootTableOperation();
+  ~RootTableOperation();
   void init(const NameServerConfig* config);
   void set_schema_manager(const common::ObSchemaManagerV2* schema_mgr);
-  NameServerTable2* get_root_table();
+  RootTable* get_root_table();
   ObTabletInfoManager* get_tablet_info_manager();
   void reset_root_table();
   int report_tablets(const ObTabletReportInfoList& tablets,
@@ -37,10 +37,10 @@ class NameServerTableOperation {
  private:
   NameServerConfig* config_;
   //保存所有旁路导入汇报的tablet
-  NameServerTable2* new_root_table_;
+  RootTable* new_root_table_;
   ObTabletInfoManager* tablet_manager_;
   //整理roottable时所需的
-  NameServerTable2* root_table_tmp_;
+  RootTable* root_table_tmp_;
   ObTabletInfoManager* tablet_manager_tmp_;
   const common::ObSchemaManagerV2* schema_manager_;
 };

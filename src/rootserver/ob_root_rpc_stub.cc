@@ -31,7 +31,7 @@ int ObRootRpcStub::slave_register(const ObServer& master, const ObServer& slave_
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
 
   // step 1. serialize slave addr
@@ -73,7 +73,7 @@ int ObRootRpcStub::slave_register(const ObServer& master, const ObServer& slave_
   return err;
 }
 
-int ObRootRpcStub::get_thread_buffer_(common::ObDataBuffer& data_buffer) {
+int ObRootRpcStub::get_thread_buffer(common::ObDataBuffer& data_buffer) {
   int ret = OB_SUCCESS;
   if (NULL == thread_buffer_) {
     TBSYS_LOG(ERROR, "thread_buffer_ = NULL");
@@ -98,7 +98,7 @@ int ObRootRpcStub::get_row_checksum(const common::ObServer& server, const int64_
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = serialization::encode_vi64(msgbuf.get_data(), msgbuf.get_capacity(), msgbuf.get_position(), data_version))) {
     TBSYS_LOG(WARN, "failed to serialize sql scan param, err=%d", ret);
@@ -129,7 +129,7 @@ int ObRootRpcStub::set_obi_role(const common::ObServer& ups, const common::ObiRo
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = role.serialize(msgbuf.get_data(), msgbuf.get_capacity(), msgbuf.get_position()))) {
     TBSYS_LOG(WARN, "failed to serialize role, err=%d", ret);
@@ -155,7 +155,7 @@ int ObRootRpcStub::switch_schema(const common::ObServer& server, const common::O
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = schema_manager.serialize(msgbuf.get_data(), msgbuf.get_capacity(), msgbuf.get_position()))) {
     TBSYS_LOG(ERROR, "failed to serialize schema, err=%d", ret);
@@ -186,7 +186,7 @@ int ObRootRpcStub::migrate_tablet(const common::ObServer& dest_server, const com
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr is NULL");
     ret = OB_NOT_INIT;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(data_buff))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(data_buff))) {
     TBSYS_LOG(WARN, "failed to get thread buffer, ret=%d", ret);
   } else if (OB_SUCCESS != (ret = desc.serialize(data_buff.get_data(), data_buff.get_capacity(),
                                                  data_buff.get_position()))) {
@@ -242,7 +242,7 @@ int ObRootRpcStub::delete_tablets(const common::ObServer& cs, const common::ObTa
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = tablets.serialize(msgbuf.get_data(), msgbuf.get_capacity(), msgbuf.get_position()))) {
     TBSYS_LOG(ERROR, "failed to serializ, err=%d", ret);
@@ -267,7 +267,7 @@ int ObRootRpcStub::import_tablets(const common::ObServer& cs, const uint64_t tab
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = common::serialization::encode_vi64(msgbuf.get_data(), msgbuf.get_capacity(), msgbuf.get_position(), table_id))) {
     TBSYS_LOG(ERROR, "failed to serialize keey_src, err=%d", ret);
@@ -297,7 +297,7 @@ int ObRootRpcStub::get_last_frozen_version(const common::ObServer& ups, const in
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = client_mgr_->send_request(ups, OB_UPS_GET_LAST_FROZEN_VERSION, DEFAULT_VERSION, timeout_us, msgbuf))) {
     TBSYS_LOG(WARN, "failed to send request, err=%d", ret);
@@ -325,7 +325,7 @@ int ObRootRpcStub::get_obi_role(const common::ObServer& master, const int64_t ti
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = client_mgr_->send_request(master, OB_GET_OBI_ROLE, DEFAULT_VERSION, timeout_us, msgbuf))) {
     TBSYS_LOG(WARN, "failed to send request, err=%d", ret);
@@ -355,7 +355,7 @@ int ObRootRpcStub::heartbeat_to_cs(const common::ObServer& cs, const int64_t lea
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = common::serialization::encode_vi64(msgbuf.get_data(), msgbuf.get_capacity(), msgbuf.get_position(), lease_time))) {
     TBSYS_LOG(ERROR, "failed to serialize, err=%d", ret);
@@ -382,7 +382,7 @@ int ObRootRpcStub::heartbeat_to_ms(const common::ObServer& ms, const int64_t lea
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = common::serialization::encode_vi64(msgbuf.get_data(), msgbuf.get_capacity(), msgbuf.get_position(), lease_time))) {
     TBSYS_LOG(ERROR, "failed to serialize, err=%d", ret);
@@ -411,7 +411,7 @@ int ObRootRpcStub::grant_lease_to_ups(const common::ObServer& ups, ObMsgUpsHeart
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = msg.serialize(msgbuf.get_data(), msgbuf.get_capacity(), msgbuf.get_position()))) {
     TBSYS_LOG(ERROR, "failed to serialize msg, err=%d", ret);
@@ -431,7 +431,7 @@ int ObRootRpcStub::request_report_tablet(const common::ObServer& chunkserver) {
     ret = OB_ERROR;
   }
   if (OB_SUCCESS == ret) {
-    ret = get_thread_buffer_(msgbuf);
+    ret = get_thread_buffer(msgbuf);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(WARN, "fail to get thread buffer. err=%d", ret);
     }
@@ -455,7 +455,7 @@ int ObRootRpcStub::revoke_ups_lease(const common::ObServer& ups, const int64_t l
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = msg.serialize(msgbuf.get_data(), msgbuf.get_capacity(), msgbuf.get_position()))) {
     TBSYS_LOG(ERROR, "failed to serialize, err=%d", ret);
@@ -482,7 +482,7 @@ int ObRootRpcStub::get_ups_max_log_seq(const common::ObServer& ups, uint64_t& ma
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = client_mgr_->send_request(ups, OB_RS_GET_MAX_LOG_SEQ, DEFAULT_VERSION, timeout_us, msgbuf))) {
     TBSYS_LOG(WARN, "failed to send request, err=%d", ret);
@@ -511,7 +511,7 @@ int ObRootRpcStub::shutdown_cs(const common::ObServer& cs, bool is_restart, cons
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = serialization::encode_i32(msgbuf.get_data(), msgbuf.get_capacity(), msgbuf.get_position(), is_restart ? 1 : 0))) {
     TBSYS_LOG(ERROR, "encode is_restart fail:ret[%d], is_restart[%d]", ret, is_restart ? 1 : 0);
@@ -540,7 +540,7 @@ int ObRootRpcStub::get_split_range(const common::ObServer& ups, const int64_t ti
     ret = OB_ERROR;
   }
   if (OB_SUCCESS == ret) {
-    if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+    if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
       TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
     }
   }
@@ -593,7 +593,7 @@ int ObRootRpcStub::table_exist_in_cs(const ObServer& cs, const int64_t timeout_u
     ret = OB_ERROR;
   }
   if (OB_SUCCESS == ret) {
-    if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+    if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
       TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
     }
   }
@@ -638,7 +638,7 @@ int ObRootRpcStub::execute_sql(const ObServer& ms, const ObString sql, int64_t t
     ret = OB_NOT_INIT;
   } else {
     ObDataBuffer data_buff;
-    get_thread_buffer_(data_buff);
+    get_thread_buffer(data_buff);
     if (OB_SUCCESS != (ret = sql.serialize(data_buff.get_data(), data_buff.get_capacity(),
                                            data_buff.get_position()))) {
       TBSYS_LOG(WARN, "serialize sql fail, ret: [%d], sql: [%.*s]",
@@ -672,7 +672,7 @@ int ObRootRpcStub::request_cs_load_bypass_tablet(const common::ObServer& chunkse
     ret = OB_ERROR;
   }
   if (OB_SUCCESS == ret) {
-    ret = get_thread_buffer_(msgbuf);
+    ret = get_thread_buffer(msgbuf);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(WARN, "fail to get thread buffer. err=%d", ret);
     }
@@ -711,7 +711,7 @@ int ObRootRpcStub::request_cs_delete_table(const common::ObServer& chunkserver,
     ret = OB_ERROR;
   }
   if (OB_SUCCESS == ret) {
-    ret = get_thread_buffer_(msgbuf);
+    ret = get_thread_buffer(msgbuf);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(WARN, "fail to get thread buffer. err=%d", ret);
     }
@@ -749,7 +749,7 @@ int ObRootRpcStub::fetch_ms_list(const ObServer& rs, ObArray<ObServer>& ms_list,
     ret = OB_ERROR;
   }
   if (OB_SUCCESS == ret) {
-    ret = get_thread_buffer_(data_buff);
+    ret = get_thread_buffer(data_buff);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(WARN, "fail to get thread buffer. err=%d", ret);
     }
@@ -809,7 +809,7 @@ int ObRootRpcStub::get_boot_state(const common::ObServer& master, const int64_t 
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = client_mgr_->send_request(master, OB_GET_BOOT_STATE, DEFAULT_VERSION, timeout_us, msgbuf))) {
     TBSYS_LOG(WARN, "failed to send request, err=%d", ret);
@@ -860,7 +860,7 @@ int ObRootRpcStub::fetch_range_table(const ObServer& data_source, const ObString
     TBSYS_LOG(ERROR, "client_mgr is NULL");
     ret = OB_NOT_INIT;
   } else {
-    if (OB_SUCCESS != (ret = get_thread_buffer_(data_buff))) {
+    if (OB_SUCCESS != (ret = get_thread_buffer(data_buff))) {
       TBSYS_LOG(WARN, "failed to get thread buffer, ret=%d", ret);
     }
     if (OB_SUCCESS != (ret = table_name.serialize(data_buff.get_data(), data_buff.get_capacity(),
@@ -991,7 +991,7 @@ int ObRootRpcStub::fetch_proxy_list(const common::ObServer& ms, const common::Ob
   }
 
   if (OB_SUCCESS == ret) {
-    if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+    if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
       TBSYS_LOG(WARN, "failed to get thread buffer, ret=%d", ret);
     } else if (OB_SUCCESS != (ret = select_stmt.serialize(msgbuf.get_data(), msgbuf.get_capacity(), msgbuf.get_position()))) {
       TBSYS_LOG(WARN, "failed to serialize select stmt, ret=%d", ret);
@@ -1134,7 +1134,7 @@ int ObRootRpcStub::fetch_slave_cluster_list(const common::ObServer& ms,
   }
 
   if (OB_SUCCESS == ret) {
-    if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+    if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
       TBSYS_LOG(WARN, "failed to get thread buffer, ret=%d", ret);
     } else if (OB_SUCCESS != (ret = select_stmt.serialize(msgbuf.get_data(), msgbuf.get_capacity(), msgbuf.get_position()))) {
       TBSYS_LOG(WARN, "failed to serialize select stmt, ret=%d", ret);
@@ -1251,7 +1251,7 @@ int ObRootRpcStub::get_import_status(const common::ObServer& rs, const common::O
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = table_name.serialize(msgbuf.get_data(), msgbuf.get_capacity(), msgbuf.get_position()))) {
     TBSYS_LOG(ERROR, "failed to serialize table_name, err=%d", ret);
@@ -1282,7 +1282,7 @@ int ObRootRpcStub::set_import_status(const common::ObServer& rs, const common::O
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = table_name.serialize(msgbuf.get_data(), msgbuf.get_capacity(), msgbuf.get_position()))) {
     TBSYS_LOG(ERROR, "failed to serialize table_name, err=%d", ret);
@@ -1313,7 +1313,7 @@ int ObRootRpcStub::import(const common::ObServer& rs, const common::ObString& ta
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = table_name.serialize(msgbuf.get_data(), msgbuf.get_capacity(), msgbuf.get_position()))) {
     TBSYS_LOG(ERROR, "failed to serialize table_name, err=%d", ret);
@@ -1346,7 +1346,7 @@ int ObRootRpcStub::kill_import(const common::ObServer& rs, const common::ObStrin
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = table_name.serialize(msgbuf.get_data(), msgbuf.get_capacity(), msgbuf.get_position()))) {
     TBSYS_LOG(ERROR, "failed to serialize table_name, err=%d", ret);
@@ -1374,7 +1374,7 @@ int ObRootRpcStub::notify_switch_schema(const common::ObServer& rs, const int64_
   if (NULL == client_mgr_) {
     TBSYS_LOG(ERROR, "client_mgr_=NULL");
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = get_thread_buffer_(msgbuf))) {
+  } else if (OB_SUCCESS != (ret = get_thread_buffer(msgbuf))) {
     TBSYS_LOG(ERROR, "failed to get thread buffer, err=%d", ret);
   } else if (OB_SUCCESS != (ret = client_mgr_->send_request(rs, OB_RS_NOTIFY_SWITCH_SCHEMA, version, timeout_us, msgbuf))) {
     TBSYS_LOG(WARN, "failed to send request, err=%d", ret);

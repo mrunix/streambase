@@ -467,7 +467,7 @@ int NameServerOperationHelper::check_process(OperationType& type) {
   }
   return ret;
 }
-NameServerTable2* NameServerOperationHelper::get_root_table() {
+RootTable* NameServerOperationHelper::get_root_table() {
   return bypass_data_.get_root_table();
 }
 ObSchemaManagerV2* NameServerOperationHelper::get_schema_manager() {

@@ -238,7 +238,6 @@ class ObLsyncServer: public ObBaseServer {
   int send_log_(ObFetchLogRequest& req, easy_request_t* request, const uint32_t channel_id, int64_t timeout);
   int get_log(ObFetchLogRequest& req, char* buf, int64_t limit, int64_t& pos, int64_t timeout);
   bool is_registered(uint64_t id);
-  int get_thread_buffer_(ObDataBuffer& data_buff);
 
   static const int MY_VERSION = 1;
   const char* log_dir_;

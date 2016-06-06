@@ -93,7 +93,7 @@ class ObRootRpcStub : public common::ObCommonRpcStub {
   int fill_proxy_list(ObDataSourceProxyList& proxy_list, common::ObNewScanner& scanner);
   int fill_slave_cluster_list(common::ObNewScanner& scanner, const common::ObServer& master_rs,
                               common::ObServer* slave_cluster_rs, int64_t& rs_count);
-  int get_thread_buffer_(common::ObDataBuffer& data_buffer);
+  int get_thread_buffer(common::ObDataBuffer& data_buffer);
  private:
   static const int32_t DEFAULT_VERSION = 1;
   common::ThreadSpecificBuffer* thread_buffer_;

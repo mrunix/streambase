@@ -11,8 +11,8 @@
  *     - some work details if you want
  *
  */
-#ifndef OCEANBASE_ROOTSERVER_OB_ROOT_OPERATION_HELPER_H
-#define OCEANBASE_ROOTSERVER_OB_ROOT_OPERATION_HELPER_H
+#ifndef SRC_NAMESERVER_NAME_SERVER_OB_ROOT_OPERATION_HELPER_H
+#define SRC_NAMESERVER_NAME_SERVER_OB_ROOT_OPERATION_HELPER_H
 #include "common/ob_schema.h"
 #include "common/ob_define.h"
 #include "nameserver/name_server_table2.h"
@@ -42,7 +42,7 @@ class NameServerOperationHelper {
   int init(const NameServer* name_server, const NameServerConfig* config,
            const NameServerRpcStub* rpc_stub, const ObChunkServerManager* server_manager);
   ObSchemaManagerV2* get_schema_manager();
-  NameServerTable2* get_root_table();
+  RootTable* get_root_table();
   int start_operation(const common::ObSchemaManagerV2* schema_mgr,
                       const ObBypassTaskInfo& table_name_id,
                       const int64_t frozen_version);

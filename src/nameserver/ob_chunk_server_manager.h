@@ -9,8 +9,8 @@
 *
 *
 ================================================================*/
-#ifndef OCEANBASE_ROOTSERVER_OB_CHUNK_SERVER_MANAGER_H_
-#define OCEANBASE_ROOTSERVER_OB_CHUNK_SERVER_MANAGER_H_
+#ifndef SRC_NAMESERVER_NAME_SERVER_OB_CHUNK_SERVER_MANAGER_H_
+#define SRC_NAMESERVER_NAME_SERVER_OB_CHUNK_SERVER_MANAGER_H_
 #include "common/ob_array_helper.h"
 #include "common/ob_server.h"
 #include "common/ob_array.h"
@@ -101,6 +101,7 @@ struct ObServerStatus {
   bool lms_;         /* listen mergeserver flag */
   CsOperationProcess bypass_process_;
 };
+
 class ObChunkServerManager {
  public:
   enum {

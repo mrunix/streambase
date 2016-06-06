@@ -27,7 +27,9 @@ using namespace sb;
 
 namespace sb {
 namespace common {
+  
 class ObMsProvider;
+
 class ObConfigManager {
   friend class UpdateTask;
  public:

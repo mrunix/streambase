@@ -48,7 +48,7 @@ class ObClientHelper {
   int get_tablet_info(const ObGetParam& param);
   int get_tablet_info(const ObScanParam& scan_param);
   int parse_merge_server(ObScanner& scanner);
-  int get_thread_buffer_(ObDataBuffer& data_buff);
+  int get_thread_buffer(ObDataBuffer& data_buff);
 
  private:
   bool inited_;

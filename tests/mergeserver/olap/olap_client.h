@@ -97,7 +97,7 @@ class MockClient : public BaseClient {
     int ret = OB_SUCCESS;
     static const int32_t MY_VERSION = 1;
     ObDataBuffer data_buff;
-    get_thread_buffer_(data_buff);
+    get_thread_buffer(data_buff);
 
     ObClientManager* client_mgr = get_rpc();
     ret = client_mgr->send_request(server, pcode, MY_VERSION, timeout, data_buff);
@@ -124,7 +124,7 @@ class MockClient : public BaseClient {
     int ret = OB_SUCCESS;
     static const int32_t MY_VERSION = 1;
     ObDataBuffer data_buff;
-    get_thread_buffer_(data_buff);
+    get_thread_buffer(data_buff);
 
     ObClientManager* client_mgr = get_rpc();
     ret = ups_serialize(param, data_buff.get_data(), data_buff.get_capacity(), data_buff.get_position());
@@ -155,7 +155,7 @@ class MockClient : public BaseClient {
     int ret = OB_SUCCESS;
     static const int32_t MY_VERSION = 1;
     ObDataBuffer data_buff;
-    get_thread_buffer_(data_buff);
+    get_thread_buffer(data_buff);
 
     ObClientManager* client_mgr = get_rpc();
     ret = client_mgr->send_request(server, pcode, MY_VERSION, timeout, data_buff);
@@ -186,7 +186,7 @@ class MockClient : public BaseClient {
     int ret = OB_SUCCESS;
     static const int32_t MY_VERSION = 1;
     ObDataBuffer data_buff;
-    get_thread_buffer_(data_buff);
+    get_thread_buffer(data_buff);
 
     ObClientManager* client_mgr = get_rpc();
     ret = ups_serialize(param, data_buff.get_data(), data_buff.get_capacity(), data_buff.get_position());
@@ -322,7 +322,7 @@ class MockClient : public BaseClient {
     return send_request(OB_SCAN_REQUEST, scan_param, scanner, timeout, server);
   }
 
-  int get_thread_buffer_(ObDataBuffer& data_buff) {
+  int get_thread_buffer(ObDataBuffer& data_buff) {
     int err = OB_SUCCESS;
     ThreadSpecificBuffer::Buffer* buffer = rpc_buffer_.get_buffer();
 

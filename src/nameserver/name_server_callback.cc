@@ -7,6 +7,7 @@
 using namespace sb::common;
 namespace sb {
 namespace nameserver {
+
 int NameServerCallback::process(easy_request_t* r) {
   int ret = EASY_OK;
   if (NULL == r || NULL == r->ipacket) {

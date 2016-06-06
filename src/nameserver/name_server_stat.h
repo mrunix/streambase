@@ -9,8 +9,8 @@
 *
 *
 ================================================================*/
-#ifndef OCEANBASE_ROOTSERVER_OB_ROOT_STAT_H_
-#define OCEANBASE_ROOTSERVER_OB_ROOT_STAT_H_
+#ifndef SRC_NAMESERVER_NAME_SERVER_OB_ROOT_STAT_H_
+#define SRC_NAMESERVER_NAME_SERVER_OB_ROOT_STAT_H_
 
 #include "common/ob_statistics.h"
 #include "common/ob_common_stat.h"
@@ -28,4 +28,4 @@ class NameServerStatManager : public common::ObStatManager {
 }
 }
 
-#endif // OCEANBASE_ROOTSERVER_OB_ROOT_STAT_H_
+#endif // SRC_NAMESERVER_NAME_SERVER_OB_ROOT_STAT_H_

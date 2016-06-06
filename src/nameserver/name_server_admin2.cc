@@ -1706,7 +1706,7 @@ int read_root_table_point(ObBaseClient& client, Arguments& args) {
   UNUSED(client);
   int ret = OB_SUCCESS;
   ObTabletInfoManager* tablet_manager = OB_NEW(ObTabletInfoManager, ObModIds::OB_RS_TABLET_MANAGER);
-  NameServerTable2* root_table  = OB_NEW(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, tablet_manager);
+  RootTable* root_table  = OB_NEW(RootTable, ObModIds::OB_RS_ROOT_TABLE, tablet_manager);
   if (tablet_manager != NULL && root_table != NULL) {
     printf("read_from_file.");
     if (OB_SUCCESS == root_table->read_from_file(args.location)) {
@@ -1716,7 +1716,7 @@ int read_root_table_point(ObBaseClient& client, Arguments& args) {
     TBSYS_LOG(WARN, "obmalloc root table or tablet manager failed");
   }
   if (root_table != NULL) {
-    OB_DELETE(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, root_table);
+    OB_DELETE(RootTable, ObModIds::OB_RS_ROOT_TABLE, root_table);
   }
   if (tablet_manager != NULL) {
     OB_DELETE(ObTabletInfoManager, ObModIds::OB_RS_TABLET_MANAGER, tablet_manager);

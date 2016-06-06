@@ -23,9 +23,10 @@
 #include "data_buffer.h"
 #include "ob_server.h"
 #include "ob_packet.h"
-namespace sb {
 
+namespace sb {
 namespace common {
+
 class ObClientManager {
  public:
   ObClientManager();
@@ -174,5 +175,5 @@ class ObClientManager {
 } // end namespace chunkserver
 } // end namespace sb
 
-
 #endif //OCEANBASE_COMMON_CLIENT_MANAGER_H_
+

@@ -15,35 +15,35 @@
 
 namespace sb {
 namespace nameserver {
-NameServerTableOperation::NameServerTableOperation() {
+RootTableOperation::RootTableOperation() {
   config_ = NULL;
   new_root_table_ = NULL;
   tablet_manager_ = NULL;
   root_table_tmp_ = NULL;
   tablet_manager_tmp_ = NULL;
 }
-NameServerTableOperation::~NameServerTableOperation() {
+RootTableOperation::~RootTableOperation() {
   destroy_data();
 }
-void NameServerTableOperation::init(const NameServerConfig* config) {
+void RootTableOperation::init(const NameServerConfig* config) {
   config_ = const_cast<NameServerConfig*>(config);
 }
-void NameServerTableOperation::set_schema_manager(const common::ObSchemaManagerV2* schema_mgr) {
+void RootTableOperation::set_schema_manager(const common::ObSchemaManagerV2* schema_mgr) {
   schema_manager_ = schema_mgr;
 }
-NameServerTable2* NameServerTableOperation::get_root_table() {
+RootTable* RootTableOperation::get_root_table() {
   return new_root_table_;
 }
-ObTabletInfoManager* NameServerTableOperation::get_tablet_info_manager() {
+ObTabletInfoManager* RootTableOperation::get_tablet_info_manager() {
   return tablet_manager_;
 }
-void NameServerTableOperation::reset_root_table() {
+void RootTableOperation::reset_root_table() {
   new_root_table_ = NULL;
   tablet_manager_ = NULL;
 }
-void NameServerTableOperation::destroy_data() {
+void RootTableOperation::destroy_data() {
   if (NULL != new_root_table_) {
-    OB_DELETE(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, new_root_table_);
+    OB_DELETE(RootTable, ObModIds::OB_RS_ROOT_TABLE, new_root_table_);
     new_root_table_ = NULL;
   }
   if (NULL != tablet_manager_) {
@@ -51,7 +51,7 @@ void NameServerTableOperation::destroy_data() {
     tablet_manager_ = NULL;
   }
   if (NULL != root_table_tmp_) {
-    OB_DELETE(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, root_table_tmp_);
+    OB_DELETE(RootTable, ObModIds::OB_RS_ROOT_TABLE, root_table_tmp_);
     root_table_tmp_ = NULL;
   }
   if (NULL != tablet_manager_tmp_) {
@@ -59,10 +59,10 @@ void NameServerTableOperation::destroy_data() {
     tablet_manager_tmp_ = NULL;
   }
 }
-int NameServerTableOperation::generate_root_table() {
+int RootTableOperation::generate_root_table() {
   int ret = OB_SUCCESS;
   if (NULL != new_root_table_) {
-    OB_DELETE(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, new_root_table_);
+    OB_DELETE(RootTable, ObModIds::OB_RS_ROOT_TABLE, new_root_table_);
     new_root_table_ = NULL;
   }
   if (NULL != tablet_manager_) {
@@ -75,9 +75,9 @@ int NameServerTableOperation::generate_root_table() {
     ret = OB_ALLOCATE_MEMORY_FAILED;
   }
   if (OB_SUCCESS == ret) {
-    new_root_table_ = OB_NEW(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, tablet_manager_);
+    new_root_table_ = OB_NEW(RootTable, ObModIds::OB_RS_ROOT_TABLE, tablet_manager_);
     if (NULL == new_root_table_) {
-      TBSYS_LOG(ERROR, "new NameServerTable2 error");
+      TBSYS_LOG(ERROR, "new RootTable error");
       ret = OB_ALLOCATE_MEMORY_FAILED;
     } else {
       //new_root_table_->set_replica_num(config_->tablet_replicas_num);
@@ -92,9 +92,9 @@ int NameServerTableOperation::generate_root_table() {
     }
   }
   if (OB_SUCCESS == ret) {
-    root_table_tmp_ = OB_NEW(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, tablet_manager_tmp_);
+    root_table_tmp_ = OB_NEW(RootTable, ObModIds::OB_RS_ROOT_TABLE, tablet_manager_tmp_);
     if (root_table_tmp_ == NULL) {
-      TBSYS_LOG(ERROR, "new NameServerTable2 error");
+      TBSYS_LOG(ERROR, "new RootTable error");
       ret = OB_ERROR;
     } else {
       TBSYS_LOG(INFO, "operation helper generate roottable, addr=%p", root_table_tmp_);
@@ -102,7 +102,7 @@ int NameServerTableOperation::generate_root_table() {
   }
   return ret;
 }
-int NameServerTableOperation::report_tablets(const ObTabletReportInfoList& tablets,
+int RootTableOperation::report_tablets(const ObTabletReportInfoList& tablets,
                                              const int32_t server_index, const int64_t frozen_mem_version) {
   int ret = OB_SUCCESS;
   UNUSED(frozen_mem_version);
@@ -143,7 +143,7 @@ int NameServerTableOperation::report_tablets(const ObTabletReportInfoList& table
   }
   return ret;
 }
-int NameServerTableOperation::check_root_table(common::ObTabletReportInfoList& delete_list) {
+int RootTableOperation::check_root_table(common::ObTabletReportInfoList& delete_list) {
   int ret = OB_SUCCESS;
   if (NULL == new_root_table_ || NULL == root_table_tmp_) {
     ret = OB_ERROR;
@@ -194,7 +194,7 @@ int NameServerTableOperation::check_root_table(common::ObTabletReportInfoList& d
     }
   }
   if (OB_SUCCESS == ret) {
-    OB_DELETE(NameServerTable2, ObModIds::OB_RS_ROOT_TABLE, new_root_table_);
+    OB_DELETE(RootTable, ObModIds::OB_RS_ROOT_TABLE, new_root_table_);
     new_root_table_ = NULL;
     OB_DELETE(ObTabletInfoManager, ObModIds::OB_RS_TABLET_MANAGER, tablet_manager_);
     tablet_manager_ = NULL;

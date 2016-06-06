@@ -1,52 +1,51 @@
-/*===============================================================
- *   (C) 2007-2010 Taobao Inc.
+/*
+ * src/nameserver/name_server_roottable.cc
  *
- *
- *   Version: 0.1 2010-10-21
- *
- *   Authors:
- *          daoan(daoan@taobao.com)
- *
- *
- ================================================================*/
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
+ */
+
 #include <algorithm>
 #include <stdlib.h>
-#include "nameserver/name_server_table2.h"
+
+#include "nameserver/name_server_roottable.h"
 #include "nameserver/ob_chunk_server_manager.h"
 #include "common/ob_record_header.h"
 #include "common/file_utils.h"
 #include "common/ob_atomic.h"
 #include "common/utility.h"
 #include "name_server_balancer.h"
+
 using namespace sb::common;
-using namespace sb::nameserver;
 
 namespace {
-const int SPLIT_TYPE_ERROR = -1;
-const int SPLIT_TYPE_TOP_HALF = 1;
+const int SPLIT_TYPE_ERROR       = -1;
+const int SPLIT_TYPE_TOP_HALF    = 1;
 const int SPLIT_TYPE_BOTTOM_HALF = 2;
 const int SPLIT_TYPE_MIDDLE_HALF = 3;
 }
 
-NameServerTable2::NameServerTable2(ObTabletInfoManager* tim): tablet_info_manager_(tim), sorted_count_(0) {
+namespace sb {
+namespace nameserver {
+
+RootTable::RootTable(ObTabletInfoManager* tim): tablet_info_manager_(tim), sorted_count_(0) {
   meta_table_.init(ObTabletInfoManager::MAX_TABLET_COUNT, data_holder_);
 }
 
-NameServerTable2::~NameServerTable2() {
+RootTable::~RootTable() {
   tablet_info_manager_ = NULL;
   sorted_count_ = 0;
 }
-void NameServerTable2::clear() {
+void RootTable::clear() {
   meta_table_.clear();
   sorted_count_ = 0;
   tablet_info_manager_->clear();
 }
 
-bool NameServerTable2::has_been_sorted() const {
+bool RootTable::has_been_sorted() const {
   return 0 != sorted_count_;
 }
 
-bool NameServerTable2::internal_check() const {
+bool RootTable::internal_check() const {
   bool ret = true;
   if (NULL == tablet_info_manager_) {
     TBSYS_LOG(ERROR, "tablet_info_manager_ not inited");
@@ -60,7 +59,7 @@ bool NameServerTable2::internal_check() const {
   return ret;
 }
 
-int NameServerTable2::find_range(const common::ObNewRange& range,
+int RootTable::find_range(const common::ObNewRange& range,
                                  const_iterator& first,
                                  const_iterator& last) const {
   int ret = OB_NOT_INIT;
@@ -77,7 +76,7 @@ int NameServerTable2::find_range(const common::ObNewRange& range,
     start_range.table_id_  = range.table_id_;
     start_range.end_key_ = range.start_key_;
     const common::ObTabletInfo* tablet_info = NULL;
-    NameServerMeta2RangeLessThan meta_comp(tablet_info_manager_); // compare_with_endkey
+    RootMetaRangeLessThan meta_comp(tablet_info_manager_); // compare_with_endkey
     //const_iterator start_pos = std::lower_bound(begin(), sorted_end(), start_range, meta_comp);
     const_iterator start_pos = std::lower_bound(begin(), end(), start_range, meta_comp);
     //if (NULL == start_pos || start_pos == sorted_end())
@@ -134,7 +133,7 @@ int NameServerTable2::find_range(const common::ObNewRange& range,
 }
 
 
-int NameServerTable2::find_key(const uint64_t table_id,
+int RootTable::find_key(const uint64_t table_id,
                                const common::ObRowkey& key,
                                int32_t adjacent_offset,
                                const_iterator& first,
@@ -151,7 +150,7 @@ int NameServerTable2::find_key(const uint64_t table_id,
     find_range.table_id_ = table_id;
     find_range.end_key_ = key;
     const common::ObTabletInfo* tablet_info = NULL;
-    NameServerMeta2RangeLessThan meta_comp(tablet_info_manager_); // compare_with_endkey
+    RootMetaRangeLessThan meta_comp(tablet_info_manager_); // compare_with_endkey
     //const_iterator find_pos = std::lower_bound(begin(), sorted_end(), find_range, meta_comp);
     const_iterator find_pos = std::lower_bound(begin(), end(), find_range, meta_comp);
     // if (table_id == 3)
@@ -217,14 +216,14 @@ int NameServerTable2::find_key(const uint64_t table_id,
 }
 
 
-int NameServerTable2::get_table_row_checksum(const int64_t tablet_version, const uint64_t table_id, uint64_t& row_checksum) {
+int RootTable::get_table_row_checksum(const int64_t tablet_version, const uint64_t table_id, uint64_t& row_checksum) {
   int ret = OB_SUCCESS;
   common::ObNewRange range;
   range.table_id_ = table_id;
   const common::ObTabletInfo* tablet_info = NULL;
   const common::ObTabletInfo* last_tablet_info = NULL;
   // if table is exist, we should find at lest one range with this table id
-  NameServerMeta2TableIdLessThan meta_table_id_comp(tablet_info_manager_); // compare with table id
+  RootMetaTableIdLessThan meta_table_id_comp(tablet_info_manager_); // compare with table id
   const_iterator start_pos = std::lower_bound(begin(), end(), range, meta_table_id_comp);
 
   if (start_pos != end()) {
@@ -259,13 +258,13 @@ int NameServerTable2::get_table_row_checksum(const int64_t tablet_version, const
   return ret;
 }
 
-bool NameServerTable2::table_is_exist(const uint64_t table_id) const {
+bool RootTable::table_is_exist(const uint64_t table_id) const {
   common::ObNewRange range;
   range.table_id_ = table_id;
   const common::ObTabletInfo* tablet_info = NULL;
   // if table is exist, we should find at lest one range with this table id
   bool ret = false;
-  NameServerMeta2TableIdLessThan meta_table_id_comp(tablet_info_manager_); // compare with table id
+  RootMetaTableIdLessThan meta_table_id_comp(tablet_info_manager_); // compare with table id
   const_iterator start_pos = std::lower_bound(begin(), end(), range, meta_table_id_comp);
   if (start_pos != end()) {
     tablet_info = get_tablet_info(start_pos);
@@ -281,7 +280,7 @@ bool NameServerTable2::table_is_exist(const uint64_t table_id) const {
   return ret;
 }
 
-void NameServerTable2::server_off_line(const int32_t server_index, const int64_t time_stamp) {
+void RootTable::server_off_line(const int32_t server_index, const int64_t time_stamp) {
   int64_t count = 0;
   for (int32_t i = 0; i < (int32_t)meta_table_.get_array_index(); ++i) {
     for (int32_t j = 0; j < OB_SAFE_COPY_COUNT; j++) {
@@ -296,7 +295,7 @@ void NameServerTable2::server_off_line(const int32_t server_index, const int64_t
   return;
 }
 
-void NameServerTable2::get_cs_version(const int64_t index, int64_t& version) {
+void RootTable::get_cs_version(const int64_t index, int64_t& version) {
   if (tablet_info_manager_ != NULL) {
     for (int32_t i = 0; i < meta_table_.get_array_index(); i++) {
       for (int32_t j = 0; j < OB_SAFE_COPY_COUNT; j++) {
@@ -309,7 +308,7 @@ void NameServerTable2::get_cs_version(const int64_t index, int64_t& version) {
   }
 }
 
-void NameServerTable2::dump() const {
+void RootTable::dump() const {
   TBSYS_LOG(INFO, "meta_table_.size():%d", (int32_t)meta_table_.get_array_index());
   if (tablet_info_manager_ != NULL) {
     for (int32_t i = 0; i < meta_table_.get_array_index(); i++) {
@@ -324,7 +323,7 @@ void NameServerTable2::dump() const {
   return;
 }
 
-void NameServerTable2::dump_cs_tablet_info(const int server_index, int64_t& tablet_num)const {
+void RootTable::dump_cs_tablet_info(const int server_index, int64_t& tablet_num)const {
   if (NULL != tablet_info_manager_) {
     for (int32_t i = 0; i < meta_table_.get_array_index(); i++) {
       data_holder_[i].dump(server_index, tablet_num);
@@ -332,7 +331,7 @@ void NameServerTable2::dump_cs_tablet_info(const int server_index, int64_t& tabl
   }
 }
 
-void NameServerTable2::dump_unusual_tablets(int64_t current_version, int32_t replicas_num, int32_t& num) const {
+void RootTable::dump_unusual_tablets(int64_t current_version, int32_t replicas_num, int32_t& num) const {
   num = 0;
   TBSYS_LOG(INFO, "meta_table_.size():%d", (int32_t)meta_table_.get_array_index());
   TBSYS_LOG(INFO, "current_version=%ld replicas_num=%d", current_version, replicas_num);
@@ -357,7 +356,7 @@ void NameServerTable2::dump_unusual_tablets(int64_t current_version, int32_t rep
   return;
 }
 
-int NameServerTable2::check_tablet_version_merged(const int64_t tablet_version, const int64_t safe_count, bool& is_merged) const {
+int RootTable::check_tablet_version_merged(const int64_t tablet_version, const int64_t safe_count, bool& is_merged) const {
   int err = OB_SUCCESS;
   is_merged = true;
   int32_t fail_count = 0;
@@ -401,7 +400,7 @@ int NameServerTable2::check_tablet_version_merged(const int64_t tablet_version, 
   return err;
 }
 
-void NameServerTable2::get_tablet_info(int64_t& tablet_count, int64_t& row_count, int64_t& data_size) const {
+void RootTable::get_tablet_info(int64_t& tablet_count, int64_t& row_count, int64_t& data_size) const {
   if (tablet_info_manager_ != NULL) {
     const common::ObTabletInfo* tablet_info = NULL;
     for (int32_t i = 0; i < meta_table_.get_array_index(); i++) {
@@ -420,7 +419,7 @@ void NameServerTable2::get_tablet_info(int64_t& tablet_count, int64_t& row_count
   }
 }
 
-const ObTabletInfo* NameServerTable2::get_tablet_info(const const_iterator& it) const {
+const ObTabletInfo* RootTable::get_tablet_info(const const_iterator& it) const {
   int32_t tablet_index = 0;
   const common::ObTabletInfo* tablet_info = NULL;
   if (NULL != it && it < end() && it >= begin() && NULL != tablet_info_manager_) {
@@ -436,7 +435,7 @@ const ObTabletInfo* NameServerTable2::get_tablet_info(const const_iterator& it) 
   return tablet_info;
 }
 
-ObTabletInfo* NameServerTable2::get_tablet_info(const const_iterator& it) {
+ObTabletInfo* RootTable::get_tablet_info(const const_iterator& it) {
   int32_t tablet_index = 0;
   common::ObTabletInfo* tablet_info = NULL;
   if (NULL != it && it < end() && it >= begin() && NULL != tablet_info_manager_) {
@@ -450,14 +449,14 @@ ObTabletInfo* NameServerTable2::get_tablet_info(const const_iterator& it) {
 }
 
 
-bool NameServerTable2::move_back(const int32_t from_index_inclusive, const int32_t move_step) {
+bool RootTable::move_back(const int32_t from_index_inclusive, const int32_t move_step) {
   bool ret = false;
   int32_t data_count = static_cast<int32_t>(meta_table_.get_array_index());
   if ((move_step + data_count < ObTabletInfoManager::MAX_TABLET_COUNT) && from_index_inclusive <= data_count) {
     ret = true;
     memmove(&(data_holder_[from_index_inclusive + move_step]), //dest
             & (data_holder_[from_index_inclusive]), //src
-            (data_count - from_index_inclusive) * sizeof(NameServerMeta2));  //size
+            (data_count - from_index_inclusive) * sizeof(RootMeta));  //size
     meta_table_.init(ObTabletInfoManager::MAX_TABLET_COUNT, data_holder_, data_count + move_step);
     sorted_count_ += move_step;
   }
@@ -467,7 +466,7 @@ bool NameServerTable2::move_back(const int32_t from_index_inclusive, const int32
   return ret;
 
 }
-int64_t NameServerTable2::get_max_tablet_version() {
+int64_t RootTable::get_max_tablet_version() {
   int64_t max_tablet_version = 0;
   int64_t tmp_version = 0;
   if (NULL != tablet_info_manager_) {
@@ -482,7 +481,7 @@ int64_t NameServerTable2::get_max_tablet_version() {
   return max_tablet_version;
 }
 
-int64_t NameServerTable2::get_max_tablet_version(const const_iterator& it) {
+int64_t RootTable::get_max_tablet_version(const const_iterator& it) {
   int64_t max_tablet_version = 0;
   for (int32_t i = 0 ; i < OB_SAFE_COPY_COUNT; i++) {
     if (it->tablet_version_[i] > max_tablet_version) {
@@ -492,7 +491,7 @@ int64_t NameServerTable2::get_max_tablet_version(const const_iterator& it) {
   return max_tablet_version;
 }
 
-int NameServerTable2::remove(const const_iterator& it, const int32_t safe_count, const int32_t server_index) {
+int RootTable::remove(const const_iterator& it, const int32_t safe_count, const int32_t server_index) {
   int ret = OB_SUCCESS;
   if (safe_count <= 0) {
     ret = OB_INVALID_ARGUMENT;
@@ -520,7 +519,7 @@ int NameServerTable2::remove(const const_iterator& it, const int32_t safe_count,
   return ret;
 }
 
-int NameServerTable2::modify(const const_iterator& it, const int32_t dest_server_index, const int64_t tablet_version) {
+int RootTable::modify(const const_iterator& it, const int32_t dest_server_index, const int64_t tablet_version) {
   int32_t found_it_index = OB_INVALID_INDEX;
   found_it_index = find_suitable_pos(it, dest_server_index, tablet_version);
   if (found_it_index != OB_INVALID_INDEX) {
@@ -530,7 +529,7 @@ int NameServerTable2::modify(const const_iterator& it, const int32_t dest_server
   return OB_SUCCESS;
 }
 
-int NameServerTable2::replace(const const_iterator& it,
+int RootTable::replace(const const_iterator& it,
                               const int32_t src_server_index, const int32_t dest_server_index,
                               const int64_t tablet_version) {
   int ret = OB_SUCCESS;
@@ -549,7 +548,7 @@ int NameServerTable2::replace(const const_iterator& it,
 }
 
 //only used in name server's init process
-int NameServerTable2::add(const common::ObTabletInfo& tablet, const int32_t server_index,
+int RootTable::add(const common::ObTabletInfo& tablet, const int32_t server_index,
                           const int64_t tablet_version, const int64_t seq) {
   int ret = OB_ERROR;
   UNUSED(seq);
@@ -564,7 +563,7 @@ int NameServerTable2::add(const common::ObTabletInfo& tablet, const int32_t serv
         crc_helper->reset();
         crc_helper->check_and_update(tablet_version, tablet.crc_sum_, tablet.row_checksum_);
       }
-      NameServerMeta2 meta;
+      RootMeta meta;
       meta.tablet_info_index_ = tablet_index;
       meta.server_info_indexes_[0] = server_index;
       meta.tablet_version_[0] = tablet_version;
@@ -577,7 +576,7 @@ int NameServerTable2::add(const common::ObTabletInfo& tablet, const int32_t serv
   }
   return ret;
 }
-int NameServerTable2::create_table(const ObTabletInfo& tablet, const ObArray<int32_t>& chunkservers, const int64_t tablet_version) {
+int RootTable::create_table(const ObTabletInfo& tablet, const ObArray<int32_t>& chunkservers, const int64_t tablet_version) {
   int ret = OB_ERROR;
   int32_t insert_pos = -1;
   if (tablet_info_manager_ != NULL) {
@@ -614,7 +613,7 @@ int NameServerTable2::create_table(const ObTabletInfo& tablet, const ObArray<int
         }
       }
     }
-    NameServerMeta2 meta;
+    RootMeta meta;
     if (OB_SUCCESS == ret) {
       meta.tablet_info_index_ = tablet_index;
       meta.last_dead_server_time_ = 0;
@@ -629,7 +628,7 @@ int NameServerTable2::create_table(const ObTabletInfo& tablet, const ObArray<int
   }
   return ret;
 }
-bool NameServerTable2::add_lost_range() {
+bool RootTable::add_lost_range() {
   bool ret = true;
   ObNewRange last_range;
   last_range.table_id_ = OB_INVALID_ID;
@@ -703,7 +702,7 @@ bool NameServerTable2::add_lost_range() {
   }
   return ret;
 }
-bool NameServerTable2::check_lost_data(const int64_t server_index)const {
+bool RootTable::check_lost_data(const int64_t server_index)const {
   bool ret = true;
   int64_t count = 0;
   int64_t single_copy_count = 0;
@@ -752,7 +751,7 @@ bool NameServerTable2::check_lost_data(const int64_t server_index)const {
             single_copy_count, double_copy_count, three_copy_count);
   return ret;
 }
-bool NameServerTable2::check_lost_range() {
+bool RootTable::check_lost_range() {
   bool ret = true;
   ObNewRange last_range;
   last_range.table_id_ = OB_INVALID_ID;
@@ -800,16 +799,16 @@ bool NameServerTable2::check_lost_range() {
   }
   return ret;
 }
-void NameServerTable2::sort() {
+void RootTable::sort() {
   if (tablet_info_manager_ != NULL) {
-    NameServerMeta2CompareHelper sort_helper(tablet_info_manager_);
+    RootMetaCompareHelper sort_helper(tablet_info_manager_);
     std::sort(begin(), end(), sort_helper);
     sorted_count_ = static_cast<int32_t>(end() - begin());
   }
   return;
 }
 
-int NameServerTable2::shrink_to(NameServerTable2* shrunk_table, ObTabletReportInfoList& delete_list) {
+int RootTable::shrink_to(RootTable* shrunk_table, ObTabletReportInfoList& delete_list) {
   int ret = OB_ERROR;
   static char row_key_dump_buff[OB_MAX_ROW_KEY_LENGTH * 2];
   if (shrunk_table != NULL &&
@@ -822,7 +821,7 @@ int NameServerTable2::shrink_to(NameServerTable2* shrunk_table, ObTabletReportIn
     ObTabletInfo new_tablet_info;
     int32_t last_range_index = OB_INVALID_INDEX;
     int32_t last_tablet_index = OB_INVALID_INDEX;
-    NameServerMeta2 root_meta;
+    RootMeta root_meta;
     const_iterator it = begin();
     const_iterator it2 = begin();
     int cmp_ret = 0;
@@ -941,7 +940,7 @@ int NameServerTable2::shrink_to(NameServerTable2* shrunk_table, ObTabletReportIn
   return ret;
 }
 
-int32_t NameServerTable2::find_suitable_pos(const const_iterator& it, const int32_t server_index, const int64_t tablet_version, common::ObTabletReportInfo* to_delete/*=NULL*/) {
+int32_t RootTable::find_suitable_pos(const const_iterator& it, const int32_t server_index, const int64_t tablet_version, common::ObTabletReportInfo* to_delete/*=NULL*/) {
   int32_t found_it_index = OB_INVALID_INDEX;
   for (int32_t i = 0; i < OB_SAFE_COPY_COUNT; i++) {
     if (it->server_info_indexes_[i] == server_index) {
@@ -973,7 +972,7 @@ int32_t NameServerTable2::find_suitable_pos(const const_iterator& it, const int3
   return found_it_index;
 }
 
-int NameServerTable2::check_tablet_version(const int64_t tablet_version, int safe_copy_count) const {
+int RootTable::check_tablet_version(const int64_t tablet_version, int safe_copy_count) const {
   int ret = OB_SUCCESS;
   int tablet_ok = 0;
   const common::ObTabletInfo* tablet_info = NULL;
@@ -1002,7 +1001,7 @@ int NameServerTable2::check_tablet_version(const int64_t tablet_version, int saf
   return ret;
 }
 
-ObTabletCrcHistoryHelper* NameServerTable2::get_crc_helper(const const_iterator& it) {
+ObTabletCrcHistoryHelper* RootTable::get_crc_helper(const const_iterator& it) {
   ObTabletCrcHistoryHelper* ret = NULL;
   if (NULL != it && it < end() && it >= begin() && NULL != tablet_info_manager_) {
     int32_t tablet_index = it->tablet_info_index_;
@@ -1011,7 +1010,7 @@ ObTabletCrcHistoryHelper* NameServerTable2::get_crc_helper(const const_iterator&
   return ret;
 }
 
-bool NameServerTable2::check_tablet_copy_count(const int32_t copy_count) const {
+bool RootTable::check_tablet_copy_count(const int32_t copy_count) const {
   bool ret = true;
   int tablet_ok = 0;
   const common::ObTabletInfo* tablet_info = NULL;
@@ -1038,7 +1037,7 @@ bool NameServerTable2::check_tablet_copy_count(const int32_t copy_count) const {
 }
 
 
-void NameServerTable2::merge_one_tablet(NameServerTable2* shrunk_table, int32_t last_tablet_index, const_iterator it, ObTabletReportInfo& to_delete) {
+void RootTable::merge_one_tablet(RootTable* shrunk_table, int32_t last_tablet_index, const_iterator it, ObTabletReportInfo& to_delete) {
   to_delete.tablet_location_.chunkserver_.set_port(0);
   int32_t i = 0;
   for (i = 0; i < OB_SAFE_COPY_COUNT; ++i) {
@@ -1076,7 +1075,7 @@ void NameServerTable2::merge_one_tablet(NameServerTable2* shrunk_table, int32_t 
  * 得到range会对root table产生的影响
  * 一个range可能导致root table分裂 合并 无影响等
  */
-int NameServerTable2::get_range_pos_type(const common::ObNewRange& range, const const_iterator& first, const const_iterator& last) const {
+int RootTable::get_range_pos_type(const common::ObNewRange& range, const const_iterator& first, const const_iterator& last) const {
   int ret = POS_TYPE_UNINIT;
   const common::ObTabletInfo* tablet_info = NULL;
   char row_key_dump_buff[OB_RANGE_STR_BUFSIZ];
@@ -1165,7 +1164,7 @@ int NameServerTable2::get_range_pos_type(const common::ObNewRange& range, const 
 
   return ret;
 }
-int NameServerTable2::split_range(const common::ObTabletInfo& reported_tablet_info, const const_iterator& pos,
+int RootTable::split_range(const common::ObTabletInfo& reported_tablet_info, const const_iterator& pos,
                                   const int64_t tablet_version, const int32_t server_index) {
   int ret = OB_ERROR;
   ObNewRange range = reported_tablet_info.range_;
@@ -1357,7 +1356,7 @@ int NameServerTable2::split_range(const common::ObTabletInfo& reported_tablet_in
   }
   return ret;
 }
-int NameServerTable2::add_range(const common::ObTabletInfo& reported_tablet_info, const const_iterator& pos,
+int RootTable::add_range(const common::ObTabletInfo& reported_tablet_info, const const_iterator& pos,
                                 const int64_t tablet_version, const int32_t server_index) {
   int ret = OB_ERROR;
   ObNewRange range = reported_tablet_info.range_;
@@ -1381,7 +1380,7 @@ int NameServerTable2::add_range(const common::ObTabletInfo& reported_tablet_info
         }
       }
       if (OB_SUCCESS == ret) {
-        NameServerMeta2 meta;
+        RootMeta meta;
         meta.tablet_info_index_ = out_index;
         meta.server_info_indexes_[0] = server_index;
         meta.tablet_version_[0] = tablet_version;
@@ -1393,7 +1392,7 @@ int NameServerTable2::add_range(const common::ObTabletInfo& reported_tablet_info
   return ret;
 }
 
-int NameServerTable2::write_to_file(const char* filename) {
+int RootTable::write_to_file(const char* filename) {
   int ret = OB_SUCCESS;
   if (filename == NULL) {
     ret = OB_INVALID_ARGUMENT;
@@ -1505,7 +1504,7 @@ int NameServerTable2::write_to_file(const char* filename) {
 
   return ret;
 }
-int NameServerTable2::read_from_file(const char* filename) {
+int RootTable::read_from_file(const char* filename) {
   int ret = OB_SUCCESS;
   if (filename == NULL) {
     ret = OB_INVALID_ARGUMENT;
@@ -1587,7 +1586,7 @@ int NameServerTable2::read_from_file(const char* filename) {
   }
 
   if (ret == OB_SUCCESS) {
-    NameServerMeta2 record;
+    RootMeta record;
     for (int64_t i = 0; i < count; ++i) {
       data_holder_[i].deserialize(buffer.get_data(), buffer.get_capacity(), buffer.get_position());
       if (ret != OB_SUCCESS) {
@@ -1607,14 +1606,14 @@ int NameServerTable2::read_from_file(const char* filename) {
 
   return ret;
 }
-void NameServerTable2::dump_as_hex(FILE* stream) const {
+void RootTable::dump_as_hex(FILE* stream) const {
   fprintf(stream, "root_table_size %ld sorted_count_ %d\n", meta_table_.get_array_index(), sorted_count_);
-  NameServerTable2::const_iterator it = this->begin();
+  RootTable::const_iterator it = this->begin();
   for (; it != this->end(); it++) {
     it->dump_as_hex(stream);
   }
 }
-void NameServerTable2::read_from_hex(FILE* stream) {
+void RootTable::read_from_hex(FILE* stream) {
   int64_t size = 0;
   int __attribute__((unused)) ret;
   ret = fscanf(stream, "root_table_size %ld sorted_count_ %d", &size, &sorted_count_);
@@ -1625,7 +1624,7 @@ void NameServerTable2::read_from_hex(FILE* stream) {
   meta_table_.init(ObTabletInfoManager::MAX_TABLET_COUNT, data_holder_, size);
 }
 
-int NameServerTable2::shrink() {
+int RootTable::shrink() {
   int ret = OB_SUCCESS;
   int32_t new_count = 0;
   iterator it_invalid = NULL;
@@ -1648,9 +1647,9 @@ int NameServerTable2::shrink() {
   return ret;
 }
 
-int NameServerTable2::get_deleted_table(const common::ObSchemaManagerV2& schema, const NameServerBalancer& balancer, common::ObArray<uint64_t>& deleted_tables) const {
+int RootTable::get_deleted_table(const common::ObSchemaManagerV2& schema, const NameServerBalancer& balancer, common::ObArray<uint64_t>& deleted_tables) const {
   int ret = OB_SUCCESS;
-  NameServerTable2::const_iterator it;
+  RootTable::const_iterator it;
   const ObTabletInfo* tablet = NULL;
   uint64_t last_deleted_table_id = OB_INVALID_ID;
   uint64_t cur_table_id = OB_INVALID_ID;
@@ -1682,11 +1681,11 @@ int NameServerTable2::get_deleted_table(const common::ObSchemaManagerV2& schema,
   return ret;
 }
 
-int NameServerTable2::delete_tables(const common::ObArray<uint64_t>& deleted_tables) {
+int RootTable::delete_tables(const common::ObArray<uint64_t>& deleted_tables) {
   int ret = OB_SUCCESS;
   char buf[OB_MAX_ROW_KEY_LENGTH * 2];
   // mark deleted
-  NameServerTable2::iterator it;
+  RootTable::iterator it;
   ObTabletInfo* tablet = NULL;
   //for (it = this->begin(); it != this->sorted_end(); ++it)
   for (it = this->begin(); it != this->end(); ++it) {
@@ -1708,3 +1707,7 @@ int NameServerTable2::delete_tables(const common::ObArray<uint64_t>& deleted_tab
   }
   return ret;
 }
+
+}
+}
+

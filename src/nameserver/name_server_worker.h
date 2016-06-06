@@ -239,17 +239,15 @@ class NameServerWorker : public common::ObBaseServer, public common::ObPacketQue
   common::ObSlaveMgr slave_mgr_;
   common::ObCheckRunnable check_thread_;
   NameServerFetchThread fetch_thread_;
-  NameServerSQLProxy sql_proxy_;
-  NameServerRpcStub rt_rpc_stub_;
+  NameServerRpcStub ns_rpc_stub_;
   common::ObGeneralRpcStub general_rpc_stub_;
   NameServerLogReplay log_replay_thread_;
   NameServerLogManager log_manager_;
   NameServerStatManager stat_manager_;
   int64_t schema_version_;
   MsList ms_list_task_;
-  NameServerInnerTableTask inner_table_task_;
   ObRsAfterRestartTask after_restart_task_;
-  ObTimer timer_;
+  common::ObTimer timer_;
 };
 
 inline NameServer& NameServerWorker::get_name_server() {
@@ -265,10 +263,10 @@ inline NameServerConfig& NameServerWorker::get_config() const {
 }
 
 inline NameServerRpcStub& NameServerWorker::get_rpc_stub() {
-  return rt_rpc_stub_;
+  return ns_rpc_stub_;
 }
 
-inline ObGeneralRpcStub& NameServerWorker::get_general_rpc_stub() {
+inline common::ObGeneralRpcStub& NameServerWorker::get_general_rpc_stub() {
   return general_rpc_stub_;
 }
 

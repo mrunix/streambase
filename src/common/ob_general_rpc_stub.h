@@ -49,7 +49,7 @@ class AlterTableSchema;
 // this class encapsulates network rpc interface as bottom layer,
 // and it only take charge of "one" rpc call.
 // if u need other operational work, please use rpc_proxy for interaction
-class ObGeneralRpcStub : public ObDataRpcStub {
+class ObGeneralRpcStub: public ObDataRpcStub {
  public:
   ObGeneralRpcStub();
   virtual ~ObGeneralRpcStub();

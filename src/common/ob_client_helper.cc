@@ -103,7 +103,7 @@ int ObClientHelper::scan(const ObServer& server, const ObScanParam& scan_param, 
 
   if (OB_SUCCESS == ret) {
     ObDataBuffer data_buff;
-    get_thread_buffer_(data_buff);
+    get_thread_buffer(data_buff);
     ret = scan_param.serialize(data_buff.get_data(), data_buff.get_capacity(), data_buff.get_position());
 
     if (OB_SUCCESS == ret) {
@@ -144,7 +144,7 @@ int ObClientHelper::get(const ObServer& server, const ObGetParam& get_param, ObS
 
   if (OB_SUCCESS == ret) {
     ObDataBuffer data_buff;
-    get_thread_buffer_(data_buff);
+    get_thread_buffer(data_buff);
     ret = get_param.serialize(data_buff.get_data(), data_buff.get_capacity(), data_buff.get_position());
 
     if (OB_SUCCESS == ret) {
@@ -185,7 +185,7 @@ int ObClientHelper::apply(const ObServer& update_server, const ObMutator& mutato
 
   if (OB_SUCCESS == ret) {
     ObDataBuffer data_buff;
-    get_thread_buffer_(data_buff);
+    get_thread_buffer(data_buff);
     ret = mutator.serialize(data_buff.get_data(), data_buff.get_capacity(), data_buff.get_position());
 
     if (OB_SUCCESS == ret) {
@@ -304,7 +304,7 @@ int ObClientHelper::parse_merge_server(ObScanner& scanner) {
   return ret;
 }
 
-int ObClientHelper::get_thread_buffer_(ObDataBuffer& data_buff) {
+int ObClientHelper::get_thread_buffer(ObDataBuffer& data_buff) {
   int err = OB_SUCCESS;
   ThreadSpecificBuffer::Buffer* buffer = thread_buffer_->get_buffer();
   buffer->reset();

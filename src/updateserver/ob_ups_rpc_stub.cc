@@ -42,7 +42,7 @@ int ObUpsRpcStub :: fetch_schema(const common::ObServer& root_server, const int6
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
   // step 1. serialize timestamp to data_buff
   if (OB_SUCCESS == err) {
@@ -102,7 +102,7 @@ int ObUpsRpcStub :: slave_register_followed(const ObServer& master, const ObSlav
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
   if (OB_SUCCESS == err) {
     err = slave_info.serialize(data_buff.get_data(), data_buff.get_capacity(), data_buff.get_position());
@@ -158,7 +158,7 @@ int ObUpsRpcStub :: slave_register_followed(const ObServer& master, const ObSlav
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
 
   // step 1. serialize slave addr
@@ -212,7 +212,7 @@ int ObUpsRpcStub :: slave_register_standalone(const ObServer& master,
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
 
   // step 1. serialize slave addr
@@ -267,7 +267,7 @@ int ObUpsRpcStub :: send_freeze_memtable_resp(const ObServer& root_server,
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
 
   // serialize ups_master
@@ -316,7 +316,7 @@ int ObUpsRpcStub :: report_freeze(const common::ObServer& root_server,
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
 
   // serialize ups_master
@@ -384,8 +384,8 @@ int ObUpsRpcStub::send_request(const common::ObServer& server, const int pcode,
                                const Input& input, Output& output, const int64_t timeout) {
   int err = OB_SUCCESS;
   ObDataBuffer data_buff;
-  if (OB_SUCCESS != (err = get_thread_buffer_(data_buff))) {
-    TBSYS_LOG(ERROR, "get_thread_buffer_()=>%d", err);
+  if (OB_SUCCESS != (err = get_thread_buffer(data_buff))) {
+    TBSYS_LOG(ERROR, "get_thread_buffer()=>%d", err);
   } else if (OB_SUCCESS != (err = updateserver::send_request(client_mgr_, server, DEFAULT_VERSION, pcode,
                                                              input, output, data_buff, timeout))) {
     TBSYS_LOG(ERROR, "send_request(server=%s, pcode=%d)=>%d", to_cstring(server), pcode, err);
@@ -398,7 +398,7 @@ int ObUpsRpcStub :: send_command(const common::ObServer& server, const int pcode
   int ret = OB_SUCCESS;
   static const int32_t MY_VERSION = 1;
   ObDataBuffer data_buff;
-  get_thread_buffer_(data_buff);
+  get_thread_buffer(data_buff);
 
   if (NULL == client_mgr_) {
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
@@ -446,7 +446,7 @@ int ObUpsRpcStub :: fetch_lsync(const common::ObServer& lsync, const uint64_t lo
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
 
   // step 1. serialize info
@@ -508,8 +508,8 @@ int ObUpsRpcStub:: fetch_log(const ObServer& master, const ObFetchLogReq& req, O
   if (NULL == client_mgr_) {
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
-  } else if (OB_SUCCESS != (err = get_thread_buffer_(data_buff))) {
-    TBSYS_LOG(ERROR, "get_thread_buffer_()=>%d", err);
+  } else if (OB_SUCCESS != (err = get_thread_buffer(data_buff))) {
+    TBSYS_LOG(ERROR, "get_thread_buffer()=>%d", err);
   } else if (OB_SUCCESS != - (err = req.serialize(data_buff.get_data(), data_buff.get_capacity(), data_buff.get_position()))) {
     TBSYS_LOG(ERROR, "req.serialize()=>%d", err);
   }
@@ -557,8 +557,8 @@ int ObUpsRpcStub ::fill_log_cursor(const ObServer& master, ObLogCursor& log_curs
   if (NULL == client_mgr_) {
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
-  } else if (OB_SUCCESS != (err = get_thread_buffer_(data_buff))) {
-    TBSYS_LOG(ERROR, "get_thread_buffer_()=>%d", err);
+  } else if (OB_SUCCESS != (err = get_thread_buffer(data_buff))) {
+    TBSYS_LOG(ERROR, "get_thread_buffer()=>%d", err);
   } else if (OB_SUCCESS != - (err = log_cursor.serialize(data_buff.get_data(), data_buff.get_capacity(), data_buff.get_position()))) {
     TBSYS_LOG(ERROR, "log_cursor.serialize()=>%d", err);
   } else if (OB_SUCCESS != (err = client_mgr_->send_request(master, OB_FILL_LOG_CURSOR, DEFAULT_VERSION,
@@ -583,7 +583,7 @@ int ObUpsRpcStub::get_rs_last_frozen_version(const ObServer& root_server,
   return send_request(root_server, OB_RS_GET_LAST_FROZEN_VERSION, __dummy__, frozen_version, timeout_us);
 }
 
-int ObUpsRpcStub :: get_thread_buffer_(ObDataBuffer& data_buff) {
+int ObUpsRpcStub :: get_thread_buffer(ObDataBuffer& data_buff) {
   int err = OB_SUCCESS;
 
   ThreadSpecificBuffer::Buffer* rpc_buffer = NULL;
@@ -612,7 +612,7 @@ int ObUpsRpcStub :: ups_report_slave_failure(const common::ObServer& slave_serve
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
   common::ObMsgUpsSlaveFailure failure_info;
   failure_info.slave_addr_.set_ipv4_addr(slave_server.get_ipv4(), slave_server.get_port());
@@ -663,7 +663,7 @@ int ObUpsRpcStub :: get_inst_master_ups(const common::ObServer& root_server, com
     TBSYS_LOG(WARN, "INVALID argument. client_mgr_=%p", client_mgr_);
     err = OB_INVALID_ARGUMENT;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
   common::ObServer master_inst_rs;
   if (OB_SUCCESS == err) {
@@ -689,7 +689,7 @@ int ObUpsRpcStub::get_master_obi_rs(const ObServer& rootserver,
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     ret = OB_ERROR;
   } else {
-    ret = get_thread_buffer_(data_buff);
+    ret = get_thread_buffer(data_buff);
   }
 
 
@@ -734,7 +734,7 @@ int ObUpsRpcStub::get_master_obi_rs(const ObServer& rootserver,
    }
    else
    {
-   err = get_thread_buffer_(data_buff);
+   err = get_thread_buffer(data_buff);
    }
 //step1: serialize slave_failure_info
 ObUpdateServerMain* ups = ObUpdateServerMain::get_instance();
@@ -787,7 +787,7 @@ int ObUpsRpcStub :: ups_register(const common::ObServer& root_server, const ObMs
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
 
   //setp 1. serialize the register info
@@ -841,7 +841,7 @@ int ObUpsRpcStub::send_keep_alive(const common::ObServer& slave_node) {
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
   if (OB_SUCCESS == err) {
     err = client_mgr_->post_request(slave_node, OB_UPS_KEEP_ALIVE, DEFAULT_VERSION, data_buff);
@@ -859,7 +859,7 @@ int ObUpsRpcStub::renew_lease(const common::ObServer& rootserver, const common::
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
 
   if (OB_SUCCESS == err) {
@@ -883,7 +883,7 @@ int ObUpsRpcStub :: check_table_merged(const common::ObServer& root_server, cons
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
   // step 1.
   if (OB_SUCCESS == err) {
@@ -937,7 +937,7 @@ int ObUpsRpcStub::notify_rs_trigger_event(const ObServer& rootserver, const ObTr
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
 
   if (OB_SUCCESS == err) {

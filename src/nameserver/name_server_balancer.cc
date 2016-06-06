@@ -311,7 +311,7 @@ uint64_t NameServerBalancer::nb_get_next_table_id(int32_t table_count, int32_t s
   return ret;
 }
 
-int NameServerBalancer::nb_find_dest_cs(NameServerTable2::const_iterator meta, int64_t low_bound, int32_t cs_num,
+int NameServerBalancer::nb_find_dest_cs(RootTable::const_iterator meta, int64_t low_bound, int32_t cs_num,
                                         int32_t& dest_cs_idx, ObChunkServerManager::iterator& dest_it) {
   int ret = OB_ENTRY_NOT_EXIST;
   dest_cs_idx = OB_INVALID_INDEX;
@@ -355,7 +355,7 @@ int NameServerBalancer::nb_find_dest_cs(NameServerTable2::const_iterator meta, i
   return ret;
 }
 
-int NameServerBalancer::nb_check_rereplication(NameServerTable2::const_iterator it, RereplicationAction& act) {
+int NameServerBalancer::nb_check_rereplication(RootTable::const_iterator it, RereplicationAction& act) {
   int ret = OB_SUCCESS;
   act = RA_NOP;
   int64_t last_version = 0;
@@ -405,7 +405,7 @@ int NameServerBalancer::nb_check_rereplication(NameServerTable2::const_iterator 
   return ret;
 }
 
-int NameServerBalancer::nb_select_copy_src(NameServerTable2::const_iterator it,
+int NameServerBalancer::nb_select_copy_src(RootTable::const_iterator it,
                                            int32_t& src_cs_idx, ObChunkServerManager::iterator& src_it,
                                            int64_t& tablet_version) {
   int ret = OB_ENTRY_NOT_EXIST;
@@ -433,7 +433,7 @@ int NameServerBalancer::nb_select_copy_src(NameServerTable2::const_iterator it,
   return ret;
 }
 
-int NameServerBalancer::nb_add_copy(NameServerTable2::const_iterator it, const ObTabletInfo* tablet, int64_t low_bound, int32_t cs_num) {
+int NameServerBalancer::nb_add_copy(RootTable::const_iterator it, const ObTabletInfo* tablet, int64_t low_bound, int32_t cs_num) {
   int ret = OB_SUCCESS;
   int32_t dest_cs_idx = OB_INVALID_INDEX;
   ObServerStatus* dest_it = NULL;
@@ -531,7 +531,7 @@ int NameServerBalancer::nb_add_copy(NameServerTable2::const_iterator it, const O
   return ret;
 }
 
-int NameServerBalancer::nb_check_add_migrate(NameServerTable2::const_iterator it, const ObTabletInfo* tablet, int64_t avg_count,
+int NameServerBalancer::nb_check_add_migrate(RootTable::const_iterator it, const ObTabletInfo* tablet, int64_t avg_count,
                                              int32_t cs_num, int64_t migrate_out_per_cs) {
   int ret = OB_SUCCESS;
   int64_t delta_count = config_->balance_tolerance_count;
@@ -597,7 +597,7 @@ int NameServerBalancer::nb_check_add_migrate(NameServerTable2::const_iterator it
   return ret;
 }
 
-int NameServerBalancer::nb_del_copy(NameServerTable2::const_iterator it, const ObTabletInfo* tablet, int32_t& last_delete_cs_index) {
+int NameServerBalancer::nb_del_copy(RootTable::const_iterator it, const ObTabletInfo* tablet, int32_t& last_delete_cs_index) {
   int ret = OB_ENTRY_NOT_EXIST;
   int64_t min_version = INT64_MAX;
   int32_t delete_idx = -1;
@@ -670,7 +670,7 @@ void NameServerBalancer::check_table_rereplication(const uint64_t table_id,
   int64_t delta_count = config_->balance_tolerance_count;
   // scan the root table
   int32_t last_delete_cs_index = OB_INVALID_INDEX;
-  NameServerTable2::const_iterator it;
+  RootTable::const_iterator it;
   const ObTabletInfo* tablet = NULL;
   bool table_found = false;
   tbsys::CRLockGuard guard(*root_table_rwlock_);
@@ -773,7 +773,7 @@ void NameServerBalancer::check_shutdown_process() {
     if (ObServerStatus::STATUS_SHUTDOWN == it->status_) {
       int32_t cs_index = static_cast<int32_t>(it - server_manager_->begin());
       int64_t count = 0;
-      NameServerTable2::const_iterator root_it;
+      RootTable::const_iterator root_it;
       tbsys::CRLockGuard guard(*root_table_rwlock_);
       for (root_it = root_table_->begin(); root_it != root_table_->sorted_end() && 0 == count; ++root_it) {
         for (int i = 0; i < OB_SAFE_COPY_COUNT && 0 == count; ++i) {
@@ -816,7 +816,7 @@ int NameServerBalancer::nb_balance_by_table(const uint64_t table_id, bool& scan_
       nb_print_balance_info();
     }
 
-    NameServerTable2::const_iterator it;
+    RootTable::const_iterator it;
     const ObTabletInfo* tablet = NULL;
     table_found = false;
     // scan the root table
@@ -915,7 +915,7 @@ int NameServerBalancer::nb_calculate_sstable_count(const uint64_t table_id, int6
   } // end lock
   {
     // calculate sum
-    NameServerTable2::const_iterator it;
+    RootTable::const_iterator it;
     const ObTabletInfo* tablet = NULL;
     tbsys::CRLockGuard guard(*root_table_rwlock_);
     int64_t count = 0;
@@ -1418,7 +1418,7 @@ void NameServerBalancer::nb_print_balance_infos(char* buf, const int64_t buf_len
 
 bool NameServerBalancer::nb_is_all_tablets_replicated(int32_t expected_replicas_num) {
   bool ret = true;
-  NameServerTable2::const_iterator it;
+  RootTable::const_iterator it;
   int32_t replicas_num = 0;
   tbsys::CRLockGuard guard(*root_table_rwlock_);
   for (it = root_table_->begin(); it != root_table_->end(); ++it) {
@@ -1450,7 +1450,7 @@ bool NameServerBalancer::nb_did_cs_have_no_tablets(const common::ObServer& cs) c
   }
   if (!ret) {
     ret = true;
-    NameServerTable2::const_iterator it;
+    RootTable::const_iterator it;
     tbsys::CRLockGuard guard(*root_table_rwlock_);
     for (it = root_table_->begin(); it != root_table_->end(); ++it) {
       for (int i = 0; i < OB_SAFE_COPY_COUNT; ++i) {
@@ -1502,7 +1502,7 @@ void NameServerBalancer::nb_print_shutting_down_progress(char* buf, const int64_
     }
   }
   if (OB_SUCCESS == ret) {
-    NameServerTable2::const_iterator it;
+    RootTable::const_iterator it;
     tbsys::CRLockGuard guard(*root_table_rwlock_);
     for (it = root_table_->begin(); it != root_table_->end(); ++it) {
       // for each tablet
@@ -2488,7 +2488,7 @@ int NameServerBalancer::is_table_replicated(const uint64_t table_id, const int64
   OB_ASSERT(config_);
   int ret = OB_SUCCESS;
   int64_t tablet_replicas_num = config_->tablet_replicas_num;
-  NameServerTable2::const_iterator it;
+  RootTable::const_iterator it;
   const ObTabletInfo* tablet = NULL;
   is_replicated = true;
   bool table_found = false;

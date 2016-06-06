@@ -18,8 +18,8 @@
 #include "common/ob_atomic.h"
 #include "common/utility.h"
 #include "ob_root_balancer.h"
+
 using namespace sb::common;
-using namespace sb::rootserver;
 
 namespace {
 const int SPLIT_TYPE_ERROR = -1;
@@ -27,6 +27,9 @@ const int SPLIT_TYPE_TOP_HALF = 1;
 const int SPLIT_TYPE_BOTTOM_HALF = 2;
 const int SPLIT_TYPE_MIDDLE_HALF = 3;
 }
+
+namespace sb {
+namespace rootserver {
 
 ObRootTable2::ObRootTable2(ObTabletInfoManager* tim): tablet_info_manager_(tim), sorted_count_(0) {
   meta_table_.init(ObTabletInfoManager::MAX_TABLET_COUNT, data_holder_);
@@ -1708,3 +1711,7 @@ int ObRootTable2::delete_tables(const common::ObArray<uint64_t>& deleted_tables)
   }
   return ret;
 }
+
+}
+}
+

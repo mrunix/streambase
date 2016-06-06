@@ -44,7 +44,7 @@ OperationType NameServerOperationData::get_operation_type() {
 void NameServerOperationData::set_operation_type(const OperationType& type) {
   operation_type_  = type;
 }
-NameServerTable2* NameServerOperationData::get_root_table() {
+RootTable* NameServerOperationData::get_root_table() {
   return root_table_.get_root_table();
 }
 ObTabletInfoManager* NameServerOperationData::get_tablet_info_manager() {

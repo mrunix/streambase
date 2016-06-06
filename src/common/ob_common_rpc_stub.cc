@@ -57,7 +57,7 @@ int ObCommonRpcStub :: send_log(const ObServer& ups_slave, ObDataBuffer& log_dat
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(out_buff);
+    err = get_thread_buffer(out_buff);
   }
 
   // step 1. send log data to slave
@@ -95,7 +95,7 @@ int ObCommonRpcStub :: renew_lease(const common::ObServer& master,
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
 
   // step 1. serialize slave addr
@@ -142,7 +142,7 @@ int ObCommonRpcStub :: grant_lease(const common::ObServer& slave,
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
 
   // step 1. serialize lease
@@ -187,7 +187,7 @@ int ObCommonRpcStub::slave_quit(const common::ObServer& master, const common::Ob
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
 
   // step 1. serialize slave addr
@@ -227,7 +227,7 @@ int ObCommonRpcStub :: get_master_ups_info(const ObServer& rs, ObServer& master_
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_INVALID_ARGUMENT;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
   if (OB_SUCCESS == err) {
     if (OB_SUCCESS != (err = client_mgr_->send_request(rs, OB_GET_UPDATE_SERVER_INFO, DEFAULT_VERSION, timeout_us, data_buff))) {
@@ -259,7 +259,7 @@ int ObCommonRpcStub :: get_obi_role(const common::ObServer& rs, common::ObiRole&
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
 
   // step 1. send get obi role request
@@ -296,7 +296,7 @@ int ObCommonRpcStub :: get_obi_role(const common::ObServer& rs, common::ObiRole&
   return err;
 }
 
-int ObCommonRpcStub :: get_thread_buffer_(ObDataBuffer& data_buff) {
+int ObCommonRpcStub :: get_thread_buffer(ObDataBuffer& data_buff) {
   int err = OB_SUCCESS;
 
   ThreadSpecificBuffer::Buffer* rpc_buffer = NULL;
@@ -321,7 +321,7 @@ int ObCommonRpcStub :: send_obi_role(const common::ObServer& slave, const common
     TBSYS_LOG(WARN, "invalid status, client_mgr_[%p]", client_mgr_);
     err = OB_ERROR;
   } else {
-    err = get_thread_buffer_(data_buff);
+    err = get_thread_buffer(data_buff);
   }
 
   if (OB_SUCCESS == err) {
@@ -371,7 +371,7 @@ int ObCommonRpcStub::scan(const ObServer& ms, const ObScanParam& scan_param, ObS
 
   if (OB_SUCCESS == ret) {
     ObDataBuffer data_buff;
-    get_thread_buffer_(data_buff);
+    get_thread_buffer(data_buff);
     ret = scan_param.serialize(data_buff.get_data(), data_buff.get_capacity(), data_buff.get_position());
 
     if (OB_SUCCESS == ret) {
@@ -411,7 +411,7 @@ int ObCommonRpcStub::mutate(const ObServer& update_server, const ObMutator& muta
   }
   if (OB_SUCCESS == ret) {
     ObDataBuffer data_buff;
-    get_thread_buffer_(data_buff);
+    get_thread_buffer(data_buff);
     ret = mutator.serialize(data_buff.get_data(), data_buff.get_capacity(), data_buff.get_position());
 
     if (OB_SUCCESS == ret) {

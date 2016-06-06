@@ -1,5 +1,5 @@
-#ifndef OCEANBASE_ROOTSERVER_FETCH_THREAD_H_
-#define OCEANBASE_ROOTSERVER_FETCH_THREAD_H_
+#ifndef SRC_NAMESERVER_NAME_SERVER_FETCH_THREAD_H_
+#define SRC_NAMESERVER_NAME_SERVER_FETCH_THREAD_H_
 
 #include "common/ob_fetch_runnable.h"
 #include "nameserver/name_server_log_manager.h"
@@ -26,6 +26,6 @@ class NameServerFetchThread : public common::ObFetchRunnable {
 } /* nameserver */
 } /* oceanbase */
 
-#endif /* end of include guard: OCEANBASE_ROOTSERVER_FETCH_THREAD_H_ */
+#endif /* end of include guard: SRC_NAMESERVER_NAME_SERVER_FETCH_THREAD_H_ */
 #include "common/ob_fetch_runnable.h"
 

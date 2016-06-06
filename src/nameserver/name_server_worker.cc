@@ -47,18 +47,24 @@ const int WRITE_THREAD_FLAG = 1;
 const int LOG_THREAD_FLAG = 2;
 const int32_t ADDR_BUF_LEN = 64;
 }
+
 namespace sb {
 namespace nameserver {
 using namespace sb::common;
 
 NameServerWorker::NameServerWorker(ObConfigManager& config_mgr, NameServerConfig& ns_config)
-  : config_mgr_(config_mgr), config_(ns_config), is_registered_(false),
-    name_server_(config_), sql_proxy_(const_cast<ObChunkServerManager&>(name_server_.get_server_manager()), const_cast<NameServerConfig&>(ns_config), const_cast<NameServerRpcStub&>(rt_rpc_stub_)) {
+  : config_mgr_(config_mgr)
+  , config_(ns_config)
+  , is_registered_(false)
+  , name_server_(config_)
+  , const_cast<NameServerConfig&>(ns_config)
+  , const_cast<NameServerRpcStub&>(ns_rpc_stub_)) {
   schema_version_ = 0;
 }
 
 NameServerWorker::~NameServerWorker() {
 }
+
 int NameServerWorker::create_eio() {
   int ret = OB_SUCCESS;
   easy_pool_set_allocator(ob_easy_realloc);
@@ -77,17 +83,18 @@ int NameServerWorker::create_eio() {
 int NameServerWorker::initialize() {
   int ret = OB_SUCCESS;
   __debug_init__();
-  //set call back function
+
+  // set call back function
   if (OB_SUCCESS == ret) {
     memset(&server_handler_, 0, sizeof(easy_io_handler_pt));
-    server_handler_.encode = ObTbnetCallback::encode;
-    server_handler_.decode = ObTbnetCallback::decode;
-    server_handler_.process = NameServerCallback::process;//name server process
-    //server_handler_.batch_process = ObTbnetCallback::batch_process;
+    server_handler_.encode        = ObTbnetCallback::encode;
+    server_handler_.decode        = ObTbnetCallback::decode;
+    server_handler_.process       = NameServerCallback::process;  // name server process
     server_handler_.get_packet_id = ObTbnetCallback::get_packet_id;
     server_handler_.on_disconnect = ObTbnetCallback::on_disconnect;
-    server_handler_.user_data = this;
+    server_handler_.user_data     = this;
   }
+
   if (OB_SUCCESS == ret) {
     ret = client_manager.initialize(eio_, &server_handler_);
     if (OB_SUCCESS != ret) {
@@ -96,20 +103,23 @@ int NameServerWorker::initialize() {
   }
 
   if (OB_SUCCESS == ret) {
-    ret = rt_rpc_stub_.init(&client_manager, &my_thread_buffer);
+    ret = ns_rpc_stub_.init(&client_manager, &my_thread_buffer);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(WARN, "init rpc stub failed, err=%d", ret);
     }
   }
+
   if (OB_SUCCESS == ret) {
     ret = general_rpc_stub_.init(&my_thread_buffer, &client_manager);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(WARN, "init general rpc stub failed, err=%d", ret);
     }
   }
+
   if (OB_SUCCESS == ret) {
     ret = this->set_listen_port((int32_t)config_.port);
   }
+
   if (OB_SUCCESS == ret) {
     ret = this->set_dev_name(config_.devname);
   }
@@ -133,7 +143,7 @@ int NameServerWorker::initialize() {
   }
 
   if (OB_SUCCESS == ret) {
-    ret = slave_mgr_.init(&role_mgr_, vip, &rt_rpc_stub_,
+    ret = slave_mgr_.init(&role_mgr_, vip, &ns_rpc_stub_,
                           config_.log_sync_timeout,
                           config_.lease_interval_time,
                           config_.lease_reserved_time);
@@ -166,13 +176,11 @@ int NameServerWorker::initialize() {
     }
     rt_master_.set_ipv4_addr(vip, port_);
     ret = check_thread_.init(&role_mgr_, vip, config_.vip_check_period,
-                             &rt_rpc_stub_, &rt_master_, &self_addr_);
+                             &ns_rpc_stub_, &rt_master_, &self_addr_);
   }
+
   if (ret == OB_SUCCESS) {
-    if (OB_SUCCESS != (ret = inner_table_task_.init((int32_t)config_.cluster_id,
-                                                    sql_proxy_, timer_, *name_server_.get_task_queue()))) {
-      TBSYS_LOG(WARN, "init inner table task failed. ret=%d", ret);
-    } else if (OB_SUCCESS != (ret = after_restart_task_.init(this))) {
+    if (OB_SUCCESS != (ret = after_restart_task_.init(this))) {
       TBSYS_LOG(WARN, "init after_restart_task fail. ret=%d", ret);
     } else if (OB_SUCCESS != (ret = timer_.init())) {
       TBSYS_LOG(ERROR, "init timer fail, ret: [%d]", ret);
@@ -189,6 +197,7 @@ int NameServerWorker::initialize() {
       ret = OB_ERROR;
     }
   }
+
   if (OB_SUCCESS == ret) {
     if (OB_SUCCESS != (ret = ms_list_task_.init(
                                rt_master_,
@@ -200,6 +209,7 @@ int NameServerWorker::initialize() {
       TBSYS_LOG(ERROR, "init error, ret: [%d]", ret);
     }
   }
+
   TBSYS_LOG(INFO, "root worker init, ret=%d", ret);
   return ret;
 }
@@ -472,7 +482,7 @@ int NameServerWorker::get_obi_role_from_master() {
   ObiRole role;
   const static int SLEEP_US_WHEN_INIT = 2000 * 1000; // 2s
   while (true) {
-    ret = rt_rpc_stub_.get_obi_role(rt_master_, config_.network_timeout, role);
+    ret = ns_rpc_stub_.get_obi_role(rt_master_, config_.network_timeout, role);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(ERROR, "failed to get obi_role from the master, err=%d", ret);
       usleep(SLEEP_US_WHEN_INIT);
@@ -499,7 +509,7 @@ int NameServerWorker::get_boot_state_from_master() {
   bool boot_ok = false;
   const static int SLEEP_US_WHEN_INIT = 2000 * 1000; // 2s
   while (true) {
-    ret = rt_rpc_stub_.get_boot_state(rt_master_, config_.network_timeout, boot_ok);
+    ret = ns_rpc_stub_.get_boot_state(rt_master_, config_.network_timeout, boot_ok);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(ERROR, "failed to get boot state from the master, err=%d", ret);
       usleep(SLEEP_US_WHEN_INIT);
@@ -530,7 +540,7 @@ void NameServerWorker::destroy() {
 
   if (ObRoleMgr::SLAVE == role_mgr_.get_role()) {
     if (is_registered_) {
-      rt_rpc_stub_.slave_quit(rt_master_, self_addr_, config_.network_timeout);
+      ns_rpc_stub_.slave_quit(rt_master_, self_addr_, config_.network_timeout);
       is_registered_ = false;
     }
     log_thread_queue_.stop();
@@ -1584,7 +1594,7 @@ int NameServerWorker::rt_delete_tablets(const int32_t version, common::ObDataBuf
     }
     if (OB_SUCCESS == ret) {
       TBSYS_LOG(INFO, "receive task to delete tablet");
-      NameServerUtil::delete_tablets(rt_rpc_stub_, *out_server_manager, delete_list, config_.network_timeout);
+      NameServerUtil::delete_tablets(ns_rpc_stub_, *out_server_manager, delete_list, config_.network_timeout);
     }
   }
   if (out_server_manager != NULL) {
@@ -2301,7 +2311,7 @@ int NameServerWorker::slave_register_(common::ObFetchParam& fetch_param) {
   for (int64_t i = 0; ObRoleMgr::STOP != role_mgr_.get_state()
        && OB_RESPONSE_TIME_OUT == err; i++) {
     // slave register
-    err = rt_rpc_stub_.slave_register(rt_master_, self_addr_, fetch_param, config_.slave_register_timeout);
+    err = ns_rpc_stub_.slave_register(rt_master_, self_addr_, fetch_param, config_.slave_register_timeout);
     if (OB_RESPONSE_TIME_OUT == err) {
       TBSYS_LOG(INFO, "slave register timeout, i=%ld, err=%d", i, err);
     }
@@ -3510,7 +3520,7 @@ int NameServerWorker::rt_split_tablet(const int32_t version, common::ObDataBuffe
 
   int64_t frozen_version = 1;
   if (OB_SUCCESS == err && OB_SUCCESS == result_msg.result_code_) {
-    err = rt_rpc_stub_.get_last_frozen_version(name_server_.get_update_server_info(false),
+    err = ns_rpc_stub_.get_last_frozen_version(name_server_.get_update_server_info(false),
                                                config_.network_timeout, frozen_version);
     if (OB_SUCCESS != err) {
       TBSYS_LOG(WARN, "fail to get frozen_version. err=%d", err);
@@ -3708,7 +3718,7 @@ int NameServerWorker::rt_execute_sql(const int32_t version, common::ObDataBuffer
         TBSYS_LOG(WARN, "no serving mergeserver right now");
         ret = OB_NOT_INIT;
       } else {
-        ret = rt_rpc_stub_.execute_sql(ms, sqlstr, timeout);
+        ret = ns_rpc_stub_.execute_sql(ms, sqlstr, timeout);
       }
     }
   }

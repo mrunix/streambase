@@ -9,8 +9,8 @@
 *
 *
 ================================================================*/
-#ifndef OCEANBASE_ROOTSERVER_OB_TABLET_INFO_MANAGER_H_
-#define OCEANBASE_ROOTSERVER_OB_TABLET_INFO_MANAGER_H_
+#ifndef SRC_NAMESERVER_NAME_SERVER_OB_TABLET_INFO_MANAGER_H_
+#define SRC_NAMESERVER_NAME_SERVER_OB_TABLET_INFO_MANAGER_H_
 #include "common/ob_define.h"
 #include "common/page_arena.h"
 #include "common/ob_array.h"
@@ -39,6 +39,7 @@ class ObTabletCrcHistoryHelper {
   uint64_t crc_sum_[MAX_KEEP_HIS_COUNT];
   uint64_t row_checksum_[MAX_KEEP_HIS_COUNT];
 };
+
 class ObTabletInfoManager {
  public:
   typedef common::ObTabletInfo* iterator;

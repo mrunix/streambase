@@ -90,8 +90,9 @@ struct TableSchema;
 }
 
 namespace nameserver {
+
 class ObBootstrap;
-class NameServerTable2;
+class RootTable;
 class NameServerTester;
 class NameServerWorker;
 class NameServer;
@@ -337,9 +338,9 @@ class NameServer {
   int delete_table_for_bypass();
   int cs_load_sstable_done(const common::ObServer& cs,
                            const common::ObTableImportInfoList& table_list, const bool is_load_succ);
-  virtual int bypass_meta_data_finished(const OperationType type, NameServerTable2* root_table,
+  virtual int bypass_meta_data_finished(const OperationType type, RootTable* root_table,
                                         ObTabletInfoManager* tablet_manager, common::ObSchemaManagerV2* schema_mgr);
-  int use_new_root_table(NameServerTable2* root_table, ObTabletInfoManager* tablet_manager);
+  int use_new_root_table(RootTable* root_table, ObTabletInfoManager* tablet_manager);
   int switch_bypass_schema(common::ObSchemaManagerV2* schema_mgr, common::ObArray<uint64_t>& delete_tables);
   int64_t get_frozen_version_for_cs_heartbeat() const;
   //for bypass process end
@@ -410,8 +411,8 @@ class NameServer {
   /*
    * 生成查询的输出cell
    */
-  int make_out_cell(common::ObCellInfo& out_cell, NameServerTable2::const_iterator start,
-                    NameServerTable2::const_iterator end, common::ObScanner& scanner, const int32_t max_row_count,
+  int make_out_cell(common::ObCellInfo& out_cell, RootTable::const_iterator start,
+                    RootTable::const_iterator end, common::ObScanner& scanner, const int32_t max_row_count,
                     const int32_t max_key_len) const;
 
   // stat related functions
@@ -433,14 +434,14 @@ class NameServer {
   void do_stat_merge(char* buf, const int64_t buf_len, int64_t& pos);
   void do_stat_unusual_tablets_num(char* buf, const int64_t buf_len, int64_t& pos);
 
-  void switch_root_table(NameServerTable2* rt, ObTabletInfoManager* ti);
+  void switch_root_table(RootTable* rt, ObTabletInfoManager* ti);
   int switch_schema_manager(const common::ObSchemaManagerV2& schema_manager);
   /*
    * 在一个tabelt的各份拷贝中, 寻找合适的备份替换掉
    */
   int write_new_info_to_root_table(
     const common::ObTabletInfo& tablet_info, const int64_t tablet_version, const int32_t server_index,
-    NameServerTable2::const_iterator& first, NameServerTable2::const_iterator& last, NameServerTable2* p_root_table);
+    RootTable::const_iterator& first, RootTable::const_iterator& last, RootTable* p_root_table);
   bool check_all_tablet_safe_merged(void) const;
   int create_root_table_for_build();
   DISALLOW_COPY_AND_ASSIGN(NameServer);
@@ -456,7 +457,7 @@ class NameServer {
   int create_tablet_with_range(const int64_t frozen_version,
                                const common::ObTabletInfoList& tablets);
   int create_empty_tablet_with_range(const int64_t frozen_version,
-                                     NameServerTable2* root_table, const common::ObTabletInfo& tablet,
+                                     RootTable* root_table, const common::ObTabletInfo& tablet,
                                      int32_t& created_count, int* t_server_index);
 
   /// for create and delete table xielun.szd
@@ -478,7 +479,7 @@ class NameServer {
   mutable tbsys::CRWLock server_manager_rwlock_;
 
   mutable tbsys::CThreadMutex root_table_build_mutex_; //any time only one thread can modify root_table
-  NameServerTable2* root_table_;
+  RootTable* root_table_;
   ObTabletInfoManager* tablet_manager_;
   mutable tbsys::CRWLock root_table_rwlock_; //every query root table should rlock this
   common::ObTabletReportInfoList delete_list_;
@@ -514,7 +515,7 @@ class NameServer {
   // new root table service
   mutable tbsys::CThreadMutex rt_service_wmutex_;
   common::ObFirstTabletEntryMeta* first_meta_;
-  common::NameServerTableService* rt_service_;
+  common::RootTableService* rt_service_;
   // sequence async task queue
   NameServerAsyncTaskQueue seq_task_queue_;
   ObDailyMergeChecker merge_checker_;

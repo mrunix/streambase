@@ -11,8 +11,8 @@
  *   ruohai <ruohai@taobao.com>
  */
 
-#ifndef OCEANBASE_ROOTSERVER_OB_ROOT_LOG_REPLAY
-#define OCEANBASE_ROOTSERVER_OB_ROOT_LOG_REPLAY
+#ifndef SRC_NAMESERVER_NAME_SERVER_OB_ROOT_LOG_REPLAY
+#define SRC_NAMESERVER_NAME_SERVER_OB_ROOT_LOG_REPLAY
 
 #include "common/ob_log_replay_runnable.h"
 #include "common/ob_log_entry.h"
@@ -39,4 +39,4 @@ class NameServerLogReplay : public common::ObLogReplayRunnable {
 } /* nameserver */
 } /* oceanbase */
 
-#endif /* end of include guard: OCEANBASE_ROOTSERVER_OB_ROOT_LOG_REPLAY */
+#endif /* end of include guard: SRC_NAMESERVER_NAME_SERVER_OB_ROOT_LOG_REPLAY */
