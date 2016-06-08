@@ -29,16 +29,15 @@ using namespace sb::api;
 class FormatorHeader {
  public:
   virtual ~FormatorHeader() { }
-  virtual int append_header(const ObRowkey& rowkey, int op, uint64_t timestamp,
-                            int64_t seq, const std::string& app_name,
-                            const std::string& table_name, ObDataBuffer& buffer) = 0;
+  virtual int append_header(const ObString& rowkey, int op,
+                            int64_t seq, std::string& app_name,
+                            std::string& table_name, ObDataBuffer& buffer) = 0;
 };
 
 class UniqFormatorHeader : public FormatorHeader {
  public:
-  virtual int append_header(const ObRowkey& rowkey, int op, uint64_t timestamp,
-                            int64_t seq, const std::string& app_name,
-                            const std::string& table_name, ObDataBuffer& buffer);
+  virtual int append_header(const ObString& rowkey, int op, int64_t seq, std::string& app_name,
+                            std::string& table_name, ObDataBuffer& buffer);
 };
 
 class DbRecordFormator {
@@ -49,7 +48,7 @@ class DbRecordFormator {
   virtual ~DbRecordFormator() { }
 
   virtual int format_record(int64_t table_id, DbRecord* record,
-                            const ObRowkey& rowkey, ObDataBuffer& buffer);
+                            const ObString& rowkey, ObDataBuffer& buffer);
 };
 
 #endif   /* ----- #ifndef db_record_formator_INC  ----- */

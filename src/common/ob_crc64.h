@@ -1,14 +1,15 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_crc64.h is for what ...
+ * Version: $Id$
+ *
+ * ob_crc64.h for ...
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
  *   yubai <yubai.lk@taobao.com>
  *
  */
@@ -16,8 +17,6 @@
 #define  OCEANBASE_COMMON_CRC64_H_
 
 #include <stdint.h>
-#include <algorithm>
-#include <string.h>
 
 #define OB_DEFAULT_CRC64_POLYNOM 0xD800000000000000ULL
 
@@ -55,55 +54,8 @@ uint64_t ob_crc64(const void* pv, int64_t cb);
   *
   */
 const uint64_t* ob_get_crc64_table();
-
-class ObBatchChecksum {
-  // ob_crc64函数在计算64个字节整数倍的情况下优势明显
-  static const int64_t BUFFER_SIZE = 65536;
- public:
-  ObBatchChecksum() : pos_(0), base_(0) {
-  };
-  ~ObBatchChecksum() {
-  };
- public:
-  inline void reset() {
-    pos_ = 0;
-    base_ = 0;
-  };
-  inline void set_base(const uint64_t base) {
-    base_ = base;
-  };
-  inline void fill(const void* pv, const int64_t cb) {
-    if (NULL != pv
-        && 0 < cb) {
-      char* ptr = (char*)pv;
-      int64_t size2fill = cb;
-      int64_t size2copy = 0;
-      while (size2fill > 0) {
-        size2copy = std::min(BUFFER_SIZE - pos_, size2fill);
-        memcpy(&buffer_[pos_], ptr + cb - size2fill, size2copy);
-        size2fill -= size2copy;
-        pos_ += size2copy;
-
-        if (pos_ >= BUFFER_SIZE) {
-          base_ = ob_crc64(base_, buffer_, BUFFER_SIZE);
-          pos_ = 0;
-        }
-      }
-    }
-  };
-  uint64_t calc() {
-    if (0 < pos_) {
-      base_ = ob_crc64(base_, buffer_, pos_);
-      pos_ = 0;
-    }
-    return base_;
-  };
- private:
-  char buffer_[BUFFER_SIZE];
-  int64_t pos_;
-  uint64_t base_;
-};
 }
 }
 
 #endif
+

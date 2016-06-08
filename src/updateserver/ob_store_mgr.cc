@@ -1,22 +1,18 @@
-////===================================================================
-//
-// ob_store_mgr.cc updateserver / Oceanbase
-//
-// Copyright (C) 2010 Taobao.com, Inc.
-//
-// Created on 2011-03-16 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_store_mgr.cc for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #include "common/ob_define.h"
 #include "ob_store_mgr.h"
 
@@ -122,7 +118,7 @@ bool StoreMgr::load() {
 StoreMgr::StoreNode* StoreMgr::get_store_node_(const Handle store_handle) const {
   StoreNode* ret = NULL;
   if ((uint64_t)all_store_.size() <= store_handle
-      || NULL == (ret = all_store_[static_cast<int32_t>(store_handle)])) {
+      || NULL == (ret = all_store_[store_handle])) {
     TBSYS_LOG(WARN, "invalid store_handle=%lu all_store_size=%d", store_handle, all_store_.size());
   } else if (store_handle != ret->store_handle) {
     TBSYS_LOG(WARN, "store_handle=%lu not match store_node=%p handle=%lu", store_handle, ret, ret->store_handle);
@@ -162,8 +158,8 @@ bool StoreMgr::filt_store_(const RaidNode& raid_node, ObList<Handle>& store_list
     }
     // 检查剩余空间容量
     else if (get_free(store_node->path) <= disk_reserved_space_
-             || get_free(store_node->path) <= static_cast<int64_t>((static_cast<double>(get_total(store_node->path)) * disk_reserved_ratio_))) {
-      TBSYS_LOG(ERROR, "free space not enough store_node=%p path=[%s] free=%ld total=%ld disk_reserved_ratio=%lf",
+             || get_free(store_node->path) <= static_cast<int64_t>((get_total(store_node->path) * disk_reserved_ratio_))) {
+      TBSYS_LOG(WARN, "free space not enough store_node=%p path=[%s] free=%ld total=%ld disk_reserved_ratio=%lf",
                 store_node, store_node->path, get_free(store_node->path), get_total(store_node->path), disk_reserved_ratio_);
     } else {
       store_list.push_back((*iter)->store_handle);
@@ -333,7 +329,8 @@ void StoreMgr::umount(const Handle store_handle) {
     }
   }
   if (0 == store_dev_.size()) {
-    TBSYS_LOG(ERROR, "not valid store");
+    TBSYS_LOG(ERROR, "not valid store will kill self");
+    // TODO kill self
   }
 }
 
@@ -443,8 +440,6 @@ void StoreMgr::StoreNodeBuilder::handle(const char* path) {
     TBSYS_LOG(INFO, "store [%s] is not symlink", path);
   } else if (!build_dir(path, TRASH_DIR)) {
     TBSYS_LOG(WARN, "build trash dir fail store=[%s]", path);
-  } else if (!build_dir(path, BYPASS_DIR)) {
-    TBSYS_LOG(WARN, "build bypass dir fail store=[%s]", path);
   } else {
     dev_t dev_no = StoreMgr::get_dev(path);
     hash::MutexLocker locker(store_mgr_.mutex_);
@@ -510,4 +505,6 @@ bool StoreMgr::RaidNodeBuilder::match(const char* path) {
 }
 }
 }
+
+
 

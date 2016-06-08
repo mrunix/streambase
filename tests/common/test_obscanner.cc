@@ -2,7 +2,6 @@
 #include "gtest/gtest.h"
 #include "common/ob_malloc.h"
 #include "common/ob_action_flag.h"
-#include "common/ob_buffer.h"
 #include <string>
 
 using namespace sb;
@@ -23,10 +22,6 @@ TEST(TestObScanner, add_cell) {
   fwrite(buf, 1, pospos, fd);
   fclose(fd);
 
-  ObRange range;
-  range.border_flag_.set_inclusive_start();
-  range.start_key_.assign("11111", 5);
-  range.end_key_.assign("22222", 5);
   ObScanner os;
   ObScanner ost;
   /*** added by wushi ***/
@@ -45,7 +40,6 @@ TEST(TestObScanner, add_cell) {
   ASSERT_EQ(os.get_is_req_fullfilled(tmp_bool, tmp), 0);
   ASSERT_EQ(tmp_bool, is_fullfilled);
   ASSERT_EQ(tmp, fullfilled_item);
-  ASSERT_EQ(OB_SUCCESS, os.set_range(range));
 
   /*** added by wushi ***/
 
@@ -213,7 +207,6 @@ TEST(TestObScanner, add_cell) {
 
   pos = 0;
   ASSERT_EQ(OB_SUCCESS, os.deserialize(buffer, os.get_serialize_size(), pos));
-  fprintf(stdout, "serialize_size=%ld pos=%ld", os.get_serialize_size(), pos);
   ASSERT_EQ(pos, os.get_serialize_size());
 
   for (iter = os.begin(); iter != os.end(); iter++) {
@@ -376,205 +369,6 @@ TEST(TestObScanner, add_cell) {
   ASSERT_EQ(OB_SUCCESS, ss.get_cell(&sto, &is_row_changed));
   ASSERT_EQ(true, is_row_changed);
   ASSERT_EQ(OB_ITER_END, ss.next_cell());
-}
-
-TEST(TestObScanner, row_num) {
-  ObScanner scanner;
-  const int table_num = 3;
-  const int row_num = 20;
-  const int column_num = 5;
-  buffer table_name[table_num];
-  buffer row_key[row_num];
-  buffer column_name[column_num];
-  for (int i = 0; i < table_num; i++) {
-    table_name[i].assigne("T").appende(i);
-  }
-  for (int i = 0; i < row_num; i++) {
-    row_key[i].assigne("R").appende(i);
-  }
-  for (int i = 0; i < column_num; i++) {
-    column_name[i].assigne("C").appende(i);
-  }
-
-  for (int i = 0; i < table_num; i++) {
-    for (int j = 0; j < row_num; j++) {
-      for (int k = 0; k < column_num; k++) {
-        ObCellInfo cell;
-        cell.table_name_ = table_name[i].get_obstring();
-        cell.row_key_ = row_key[j].get_obstring();
-        cell.column_name_ = column_name[k].get_obstring();
-        cell.value_.set_int(1);
-        scanner.add_cell(cell);
-      }
-    }
-  }
-
-  ASSERT_EQ(scanner.get_row_num(), table_num * row_num);
-  ASSERT_EQ(scanner.get_cell_num(), table_num * row_num * column_num);
-  scanner.set_whole_result_row_num(1000);
-
-  buffer buf(1 << 21);
-  scanner.serialize(buf.ptre(), buf.capacity(), buf.length());
-  printf("%ld\n", buf.length());
-  ObScanner dscanner;
-  int64_t pos = 0;
-  dscanner.deserialize(buf.ptre(), buf.length(), pos);
-
-  EXPECT_EQ(dscanner.get_row_num(), table_num * row_num);
-  EXPECT_EQ(dscanner.get_cell_num(), table_num * row_num * column_num);
-  EXPECT_EQ(dscanner.get_whole_result_row_num(), 1000);
-
-  scanner.clear();
-  scanner.set_mem_size_limit(256);
-  int j = 0, k = 0;
-
-  int err = OB_SUCCESS;
-  for (; j < row_num; j++) {
-    k = 0;
-    for (; k < column_num; k++) {
-      ObCellInfo cell;
-      cell.table_name_ = table_name[0].get_obstring();
-      cell.row_key_ = row_key[j].get_obstring();
-      cell.column_name_ = column_name[k].get_obstring();
-      cell.value_.set_int(1);
-      if (OB_SUCCESS != (err = scanner.add_cell(cell))) {
-        break;
-      }
-    }
-    if (OB_SUCCESS != err) {
-      break;
-    }
-  }
-  if (OB_SUCCESS != err) {
-    scanner.rollback();
-  }
-
-  EXPECT_EQ(scanner.get_row_num(), j);
-  EXPECT_EQ(scanner.get_cell_num(), j * column_num);
-
-  buf.length() = 0;
-  scanner.serialize(buf.ptre(), buf.capacity(), buf.length());
-  printf("%ld\n", buf.length());
-  dscanner.reset();
-  pos = 0;
-  dscanner.deserialize(buf.ptre(), buf.length(), pos);
-
-  EXPECT_EQ(dscanner.get_row_num(), j);
-  EXPECT_EQ(dscanner.get_cell_num(), j * column_num);
-}
-
-TEST(TestObScanner, get_row) {
-  ObScanner scanner;
-  const int table_num = 10;
-  const int row_num = 20;
-  const int column_num = 10;
-  buffer table_name[table_num];
-  buffer row_key[row_num];
-  buffer column_name[column_num];
-  for (int i = 0; i < table_num; i++) {
-    table_name[i].assigne("T").appende(i);
-  }
-  for (int i = 0; i < row_num; i++) {
-    row_key[i].assigne("R").appende(i);
-  }
-  for (int i = 0; i < column_num; i++) {
-    column_name[i].assigne("C").appende(i);
-  }
-
-  for (int i = 0; i < table_num; i++) {
-    for (int j = 0; j < row_num; j++) {
-      for (int k = 0; k < column_num; k++) {
-        ObCellInfo cell;
-        cell.table_name_ = table_name[i].get_obstring();
-        cell.row_key_ = row_key[j].get_obstring();
-        cell.column_name_ = column_name[k].get_obstring();
-        cell.value_.set_int(1);
-        scanner.add_cell(cell);
-      }
-    }
-  }
-
-  ObScanner::RowIterator it = scanner.row_begin();
-  ASSERT_EQ(it ==  scanner.row_begin(), true);
-
-  for (int i = 0; i < table_num; i++) {
-    for (int j = 0; j < row_num; j++) {
-      ObCellInfo* row;
-      int64_t num = 0;
-      ASSERT_EQ(OB_SUCCESS, scanner.next_row());
-      ASSERT_EQ(OB_SUCCESS, scanner.get_row(&row, &num));
-      ASSERT_EQ(column_num, num);
-    }
-  }
-  ASSERT_EQ(OB_ITER_END, scanner.next_row());
-
-  buffer buf(1 << 21);
-  scanner.serialize(buf.ptre(), buf.capacity(), buf.length());
-  printf("%ld\n", buf.length());
-  ObScanner dscanner;
-  int64_t pos = 0;
-  dscanner.deserialize(buf.ptre(), buf.length(), pos);
-
-  for (int i = 0; i < table_num; i++) {
-    for (int j = 0; j < row_num; j++) {
-      ObCellInfo* row;
-      int64_t num = 0;
-      ASSERT_EQ(OB_SUCCESS, dscanner.next_row());
-      ASSERT_EQ(OB_SUCCESS, dscanner.get_row(&row, &num));
-      ASSERT_EQ(column_num, num);
-    }
-  }
-  ASSERT_EQ(OB_ITER_END, dscanner.next_row());
-
-  scanner.clear();
-  scanner.set_mem_size_limit(256);
-  int j = 0, k = 0;
-
-  int err = OB_SUCCESS;
-  for (; j < row_num; j++) {
-    for (k = 0; k < column_num; k++) {
-      ObCellInfo cell;
-      cell.table_name_ = table_name[0].get_obstring();
-      cell.row_key_ = row_key[j].get_obstring();
-      cell.column_name_ = column_name[k].get_obstring();
-      cell.value_.set_int(1);
-      if (OB_SUCCESS != (err = scanner.add_cell(cell))) {
-        break;
-      }
-    }
-    if (OB_SUCCESS != err) {
-      break;
-    }
-  }
-  if (OB_SUCCESS != err) {
-    scanner.rollback();
-  }
-
-  for (int i = 0; i < j; i++) {
-    ObCellInfo* row;
-    int64_t num = 0;
-    ASSERT_EQ(OB_SUCCESS, scanner.next_row());
-    ASSERT_EQ(OB_SUCCESS, scanner.get_row(&row, &num));
-    ASSERT_EQ(column_num, num);
-  }
-  ASSERT_EQ(OB_ITER_END, scanner.next_row());
-
-  buf.length() = 0;
-  scanner.serialize(buf.ptre(), buf.capacity(), buf.length());
-  printf("%ld\n", buf.length());
-  dscanner.reset();
-  pos = 0;
-  dscanner.deserialize(buf.ptre(), buf.length(), pos);
-  printf("row_num=%ld\n", dscanner.get_row_num());
-
-  for (int i = 0; i < j; i++) {
-    ObCellInfo* row;
-    int64_t num = 0;
-    ASSERT_EQ(OB_SUCCESS, dscanner.next_row());
-    ASSERT_EQ(OB_SUCCESS, dscanner.get_row(&row, &num));
-    ASSERT_EQ(column_num, num);
-  }
-  ASSERT_EQ(OB_ITER_END, dscanner.next_row());
 }
 
 int main(int argc, char** argv) {

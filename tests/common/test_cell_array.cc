@@ -12,13 +12,10 @@
 #include "common/ob_string.h"
 #include "common/ob_action_flag.h"
 #include "common/ob_scan_param.h"
-#include "test_rowkey_helper.h"
 
 using namespace sb::common;
 using namespace testing;
 using namespace std;
-
-static CharArena allocator_;
 
 namespace {
 class VRowComp {
@@ -58,66 +55,78 @@ class VRowComp {
   vector<ObCellInfo>** cell_2darray_;
 };
 }
-
 TEST(ObCellArray, basic) {
   ObCellArray array;
-  ObInnerCellInfo* cell = NULL;
+  ObCellInfo* cell = NULL;
   EXPECT_EQ(array.get_cell_size(), 0);
   EXPECT_EQ(array.get_memory_size_used(), 0);
   EXPECT_LT(array.get_cell(0, cell), 0);
 }
 
 TEST(ObCellArray, append) {
+  vector<string> table_names;
   vector<string> rowkeys;
+  vector<string> column_names;
   vector<ObCellInfo> cell_vec;
   ObCellArray cell_array;
   ObCellInfo cur_cell;
   ObString obstr;
-  TestRowkeyHelper rh(&allocator_);
   char buf[128] = "";
   char str_char = 'a';
   int64_t val;
   int len = 0;
   const int64_t cell_num = static_cast<int64_t>(1024 * 1024 * 1.5);
-  ObInnerCellInfo* cell_out = NULL;
+  ObCellInfo* cell_out = NULL;
   for (int64_t i = 0; i < cell_num; i ++) {
     val = random();
     if (val < 0) {
       val *= -1;
     }
-    str_char = static_cast<char>('a' + val % 26);
-    len = static_cast<int>(val % sizeof(buf) + 1);
+    str_char = 'a' + val % 26;
+    len = val % sizeof(buf) + 1;
     memset(buf, str_char, len);
     string str(buf, buf + len);
-    obstr.assign(const_cast<char*>(str.c_str()), static_cast<int32_t>(str.size()));
-    rh = obstr;
+    obstr.assign(const_cast<char*>(str.c_str()), str.size());
+    table_names.push_back(str);
     rowkeys.push_back(str);
-    cur_cell.row_key_ = rh;
+    column_names.push_back(str);
+    cur_cell.table_name_ = obstr;
+    cur_cell.row_key_ = obstr;
+    cur_cell.column_name_ = obstr;
     cur_cell.value_.set_int(val);
 
     cell_vec.push_back(cur_cell);
     EXPECT_EQ(cell_array.append(cur_cell, cell_out), 0);
     EXPECT_TRUE(cell_out->value_ == cur_cell.value_);
-    EXPECT_TRUE(cell_out->row_key_ == rh);
-    EXPECT_TRUE(cell_out->row_key_.ptr() != rh.ptr());
+    EXPECT_TRUE(cell_out->table_name_ == obstr);
+    EXPECT_TRUE(cell_out->table_name_.ptr() != obstr.ptr());
+    EXPECT_TRUE(cell_out->row_key_ == obstr);
+    EXPECT_TRUE(cell_out->row_key_.ptr() != obstr.ptr());
+    EXPECT_TRUE(cell_out->column_name_ == obstr);
+    EXPECT_TRUE(cell_out->column_name_.ptr() != obstr.ptr());
     EXPECT_EQ(cell_array.get_cell_size(), i + 1);
   }
 
   ObCellArray::iterator begin = cell_array.begin();
   ObCellArray::iterator end = cell_array.end();
-  ObInnerCellInfo* cell = NULL;
   for (int64_t i = 0; i < cell_num; i ++, begin ++) {
-    EXPECT_EQ(cell_array.get_cell(i, cell), 0);
-    EXPECT_TRUE(cell->row_key_ == cell_vec[i].row_key_);
-    EXPECT_TRUE(cell->value_ == cell_vec[i].value_);
+    EXPECT_EQ(cell_array.get_cell(i, cell_out), 0);
+    EXPECT_TRUE(cell_out->table_name_ == cell_vec[i].table_name_);
+    EXPECT_TRUE(cell_out->column_name_ == cell_vec[i].column_name_);
+    EXPECT_TRUE(cell_out->row_key_ == cell_vec[i].row_key_);
+    EXPECT_TRUE(cell_out->value_ == cell_vec[i].value_);
+    EXPECT_TRUE(begin->table_name_ == cell_vec[i].table_name_);
+    EXPECT_TRUE(begin->column_name_ == cell_vec[i].column_name_);
     EXPECT_TRUE(begin->row_key_ == cell_vec[i].row_key_);
     EXPECT_TRUE(begin->value_ == cell_vec[i].value_);
 
     /// next cell
     EXPECT_EQ(cell_array.next_cell(), 0);
-    EXPECT_EQ(cell_array.get_cell(&cell), 0);
-    EXPECT_TRUE(cell->row_key_ == cell_vec[i].row_key_);
-    EXPECT_TRUE(cell->value_ == cell_vec[i].value_);
+    EXPECT_EQ(cell_array.get_cell(&cell_out), 0);
+    EXPECT_TRUE(cell_out->table_name_ == cell_vec[i].table_name_);
+    EXPECT_TRUE(cell_out->column_name_ == cell_vec[i].column_name_);
+    EXPECT_TRUE(cell_out->row_key_ == cell_vec[i].row_key_);
+    EXPECT_TRUE(cell_out->value_ == cell_vec[i].value_);
   }
   EXPECT_EQ(cell_array.next_cell(), OB_ITER_END);
 
@@ -133,68 +142,147 @@ TEST(ObCellArray, append) {
   begin = cell_array.begin();
   end = cell_array.end();
   for (int64_t i = 0; i < cell_num; i ++, begin ++) {
-    EXPECT_EQ(cell_array.get_cell(i, cell), 0);
-    EXPECT_TRUE(cell->row_key_ == cell_vec[i].row_key_);
-    EXPECT_TRUE(cell->value_ == cell_vec[i].value_);
+    EXPECT_EQ(cell_array.get_cell(i, cell_out), 0);
+    EXPECT_TRUE(cell_out->table_name_ == cell_vec[i].table_name_);
+    EXPECT_TRUE(cell_out->column_name_ == cell_vec[i].column_name_);
+    EXPECT_TRUE(cell_out->row_key_ == cell_vec[i].row_key_);
+    EXPECT_TRUE(cell_out->value_ == cell_vec[i].value_);
+    EXPECT_TRUE(begin->table_name_ == cell_vec[i].table_name_);
+    EXPECT_TRUE(begin->column_name_ == cell_vec[i].column_name_);
     EXPECT_TRUE(begin->row_key_ == cell_vec[i].row_key_);
     EXPECT_TRUE(begin->value_ == cell_vec[i].value_);
     /// next cell
     EXPECT_EQ(cell_array.next_cell(), 0);
-    EXPECT_EQ(cell_array.get_cell(&cell), 0);
-    EXPECT_TRUE(cell->row_key_ == cell_vec[i].row_key_);
-    EXPECT_TRUE(cell->value_ == cell_vec[i].value_);
-    EXPECT_TRUE(begin->row_key_ == cell_vec[i].row_key_);
-    EXPECT_TRUE(begin->value_ == cell_vec[i].value_);
+    EXPECT_EQ(cell_array.get_cell(&cell_out), 0);
+    EXPECT_TRUE(cell_out->table_name_ == cell_vec[i].table_name_);
+    EXPECT_TRUE(cell_out->column_name_ == cell_vec[i].column_name_);
+    EXPECT_TRUE(cell_out->row_key_ == cell_vec[i].row_key_);
+    EXPECT_TRUE(cell_out->value_ == cell_vec[i].value_);
   }
   EXPECT_EQ(cell_array.next_cell(), OB_ITER_END);
-  //
+}
+
+
+TEST(ObCellArray, expand) {
+  vector<string> table_names;
+  vector<string> rowkeys;
+  vector<string> column_names;
+  vector<ObCellInfo> cell_vec;
+  ObCellArray cell_array;
+  ObCellInfo cur_cell;
+  ObString obstr;
+  char buf[128] = "";
+  char str_char = 'a';
+  int64_t val;
+  int len = 0;
+  const int64_t cell_num = static_cast<int64_t>(1024 * 1024 * 1.5);
+  ObCellInfo* cell_out = NULL;
+  int64_t not_appended_num = cell_num;
+  int64_t appended_num = 0;
+  for (int64_t i = 0; i < cell_num; i ++) {
+    val = random();
+    if (val < 0) {
+      val *= -1;
+    }
+    str_char = 'a' + val % 26;
+    len = val % sizeof(buf) + 1;
+    memset(buf, str_char, len);
+    string str(buf, buf + len);
+    obstr.assign(const_cast<char*>(str.c_str()), str.size());
+    table_names.push_back(str);
+    rowkeys.push_back(str);
+    column_names.push_back(str);
+    cur_cell.table_name_ = obstr;
+    cur_cell.row_key_ = obstr;
+    cur_cell.column_name_ = obstr;
+    cur_cell.value_.set_int(val);
+
+    cell_vec.push_back(cur_cell);
+  }
+  while (not_appended_num > 0) {
+    int64_t cur_cell_num = 0;
+    if (not_appended_num < 10) {
+      cur_cell_num = not_appended_num;
+    } else {
+      cur_cell_num = random() % not_appended_num;
+    }
+    EXPECT_EQ(cell_array.expand(cur_cell_num), 0);
+    EXPECT_EQ(cell_array.get_cell_size(), appended_num + cur_cell_num);
+    for (int64_t i = 0; i < cur_cell_num; i++, not_appended_num --) {
+      EXPECT_EQ(cell_array.apply(cell_vec[appended_num], appended_num, cell_out), 0);
+      appended_num ++;
+    }
+  }
+
+  ObCellArray::iterator begin = cell_array.begin();
+  ObCellArray::iterator end = cell_array.end();
+  for (int64_t i = 0; i < cell_num; i ++, begin ++) {
+    EXPECT_EQ(cell_array.get_cell(i, cell_out), 0);
+    EXPECT_TRUE(cell_out->table_name_ == cell_vec[i].table_name_);
+    EXPECT_TRUE(cell_out->column_name_ == cell_vec[i].column_name_);
+    EXPECT_TRUE(cell_out->row_key_ == cell_vec[i].row_key_);
+    EXPECT_TRUE(cell_out->value_ == cell_vec[i].value_);
+    EXPECT_TRUE(begin->table_name_ == cell_vec[i].table_name_);
+    EXPECT_TRUE(begin->column_name_ == cell_vec[i].column_name_);
+    EXPECT_TRUE(begin->row_key_ == cell_vec[i].row_key_);
+    EXPECT_TRUE(begin->value_ == cell_vec[i].value_);
+    /// next cell
+    EXPECT_EQ(cell_array.next_cell(), 0);
+    EXPECT_EQ(cell_array.get_cell(&cell_out), 0);
+    EXPECT_TRUE(cell_out->table_name_ == cell_vec[i].table_name_);
+    EXPECT_TRUE(cell_out->column_name_ == cell_vec[i].column_name_);
+    EXPECT_TRUE(cell_out->row_key_ == cell_vec[i].row_key_);
+    EXPECT_TRUE(cell_out->value_ == cell_vec[i].value_);
+  }
+  EXPECT_EQ(cell_array.next_cell(), OB_ITER_END);
+
   cell_array.clear();
-  for (int64_t i = 0; i < cell_num; i ++) {
-    EXPECT_EQ(cell_array.append(cell_vec[i], cell_out), 0);
-    EXPECT_EQ(cell_array.get_cell_size(), i + 1);
+  EXPECT_EQ(cell_array.get_cell_size(), 0);
+  EXPECT_EQ(cell_array.get_memory_size_used(), 0);
+  not_appended_num = cell_num;
+  appended_num = 0;
+  while (not_appended_num > 0) {
+    int64_t cur_cell_num = 0;
+    if (not_appended_num < 10) {
+      cur_cell_num = not_appended_num;
+    } else {
+      cur_cell_num = random() % not_appended_num;
+    }
+    EXPECT_EQ(cell_array.expand(cur_cell_num), 0);
+    EXPECT_EQ(cell_array.get_cell_size(), appended_num + cur_cell_num);
+    for (int64_t i = 0; i < cur_cell_num; i++, not_appended_num --) {
+      EXPECT_EQ(cell_array.apply(cell_vec[appended_num], appended_num, cell_out), 0);
+      appended_num ++;
+    }
   }
+
   begin = cell_array.begin();
   end = cell_array.end();
   for (int64_t i = 0; i < cell_num; i ++, begin ++) {
-    EXPECT_EQ(cell_array.get_cell(i, cell), 0);
-    EXPECT_TRUE(cell->row_key_ == cell_vec[i].row_key_);
-    EXPECT_TRUE(cell->value_ == cell_vec[i].value_);
+    EXPECT_EQ(cell_array.get_cell(i, cell_out), 0);
+    EXPECT_TRUE(cell_out->table_name_ == cell_vec[i].table_name_);
+    EXPECT_TRUE(cell_out->column_name_ == cell_vec[i].column_name_);
+    EXPECT_TRUE(cell_out->row_key_ == cell_vec[i].row_key_);
+    EXPECT_TRUE(cell_out->value_ == cell_vec[i].value_);
+    EXPECT_TRUE(begin->table_name_ == cell_vec[i].table_name_);
+    EXPECT_TRUE(begin->column_name_ == cell_vec[i].column_name_);
     EXPECT_TRUE(begin->row_key_ == cell_vec[i].row_key_);
     EXPECT_TRUE(begin->value_ == cell_vec[i].value_);
     /// next cell
     EXPECT_EQ(cell_array.next_cell(), 0);
-    EXPECT_EQ(cell_array.get_cell(&cell), 0);
-    EXPECT_TRUE(cell->row_key_ == cell_vec[i].row_key_);
-    EXPECT_TRUE(cell->value_ == cell_vec[i].value_);
-    EXPECT_TRUE(begin->row_key_ == cell_vec[i].row_key_);
-    EXPECT_TRUE(begin->value_ == cell_vec[i].value_);
+    EXPECT_EQ(cell_array.get_cell(&cell_out), 0);
+    EXPECT_TRUE(cell_out->table_name_ == cell_vec[i].table_name_);
+    EXPECT_TRUE(cell_out->column_name_ == cell_vec[i].column_name_);
+    EXPECT_TRUE(cell_out->row_key_ == cell_vec[i].row_key_);
+    EXPECT_TRUE(cell_out->value_ == cell_vec[i].value_);
   }
-  // reset all the cell
-  cell_array.reset();
-  for (int64_t i = 0; i < cell_num; i ++) {
-    EXPECT_EQ(cell_array.append(cell_vec[i], cell_out), 0);
-    EXPECT_EQ(cell_array.get_cell_size(), i + 1);
-  }
-  begin = cell_array.begin();
-  end = cell_array.end();
-  for (int64_t i = 0; i < cell_num; i ++, begin ++) {
-    EXPECT_EQ(cell_array.get_cell(i, cell), 0);
-    EXPECT_TRUE(cell->row_key_ == cell_vec[i].row_key_);
-    EXPECT_TRUE(cell->value_ == cell_vec[i].value_);
-    EXPECT_TRUE(begin->row_key_ == cell_vec[i].row_key_);
-    EXPECT_TRUE(begin->value_ == cell_vec[i].value_);
-    /// next cell
-    EXPECT_EQ(cell_array.next_cell(), 0);
-    EXPECT_EQ(cell_array.get_cell(&cell), 0);
-    EXPECT_TRUE(cell->row_key_ == cell_vec[i].row_key_);
-    EXPECT_TRUE(cell->value_ == cell_vec[i].value_);
-    EXPECT_TRUE(begin->row_key_ == cell_vec[i].row_key_);
-    EXPECT_TRUE(begin->value_ == cell_vec[i].value_);
-  }
+  EXPECT_EQ(cell_array.next_cell(), OB_ITER_END);
 }
 
 TEST(ObCellArray, apply) {
+  vector<string> table_names;
   vector<string> rowkeys;
+  vector<string> column_names;
   vector<ObCellInfo> cell_vec;
   vector<string>     cell_val;
   ObCellArray cell_array;
@@ -205,7 +293,7 @@ TEST(ObCellArray, apply) {
   int64_t val;
   int len = 0;
   const int64_t cell_num = static_cast<int64_t>(1024 * 1024 * 1.5);
-  ObInnerCellInfo* cell_out = NULL;
+  ObCellInfo* cell_out = NULL;
   int64_t not_appended_num = cell_num;
   int64_t appended_num = 0;
   for (int64_t i = 0; i < cell_num; i ++) {
@@ -213,19 +301,21 @@ TEST(ObCellArray, apply) {
     if (val < 0) {
       val *= -1;
     }
-    str_char = static_cast<char>('a' + val % 26);
-    len = static_cast<int>(val % sizeof(buf) + 1);
+    str_char = 'a' + val % 26;
+    len = val % sizeof(buf) + 1;
     memset(buf, str_char, len);
     string str(buf, buf + len);
-    obstr.assign(const_cast<char*>(str.c_str()), static_cast<int32_t>(str.size()));
+    obstr.assign(const_cast<char*>(str.c_str()), str.size());
+    table_names.push_back(str);
     rowkeys.push_back(str);
-    cur_cell.row_key_ = TestRowkeyHelper(obstr, &allocator_);
+    column_names.push_back(str);
+    cur_cell.table_name_ = obstr;
+    cur_cell.row_key_ = obstr;
+    cur_cell.column_name_ = obstr;
     cur_cell.value_.set_varchar(obstr);
 
     cell_vec.push_back(cur_cell);
   }
-  ObCellInfo src;
-  ObInnerCellInfo* out = NULL;
   while (not_appended_num > 0) {
     int64_t cur_cell_num = 0;
     if (not_appended_num < 10) {
@@ -233,32 +323,24 @@ TEST(ObCellArray, apply) {
     } else {
       cur_cell_num = random() % not_appended_num;
     }
-    for (int64_t i = 0; i < cur_cell_num; ++i) {
-      src.table_id_ = cell_vec[i].table_id_;
-      src.column_id_ = cell_vec[i].column_id_;
-      src.row_key_ = cell_vec[appended_num].row_key_;
-      EXPECT_EQ(cell_array.append(src, out), 0);
-      EXPECT_TRUE(out->row_key_ == src.row_key_);
-      EXPECT_EQ(out->table_id_, src.table_id_);
-      EXPECT_EQ(out->column_id_, src.column_id_);
-      //assert(cell_array.apply(cell_vec[appended_num],appended_num,out) == 0);
-      EXPECT_EQ(cell_array.apply(cell_vec[appended_num], appended_num, out), 0);
+    EXPECT_EQ(cell_array.expand(cur_cell_num), 0);
+    EXPECT_EQ(cell_array.get_cell_size(), appended_num + cur_cell_num);
+    for (int64_t i = 0; i < cur_cell_num; i++, not_appended_num --) {
+      EXPECT_EQ(cell_array.apply(cell_vec[appended_num], appended_num, cell_out), 0);
       appended_num ++;
-      not_appended_num --;
     }
-    EXPECT_EQ(cell_array.get_cell_size(), appended_num);
   }
 
   for (int64_t i = 0; i < cell_num; i ++) {
     int64_t apply_offset = random() % cell_num;
     ObObj new_val;
     ObCellInfo new_cell;
-    str_char = static_cast<char>('a' + val % 26);
-    len = static_cast<int>(val % sizeof(buf) + 1);
+    str_char = 'a' + val % 26;
+    len = val % sizeof(buf) + 1;
     memset(buf, str_char, len);
     string str(buf, buf + len);
     cell_val.push_back(str);
-    obstr.assign(const_cast<char*>(cell_val[cell_val.size() - 1].c_str()), static_cast<int32_t>(cell_val[cell_val.size() - 1].size()));
+    obstr.assign(const_cast<char*>(cell_val[cell_val.size() - 1].c_str()), cell_val[cell_val.size() - 1].size());
     new_val.set_varchar(obstr);
     new_cell = cell_vec[apply_offset];
     EXPECT_EQ(cell_vec[apply_offset].value_.apply(new_val), 0);
@@ -266,26 +348,36 @@ TEST(ObCellArray, apply) {
     EXPECT_EQ(cell_array.apply(new_cell, apply_offset, cell_out), 0);
   }
 
-  ObInnerCellInfo* cell = NULL;
   ObCellArray::iterator begin = cell_array.begin();
   ObCellArray::iterator end = cell_array.end();
   for (int64_t i = 0; i < cell_num; i ++, begin ++) {
     EXPECT_EQ(cell_array.get_cell(i, cell_out), 0);
+    EXPECT_TRUE(cell_out->table_name_ == cell_vec[i].table_name_);
+    EXPECT_TRUE(cell_out->column_name_ == cell_vec[i].column_name_);
     EXPECT_TRUE(cell_out->row_key_ == cell_vec[i].row_key_);
     EXPECT_TRUE(cell_out->value_ == cell_vec[i].value_);
+    EXPECT_TRUE(begin->table_name_ == cell_vec[i].table_name_);
+    EXPECT_TRUE(begin->column_name_ == cell_vec[i].column_name_);
     EXPECT_TRUE(begin->row_key_ == cell_vec[i].row_key_);
     EXPECT_TRUE(begin->value_ == cell_vec[i].value_);
     /// next cell
     EXPECT_EQ(cell_array.next_cell(), 0);
-    EXPECT_EQ(cell_array.get_cell(&cell), 0);
-    EXPECT_TRUE(cell->row_key_ == cell_vec[i].row_key_);
-    EXPECT_TRUE(cell->value_ == cell_vec[i].value_);
+    EXPECT_EQ(cell_array.get_cell(&cell_out), 0);
+    EXPECT_TRUE(cell_out->table_name_ == cell_vec[i].table_name_);
+    EXPECT_TRUE(cell_out->column_name_ == cell_vec[i].column_name_);
+    EXPECT_TRUE(cell_out->row_key_ == cell_vec[i].row_key_);
+    EXPECT_TRUE(cell_out->value_ == cell_vec[i].value_);
   }
   EXPECT_EQ(cell_array.next_cell(), OB_ITER_END);
 }
 
+
+
+
 TEST(ObCellArray, order) {
+  vector<string> table_names;
   vector<string> rowkeys;
+  vector<string> column_names;
   vector<ObCellInfo> cell_vec;
   ObCellArray cell_array;
   ObCellInfo cur_cell;
@@ -298,23 +390,27 @@ TEST(ObCellArray, order) {
   const int64_t row_width = 128;
   const int64_t row_size = cell_num / row_width;
   const int64_t max_val_num = cell_num / 1024;
-  ObInnerCellInfo* cell_out = NULL;
+  ObCellInfo* cell_out = NULL;
   vector<ObCellInfo>* cell_2darray[row_size];
   int32_t cell_2darray_index[row_size];
   for (int64_t row_idx = 0; row_idx < row_size; row_idx ++) {
-    cell_2darray_index[row_idx] = static_cast<int32_t>(row_idx);
+    cell_2darray_index[row_idx] = row_idx;
     for (int64_t cell_idx = 0; cell_idx < row_width; cell_idx ++) {
       val = random();
       if (val < 0) {
         val *= -1;
       }
-      str_char = static_cast<char>('a' + val % 26);
-      len = static_cast<int32_t>(val % sizeof(buf) + 1);
+      str_char = 'a' + val % 26;
+      len = val % sizeof(buf) + 1;
       memset(buf, str_char, len);
       string str(buf, buf + len);
-      obstr.assign(const_cast<char*>(str.c_str()), static_cast<int32_t>(str.size()));
+      obstr.assign(const_cast<char*>(str.c_str()), str.size());
+      table_names.push_back(str);
       rowkeys.push_back(str);
-      cur_cell.row_key_ = TestRowkeyHelper(obstr, &allocator_);
+      column_names.push_back(str);
+      cur_cell.table_name_ = obstr;
+      cur_cell.row_key_ = obstr;
+      cur_cell.column_name_ = obstr;
       cur_cell.value_.set_int(val % max_val_num);
       if (0 == cell_idx) {
         cell_2darray[row_idx]  = new vector< ObCellInfo >;
@@ -339,15 +435,19 @@ TEST(ObCellArray, order) {
   std::sort(cell_2darray_index, cell_2darray_index + row_size, vrow_cmp);
   EXPECT_EQ(cell_array.orderby(row_width, order_desc,
                                sizeof(order_desc) / sizeof(ObCellArray::OrderDesc)), 0);
-  ObInnerCellInfo* cell_info = NULL;
+
   for (int64_t row_idx = 0; row_idx < row_size; row_idx ++) {
     for (int64_t cell_idx = 0; cell_idx < row_width; cell_idx ++) {
       EXPECT_EQ(cell_array.next_cell(), 0);
-      EXPECT_EQ(cell_array.get_cell(&cell_info), 0);
+      EXPECT_EQ(cell_array.get_cell(&cell_out), 0);
 
-      EXPECT_TRUE(cell_info->row_key_
+      EXPECT_TRUE(cell_out->table_name_
+                  == cell_2darray[cell_2darray_index[row_idx]]->operator [](cell_idx).table_name_);
+      EXPECT_TRUE(cell_out->column_name_
+                  == cell_2darray[cell_2darray_index[row_idx]]->operator [](cell_idx).column_name_);
+      EXPECT_TRUE(cell_out->row_key_
                   == cell_2darray[cell_2darray_index[row_idx]]->operator [](cell_idx).row_key_);
-      EXPECT_TRUE(cell_info->value_
+      EXPECT_TRUE(cell_out->value_
                   == cell_2darray[cell_2darray_index[row_idx]]->operator [](cell_idx).value_);
     }
   }
@@ -396,16 +496,20 @@ TEST(ObCellArray, order) {
   int64_t limit_count = (row_size - limit_offset) / 2;
   cell_array.reset_iterator();
   EXPECT_EQ(cell_array.limit(limit_offset, limit_count, row_width), 0);
-  for (int row_idx = static_cast<int>(limit_offset);
+  for (int row_idx = limit_offset;
        row_idx < limit_count + limit_offset && row_idx < row_size;
        row_idx++) {
     for (int64_t cell_idx = 0; cell_idx < row_width; cell_idx ++) {
       EXPECT_EQ(cell_array.next_cell(), 0);
-      EXPECT_EQ(cell_array.get_cell(&cell_info), 0);
+      EXPECT_EQ(cell_array.get_cell(&cell_out), 0);
 
-      EXPECT_TRUE(cell_info->row_key_
+      EXPECT_TRUE(cell_out->table_name_
+                  == cell_2darray[cell_2darray_index[row_idx]]->operator [](cell_idx).table_name_);
+      EXPECT_TRUE(cell_out->column_name_
+                  == cell_2darray[cell_2darray_index[row_idx]]->operator [](cell_idx).column_name_);
+      EXPECT_TRUE(cell_out->row_key_
                   == cell_2darray[cell_2darray_index[row_idx]]->operator [](cell_idx).row_key_);
-      EXPECT_TRUE(cell_info->value_
+      EXPECT_TRUE(cell_out->value_
                   == cell_2darray[cell_2darray_index[row_idx]]->operator [](cell_idx).value_);
     }
   }
@@ -413,7 +517,7 @@ TEST(ObCellArray, order) {
 }
 
 int main(int argc, char** argv) {
-  srandom(static_cast<unsigned int>(time(NULL)));
+  srandom(time(NULL));
   ob_init_memory_pool(64 * 1024);
   InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

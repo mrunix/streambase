@@ -1,17 +1,18 @@
 /**
- * (C) 2007-2010 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
  * Version: $Id$
  *
+ * ob_log_writer.cc for ...
+ *
  * Authors:
  *   yanran <yanran.hfs@taobao.com>
- *     - some work details if you want
+ *
  */
-
 #include "ob_log_writer.h"
 
 #include "ob_trace_log.h"
@@ -19,303 +20,453 @@
 
 using namespace sb::common;
 
-ObLogWriter::ObLogWriter(): is_initialized_(false),
-  net_warn_threshold_us_(5000),
-  disk_warn_threshold_us_(5000),
-  last_net_elapse_(0), last_disk_elapse_(0), last_flush_log_time_(0) {
+ObLogWriter::ObLogWriter() {
+  is_initialized_ = false;
+  dio_ = true;
+  cur_log_size_ = 0;
+  log_file_max_size_ = 0;
+  log_dir_[0] = '\0';
+  cur_log_file_id_ = 0;
+  cur_log_seq_ = 0;
+  slave_mgr_ = NULL;
+  log_sync_type_ = OB_LOG_NOSYNC;
+  is_log_start_ = false;
+  memset(empty_log_, 0x00, sizeof(empty_log_));
 }
 
 ObLogWriter::~ObLogWriter() {
+  file_.close();
+
+  if (NULL != log_buffer_.get_data()) {
+    ob_free(log_buffer_.get_data());
+    log_buffer_.reset();
+  }
 }
 
-int ObLogWriter::init(const char* log_dir, const int64_t log_file_max_size, ObSlaveMgr* slave_mgr,
-                      int64_t log_sync_type, MinAvailFileIdGetter* fufid_getter, const ObServer* server) {
+int ObLogWriter::init(const char* log_dir, const int64_t log_file_max_size, ObSlaveMgr* slave_mgr, int64_t log_sync_type) {
   int ret = OB_SUCCESS;
-  int64_t du_percent = DEFAULT_DU_PERCENT;
 
+  int log_dir_len = 0;
   if (is_initialized_) {
     TBSYS_LOG(ERROR, "ObLogWriter has been initialized");
     ret = OB_INIT_TWICE;
-  } else if (NULL == log_dir || NULL == slave_mgr) {
-    TBSYS_LOG(ERROR, "Parameter are invalid[log_dir=%p slave_mgr=%p]", log_dir, slave_mgr);
-    ret = OB_INVALID_ARGUMENT;
-  } else if (OB_SUCCESS != (ret = log_generator_.init(LOG_BUFFER_SIZE, log_file_max_size, server))) {
-    TBSYS_LOG(ERROR, "log_generator.init(buf_size=%ld, file_limit=%ld)=>%d", LOG_BUFFER_SIZE, log_file_max_size, ret);
-  } else if (OB_SUCCESS != (ret = log_writer_.init(log_dir, log_file_max_size, du_percent, log_sync_type, fufid_getter))) {
-    TBSYS_LOG(ERROR, "log_writer.init(log_dir=%s, file_limit=%ld, du_percent=%ld, sync_type=%ld, fufid_getter=%p)=>%d",
-              log_dir, log_file_max_size, du_percent, log_sync_type, fufid_getter, ret);
+  } else {
+    if (NULL == log_dir || NULL == slave_mgr) {
+      TBSYS_LOG(ERROR, "Parameter are invalid[log_dir=%p slave_mgr=%p]", log_dir, slave_mgr);
+      ret = OB_INVALID_ARGUMENT;
+    } else {
+      log_dir_len = strlen(log_dir);
+      if (log_dir_len >= OB_MAX_FILE_NAME_LENGTH) {
+        TBSYS_LOG(ERROR, "log_dir is too long[log_dir_len=%d]", log_dir_len);
+        ret = OB_INVALID_ARGUMENT;
+      }
+    }
   }
 
   if (OB_SUCCESS == ret) {
+    strncpy(log_dir_, log_dir, log_dir_len + 1);
+    log_file_max_size_ = log_file_max_size;
     slave_mgr_ = slave_mgr;
+    log_sync_type_ = log_sync_type;
+
+    void* buf = ob_malloc(LOG_BUFFER_SIZE);
+    if (NULL == buf) {
+      TBSYS_LOG(ERROR, "ob_malloc[length=%ld] error", LOG_BUFFER_SIZE);
+      ret = OB_ALLOCATE_MEMORY_FAILED;
+    } else {
+      log_buffer_.set_data(static_cast<char*>(buf), LOG_BUFFER_SIZE);
+    }
+  }
+
+  if (OB_SUCCESS == ret) {
     is_initialized_ = true;
-    TBSYS_LOG(INFO, "ObLogWriter initialize successfully[log_dir_=%s log_file_max_size_=%ld"
-              " slave_mgr_=%p log_sync_type_=%ld]",
-              log_dir, log_file_max_size, slave_mgr_, log_sync_type);
+    TBSYS_LOG(INFO, "ObLogWriter initialize successfully[log_dir_=%s log_file_max_size_=%ld cur_log_file_id_=%lu "
+              "cur_log_seq_=%lu slave_mgr_=%p log_sync_type_=%ld]",
+              log_dir_, log_file_max_size_, cur_log_file_id_, cur_log_seq_, slave_mgr_, log_sync_type_);
   }
 
   return ret;
 }
 
-int ObLogWriter::reset_log() {
-  int err = OB_SUCCESS;
-  if (OB_SUCCESS != (err = log_writer_.reset())) {
-    TBSYS_LOG(ERROR, "log_writer.reset()=>%d", err);
-  } else if (OB_SUCCESS != (err = log_generator_.reset())) {
-    TBSYS_LOG(ERROR, "log_generator.reset()=>%d", err);
+void ObLogWriter::reset_log() {
+  if (file_.is_opened()) {
+    file_.close();
   }
-  return err;
+
+  cur_log_size_ = 0;
+  cur_log_file_id_ = 0;
+  cur_log_seq_ = 0;
 }
 
-int ObLogWriter::start_log(const ObLogCursor& log_cursor) {
-  int err = OB_SUCCESS;
-  if (OB_SUCCESS != (err = log_writer_.start_log(log_cursor))) {
-    TBSYS_LOG(ERROR, "log_writer.start_log(%s)=>%d", to_cstring(log_cursor), err);
-  } else if (OB_SUCCESS != (err = log_generator_.start_log(log_cursor))) {
-    TBSYS_LOG(ERROR, "log_generator.start_log(%s)=>%d", to_cstring(log_cursor), err);
-  }
-  return err;
-}
+int ObLogWriter::start_log(const uint64_t log_file_max_id, const uint64_t log_max_seq) {
+  int ret = OB_SUCCESS;
 
-int ObLogWriter::start_log_maybe(const ObLogCursor& start_cursor) {
-  int err = OB_SUCCESS;
-  ObLogCursor log_cursor;
-  if (log_generator_.is_log_start()) {
-    if (OB_SUCCESS != (err = log_generator_.get_end_cursor(log_cursor))) {
-      TBSYS_LOG(ERROR, "log_generator.get_end_cursor()=>%d", err);
-    } else if (!log_cursor.equal(start_cursor)) {
-      err = OB_DISCONTINUOUS_LOG;
-      TBSYS_LOG(ERROR, "log_cursor.equal(start_cursor=%s)=>%d", to_cstring(start_cursor), err);
+  ret = check_inner_stat();
+
+  if (OB_SUCCESS == ret) {
+    cur_log_file_id_ = log_file_max_id;
+    cur_log_seq_ = log_max_seq;
+
+    ret = open_log_file_(cur_log_file_id_, false);
+    if (OB_SUCCESS != ret) {
+      TBSYS_LOG(ERROR, "open_log_file_ error[ret=%d]", ret);
+    } else {
+      // get current log file size
+      cur_log_size_ = file_.get_file_pos();
+      if (-1 == cur_log_size_) {
+        TBSYS_LOG(ERROR, "get_file_pos error[%s]", strerror(errno));
+        ret = OB_ERROR;
+      } else {
+        TBSYS_LOG(INFO, "commit log cur_log_file_id_=%lu cur_log_size_=%ld", cur_log_file_id_, cur_log_size_);
+        is_log_start_ = true;
+      }
     }
-  } else if (OB_SUCCESS != (err = start_log(start_cursor))) {
-    TBSYS_LOG(ERROR, "start_log(%s)=>%d", to_cstring(start_cursor), err);
   }
-  return err;
+
+  return ret;
 }
 
-int ObLogWriter::get_flushed_cursor(ObLogCursor& log_cursor) const {
-  return log_writer_.get_cursor(log_cursor);
+int ObLogWriter::start_log(const uint64_t log_file_max_id) {
+  int ret = OB_SUCCESS;
+
+  ret = check_inner_stat();
+
+  if (OB_SUCCESS == ret) {
+    cur_log_file_id_ = log_file_max_id + 1;
+
+    ret = open_log_file_(cur_log_file_id_, true);
+    if (OB_SUCCESS != ret) {
+      TBSYS_LOG(ERROR, "open_log_file_ error[ret=%d]", ret);
+    } else {
+      is_log_start_ = true;
+    }
+  }
+
+  return ret;
 }
 
 int ObLogWriter::write_log(const LogCommand cmd, const char* log_data, const int64_t data_len) {
   int ret = check_inner_stat();
 
-  if (OB_SUCCESS != ret) {
-    TBSYS_LOG(ERROR, "check_inner_stat()=>%d", ret);
-  } else if (OB_SUCCESS != (ret = log_generator_.write_log(cmd, log_data, data_len))
-             && OB_BUF_NOT_ENOUGH != ret) {
-    TBSYS_LOG(WARN, "log_generator.write_log(cmd=%d, buf=%p[%ld])=>%d", cmd, log_data, data_len, ret);
+  if (OB_SUCCESS == ret) {
+    if ((NULL == log_data && data_len != 0)
+        || (NULL != log_data && data_len <= 0)) {
+      TBSYS_LOG(ERROR, "Parameters are invalid[log_data=%p data_len=%ld]", log_data, data_len);
+      ret = OB_INVALID_ARGUMENT;
+    } else {
+      if (0 == log_buffer_.get_position()) {
+        ret = check_log_file_size_(LOG_BUFFER_SIZE);
+        if (OB_SUCCESS != ret) {
+          TBSYS_LOG(ERROR, "check_log_file_size_[cur_log_size_=%ld new_length=%ld] error[ret=%d]",
+                    cur_log_size_, LOG_BUFFER_SIZE, ret);
+        }
+      }
+
+      if (OB_SUCCESS == ret) {
+        ret = serialize_log_(cmd, log_data, data_len);
+      }
+    }
   }
+
   return ret;
 }
 
-inline int64_t get_align_padding_size(const int64_t x, const int64_t mask) {
-  return -x & mask;
-}
-
-int64_t ObLogWriter::to_string(char* buf, const int64_t len) const {
-  int64_t pos = 0;
-  databuff_printf(buf, len, pos, "LogWriter(generator=%s, data_writer=%s)",
-                  to_cstring(log_generator_), to_cstring(log_writer_));
-  return pos;
-}
-
-int ObLogWriter::write_keep_alive_log() {
-  int err = OB_SUCCESS;
-  if (OB_SUCCESS != (err = log_generator_.gen_keep_alive())) {
-    TBSYS_LOG(ERROR, "write_keep_alive_log()=>%d", err);
-  }
-  return err;
-}
-
-int64_t ObLogWriter::get_flushed_clog_id() {
-  return slave_mgr_->get_acked_clog_id();
-}
-
-int ObLogWriter::get_filled_cursor(ObLogCursor& log_cursor) const {
-  return log_generator_.get_end_cursor(log_cursor);
-}
-
-bool ObLogWriter::is_all_flushed() const {
-  ObLogCursor cursor;
-  log_generator_.get_start_cursor(cursor);
-  return slave_mgr_->get_acked_clog_id() >= cursor.log_id_;
-}
-
-int ObLogWriter::async_flush_log(int64_t& end_log_id, TraceLog::LogBuffer& tlog_buffer) {
+int ObLogWriter::flush_log() {
   int ret = check_inner_stat();
-  int send_err = OB_SUCCESS;
-  char* buf = NULL;
-  int64_t len = 0;
-  ObLogCursor start_cursor;
-  ObLogCursor end_cursor;
-  if (OB_SUCCESS != ret) {
-    TBSYS_LOG(ERROR, "check_inner_stat()=>%d", ret);
-  } else if (OB_SUCCESS != (ret = log_generator_.get_log(start_cursor, end_cursor, buf, len))) {
-    TBSYS_LOG(ERROR, "log_generator.get_log()=>%d", ret);
-  } else if (len <= 0)
-  {}
-  else if (0 != (len & ObLogGenerator::LOG_FILE_ALIGN_MASK)) {
-    ret = OB_LOG_NOT_ALIGN;
-    TBSYS_LOG(ERROR, "len=%ld cursor=[%s,%s], not align", len, to_cstring(start_cursor), to_cstring(end_cursor));
-    while (1);
-  } else {
-    int64_t store_start_time_us = tbsys::CTimeUtil::getTime();
-    if (OB_SUCCESS != (send_err = slave_mgr_->post_log_to_slave(start_cursor, end_cursor, buf, len))) {
-      TBSYS_LOG(WARN, "slave_mgr.send_data(buf=%p[%ld], %s)=>%d", buf, len, to_cstring(*this), send_err);
-    }
-    if (OB_SUCCESS != (ret = log_writer_.write(start_cursor, end_cursor,
-                                               buf, len + ObLogGenerator::LOG_FILE_ALIGN_SIZE))) {
-      TBSYS_LOG(ERROR, "log_writer.write_log(buf=%p[%ld], cursor=[%s,%s])=>%d, maybe disk FULL or Broken",
-                buf, len, to_cstring(start_cursor), to_cstring(end_cursor), ret);
-    } else {
-      last_disk_elapse_ = tbsys::CTimeUtil::getTime() - store_start_time_us;
-      if (last_disk_elapse_ > disk_warn_threshold_us_) {
-        TBSYS_LOG(WARN, "last_disk_elapse_[%ld] > disk_warn_threshold_us[%ld], cursor=[%s,%s], len=%ld",
-                  last_disk_elapse_, disk_warn_threshold_us_, to_cstring(start_cursor), to_cstring(end_cursor), len);
-      }
-    }
-  }
-  FILL_TRACE_BUF(tlog_buffer, "write_log disk=%ld net=%ld len=%ld log=%ld:%ld",
-                 last_disk_elapse_, last_net_elapse_, len,
-                 start_cursor.log_id_, end_cursor.log_id_);
-  if (OB_SUCCESS != ret)
-  {}
-  else if (OB_SUCCESS != (ret = log_generator_.commit(end_cursor))) {
-    TBSYS_LOG(ERROR, "log_generator.commit(end_cursor=%s)", to_cstring(end_cursor));
-  } else if (OB_SUCCESS != (ret = write_log_hook(true, start_cursor, end_cursor, buf, len))) {
-    TBSYS_LOG(ERROR, "write_log_hook(log_id=[%ld,%ld))=>%d", start_cursor.log_id_, end_cursor.log_id_, ret);
-  } else if (len > 0) {
-    last_flush_log_time_ = tbsys::CTimeUtil::getTime();
-  }
-  end_log_id = end_cursor.log_id_;
-  return ret;
-}
 
-int ObLogWriter::flush_log(TraceLog::LogBuffer& tlog_buffer, const bool sync_to_slave, const bool is_master) {
-  int ret = check_inner_stat();
-  int send_err = OB_SUCCESS;
-  char* buf = NULL;
-  int64_t len = 0;
-  ObLogCursor start_cursor;
-  ObLogCursor end_cursor;
-  if (OB_SUCCESS != ret) {
-    TBSYS_LOG(ERROR, "check_inner_stat()=>%d", ret);
-  } else if (OB_SUCCESS != (ret = log_generator_.get_log(start_cursor, end_cursor, buf, len))) {
-    TBSYS_LOG(ERROR, "log_generator.get_log()=>%d", ret);
-  } else if (len <= 0)
-  {}
-  else {
-    int64_t store_start_time_us = tbsys::CTimeUtil::getTime();
-    if (sync_to_slave) {
-      if (OB_SUCCESS != (send_err = slave_mgr_->post_log_to_slave(start_cursor, end_cursor, buf, len))) {
-        TBSYS_LOG(WARN, "slave_mgr.send_data(buf=%p[%ld], %s)=>%d", buf, len, to_cstring(*this), send_err);
-      }
-    }
-    if (OB_SUCCESS != (ret = log_writer_.write(start_cursor, end_cursor,
-                                               buf, len + ObLogGenerator::LOG_FILE_ALIGN_SIZE))) {
-      TBSYS_LOG(ERROR, "log_writer.write_log(buf=%p[%ld], cursor=[%s,%s])=>%d, maybe disk FULL or Broken",
-                buf, len, to_cstring(start_cursor), to_cstring(end_cursor), ret);
-    } else {
-      last_disk_elapse_ = tbsys::CTimeUtil::getTime() - store_start_time_us;
-      if (last_disk_elapse_ > disk_warn_threshold_us_) {
-        TBSYS_LOG(TRACE, "last_disk_elapse_[%ld] > disk_warn_threshold_us[%ld], cursor=[%s,%s], len=%ld",
-                  last_disk_elapse_, disk_warn_threshold_us_, to_cstring(start_cursor), to_cstring(end_cursor), len);
-      }
-    }
-    if (sync_to_slave) {
-      int64_t delay = -1;
-      if (OB_SUCCESS != (send_err = slave_mgr_->wait_post_log_to_slave(buf, len, delay))) {
-        TBSYS_LOG(ERROR, "slave_mgr.send_data(buf=%p[%ld], cur_write=[%s,%s], %s)=>%d", buf, len, to_cstring(start_cursor), to_cstring(end_cursor), to_cstring(*this), send_err);
-      } else if (delay >= 0) {
-        last_net_elapse_ = delay;
-        if (last_net_elapse_ > net_warn_threshold_us_) {
-          TBSYS_LOG(TRACE, "last_net_elapse_[%ld] > net_warn_threshold_us[%ld]", last_net_elapse_, net_warn_threshold_us_);
+  if (OB_SUCCESS == ret) {
+    if (log_buffer_.get_position() > 0) {
+      ret = serialize_nop_log_();
+      if (OB_SUCCESS != ret) {
+        TBSYS_LOG(ERROR, "serialize_nop_log_ error, ret=%d", ret);
+      } else {
+        int64_t send_start_time = tbsys::CTimeUtil::getTime();
+        ret = slave_mgr_->send_data(log_buffer_.get_data(), log_buffer_.get_position());
+        last_net_elapse_ = tbsys::CTimeUtil::getTime() - send_start_time;
+        if (OB_SUCCESS == ret || OB_PARTIAL_FAILED == ret) {
+          int64_t store_start_time = tbsys::CTimeUtil::getTime();
+          ret = store_log(log_buffer_.get_data(), log_buffer_.get_position());
+          last_disk_elapse_ = tbsys::CTimeUtil::getTime() - store_start_time;
+          if (OB_SUCCESS == ret) {
+            log_buffer_.get_position() = 0;
+          }
         }
       }
     }
   }
-  FILL_TRACE_BUF(tlog_buffer, "write_log disk=%ld net=%ld len=%ld log=%ld:%ld",
-                 last_disk_elapse_, last_net_elapse_, len,
-                 start_cursor.log_id_, end_cursor.log_id_);
-  if (OB_SUCCESS != ret)
-  {}
-  else if (OB_SUCCESS != (ret = log_generator_.commit(end_cursor))) {
-    TBSYS_LOG(ERROR, "log_generator.commit(end_cursor=%s)", to_cstring(end_cursor));
-  } else if (OB_SUCCESS != (ret = write_log_hook(is_master, start_cursor, end_cursor, buf, len))) {
-    TBSYS_LOG(ERROR, "write_log_hook(log_id=[%ld,%ld))=>%d", start_cursor.log_id_, end_cursor.log_id_, ret);
-  } else if (len > 0) {
-    last_flush_log_time_ = tbsys::CTimeUtil::getTime();
-  }
+
   return ret;
 }
 
 int ObLogWriter::write_and_flush_log(const LogCommand cmd, const char* log_data, const int64_t data_len) {
   int ret = check_inner_stat();
 
-  if (OB_SUCCESS != ret) {
-    TBSYS_LOG(ERROR, "check_inner_stat()=>%d", ret);
-  } else if (!log_generator_.is_clear()) {
-    ret = OB_LOG_NOT_CLEAR;
-    TBSYS_LOG(ERROR, "log_buffer not empty.");
-  } else if (OB_SUCCESS != (ret = write_log(cmd, log_data, data_len))) {
-    TBSYS_LOG(ERROR, "write_log(cmd=%d, log_data=%p[%ld])", cmd, log_data, data_len);
-  } else if (OB_SUCCESS != (ret = flush_log(TraceLog::get_logbuffer()))) {
-    TBSYS_LOG(INFO, "log write write and flush log, log_cmd=%d", cmd);
+  if (OB_SUCCESS == ret) {
+    // check whether remaining data
+    // if so, clear it
+    if (log_buffer_.get_position() > 0) {
+      log_buffer_.get_position() = 0;
+    }
+
+    ret = write_log(cmd, log_data, data_len);
+    if (OB_SUCCESS == ret) {
+      ret = flush_log();
+    }
   }
+
   return ret;
 }
 
-int ObLogWriter::store_log(const char* buf, const int64_t buf_len, const bool sync_to_slave) {
+int ObLogWriter::store_log(const char* buf, const int64_t buf_len) {
   int ret = OB_SUCCESS;
-  if (OB_SUCCESS != (ret = check_inner_stat())) {
-    TBSYS_LOG(ERROR, "check_inner_stat()=>%d", ret);
-  } else if (OB_SUCCESS != (ret = log_generator_.fill_batch(buf, buf_len))) {
-    TBSYS_LOG(ERROR, "log_generator.fill_batch(%p[%ld])=>%d", buf, buf_len, ret);
-  } else if (OB_SUCCESS != (ret = flush_log(TraceLog::get_logbuffer(), sync_to_slave, false))) {
-    TBSYS_LOG(ERROR, "flush_log(buf=%p[%ld],sync_slave=%s)=>%d", buf, buf_len, STR_BOOL(sync_to_slave), ret);
+
+  ret = check_inner_stat();
+
+  if (OB_SUCCESS == ret) {
+    if (NULL == buf || buf_len <= 0) {
+      TBSYS_LOG(ERROR, "parameters are invalid[buf=%p buf_len=%ld]", buf, buf_len);
+      ret = OB_INVALID_ARGUMENT;
+    }
   }
+
+  if (OB_SUCCESS == ret) {
+    ret = file_.append(buf, buf_len, OB_LOG_NOSYNC == log_sync_type_ ? false : true);
+    if (OB_SUCCESS != ret) {
+      TBSYS_LOG(ERROR, "write data[buf_len=%ld] to commit log error[%s]", buf_len, strerror(errno));
+    } else {
+      cur_log_size_ += buf_len;
+      TBSYS_LOG(DEBUG, "write %ld bytes to log[%lu] [cur_log_size_=%ld]", buf_len, cur_log_file_id_, cur_log_size_);
+    }
+  }
+
   return ret;
 }
 
 int ObLogWriter::switch_log_file(uint64_t& new_log_file_id) {
   int ret = check_inner_stat();
-  new_log_file_id = 0;
-  TBSYS_LOG(INFO, "log write switch log file");
-  if (OB_SUCCESS != ret) {
-    TBSYS_LOG(ERROR, "check_inner_stat()=>%d", ret);
-  } else if (OB_SUCCESS != (ret = flush_log(TraceLog::get_logbuffer()))) {
-    TBSYS_LOG(ERROR, "flush_log()=>%d", ret);
-  } else if (OB_SUCCESS != (ret = log_generator_.switch_log((int64_t&)new_log_file_id))) {
-    TBSYS_LOG(ERROR, "log_generator.switch_log()=>%d", ret);
-  } else if (OB_SUCCESS != (ret = flush_log(TraceLog::get_logbuffer()))) {
-    TBSYS_LOG(ERROR, "flush_log()=>%d", ret);
+
+  if (OB_SUCCESS == ret) {
+    ret = flush_log();
+    if (OB_SUCCESS != ret) {
+      TBSYS_LOG(ERROR, "flush_log error[ret=%d]", ret);
+    } else {
+      const int64_t buf_len = LOG_FILE_ALIGN_SIZE - ObLogEntry::get_header_size();
+      char buf[buf_len];
+      int64_t buf_pos = 0;
+      ret = serialization::encode_i64(buf, buf_len, buf_pos, cur_log_file_id_);
+      if (OB_SUCCESS != ret) {
+        TBSYS_LOG(ERROR, "encode_i64[cur_log_file_id_=%lu] error[ret=%d]", cur_log_file_id_, ret);
+      } else {
+        ret = serialize_log_(OB_LOG_SWITCH_LOG, buf, buf_len);
+        if (OB_SUCCESS != ret) {
+          TBSYS_LOG(ERROR, "serialize_log_ cur_log_file_id_[%lu] error[ret=%d]", cur_log_file_id_, ret);
+        } else {
+          ret = flush_log();
+          if (OB_SUCCESS != ret) {
+            TBSYS_LOG(ERROR, "flush_log error[ret=%d]", ret);
+          } else {
+            ret = switch_to_log_file(cur_log_file_id_ + 1);
+            if (OB_SUCCESS == ret) {
+              new_log_file_id = cur_log_file_id_;
+            }
+          }
+        }
+      }
+    }
   }
+
   return ret;
 }
 
-int ObLogWriter::write_checkpoint_log(uint64_t& cur_log_file_id) {
+int ObLogWriter::switch_to_log_file(const uint64_t log_file_id) {
   int ret = check_inner_stat();
-  uint64_t new_log_file_id = 0;
-  cur_log_file_id = 0;
 
-  TBSYS_LOG(INFO, "wirte_checkpoint_log");
-  if (OB_SUCCESS != ret) {
-    TBSYS_LOG(ERROR, "check_inner_stat()=>%d", ret);
-  } else if (OB_SUCCESS != (ret = flush_log(TraceLog::get_logbuffer()))) {
-    TBSYS_LOG(ERROR, "flush_log()=>%d", ret);
-  } else if (OB_SUCCESS != (ret = log_generator_.check_point((int64_t&)cur_log_file_id))) {
-    TBSYS_LOG(ERROR, "log_generator.check_point()=>%d", ret);
-  } else if (OB_SUCCESS != (ret = switch_log_file(new_log_file_id))) {
-    TBSYS_LOG(ERROR, "switch_log_file()=>%d", ret);
+  if (OB_SUCCESS == ret) {
+    if ((cur_log_file_id_ + 1) != log_file_id) {
+      TBSYS_LOG(ERROR, "log_file_id is not continous[cur_log_file_id_=%lu log_file_id=%lu]", cur_log_file_id_, log_file_id);
+      ret = OB_ERROR;
+    }
+  }
+
+  if (OB_SUCCESS == ret) {
+    file_.close();
+  }
+
+  if (OB_SUCCESS == ret) {
+    ret = open_log_file_(log_file_id, true);
+    if (OB_SUCCESS == ret) {
+      TBSYS_LOG(INFO, "switch_log_file successfully from %lu to %lu", cur_log_file_id_, log_file_id);
+      cur_log_file_id_ = log_file_id;
+    }
+  }
+
+  return ret;
+}
+
+int ObLogWriter::write_checkpoint_log(uint64_t& log_file_id) {
+  int ret = check_inner_stat();
+
+  log_file_id = 0;
+  if (OB_SUCCESS == ret) {
+    ret = flush_log();
+    if (OB_SUCCESS != ret) {
+      TBSYS_LOG(ERROR, "flush_log error[ret=%d]", ret);
+    } else {
+      const int64_t buf_len = sizeof(uint64_t);
+      char buf[buf_len];
+      int64_t buf_pos = 0;
+      ret = serialization::encode_i64(buf, buf_len, buf_pos, cur_log_file_id_);
+      if (OB_SUCCESS != ret) {
+        TBSYS_LOG(ERROR, "encode_i64[cur_log_file_id_=%lu] error[ret=%d]", cur_log_file_id_, ret);
+      } else {
+        ret = serialize_log_(OB_LOG_CHECKPOINT, buf, buf_pos);
+        if (OB_SUCCESS != ret) {
+          TBSYS_LOG(ERROR, "serialize_log_ cur_log_file_id_[%lu] error[ret=%d]", cur_log_file_id_, ret);
+        } else {
+          ret = flush_log();
+          if (OB_SUCCESS != ret) {
+            TBSYS_LOG(ERROR, "flush_log error[ret=%d]", ret);
+          } else {
+            TBSYS_LOG(INFO, "write_checkpoint_log successfully[cur_log_file_id_=%lu]", cur_log_file_id_);
+            uint64_t new_log_file_id = 0;
+            ret = switch_log_file(new_log_file_id);
+            if (OB_SUCCESS == ret) {
+              log_file_id = cur_log_file_id_ - 1;
+            }
+          }
+        }
+      }
+    }
   }
   return ret;
 }
 
-void ObLogWriter::set_disk_warn_threshold_us(const int64_t warn_us) {
-  disk_warn_threshold_us_ = warn_us;
+int ObLogWriter::open_log_file_(const uint64_t log_file_id, bool is_trunc) {
+  int ret = OB_SUCCESS;
+
+  struct stat file_info;
+  int err = stat(log_dir_, &file_info);
+  if (err != 0) { // log_dir does not exist
+    err = mkdir(log_dir_, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+    if (err != 0) {
+      TBSYS_LOG(ERROR, "create \"%s\" directory error[%s]", log_dir_, strerror(errno));
+      ret = OB_ERROR;
+    } else {
+      TBSYS_LOG(INFO, "create log directory[\"%s\"]", log_dir_);
+    }
+  }
+
+  if (OB_SUCCESS == ret) {
+    char file_name[OB_MAX_FILE_NAME_LENGTH];
+    err = snprintf(file_name, OB_MAX_FILE_NAME_LENGTH, "%s/%lu", log_dir_, log_file_id);
+    if (err < 0) {
+      TBSYS_LOG(ERROR, "snprintf log filename error[%s]", strerror(errno));
+      ret = OB_ERROR;
+    } else if (err >= OB_MAX_FILE_NAME_LENGTH) {
+      TBSYS_LOG(ERROR, "generated filename is too long[length=%d]", err);
+      ret = OB_ERROR;
+    } else {
+      int fn_len = strlen(file_name);
+      ret = file_.open(ObString(fn_len, fn_len, file_name), dio_, true, is_trunc, LOG_FILE_ALIGN_SIZE);
+      if (OB_SUCCESS != ret) {
+        TBSYS_LOG(ERROR, "open commit log file[file_name=%s] ret=%d", file_name, ret);
+      } else {
+        cur_log_size_ = 0;
+      }
+    }
+  }
+
+  return ret;
 }
 
-void ObLogWriter::set_net_warn_threshold_us(const int64_t warn_us) {
-  net_warn_threshold_us_ = warn_us;
+int ObLogWriter::serialize_log_(const LogCommand cmd, const char* log_data, const int64_t data_len) {
+  int ret = OB_SUCCESS;
+
+  ObLogEntry entry;
+  if ((NULL == log_data && data_len != 0)
+      || (NULL != log_data && data_len <= 0)) {
+    TBSYS_LOG(ERROR, "Parameters are invalid[log_data=%p data_len=%ld]", log_data, data_len);
+    ret = OB_INVALID_ARGUMENT;
+  } else {
+    uint64_t new_log_seq = 0;
+    if (OB_LOG_SWITCH_LOG == cmd) {
+      new_log_seq = cur_log_seq_;
+    } else {
+      new_log_seq = cur_log_seq_ + 1;
+    }
+    entry.set_log_seq(new_log_seq);
+    entry.set_log_command(cmd);
+    ret = entry.fill_header(log_data, data_len);
+    if (OB_SUCCESS != ret) {
+      TBSYS_LOG(ERROR, "ObLogEntry fill_header error[ret=%d log_data=%p data_len=%ld]", ret, log_data, data_len);
+    } else {
+      if ((data_len + entry.get_serialize_size() + LOG_FILE_ALIGN_SIZE) > log_buffer_.get_remain()) {
+        TBSYS_LOG(DEBUG, "log_buffer_ remaining length[%ld] is less then \"data_len[%ld] + ObLogEntry[%ld]\"",
+                  log_buffer_.get_remain(), data_len, entry.get_serialize_size());
+        ret = OB_BUF_NOT_ENOUGH;
+      } else {
+        ret = entry.serialize(log_buffer_.get_data(), log_buffer_.get_capacity(), log_buffer_.get_position());
+        if (OB_SUCCESS != ret) {
+          TBSYS_LOG(ERROR, "ObLogEntry serialize error[ret=%d buffer_remain=%ld]", ret, log_buffer_.get_remain());
+        } else {
+          if (NULL != log_data) {
+            memcpy(log_buffer_.get_data() + log_buffer_.get_position(), log_data, data_len);
+            log_buffer_.get_position() += data_len;
+          }
+          cur_log_seq_ = new_log_seq;
+        }
+      }
+    }
+  }
+
+  return ret;
 }
+
+int ObLogWriter::serialize_nop_log_() {
+  int ret = OB_SUCCESS;
+
+  ObLogEntry entry;
+
+  if (log_buffer_.get_position() == (log_buffer_.get_position() & LOG_FILE_ALIGN_MASK)) {
+    TBSYS_LOG(DEBUG, "The log is aligned");
+  } else {
+    uint64_t new_log_seq = cur_log_seq_ + 1;
+    int64_t data_len = (log_buffer_.get_position() & LOG_FILE_ALIGN_MASK)
+                       + LOG_FILE_ALIGN_SIZE - log_buffer_.get_position();
+    if (data_len <= entry.get_header_size()) {
+      data_len += LOG_FILE_ALIGN_SIZE;
+    }
+    data_len -= entry.get_header_size();
+
+    entry.set_log_seq(new_log_seq);
+    entry.set_log_command(OB_LOG_NOP);
+    ret = entry.fill_header(empty_log_, data_len);
+    if (OB_SUCCESS != ret) {
+      TBSYS_LOG(ERROR, "ObLogEntry fill_header error[ret=%d data_len=%ld]", ret, data_len);
+    } else {
+      ret = entry.serialize(log_buffer_.get_data(), log_buffer_.get_capacity(), log_buffer_.get_position());
+      if (OB_SUCCESS != ret) {
+        TBSYS_LOG(ERROR, "ObLogEntry serialize error[ret=%d buffer_remain=%ld]", ret, log_buffer_.get_remain());
+      } else {
+        memcpy(log_buffer_.get_data() + log_buffer_.get_position(), empty_log_, data_len);
+        log_buffer_.get_position() += data_len;
+        cur_log_seq_ = new_log_seq;
+      }
+    }
+  }
+
+  return ret;
+}
+
+int ObLogWriter::check_log_file_size_(const int64_t new_length) {
+  int ret = OB_SUCCESS;
+
+  if ((cur_log_size_ + new_length) > log_file_max_size_) {
+    uint64_t new_log_file_id = 0;
+    ret = switch_log_file(new_log_file_id);
+  }
+
+  return ret;
+}
+
+

@@ -1,17 +1,16 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- * ob_memory_pool.cc is for what ...
+ * Version: $Id$
  *
- * Version: $id: ob_memory_pool.cc,v 0.1 8/19/2010 9:56a wushi Exp $
+ * ob_memory_pool.cc for ...
  *
  * Authors:
  *   wushi <wushi.ly@taobao.com>
- *     - some work details if you want
  *
  */
 #include "ob_memory_pool.h"
@@ -19,11 +18,11 @@
 #include <malloc.h>
 #include <errno.h>
 #include <execinfo.h>
+#include <numa.h>
 #include "ob_link.h"
 #include "tbsys.h"
 #include "tblog.h"
-#include "ob_mod_define.h"
-#include "utility.h"
+
 using namespace sb::common;
 namespace {
 /// @brief  如果设置该环境变量则直接调用系统malloc和free分配释放内存，
@@ -52,7 +51,7 @@ struct MemBlockInfo {
 /// @fn init MemBlockInfo
 void init_mem_block_info(MemBlockInfo& info,
                          const int64_t block_size, const int32_t ref_num) {
-  sb::common::ObDLink* __attribute__((unused)) link = NULL;
+  sb::common::ObDLink* link = NULL;
   link = new(&(info.block_link_))sb::common::ObDLink;
   info.block_size_ = block_size;
   info.magic_ = OB_MEMPOOL_MAGIC;
@@ -93,9 +92,13 @@ bool check_mem_pool_item_info(const MemPoolItemInfo& info) {
 
 /// @fn allocate a new block
 void* allocate_new_block(MemBlockInfo*& block_info, MemPoolItemInfo*& item_info,
-                         const int64_t block_size, int32_t mod_id) {
+                         const int64_t block_size, int32_t mod_id, bool numa_enabled) {
   char* result = NULL;
-  result = new(std::nothrow) char[block_size];
+  if (numa_enabled) {
+    result = static_cast<char*>(numa_alloc_interleaved(block_size));
+  } else {
+    result = new(std::nothrow) char[block_size];
+  }
   if (result != NULL) {
     block_info = reinterpret_cast<MemBlockInfo*>(result);
     item_info = reinterpret_cast<MemPoolItemInfo*>(block_info->buf_);
@@ -124,7 +127,7 @@ bool malloc_directly() {
 }
 
 sb::common::ObBaseMemPool::ObBaseMemPool()
-  : mem_size_handled_(0), mem_size_limit_(INT64_MAX), mem_size_default_mod_(), mem_size_each_mod_(NULL), mod_set_(NULL) {
+  : mem_size_handled_(0), mem_size_limit_(INT64_MAX), mem_size_default_mod_(0), mem_size_each_mod_(NULL), mod_set_(NULL), numa_enabled_(false) {
 }
 
 sb::common::ObBaseMemPool::~ObBaseMemPool() {
@@ -140,63 +143,89 @@ int64_t sb::common::ObBaseMemPool::shrink(const int64_t) {
 int64_t sb::common::ObBaseMemPool::get_mod_memory_usage(int32_t mod_id) {
   int64_t result = 0;
   if ((NULL == mod_set_)  || (NULL == mem_size_each_mod_)) {
-    result = mem_size_default_mod_.value();
+    result = mem_size_default_mod_;
   } else {
     if (mod_id < 0 || mod_id >= mod_set_->get_max_mod_num()) {
-      result = mem_size_each_mod_[0].value();
+      result = mem_size_each_mod_[0];
     } else {
-      result = mem_size_each_mod_[mod_id].value();
+      result = mem_size_each_mod_[mod_id];
     }
   }
   return result;
 }
 
 void sb::common::ObBaseMemPool::print_mod_memory_usage(bool print_to_std) {
-  TBSYS_LOG(INFO, "[MEMORY] total=% '15ld direct_size=% '15ld direct_block=%'ld",
-            mem_size_handled_, direct_allocated_mem_size_, direct_allocated_block_num_);
+  TBSYS_LOG(INFO, "total_mem_size [%ld]", mem_size_handled_);
+  malloc_stats();
   if ((NULL == mod_set_)  || (NULL == mem_size_each_mod_)) {
-    TBSYS_LOG(INFO, "total used memory size:%'ld", mem_size_default_mod_.value());
+    TBSYS_LOG(INFO, "total used memory size:%ld", mem_size_default_mod_);
     if (print_to_std) {
-      fprintf(stderr, "total used memory size:%'ld\n", mem_size_default_mod_.value());
+      fprintf(stderr, "total used memory size:%ld\n", static_cast<int64_t>(mem_size_default_mod_));
     }
   } else {
     for (int32_t mod_idx = 0; mod_idx < mod_set_->get_max_mod_num(); mod_idx ++) {
       if (mod_set_->get_mod_name(mod_idx) != NULL) {
-        int64_t cv = mem_size_each_mod_[mod_idx].value();
-        if (cv != 0) {
-          TBSYS_LOG(INFO, "[MEMORY] size=% '15ld mod=%s",
-                    cv, mod_set_->get_mod_name(mod_idx));
-          if (print_to_std) {
-            fprintf(stderr, "module size static [mod:%s,size:%'ld]\n",
-                    mod_set_->get_mod_name(mod_idx), cv);
-          }
+        TBSYS_LOG(INFO, "module size static [mod:%s,size:%ld]", mod_set_->get_mod_name(mod_idx),
+                  mem_size_each_mod_[mod_idx]);
+        if (print_to_std) {
+          fprintf(stderr, "module size static [mod:%s,size:%ld]\n", mod_set_->get_mod_name(mod_idx),
+                  static_cast<int64_t>(mem_size_each_mod_[mod_idx]));
         }
       }
     }
   }
-  malloc_stats();
+  TBSYS_LOG(INFO, "module size static [memory_size_handled:%ld,"
+            "direct_allocated_block_num_:%ld,direct_allocated_mem_size_:%ld]",
+            mem_size_handled_, direct_allocated_block_num_, direct_allocated_mem_size_);
 }
+
 void sb::common::ObBaseMemPool::mod_malloc(const int64_t size, const int32_t mod_id) {
-  mod_usage_update(size, mod_id);
+  int32_t real_mod_id = mod_id;
+  if ((NULL == mod_set_)  || (NULL == mem_size_each_mod_)) {
+    mem_size_default_mod_ += size;
+  } else {
+    if (mod_id <= 0 || mod_id >= mod_set_->get_max_mod_num()) {
+      real_mod_id = 0;
+    }
+    mem_size_each_mod_[real_mod_id] += size;
+  }
 }
 
 void sb::common::ObBaseMemPool::mod_free(const int64_t size, const int32_t mod_id) {
-  mod_usage_update(-size, mod_id);
+  int32_t real_mod_id = mod_id;
+  if ((NULL == mod_set_)  || (NULL == mem_size_each_mod_)) {
+    mem_size_default_mod_ -= size;
+  } else {
+    if (mod_id <= 0 || mod_id >= mod_set_->get_max_mod_num()) {
+      real_mod_id = 0;
+    }
+    mem_size_each_mod_[real_mod_id] -= size;
+  }
 }
 
-int sb::common::ObBaseMemPool::init(const ObMemPoolModSet* mod_set) {
+int sb::common::ObBaseMemPool::init(const ObMemPoolModSet* mod_set, bool numa_enabled/* = false*/) {
   int err = OB_SUCCESS;
   if (NULL != mod_set && mod_set->get_max_mod_num() > 0) {
-    mem_size_each_mod_ = new TCCounter[mod_set->get_max_mod_num()];
+    mem_size_each_mod_ = new int64_t[mod_set->get_max_mod_num()];
     if (NULL == mem_size_each_mod_) {
       err = OB_ALLOCATE_MEMORY_FAILED;
+    } else {
+      memset(mem_size_each_mod_, 0x00, sizeof(int64_t)*mod_set->get_max_mod_num());
+    }
+  }
+  if (numa_enabled) {
+    err = numa_available();
+    if (-1 == err) {
+      TBSYS_LOG(ERROR, "numa_available invoke error");
+      err = OB_ERROR;
     }
   }
   if (OB_SUCCESS == err) {
     mod_set_ = mod_set;
+    numa_enabled_ = numa_enabled;
   } else {
-    TBSYS_LOG(ERROR, "ObBaseMemPool::init error, err=%d mod_set=%p",
-              err, mod_set);
+    TBSYS_LOG(ERROR, "ObBaseMemPool::init error, err=%d mod_set=%p numa_enabled=%s",
+              err, mod_set, numa_enabled ? "true" : "false");
   }
   return err;
 }
@@ -213,7 +242,7 @@ int64_t sb::common::ObBaseMemPool::set_memory_size_limit(const int64_t mem_size_
   return mem_size_limit_;
 }
 
-int64_t sb::common::ObBaseMemPool::get_memory_size_limit() const {
+int64_t sb::common::ObBaseMemPool::get_memory_size_limit() {
   return mem_size_limit_;
 }
 
@@ -226,13 +255,12 @@ void* sb::common::ObBaseMemPool::malloc_emergency(const int64_t nbyte,
 void* sb::common::ObBaseMemPool::malloc(const int64_t nbyte, int32_t mod_id, int64_t* got_size) {
   void* ret = NULL;
   if (mem_size_handled_ > mem_size_limit_) {
-    if (REACH_TIME_INTERVAL(60L * 1000000L)) {
-      TBSYS_LOG(ERROR, "memory over limited handled=%ld limit=%ld",
-                mem_size_handled_, mem_size_limit_);
-    }
+    TBSYS_LOG(ERROR, "memory over limited handled=%ld limit=%ld",
+              mem_size_handled_, mem_size_limit_);
     errno = ENOMEM;
   } else {
     ret = malloc_(nbyte, mod_id, got_size);
+    //TBSYS_LOG(INFO, "ob_malloc ptr=%p size=%ld", ret, nbyte);
   }
   return ret;
 }
@@ -246,7 +274,7 @@ void sb::common::ObBaseMemPool::free(const void* ptr) {
 
 
 void sb::common::ObFixedMemPool::property_initializer() {
-  sb::common::ObDLink* __attribute__((unused)) link = NULL;
+  sb::common::ObDLink* link = NULL;
   link = new(&used_mem_block_list_)sb::common::ObDLink;
   link = new(&free_mem_block_list_)sb::common::ObDLink;
   mem_block_size_ = 0;
@@ -264,7 +292,8 @@ sb::common::ObFixedMemPool::ObFixedMemPool() {
 
 int sb::common::ObFixedMemPool::init(const int64_t fixed_item_size,
                                      const int64_t item_num_each_block,
-                                     const ObMemPoolModSet* mod_set/* = NULL*/) {
+                                     const ObMemPoolModSet* mod_set/* = NULL*/,
+                                     const bool numa_enabled/* = false*/) {
   int err = 0;
   int64_t real_fixed_item_size = fixed_item_size;
   int64_t real_item_num_each_block = item_num_each_block;
@@ -279,7 +308,7 @@ int sb::common::ObFixedMemPool::init(const int64_t fixed_item_size,
     err = EINVAL;
   }
   if (0 == err) {
-    err = ObBaseMemPool::init(mod_set);
+    err = ObBaseMemPool::init(mod_set, numa_enabled);
   }
   if (0 == err) {
     int64_t real_block_size = (real_fixed_item_size + sizeof(MemPoolItemInfo)) * item_num_each_block
@@ -325,8 +354,10 @@ int64_t sb::common::ObFixedMemPool::get_used_block_num() const {
 
 
 void sb::common::ObFixedMemPool::print_mod_memory_usage(bool print_to_std) {
-  TBSYS_LOG(INFO, "[MEMORY] mem_block_size=%ld item_size=%ld used_block=%ld free_block=%ld free_limit=%ld",
-            mem_block_size_, mem_fixed_item_size_, used_mem_block_num_, free_mem_block_num_, get_free_block_limit_());
+  ObBaseMemPool::print_mod_memory_usage(print_to_std);
+  TBSYS_LOG(INFO, "module size static [used_mem_block_num_:%ld,free_mem_block_num_:%ld,"
+            "mem_block_size_:%ld]",
+            used_mem_block_num_, free_mem_block_num_, mem_block_size_);
   if (print_to_std) {
     fprintf(stderr, "module size static [used_mem_block_num_:%ld,free_mem_block_num_:%ld,"
             "mem_block_size_:%ld]\n",
@@ -334,7 +365,6 @@ void sb::common::ObFixedMemPool::print_mod_memory_usage(bool print_to_std) {
             static_cast<int64_t>(free_mem_block_num_),
             static_cast<int64_t>(mem_block_size_));
   }
-  ObBaseMemPool::print_mod_memory_usage(print_to_std);
 }
 
 
@@ -360,7 +390,11 @@ int64_t sb::common::ObFixedMemPool::recycle_memory_block(ObDLink*& block_it,
     free_mem_block_num_ --;
   }
 
-  delete [] buf_allocated;
+  if (numa_enabled_) {
+    numa_free(buf_allocated, info->block_size_);
+  } else {
+    delete [] buf_allocated;
+  }
   buf_allocated = NULL;
   return memory_freed;
 }
@@ -409,15 +443,11 @@ void* sb::common::ObFixedMemPool::malloc_(const int64_t nbyte, const int32_t mod
     result_errno = EINVAL;
   }
   /// allocated from system
-  if (NULL == result && result_errno == 0
-      && (nbyte > mem_fixed_item_size_ || ObModIds::OB_TSI_FACTORY == mod_id)) {
-    result = reinterpret_cast<char*>(allocate_new_block(block_info, item_info, block_size, mod_id));
+  if (NULL == result && result_errno == 0 && nbyte > mem_fixed_item_size_) {
+    result = reinterpret_cast<char*>(allocate_new_block(block_info, item_info, block_size, mod_id, numa_enabled_));
     if (result == NULL) {
       result_errno = errno;
     } else {
-#ifdef __OB_MTRACE__
-      TBSYS_LOG(WARN, "ALLOC BIG, ptr=%p nbyte=%ld mod_id=%d", result, nbyte, mod_id);
-#endif
       tbsys::CThreadGuard guard(&pool_mutex_);
       used_mem_block_list_.insert_next(block_info->block_link_);
       /// statistic
@@ -457,7 +487,7 @@ void* sb::common::ObFixedMemPool::malloc_(const int64_t nbyte, const int32_t mod
   /// allocated from system
   if (result_errno == 0 && result == NULL) {
     result = reinterpret_cast<char*>(allocate_new_block(block_info,
-                                                        item_info, mem_block_size_, mod_id));
+                                                        item_info, mem_block_size_, mod_id, numa_enabled_));
     if (result == NULL) {
       result_errno = errno;
     } else {
@@ -480,10 +510,7 @@ void* sb::common::ObFixedMemPool::malloc_(const int64_t nbyte, const int32_t mod
   errno = result_errno;
   return result;
 }
-static const int64_t MAX_FREE_BLOCK_LIMIT = 5 * 1024 * 1024 * 1024LL;
-int64_t  sb::common::ObFixedMemPool::get_free_block_limit_() const {
-  return std::min(get_memory_size_limit() / 2, MAX_FREE_BLOCK_LIMIT) / mem_block_size_;
-}
+
 
 void  sb::common::ObFixedMemPool::free_(const void* ptr) {
   int result_errno = 0;
@@ -512,7 +539,7 @@ void  sb::common::ObFixedMemPool::free_(const void* ptr) {
       item_info = reinterpret_cast<const MemPoolItemInfo*>(buf);
       block_info = item_info->mother_block_;
       if (!check_mem_pool_item_info(*item_info)) {
-        BACKTRACE(ERROR, true, "memory corrupt [addr:%p,"
+        TBSYS_LOG(ERROR, "memory corrupt [addr:%p,"
                   "MemPoolItemInfo::magic_:%u,"
                   "MemPoolItemInfo::mother_block_:%p,"
                   "MemBlockInfo::magic_:%u,"
@@ -522,9 +549,6 @@ void  sb::common::ObFixedMemPool::free_(const void* ptr) {
                   OB_MEMPOOL_MAGIC);
         result_errno = EINVAL;
       } else if (block_info->block_size_ != mem_block_size_) {
-#ifdef __OB_MTRACE__
-        TBSYS_LOG(WARN, "FREE BIG, ptr=%p size=%ld", ptr, block_info->block_size_);
-#endif
         mod_id = item_info->mod_id_;
         buf = reinterpret_cast<char*>(block_info);
         used_mem_block_num_ --;
@@ -539,18 +563,10 @@ void  sb::common::ObFixedMemPool::free_(const void* ptr) {
         block_info->ref_num_ --;
         size_free = block_info->block_size_;
         if (block_info->ref_num_ == 0) {
-          if (get_free_block_limit_() <= (free_mem_block_num_ + 1)) {
-            // we have cached too many blocks, free it directly
-            used_mem_block_num_ --;
-            mem_size_handled_ -= block_info->block_size_;
-            block_info->block_link_.remove();
-            need_free = true;
-          } else {
-            block_info->block_link_.remove();
-            free_mem_block_list_.insert_next(block_info->block_link_);
-            free_mem_block_num_ ++;
-            used_mem_block_num_ --;
-          }
+          block_info->block_link_.remove();
+          free_mem_block_list_.insert_next(block_info->block_link_);
+          free_mem_block_num_ ++;
+          used_mem_block_num_ --;
         }
       }
     }
@@ -560,7 +576,11 @@ void  sb::common::ObFixedMemPool::free_(const void* ptr) {
   }
 
   if (need_free) {
-    delete [] block_info;
+    if (numa_enabled_) {
+      numa_free(block_info, size_free);
+    } else {
+      delete [] block_info;
+    }
     block_info = NULL;
   }
   errno = result_errno;
@@ -589,7 +609,7 @@ int64_t sb::common::ObFixedMemPool::shrink(const int64_t remain_memory_size) {
 }
 
 sb::common::ObVarMemPool::ObVarMemPool(const int64_t block_size) {
-  sb::common::ObDLink* __attribute__((unused)) link = NULL;
+  sb::common::ObDLink* link = NULL;
   link = new(&used_mem_block_list_)sb::common::ObDLink;
   link = new(&free_mem_block_list_)sb::common::ObDLink;
   used_mem_block_num_ = 0;
@@ -641,7 +661,11 @@ int64_t sb::common::ObVarMemPool::recycle_memory_block(ObDLink*& block_it,
   } else {
     free_mem_block_num_ --;
   }
-  delete [] buf_allocated;
+  if (numa_enabled_) {
+    numa_free(buf_allocated, info->block_size_);
+  } else {
+    delete [] buf_allocated;
+  }
   buf_allocated = NULL;
   return memory_freed;
 }
@@ -740,7 +764,11 @@ void  sb::common::ObVarMemPool::free_(const void* ptr) {
   }
 
   if (need_free) {
-    delete [] block_info;
+    if (numa_enabled_) {
+      numa_free(block_info, block_info->block_size_);
+    } else {
+      delete [] block_info;
+    }
     block_info = NULL;
   }
   errno = result_errno;
@@ -768,7 +796,7 @@ void* sb::common::ObVarMemPool::malloc_(const int64_t nbyte, const int32_t mod_i
 
   /// allocated from system
   if (NULL == result && result_errno == 0 && block_size > mem_block_size_) {
-    result = reinterpret_cast<char*>(allocate_new_block(block_info, item_info, block_size, 0));
+    result = reinterpret_cast<char*>(allocate_new_block(block_info, item_info, block_size, 0, numa_enabled_));
     if (result == NULL) {
       result_errno = errno;
     } else {
@@ -827,7 +855,7 @@ void* sb::common::ObVarMemPool::malloc_(const int64_t nbyte, const int32_t mod_i
   /// allocate new buffer
   if (result_errno == 0 && result == NULL && block_info == NULL) {
     result = reinterpret_cast<char*>(allocate_new_block(block_info, item_info,
-                                                        mem_block_size_, 0));
+                                                        mem_block_size_, 0, numa_enabled_));
     if (result == NULL) {
       result_errno = errno;
     } else {
@@ -844,3 +872,4 @@ void* sb::common::ObVarMemPool::malloc_(const int64_t nbyte, const int32_t mod_i
   errno = result_errno;
   return reinterpret_cast<void*>(result);
 }
+

@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./test/keytree_get_test.cc for ...
+ *
+ * Authors:
+ *   duolong <duolong@taobao.com>
+ *
+ */
 #include <limits.h>
 #include <key_btree.h>
 #include <gtest/gtest.h>
@@ -840,4 +855,5 @@ void tear_down()
   }
 }*/
 }//end common
-}//end oceanbase
+}//end sb
+

@@ -1,17 +1,18 @@
 /**
- * (C) 2007-2010 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
  * Version: $Id$
  *
+ * ob_check_runnable.h for ...
+ *
  * Authors:
  *   yanran <yanran.hfs@taobao.com>
- *     - some work details if you want
+ *
  */
-
 #ifndef OCEANBASE_COMMON_OB_CHECK_RUNNABLE_H_
 #define OCEANBASE_COMMON_OB_CHECK_RUNNABLE_H_
 
@@ -51,7 +52,7 @@ class ObCheckRunnable : public tbsys::CDefaultRunnable {
   // reset vip (for debug only)
   void reset_vip(const int32_t vip);
 
- protected:
+ private:
   enum LeaseStatus {
     LEASE_NORMAL = 0,
     LEASE_SHOULD_RENEW = 1, // should renew lease
@@ -63,7 +64,7 @@ class ObCheckRunnable : public tbsys::CDefaultRunnable {
   // renew lease
   int renew_lease_();
 
- protected:
+ private:
   ObRoleMgr* role_mgr_;
   int64_t check_period_;
   uint32_t vip_;
@@ -79,3 +80,4 @@ class ObCheckRunnable : public tbsys::CDefaultRunnable {
 } // end namespace common
 } // end namespace sb
 #endif // OCEANBASE_COMMON_OB_CHECK_RUNNABLE_H_
+

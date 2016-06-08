@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -204,7 +204,7 @@ int32_t ObSSTableSchemaV1::find_column_id(const uint64_t column_id) const {
     } else if (column_def_[middle].column_name_id_ < column_id) {
       left = middle + 1;
     } else {
-      ret = static_cast<int32_t>(middle);
+      ret = middle;
       break;
     }
   }

@@ -1,7 +1,7 @@
 
 #include <gtest/gtest.h>
 
-#include "ob_repeated_log_reader.h"
+#include "ob_single_log_reader.h"
 #include "ob_log_writer.h"
 
 #include "tbsys.h"
@@ -13,7 +13,7 @@ using namespace sb::common;
 namespace sb {
 namespace tests {
 namespace common {
-class TestObRepeatedLogReader: public ::testing::Test {
+class TestObSingleLogReader: public ::testing::Test {
  public:
   virtual void SetUp() {
     strcpy(log_dir, "tmp");
@@ -45,13 +45,13 @@ class TestObRepeatedLogReader: public ::testing::Test {
   char log_dir[BUFSIZ];
 };
 
-TEST_F(TestObRepeatedLogReader, test_tmp) {
+TEST_F(TestObSingleLogReader, test_tmp) {
   ObFileReader file;
-  ASSERT_EQ(file.open(ObString(5, 5, (char*)"ttttt"), true), OB_FILE_NOT_EXIST);
+  ASSERT_EQ(file.open(ObString(5, 5, "ttttt"), true), OB_FILE_NOT_EXIST);
 }
 
-TEST_F(TestObRepeatedLogReader, test_init) {
-  ObRepeatedLogReader log_reader;
+TEST_F(TestObSingleLogReader, test_init) {
+  ObSingleLogReader log_reader;
   char longf[BUFSIZ];
   memset(longf, 'A', BUFSIZ);
   longf[BUFSIZ - 1] = '\0';
@@ -86,7 +86,7 @@ TEST_F(TestObRepeatedLogReader, test_init) {
   ASSERT_EQ(0, erase_file(file2));
 }
 
-TEST_F(TestObRepeatedLogReader, test_read_log) {
+TEST_F(TestObSingleLogReader, test_read_log) {
   fprintf(stderr, "============%lx %lx\n", ObLogWriter::LOG_FILE_ALIGN_MASK, ObLogWriter::LOG_FILE_ALIGN_SIZE);
   char buf[BUFSIZ];
   memset(buf, 0xAA, BUFSIZ);
@@ -119,7 +119,7 @@ TEST_F(TestObRepeatedLogReader, test_read_log) {
   ASSERT_EQ(OB_SUCCESS, log_writer.flush_log());
 
   fprintf(stderr, "single_file_item=%d flush_time=%d\n", single_file_item, flush_time);
-  ObRepeatedLogReader log_reader;
+  ObSingleLogReader log_reader;
   LogCommand cmd1;
   uint64_t s1;
   char* buf1;
@@ -129,7 +129,7 @@ TEST_F(TestObRepeatedLogReader, test_read_log) {
   for (int i = 0; i < single_file_item + flush_time; i++) {
     ASSERT_EQ(OB_SUCCESS, log_reader.read_log(cmd1, s1, buf1, len1));
     if (OB_LOG_UPS_MUTATOR == cmd1) {
-      ASSERT_EQ(log_max_seq + i + 1, s1 + 1);
+      ASSERT_EQ(log_max_seq + i + 1, s1);
       ASSERT_EQ(BUFSIZ, len1);
       ASSERT_EQ(0, memcmp(buf1, buf, BUFSIZ));
     } else if (OB_LOG_NOP == cmd1) {
@@ -189,14 +189,14 @@ TEST_F(TestObRepeatedLogReader, test_read_log) {
   lfd = open("tmp/10240", O_WRONLY | O_APPEND, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
   ASSERT_EQ(1, write(lfd, data + data_len - 1, 1));
   ASSERT_EQ(OB_SUCCESS, log_reader.read_log(cmd1, s1, buf1, len1));
-  ASSERT_EQ((uint64_t)10101, s1);
+  ASSERT_EQ(10101, s1);
   ASSERT_EQ(OB_LOG_UPS_MUTATOR, cmd1);
   ASSERT_EQ(data_len, len1);
   ASSERT_EQ(OB_READ_NOTHING, log_reader.read_log(cmd1, s1, buf1, len1));
   ASSERT_EQ(OB_SUCCESS, log_reader.close());
 }
 
-TEST_F(TestObRepeatedLogReader, test_read_log2) {
+TEST_F(TestObSingleLogReader, test_read_log2) {
   char buf[BUFSIZ];
   memset(buf, 0xAA, BUFSIZ);
   uint64_t log_file_max_id = 10;
@@ -217,7 +217,7 @@ TEST_F(TestObRepeatedLogReader, test_read_log2) {
   fwrite(outbuf, 1, pos, outfp);
   fclose(outfp);
 
-  ObRepeatedLogReader log_reader;
+  ObSingleLogReader log_reader;
   LogCommand cmd1;
   uint64_t s1;
   char* buf1;
@@ -229,7 +229,7 @@ TEST_F(TestObRepeatedLogReader, test_read_log2) {
 
 }
 
-TEST_F(TestObRepeatedLogReader, test_corruption) {
+TEST_F(TestObSingleLogReader, test_corruption) {
   FILE* outfp = fopen("tmp/3333", "w");
   char outbuf[10];
   memset(outbuf, 0x00, 10);
@@ -245,13 +245,13 @@ TEST_F(TestObRepeatedLogReader, test_corruption) {
 
   ObLogWriter log_writer;
   ASSERT_EQ(OB_SUCCESS, log_writer.init("tmp", log_file_max_size, sm4t.get_slave_mgr(), 1));
-  ASSERT_EQ(OB_LOG_NOT_ALIGN, log_writer.start_log(3333, log_max_seq));
+  ASSERT_EQ(OB_SUCCESS, log_writer.start_log(3333, log_max_seq));
 
   ASSERT_EQ(log_writer.write_log(OB_LOG_UPS_MUTATOR, buf, BUFSIZ), OB_SUCCESS);
 
   ASSERT_EQ(OB_SUCCESS, log_writer.flush_log());
 
-  ObRepeatedLogReader log_reader;
+  ObSingleLogReader log_reader;
   LogCommand cmd1;
   uint64_t s1;
   char* buf1;

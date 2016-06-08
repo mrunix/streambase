@@ -1,8 +1,22 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_array_helper.h for ...
+ *
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
+ */
 #ifndef OCEANBASE_COMMON_OB_ARRAY_HELPER_H_
 #define OCEANBASE_COMMON_OB_ARRAY_HELPER_H_
 #include <stdint.h>
 #include <stdlib.h>
-#include "ob_define.h"
 
 namespace sb {
 namespace common {
@@ -60,67 +74,7 @@ class ObArrayHelper {
   int64_t index_;
   T* p_;
 };
-
-
-template<class T>
-class ObArrayHelpers {
- public:
-  ObArrayHelpers() {
-    memset(arrs_, 0x00, sizeof(arrs_));
-    arr_count_ = 0;
-  }
-
-  int add_array_helper(ObArrayHelper<T>& helper) {
-    int err = OB_SUCCESS;
-    if (arr_count_ >= MAX_ARR_COUNT) {
-      err = OB_ARRAY_OUT_OF_RANGE;
-    } else {
-      arrs_[arr_count_] = &helper;
-      arr_count_ ++;
-    }
-    return err;
-  }
-
-  T* at(const int64_t index) {
-    const ObArrayHelpers* pthis = static_cast<const ObArrayHelpers*>(this);
-    return const_cast<T*>(pthis->at(index));
-  }
-  const T* at(const int64_t index) const {
-    int64_t counter = 0;
-    T* res = NULL;
-    if (index < 0) {
-      res = NULL;
-    } else {
-      for (int64_t i = 0; i < arr_count_; i++) {
-        if (index < counter + arrs_[i]->get_array_index()) {
-          res = arrs_[i]->at(index - counter);
-          break;
-        } else {
-          counter += arrs_[i]->get_array_index();
-        }
-      }
-    }
-    return res;
-  }
-
-  void clear() {
-    for (int64_t i = 0; i < arr_count_; i++) {
-      arrs_[i]->clear();
-    }
-  }
-
-  int64_t get_array_index()const {
-    int64_t counter = 0;
-    for (int64_t i = 0; i < arr_count_; i++) {
-      counter += arrs_[i]->get_array_index();
-    }
-    return counter;
-  }
- private:
-  static const int MAX_ARR_COUNT = 16;
-  ObArrayHelper<T>* arrs_[MAX_ARR_COUNT];
-  int64_t arr_count_;
-};
 }
 }
 #endif
+

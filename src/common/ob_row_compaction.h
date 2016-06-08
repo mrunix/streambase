@@ -51,16 +51,14 @@ class ObRowCompaction : public ObIterator {
   int next_cell();
   int get_cell(ObCellInfo** cell_info);
   int get_cell(ObCellInfo** cell_info, bool* is_row_changed);
-  int is_row_finished(bool* is_row_finished);
  private:
   int row_compaction_();
-  int add_cell_(const ObCellInfo* cell_info, int64_t& row_ext_flag);
+  int add_cell_(ObCellInfo* cell_info, int64_t& row_ext_flag);
  private:
   const uint64_t NODES_NUM_;
 
   ObjNode* nodes_;
   ObjNode* list_;
-  ObjNode* tail_;
   int64_t cur_version_;
 
   ObIterator* iter_;

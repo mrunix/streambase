@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * mock_update_server2.cc for ...
+ *
+ * Authors:
+ *   rongxuan <rongxuan.lc@taobao.com>
+ *
+ */
 #include "mock_define.h"
 #include "mock_update_server2.h"
 #include "common/ob_result.h"
@@ -425,6 +440,8 @@ int MockUpdateServer::handle_get_table(ObPacket* ob_packet) {
   TBSYS_LOG(INFO, "handle scan root table result:ret[%d]", ret);
   return ret;
 }
+
+
 
 
 

@@ -1,23 +1,18 @@
-////===================================================================
-//
-// ob_sstable_mgr.h updateserver / Oceanbase
-//
-// Copyright (C) 2010 Taobao.com, Inc.
-//
-// Created on 2011-03-23 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-// sstable文件管理器
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_sstable_mgr.h for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #ifndef  OCEANBASE_UPDATESERVER_SSTABLE_MGR_H_
 #define  OCEANBASE_UPDATESERVER_SSTABLE_MGR_H_
 #include <sys/types.h>
@@ -30,7 +25,7 @@
 #include <pthread.h>
 #include <new>
 #include <algorithm>
-#include "common/ob_atomic.h"
+#include "ob_atomic.h"
 #include "common/ob_define.h"
 #include "common/ob_vector.h"
 #include "common/page_arena.h"
@@ -44,10 +39,8 @@
 #include "sstable/ob_sstable_schema.h"
 #include "ob_ups_utils.h"
 #include "ob_store_mgr.h"
-#include "ob_schema_mgrv2.h"
 
 #define SSTABLE_SUFFIX ".sst"
-#define SCHEMA_SUFFIX ".schema"
 #define SSTABLE_FNAME_REGEX "^[0-9]+_[0-9]+-[0-9]+_[0-9]+.sst$"
 
 namespace sb {
@@ -93,7 +86,6 @@ class IRowIterator {
   virtual int reset_iter() = 0;
   virtual bool get_compressor_name(common::ObString& compressor_str) = 0;
   virtual bool get_sstable_schema(sstable::ObSSTableSchema& sstable_schema) = 0;
-  virtual const common::ObRowkeyInfo* get_rowkey_info(const uint64_t table_id) const = 0;
   virtual bool get_store_type(int& store_type) = 0;
   virtual bool get_block_size(int64_t& block_size) = 0;
 };
@@ -141,7 +133,6 @@ class StoreInfo : public common::IFileInfo {
   StoreMgr::Handle get_store_handle() const;
  private:
   int get_fd_(int& fd, int mode) const;
-  void remove_schema_file_(const char* path, const char* fname_substr);
  private:
   SSTableInfo* sstable_info_;
   StoreMgr::Handle store_handle_;
@@ -184,18 +175,17 @@ class SSTableInfo {
 };
 
 struct SSTableID {
-  static const uint64_t MINOR_VERSION_BIT = 32;
-  static const uint64_t MAX_MAJOR_VERSION = (1UL << 32) - 1;
-  static const uint64_t MAX_MINOR_VERSION = (1UL << 16) - 1;
+  static const uint64_t MAX_MAJOR_VERSION = (1UL << 48) - 1;
+  static const uint64_t MAX_MINOR_VERSION = (1UL << 8) - 1;
   static const uint64_t MAX_CLOG_ID = INT64_MAX;
   static const uint64_t START_MAJOR_VERSION = 2;
   static const uint64_t START_MINOR_VERSION = 1;
   union {
     uint64_t id;
     struct {
-      uint64_t minor_version_end: 16;
-      uint64_t minor_version_start: 16;
-      uint64_t major_version: 32;
+      uint64_t minor_version_end: 8;
+      uint64_t minor_version_start: 8;
+      uint64_t major_version: 48;
     };
   };
   SSTableID() : id(0) {
@@ -219,15 +209,10 @@ struct SSTableID {
                                 const uint64_t minor_version_start,
                                 const uint64_t minor_version_end) {
     SSTableID sst_id;
-    //sst_id.major_version = major_version;
-    sst_id.id = major_version << MINOR_VERSION_BIT;
-    sst_id.minor_version_start = static_cast<uint16_t>(minor_version_start);
-    sst_id.minor_version_end = static_cast<uint16_t>(minor_version_end);
+    sst_id.major_version = major_version;
+    sst_id.minor_version_start = minor_version_start;
+    sst_id.minor_version_end = minor_version_end;
     return sst_id.id;
-  };
-  static inline const char* log_str(const uint64_t id) {
-    SSTableID sst_id = id;
-    return sst_id.log_str();
   };
   inline bool continous(const SSTableID& other) const {
     bool bret = false;
@@ -245,21 +230,12 @@ struct SSTableID {
   inline const char* log_str() const {
     static const int64_t BUFFER_SIZE = 128;
     static __thread char buffers[2][BUFFER_SIZE];
-    static __thread uint64_t i = 0;
+    static __thread int64_t i = 0;
     char* buffer = buffers[i++ % 2];
     buffer[0] = '\0';
     snprintf(buffer, BUFFER_SIZE, "sstable_id=%lu name=[%lu_%lu-%lu]",
              id, major_version, minor_version_start, minor_version_end);
     return buffer;
-  };
-  int serialize(char* buf, const int64_t buf_len, int64_t& pos) const {
-    return common::serialization::encode_i64(buf, buf_len, pos, (int64_t)id);
-  };
-  int deserialize(const char* buf, const int64_t data_len, int64_t& pos) {
-    return common::serialization::decode_i64(buf, data_len, pos, (int64_t*)&id);
-  };
-  int64_t get_serialize_size(void) const {
-    return common::serialization::encoded_length_i64((int64_t)id);
   };
   static inline int compare(const SSTableID& a, const SSTableID& b) {
     int ret = 0;
@@ -279,36 +255,6 @@ struct SSTableID {
       ret = 0;
     }
     return ret;
-  };
-  static uint64_t trans_format_v1(const uint64_t id) {
-    union SSTableIDV1 {
-      uint64_t id;
-      struct {
-        uint64_t minor_version_end: 8;
-        uint64_t minor_version_start: 8;
-        uint64_t major_version: 48;
-      };
-    };
-    SSTableIDV1 v1;
-    SSTableID sst_id;
-    v1.id = id;
-    //sst_id.major_version = v1.major_version;
-    uint64_t major_version = v1.major_version;
-    sst_id.id = (major_version << MINOR_VERSION_BIT);
-    sst_id.minor_version_start = v1.minor_version_start;
-    sst_id.minor_version_end = v1.minor_version_end;
-    return sst_id.id;
-  };
-};
-
-struct LoadBypassInfo {
-  char fname[common::OB_MAX_FILE_NAME_LENGTH];
-  StoreMgr::Handle store_handle;
-  static bool cmp(const LoadBypassInfo* a, const LoadBypassInfo* b) {
-    return (NULL != a) && (NULL != b) && (strcmp(a->fname, b->fname) < 0);
-  };
-  bool operator ==(const LoadBypassInfo& other) const {
-    return 0 == strcmp(fname, other.fname);
   };
 };
 
@@ -330,11 +276,9 @@ class SSTableMgr : public common::IFileInfoMgr {
  public:
   virtual const common::IFileInfo* get_fileinfo(const uint64_t sstable_id);
   virtual int revert_fileinfo(const common::IFileInfo* file_info);
-  int get_schema(const uint64_t sstable_id, CommonSchemaManagerWrapper& sm);
  public:
   // 需要dump新的sstable时调用 阻塞
-  int add_sstable(const uint64_t sstable_id, const uint64_t clog_id, const int64_t time_stamp,
-                  IRowIterator& iter, const CommonSchemaManager* sm);
+  int add_sstable(const uint64_t sstable_id, const uint64_t clog_id, const int64_t time_stamp, IRowIterator& iter);
   // TableMgr卸载sstable的时候调用 将sstable改名到trash目录
   // 会被TableMgr和StoreMgr调用
   int erase_sstable(const uint64_t sstable_id, const bool remove_sstable_file);
@@ -359,18 +303,9 @@ class SSTableMgr : public common::IFileInfoMgr {
   uint64_t get_min_sstable_id();
   uint64_t get_max_sstable_id();
 
-  // 如果不存在上次的major frozen点，返回0
-  uint64_t get_last_major_frozen_clog_file_id();
   // master调用 用来决定自己的回放点
   // slave调用来传给master
   uint64_t get_max_clog_id();
-
-  int load_sstable_bypass(const uint64_t major_version,
-                          const uint64_t minor_version_start,
-                          const uint64_t minor_version_end,
-                          const uint64_t clog_id,
-                          common::ObList<uint64_t>& table_list,
-                          uint64_t& checksum);
 
   static const char* build_str(const char* fmt, ...);
 
@@ -397,30 +332,14 @@ class SSTableMgr : public common::IFileInfoMgr {
   bool build_sstable_file_(const uint64_t sstable_id, const common::ObString& fpaths,
                            const int64_t time_stamp, IRowIterator& iter);
   bool build_multi_sstable_file_(const common::ObList<StoreMgr::Handle>& store_list,
-                                 SSTableInfo& sstable_info, const int64_t time_stamp,
-                                 IRowIterator& iter, const CommonSchemaManager* sm);
-  bool build_schema_file_(const char* path, const char* fname_substr, const CommonSchemaManager* sm);
-  void add_sstable_file_(const uint64_t sstable_id,
-                         const uint64_t clog_id,
-                         const StoreMgr::Handle store_handle,
-                         const bool invoke_callback);
+                                 SSTableInfo& sstable_info, const int64_t time_stamp, IRowIterator& iter);
+  void add_sstable_file_(const uint64_t sstable_id, const uint64_t clog_id,
+                         const StoreMgr::Handle store_handle);
   bool sstable_exist_(const uint64_t sstable_id);
   void add_sstable_callback_(const uint64_t sstable_id);
   void erase_sstable_callback_(const uint64_t sstable_id);
   void load_dir_(const StoreMgr::Handle store_handle);
-  bool check_sstable_(const char* fpath, uint64_t* sstable_checksum);
-  int prepare_load_info_(const common::ObList<StoreMgr::Handle>& store_list,
-                         common::CharArena& allocator,
-                         common::ObList<LoadBypassInfo*>& info_list);
-  int info_list_uniq_(common::CharArena& allocator,
-                      common::ObList<LoadBypassInfo*>& info_list);
-  void load_list_bypass_(const common::ObList<LoadBypassInfo*>& info_list,
-                         const uint64_t major_version,
-                         const uint64_t minor_version_start,
-                         const uint64_t minor_version_end,
-                         const uint64_t clog_id,
-                         common::ObList<uint64_t>& sstable_list,
-                         uint64_t& checksum);
+  bool check_sstable_(const char* fpath);
  private:
   bool inited_;
 
@@ -439,4 +358,6 @@ class SSTableMgr : public common::IFileInfoMgr {
 }
 
 #endif //OCEANBASE_UPDATESERVER_SSTABLE_MGR_H_
+
+
 

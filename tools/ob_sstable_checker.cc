@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -24,13 +24,11 @@
 #include "tbsys.h"
 #include "common/ob_crc64.h"
 #include "sstable/ob_sstable_writer.h"
-
-#undef OB_SSTABLE_CHECKER_DEBUG
 namespace {
 const int16_t AVERSION = 0;
-const int32_t TRAILER_VERSION3 = 0x300;
+const int32_t TRAILER_VERSION2 = 0x200;
 
-uint64_t __attribute__((unused)) decode_uint64(const char* bufp) {
+uint64_t decode_uint64(const char* bufp) {
   uint64_t val = 0;
 #if __BYTE_ORDER == __LITTLE_ENDIAN
   val = ((uint64_t)((uint8_t) * bufp++) << 56);
@@ -53,17 +51,9 @@ uint32_t decode_uint32(const char* bufp) {
   return val;
 }
 
-int8_t decode_int8(const char* bufp) {
-  int8_t val;
-  val = static_cast<int8_t>(*bufp & 0xf);
-  return val;
-}
-
 int16_t decode_int16(const char* bufp) {
   int16_t val;
-  val = static_cast<int16_t>((*bufp & 0xff) << 8);
-  val = static_cast<int16_t>(val | (*(bufp + 1) & 0xff));
-  //val = static_cast<short unsigned int>(ntohs(*(reinterpret_cast<const uint16_t*>(bufp))));
+  val = ntohs(*(reinterpret_cast<const uint16_t*>(bufp)));
   return val;
 }
 
@@ -96,26 +86,20 @@ void decode_uint32_in_place(uint32_t& value) {
   value = ntohl(value);
 }
 
-void __attribute__((unused)) decode_int8_in_place(int8_t& value) {
-  value = decode_int8(reinterpret_cast<const char*>(&value));
-}
-
 void decode_int16_in_place(int16_t& value) {
-  value = decode_int16(reinterpret_cast<const char*>(&value));
-  //value = static_cast<int16_t>(ntohs(value));
+  value = ntohs(value);
 }
 
 void decode_uint16_in_place(uint16_t& value) {
-  value = decode_int16(reinterpret_cast<const char*>(&value));
-  //value = ntohs(static_cast<uint16_t>(value));
+  value = ntohs(value);
 }
 
 /// @fn compare two buffer
-int __attribute__((unused)) compare_buf(const char* buf1, const int64_t buf1_len, const char* buf2, const int64_t buf2_len) {
-  unsigned int commonlen = static_cast<uint32_t>(std::min<int64_t>(buf1_len, buf2_len));
+int compare_buf(const char* buf1, const int64_t buf1_len, const char* buf2, const int64_t buf2_len) {
+  unsigned int commonlen = std::min<unsigned int>(buf1_len, buf2_len);
   int ret = 0;
   if ((ret = memcmp(buf1, buf2, commonlen)) == 0) {
-    ret = static_cast<int32_t>(buf1_len - buf2_len);
+    ret = buf1_len - buf2_len;
   }
   return ret;
 }
@@ -141,7 +125,7 @@ ObSCRecordHeader* ObSCRecordHeader::deserialize_and_check(char* data_buf,
     int16_t checksum_result = 0;
     int16_t* p_header_short_array
       = reinterpret_cast<int16_t*>(header);
-    size_t header_short_array_size
+    int32_t header_short_array_size
       = sizeof(ObSCRecordHeader) / sizeof(int16_t);
     pos += sizeof(ObSCRecordHeader);
     decode_int16_in_place(header->magic_);
@@ -190,7 +174,7 @@ ObSCRecordHeader* ObSCRecordHeader::deserialize_and_check(char* data_buf,
       err = OB_ERROR;
     }
     if (OB_SUCCESS == err) {
-      for (size_t int16_idx = 0;
+      for (int32_t int16_idx = 0;
            int16_idx < header_short_array_size;
            int16_idx ++) {
         checksum_result ^= p_header_short_array[int16_idx];
@@ -258,7 +242,7 @@ ObSCSSTableTrailer* ObSCSSTableTrailer::deserialize_and_check(char* data_buf,
   }
   if (OB_SUCCESS == err
       && record_header->data_length_ > static_cast<int64_t>(sizeof(ObSCSSTableTrailer))) {
-    TBSYS_LOG(ERROR, "space not enough for ObSCSSTableTrailer, data_length=%d, "
+    TBSYS_LOG(ERROR, "space not enough for ObSCSSTableTrailer, data_length=%ld, "
               "size_of_trailer=%lu", record_header->data_length_,
               sizeof(ObSCSSTableTrailer));
     err = OB_INVALID_ARGUMENT;
@@ -281,27 +265,22 @@ ObSCSSTableTrailer* ObSCSSTableTrailer::deserialize_and_check(char* data_buf,
     decode_int64_in_place(trailer->row_count_);
     decode_uint64_in_place(trailer->sstable_checksum_);
     decode_uint64_in_place(trailer->first_table_id_);
-    decode_int64_in_place(trailer->frozen_time_);
-
-    decode_int64_in_place(trailer->range_record_offset_);
-    decode_int64_in_place(trailer->range_record_size_);
-
     decode_int16_in_place(trailer->row_value_store_style_);
 
-    if (OB_SUCCESS == err && trailer->version_ != TRAILER_VERSION3) {
-      TBSYS_LOG(ERROR, "version error [real:%d,exp:%d]", trailer->version_, TRAILER_VERSION3);
+    if (OB_SUCCESS == err && trailer->version_ != TRAILER_VERSION2) {
+      TBSYS_LOG(ERROR, "version error [real:%d,exp:%d]", trailer->version_, TRAILER_VERSION2);
       err  = OB_ERROR;
     }
-    if (OB_SUCCESS == err && trailer->block_count_ < 0) {
+    if (OB_SUCCESS == err && trailer->block_count_ <= 0) {
       TBSYS_LOG(ERROR, "block_count_ should be greater than 0 [real:%ld]", trailer->block_count_);
       err  = OB_ERROR;
     }
-    if (OB_SUCCESS == err && trailer->block_index_record_offset_ < 0) {
+    if (OB_SUCCESS == err && trailer->block_index_record_offset_ <= 0) {
       TBSYS_LOG(ERROR, "block_index_record_offset_ should be greater than 0 [real:%ld]",
                 trailer->block_index_record_offset_);
       err  = OB_ERROR;
     }
-    if (OB_SUCCESS == err && trailer->block_index_record_size_ < 0) {
+    if (OB_SUCCESS == err && trailer->block_index_record_size_ <= 0) {
       TBSYS_LOG(ERROR, "block_index_record_size_ should be greater than 0 [real:%ld]",
                 trailer->block_index_record_size_);
       err  = OB_ERROR;
@@ -321,12 +300,12 @@ ObSCSSTableTrailer* ObSCSSTableTrailer::deserialize_and_check(char* data_buf,
                 trailer->bloom_filter_record_size_);
       err  = OB_ERROR;
     }
-    if (OB_SUCCESS == err && trailer->blocksize_ < 0) {
+    if (OB_SUCCESS == err && trailer->blocksize_ <= 0) {
       TBSYS_LOG(ERROR, "blocksize_ should be greater than 0 [real:%ld]",
                 trailer->blocksize_);
       err  = OB_ERROR;
     }
-    if (OB_SUCCESS == err && trailer->row_count_ < 0) {
+    if (OB_SUCCESS == err && trailer->row_count_ <= 0) {
       TBSYS_LOG(ERROR, "row_count_ should be greater than 0 [real:%ld]",
                 trailer->row_count_);
       err  = OB_ERROR;
@@ -334,11 +313,6 @@ ObSCSSTableTrailer* ObSCSSTableTrailer::deserialize_and_check(char* data_buf,
     if (OB_SUCCESS == err && trailer->first_table_id_ == OB_INVALID_ID) {
       TBSYS_LOG(ERROR, "first_table_id_ shouldn't be OB_INVALID_ID [real:%lu]",
                 trailer->first_table_id_);
-      err  = OB_ERROR;
-    }
-    if (OB_SUCCESS == err && trailer->frozen_time_ < 0) {
-      TBSYS_LOG(ERROR, "frozen_time_ should be greater than or equal 0 [real:%ld]",
-                trailer->frozen_time_);
       err  = OB_ERROR;
     }
     for (int32_t i = 0;
@@ -396,7 +370,7 @@ int ObSCTableSchemaHeader::deserialize_and_check(char* data_buf,
   }
   if (OB_SUCCESS == err
       && record_header->data_zlength_ < ObSCTableSchemaHeader::get_serialize_size()) {
-    TBSYS_LOG(ERROR, "space not enough for ObSCTableSchemaHeader");
+    TBSYS_LOG(ERROR, "space not enough for ObSCSSTableTrailer");
     err = OB_INVALID_ARGUMENT;
   }
   if (OB_SUCCESS == err) {
@@ -441,9 +415,8 @@ int ObSCTableSchemaHeader::deserialize_and_check(char* data_buf,
     }
 
     if (OB_SUCCESS == err) {
-      uint64_t prev_column_id = static_cast<uint64_t>(-1);
-      int16_t row_key_column_count = 0;
-      for (int16_t i = 0; i < column_count && OB_SUCCESS == err; ++i) {
+      uint64_t prev_column_id = -1;
+      for (int16_t i = 0; i < column_count && OB_SUCCESS == err; i++) {
         schema.column_defs_[i].reserved_ = decode_int16(data_buf + pos);
         pos += sizeof(int16_t);
         schema.column_defs_[i].column_group_id_ = decode_int16(data_buf + pos);
@@ -454,23 +427,16 @@ int ObSCTableSchemaHeader::deserialize_and_check(char* data_buf,
         pos += sizeof(int32_t);
         schema.column_defs_[i].table_id_ = decode_uint32(data_buf + pos);
         pos += sizeof(uint32_t);
-
-        if (schema.column_defs_[i].column_group_id_ == (uint16_t)(OB_INVALID_ID & 0xFFFF)) {
-          ++row_key_column_count;
-        }
-      }
-
-      for (int16_t i = 0; i < column_count && OB_SUCCESS == err; i++) {
         if (schema.column_defs_[i].column_value_type_ < ObNullType
             || schema.column_defs_[i].column_value_type_ >= ObMaxType) {
-          TBSYS_LOG(ERROR, "schema column type error [columnid:%u,type:%d]",
+          TBSYS_LOG(ERROR, "schema column type error [columnid:%lu,type:%d]",
                     schema.column_defs_[i].column_name_id_,
                     schema.column_defs_[i].column_value_type_);
           err = OB_ERROR;
         }
-        if (i > row_key_column_count && schema.column_defs_[i].is_less(schema.column_defs_[i - 1])) {
+        if (i > 0 && schema.column_defs_[i].is_less(schema.column_defs_[i - 1])) {
           TBSYS_LOG(ERROR, "shema column id not increase [index:%hd,current_columnid:%u,"
-                    "prev_columnid:%lu], current_group_id=%u, prev_group_id=%u, "
+                    "prev_columnid:%u], current_group_id=%u, prev_group_id=%u, "
                     "current_table_id=%u, prev_table_id=%u",
                     i, schema.column_defs_[i].column_name_id_, prev_column_id,
                     schema.column_defs_[i].column_group_id_,
@@ -480,14 +446,14 @@ int ObSCTableSchemaHeader::deserialize_and_check(char* data_buf,
           err = OB_ERROR;
         }
         if (OB_SUCCESS == err && schema.column_defs_[i].column_name_id_ == 1) {
-          TBSYS_LOG(ERROR, "column id should not be 1 [real:%u]",
+          TBSYS_LOG(ERROR, "column id should not be 1 [real:%lu]",
                     schema.column_defs_[i].column_name_id_);
           err = OB_ERROR;
         }
-        if (OB_SUCCESS == err && i > row_key_column_count &&
-            schema.column_defs_[i].column_group_id_ == (uint16_t)(OB_INVALID_ID & 0xFFFF)) {
-          TBSYS_LOG(ERROR, "column def[%d] column_group_id_ should not be OB_INVALID_ID [real:%u]",
-                    i, schema.column_defs_[i].column_group_id_);
+        if (OB_SUCCESS == err && schema.column_defs_[i].column_group_id_
+            == (uint16_t)(OB_INVALID_ID & 0xFFFF)) {
+          TBSYS_LOG(ERROR, "column def column_group_id_ should not be OB_INVALID_ID [real:%u]",
+                    schema.column_defs_[i].column_group_id_);
           err = OB_ERROR;
         }
         if (OB_SUCCESS == err && schema.column_defs_[i].table_id_
@@ -527,29 +493,18 @@ ObSCSSTableBlockIndexHeader* ObSCSSTableBlockIndexHeader::deserialize_and_check(
     block_index = reinterpret_cast<ObSCSSTableBlockIndexHeader*>(record_header->payload_);
     decode_int64_in_place(block_index->sstable_block_count_);
     decode_int32_in_place(block_index->end_key_char_stream_offset_);
-    decode_int16_in_place(block_index->rowkey_flag_);
-    decode_int16_in_place(block_index->reserved16_);
-    for (uint32_t i = 0; i < sizeof(block_index->reserved64_) / sizeof(int64_t); ++i) {
-      decode_int64_in_place(block_index->reserved64_[i]);
-    }
-
     if (OB_SUCCESS == err && block_index->sstable_block_count_ <= 0) {
-      TBSYS_LOG(ERROR, "sstable_block_count_ should be greater than 0 [real:%ld]",
+      TBSYS_LOG(ERROR, "sstable_block_count_ shoul be greater than 0 [real:%ld]",
                 block_index->sstable_block_count_);
       err = OB_ERROR;
     }
     if (OB_SUCCESS == err && block_index->end_key_char_stream_offset_ <= 0) {
-      TBSYS_LOG(ERROR, "end_key_char_stream_offset_ should be greater than 0 [real:%ld]",
+      TBSYS_LOG(ERROR, "end_key_char_stream_offset_ shoul be greater than 0 [real:%ld]",
                 block_index->sstable_block_count_);
       err = OB_ERROR;
     }
-    if (OB_SUCCESS == err && block_index->rowkey_flag_ != 1) {
-      TBSYS_LOG(ERROR, "rowkey_flag_ should be 1[real:%d]",
-                block_index->rowkey_flag_);
-      err = OB_ERROR;
-    }
-    if (OB_SUCCESS == err && block_index->reserved16_ != 0) {
-      TBSYS_LOG(ERROR, "reserved16_ should be 0 [real:%d]",  block_index->reserved16_);
+    if (OB_SUCCESS == err && block_index->reserved32_ != 0) {
+      TBSYS_LOG(ERROR, "reserved32_ shoul be 0 [real:%d]",  block_index->reserved32_);
       err = OB_ERROR;
     }
     for (uint32_t i = 0;
@@ -803,7 +758,7 @@ int sb::chunkserver::ObSCSSTableChecker::check(const char* sstable_fname) {
         err = OB_ERROR;
       }
       if (OB_SUCCESS == err && pos != need_size) {
-        TBSYS_LOG(ERROR, "check trailer internal error, pos=%ld, need_size=%ld", pos, need_size);
+        TBSYS_LOG(ERROR, "internal error");
         err = OB_ERROR;
       }
     }
@@ -874,80 +829,25 @@ int sb::chunkserver::ObSCSSTableChecker::check(const char* sstable_fname) {
       if (OB_SUCCESS == err) {
         err = bloom_filter_readed_.init(BLOOM_FILTER_ITEMS_ESTIMATE);
         if (OB_SUCCESS == err) {
-          err = bloom_filter_readed_.init(trailer_->bloom_filter_hash_count_, (int64_t)bloom_filter_record_->data_zlength_);
+          err = bloom_filter_readed_.set_num_hash_functions(trailer_->bloom_filter_hash_count_);
         }
         if (OB_SUCCESS == err) {
-          err = bloom_filter_readed_.set_buffer((uint8_t*)bloom_filter_record_->payload_,
+          err = bloom_filter_readed_.set_bitmap(bloom_filter_record_->payload_,
                                                 bloom_filter_record_->data_zlength_);
         }
       }
       /// init self filter
       if (OB_SUCCESS == err) {
         err = bloom_filter_generated_.init(BLOOM_FILTER_ITEMS_ESTIMATE);
-      }
-    }
-  }
-
-  /// read range
-  if (OB_SUCCESS == err) {
-    int ret = OB_SUCCESS;
-    int64_t range_offset = trailer_->range_record_offset_;
-    int64_t range_size = trailer_->range_record_size_;
-
-    range_.reset();
-
-    if (range_offset <= 0 || range_size <= 0) {
-      TBSYS_LOG(ERROR, "range_offset:%ld, range_size:%ld is illegal",
-                range_offset, range_size);
-      ret = OB_INVALID_ARGUMENT;
-    } else {
-      ObSCRecordHeader* record_header = NULL;
-      if (NULL == range_buffer_.malloc(range_size)) {
-        TBSYS_LOG(ERROR, "failed to malloc range_buffer_");
-        ret = OB_ALLOCATE_MEMORY_FAILED;
-      }
-
-      char* range_buf = static_cast<char*>(range_buffer_.get_buffer());
-      int64_t readed_size = pread(sstable_fd, range_buf, range_size, range_offset);
-      if (readed_size != range_size) {
-        TBSYS_LOG(WARN, "fail to read range [offset:%ld,need_size:%ld,"
-                  "readed_size:%ld,errno:%d]error: %s",
-                  range_offset, range_size, readed_size, errno, strerror(errno));
-        err = OB_ERR_SYS;
-      }
-
-      int64_t pos = 0;
-      int64_t size = range_size;
-      record_header = ObSCRecordHeader::deserialize_and_check(range_buf, size, pos,
-                                                              ObSSTableWriter::RANGE_MAGIC);
-      if (record_header == NULL) {
-        err = OB_ERROR;
-        TBSYS_LOG(ERROR, "fail to deserialize sstable key_stream:'s record head");
-      }
-
-      if (OB_SUCCESS == ret) {
-        if (record_header->data_length_ == record_header->data_zlength_) {
-          pos = 0;
-          range_.start_key_.assign(start_key_obj_array, OB_MAX_ROWKEY_COLUMN_NUMBER);
-          range_.end_key_.assign(end_key_obj_array, OB_MAX_ROWKEY_COLUMN_NUMBER);
-
-          ret = range_.deserialize(record_header->payload_, record_header->data_length_, pos);
-          if (OB_SUCCESS != ret) {
-            TBSYS_LOG(ERROR, "failed to deserialize range: payload_ptr %p,"
-                      " payload_size %d, pos %ld", record_header->payload_, record_header->data_length_, pos);
-          }
-        } else {
-          // compressed range buf
-          TBSYS_LOG(ERROR, "range is in compressed format, "
-                    "but expect uncompressed format");
-          ret = OB_ERROR;
+        if (OB_SUCCESS == err) {
+          err = bloom_filter_generated_.set_num_hash_functions(trailer_->bloom_filter_hash_count_);
         }
       }
     }
   }
 
   /// reading block index
-  if (OB_SUCCESS == err && trailer_->block_index_record_size_ != 0) {
+  if (OB_SUCCESS == err) {
     read_offset = trailer_->block_index_record_offset_;
     need_size = trailer_->block_index_record_size_;
     if (NULL == block_index_buffer_.malloc(need_size)) {
@@ -979,18 +879,14 @@ int sb::chunkserver::ObSCSSTableChecker::check(const char* sstable_fname) {
   if (OB_SUCCESS == err) {
     err = check_offset_size(sstable_stat.st_size);
   }
-  if (OB_SUCCESS == err && trailer_->block_index_record_size_ != 0 &&
-      trailer_->block_count_ != block_index_->sstable_block_count_) {
+  if (OB_SUCCESS == err && trailer_->block_count_ != block_index_->sstable_block_count_) {
     TBSYS_LOG(WARN, "block count in block index and trailer not coincident "
               "[block_index.block_count:%ld,trailer.block_count:%ld]",
               block_index_->sstable_block_count_, trailer_->block_count_);
     err = OB_ERROR;
   }
-  if (OB_SUCCESS == err && trailer_->block_index_record_size_ != 0) {
+  if (OB_SUCCESS == err) {
     err = check_rowkey_order(sstable_fd);
-    if (OB_SUCCESS != err) {
-      TBSYS_LOG(WARN, "failed to check rowkey_order, ret=%d", err);
-    }
   }
   if (sstable_fd >= 0) {
     close(sstable_fd);
@@ -999,24 +895,47 @@ int sb::chunkserver::ObSCSSTableChecker::check(const char* sstable_fname) {
   return err;
 }
 
-int sb::chunkserver::ObSCSSTableChecker::check_row(const char* current_row, const int64_t row_len,
-                                                   common::ObRowkey& row_key, const int32_t column_count) {
-  int ret = OB_SUCCESS;
+int sb::chunkserver::ObSCSSTableChecker::check_row(const char* row, const int64_t row_len,
+                                                   const char*& key, int64_t& key_len) {
+  int err = 0;
+  const char* row_columns = NULL;
+  int64_t row_columns_size = 0;
+  int16_t rowkey_len = *reinterpret_cast<const int16_t*>(row);
+  decode_int16_in_place(rowkey_len);
+  if (rowkey_len <= 0) {
+    TBSYS_LOG(WARN, "rowkey len should be greater than 0 [rowkey_len:%hd]", rowkey_len);
+    err = OB_ERROR;
+  }
+  if (OB_SUCCESS == err && (rowkey_len + static_cast<int64_t>(sizeof(int16_t))) > row_len) {
+    TBSYS_LOG(WARN, "record didn't has enough space [rowkey_len:%hd,row_len:%ld]",
+              rowkey_len, row_len);
+    err = OB_ERROR;
+  }
+  if (OB_SUCCESS == err) {
+    key = row + sizeof(int16_t);
+    key_len = rowkey_len;
+  }
+  row_columns = key + key_len;
+  row_columns_size = row_len - (row_columns - row);
   int64_t pos = 0;
-  common::ObObj obj;
-  if (OB_SUCCESS != (ret = row_key.deserialize_objs(current_row, row_len, pos))) {
-    TBSYS_LOG(WARN, "failed to deserialize row key,ret=%d", ret);
-  } else {
-    for (int32_t i = static_cast<int32_t>(row_key.get_obj_cnt()); i < column_count && OB_SUCCESS == ret; ++i) {
-      ret = obj.deserialize(current_row, row_len, pos);
-      if (OB_SUCCESS != ret) {
-        TBSYS_LOG(WARN, "failed to deserialize obj[%d] row_len=%ld pos=%ld ret=%d",
-                  i, row_len, pos, ret);
+  /// @todo (wushi wushi.ly@taobao.com) check the row completely
+  /// check column type
+  if (OB_SUCCESS == err) {
+    sb::common::ObObj obj;
+    while (pos < row_columns_size && OB_SUCCESS == err) {
+      err = obj.deserialize(row_columns, row_columns_size, pos);
+      if (OB_SUCCESS != err) {
+        TBSYS_LOG(WARN, "fail to deserialize column [pos:%ld, row_columns_size:%ld,error:%d]",
+                  pos, row_columns_size, err);
       }
     }
+    if (OB_SUCCESS == err && pos != row_columns_size) {
+      TBSYS_LOG(ERROR, "internal error, pos=%ld, row_columns_size=%ld",
+                pos, row_columns_size);
+      err = OB_ERROR;
+    }
   }
-
-  return ret;
+  return err;
 }
 
 int sb::chunkserver::ObSCSSTableChecker::check_rowkey_order(const int sstable_fd) {
@@ -1024,8 +943,8 @@ int sb::chunkserver::ObSCSSTableChecker::check_rowkey_order(const int sstable_fd
   const char* cur_block_end_key = reinterpret_cast<char*>(block_index_) +
                                   block_index_->end_key_char_stream_offset_;
   int64_t cur_block_end_key_size = 0;
-  const char* __attribute__((unused)) prev_key = NULL;
-  int64_t __attribute__((unused)) prev_key_size = 0;
+  const char* prev_key = NULL;
+  int64_t prev_key_size = 0;
   int64_t block_size = 0;
   int64_t cur_offset = 0;
   int64_t readed_size = 0;
@@ -1033,40 +952,19 @@ int sb::chunkserver::ObSCSSTableChecker::check_rowkey_order(const int sstable_fd
   int64_t pos = 0;
   ObSCSSTableBlockHeader* block = NULL;
   int32_t* row_index_array = NULL;
+  int64_t current_rowkey_len = 0;
+  const char* current_rowkey = NULL;
   uint64_t prev_table_id = OB_INVALID_ID;
   uint64_t cur_table_id = OB_INVALID_ID;
   uint64_t prev_group_id = OB_INVALID_ID;
   uint64_t cur_group_id = OB_INVALID_ID;
-
-  const int32_t column_count = schema_.total_column_count_;
-  int32_t row_key_column_count = 0;
-  ObRowkey prev_row_key;
-  ObRowkey end_row_key;
   bool add_row_count = true;
-  ObSSTableRow row;
-  ObRowkey row_key;
-  common::ObObj row_key_obj_array[common::OB_MAX_ROWKEY_COLUMN_NUMBER];
-  common::ObObj end_row_key_obj_array[common::OB_MAX_ROWKEY_COLUMN_NUMBER];
-
-  for (int32_t i = 0; i < column_count; ++i) {
-    if (schema_.column_defs_[i].column_group_id_ == (uint16_t)(OB_INVALID_ID & 0xFFFF)) {
-      ++row_key_column_count;
-    }
-  }
-  row_key.assign(row_key_obj_array, row_key_column_count);
-  end_row_key.assign(end_row_key_obj_array, row_key_column_count);
 
   for (int64_t blockid = 0;
        blockid < trailer_->block_count_ && OB_SUCCESS == err;
        blockid ++) {
     TBSYS_LOG(DEBUG, "begin to check block [blockid:%ld]", blockid);
     cur_block_end_key_size = block_index_->block_info_array_[blockid].block_end_key_size_;
-    int64_t tmp_pos = 0;
-    err = end_row_key.deserialize_objs(cur_block_end_key, cur_block_end_key_size, tmp_pos);
-    if (0 != err) {
-      TBSYS_LOG(ERROR, "failed to deserialize end key of cur block, blockid=%ld, ret=%d", blockid, err);
-    }
-
     block_size = block_index_->block_info_array_[blockid].block_record_size_;
     cur_table_id = block_index_->block_info_array_[blockid].table_id_;
     cur_group_id = block_index_->block_info_array_[blockid].column_group_id_;
@@ -1078,11 +976,13 @@ int sb::chunkserver::ObSCSSTableChecker::check_rowkey_order(const int sstable_fd
         prev_table_id = cur_table_id;
         prev_group_id = cur_group_id;
         add_row_count = true;
-        prev_row_key.set_min_row();
+        prev_key = NULL;
+        prev_key_size = 0;
       } else if (cur_table_id == prev_table_id && prev_group_id != cur_group_id) {
         prev_group_id = cur_group_id;
         add_row_count = false;
-        prev_row_key.set_min_row();
+        prev_key = NULL;
+        prev_key_size = 0;
       }
     }
     pos = 0;
@@ -1124,72 +1024,49 @@ int sb::chunkserver::ObSCSSTableChecker::check_rowkey_order(const int sstable_fd
       for (int64_t row_id = 0; row_id < block->row_count_ && OB_SUCCESS == err; row_id ++) {
         current_row_len = row_index_array[row_id + 1]  - row_index_array[row_id];
         current_row = reinterpret_cast<const char*>(block) + row_index_array[row_id];
-        err = check_row(current_row, current_row_len, row_key, column_count);
-        if (OB_SUCCESS != err) {
-          TBSYS_LOG(WARN, "failed to check row, ret=%d", err);
+        err = check_row(current_row, current_row_len, current_rowkey, current_rowkey_len);
+        if (OB_SUCCESS == err) {
+          key_str.assign(const_cast<char*>(current_rowkey), current_rowkey_len);
         }
-
         /// @fn check bloom filter
-        int64_t bf_key_size = row_key.get_serialize_size() + sizeof(int16_t) + sizeof(int16_t) + sizeof(int32_t);
-        if (OB_SUCCESS != (err = bf_key_buf_.ensure_space(bf_key_size))) {
-          TBSYS_LOG(WARN, "failed to ensure space for bloom filter key buf, ret=%d", err);
-        }
-        char* bf_key_buf = bf_key_buf_.get_buffer();
-        int64_t pos = 0;
-        //generate bloom filter key with table_id, column_group_id, row_key
-        if (OB_SUCCESS !=
-            (err = serialization::encode_i16(bf_key_buf, bf_key_size, pos, 0))) {
-          TBSYS_LOG(WARN, "failed to encode 0 of bloom filter, ret=%d", err);
-        } else if (OB_SUCCESS !=
-                   (err = serialization::encode_i16(bf_key_buf, bf_key_size, pos, static_cast<int16_t>(cur_group_id)))) {
-          TBSYS_LOG(WARN, "failed to encode cur_groupd_id[%lu] of bloom filter, ret=%d", cur_group_id, err);
-        } else if (OB_SUCCESS !=
-                   (err = serialization::encode_i32(bf_key_buf, bf_key_size, pos, static_cast<int32_t>(cur_table_id)))) {
-          TBSYS_LOG(WARN, "failed to encode cur_table_id[%lu] of bloom filter, ret=%d", cur_table_id, err);
-        } else if (OB_SUCCESS !=
-                   (err = row_key.serialize(bf_key_buf, bf_key_size, pos))) {
-        }
-        /*
-        else if (!bloom_filter_readed_.may_contain(bf_key_buf, bf_key_size))
-        {
-          TBSYS_LOG(WARN, "bloom filter check fail [rowid:%ld], %s",row_id, to_cstring(row_key));
+        if (OB_SUCCESS == err && !bloom_filter_readed_.may_contain(key_str)) {
+          TBSYS_LOG(WARN, "bloom filter check fail [rowid:%ld]", row_id);
           err = OB_ERROR;
         }
-        */
-
         /// check key order
-        if (OB_SUCCESS == err && blockid > 0 && (cur_table_id < prev_table_id
-                                                 || (cur_table_id == prev_table_id && cur_group_id < prev_group_id)
-                                                 || (cur_table_id == prev_table_id && cur_group_id == prev_group_id
-                                                     && prev_row_key < row_key))) {
+        if (OB_SUCCESS == err && (cur_table_id < prev_table_id
+                                  || (cur_table_id == prev_table_id && cur_group_id < prev_group_id)
+                                  || (cur_table_id == prev_table_id && cur_group_id == prev_group_id
+                                      && compare_buf(prev_key, prev_key_size,
+                                                     current_rowkey, current_rowkey_len) >= 0))) {
           TBSYS_LOG(WARN, "current row key isn't bigger than previous one "
                     "cur_table_id=%lu, prev_table_id=%lu, "
                     "cur_group_id=%lu, prev_group_id=%lu, "
-                    "[current_row_id:%ld]\n"
-                    "prev_row_key: %s\n"
-                    "row_key:      %s",
-                    cur_table_id, prev_table_id, cur_group_id, prev_group_id, row_id,
-                    to_cstring(prev_row_key), to_cstring(row_key));
+                    "[current_row_id:%ld]",
+                    cur_table_id, prev_table_id, cur_group_id, prev_group_id, row_id);
+          hex_dump(current_rowkey, current_rowkey_len, true, TBSYS_LOG_LEVEL_ERROR);
+          hex_dump(prev_key, prev_key_size, true, TBSYS_LOG_LEVEL_ERROR);
           err = OB_ERROR;
         }
         if (OB_SUCCESS == err) {
-          ObMemBufAllocatorWrapper allocator(row_key_buf_);
-          row_key.deep_copy(prev_row_key, allocator);
+          prev_key = current_rowkey;
+          prev_key_size = current_rowkey_len;
         }
       }
       /// check block index last key is equal to the last key in the block
-      if (OB_SUCCESS == err && (cur_table_id != prev_table_id
-                                || cur_group_id != prev_group_id
-                                || row_key != end_row_key)) {
+      if (OB_SUCCESS == err && (cur_table_id < prev_table_id
+                                || (cur_table_id == prev_table_id && cur_group_id < prev_group_id)
+                                || (cur_table_id == prev_table_id && cur_group_id == prev_group_id
+                                    && compare_buf(current_rowkey, current_rowkey_len,
+                                                   cur_block_end_key, cur_block_end_key_size) != 0))) {
         TBSYS_LOG(WARN, "block's end key not coincident with block index [blockid:%ld],"
                   "cur_table_id=%lu, prev_table_id=%lu, "
                   "cur_group_id=lu, prev_group_id=%lu, "
-                  "cur_block_end_key_size=%ld, blockid=%ld\n"
-                  "cur_row_key: %s\n"
-                  "end_row_key: %s\n",
+                  "current_rowkey_len=%ld, cur_block_end_key_size=%ld",
                   cur_table_id, prev_table_id, cur_group_id, prev_group_id,
-                  cur_block_end_key_size, blockid,
-                  to_cstring(row_key), to_cstring(end_row_key));
+                  current_rowkey_len, cur_block_end_key_size, blockid);
+        hex_dump(current_rowkey, current_rowkey_len, true, TBSYS_LOG_LEVEL_ERROR);
+        hex_dump(cur_block_end_key, cur_block_end_key_size, true, TBSYS_LOG_LEVEL_ERROR);
         err = OB_ERROR;
       }
       if (OB_SUCCESS == err) {
@@ -1218,19 +1095,15 @@ int  sb::chunkserver::ObSCSSTableChecker::check_offset_size(const int64_t sstabl
   /// check block offseto
   int err = 0;
   int64_t cur_offset = 0;
-  if (trailer_->block_index_record_size_ != 0) {
-    for (int64_t block_id = 0;
-         OB_SUCCESS == err && block_id < block_index_->sstable_block_count_;
-         block_id ++) {
-      cur_offset += block_index_->block_info_array_[block_id].block_record_size_;
-      if (cur_offset > sstable_file_size) {
-        TBSYS_LOG(WARN, "sstable file size not enough [block_id:%ld,need_size:%ld,actual_size:%ld]",
-                  block_id, cur_offset, sstable_file_size);
-        err = OB_ERROR;
-      }
+  for (int64_t block_id = 0;
+       OB_SUCCESS == err && block_id < block_index_->sstable_block_count_;
+       block_id ++) {
+    cur_offset += block_index_->block_info_array_[block_id].block_record_size_;
+    if (cur_offset > sstable_file_size) {
+      TBSYS_LOG(WARN, "sstable file size not enough [block_id:%ld,need_size:%ld,actual_size:%ld]",
+                block_id, cur_offset, sstable_file_size);
+      err = OB_ERROR;
     }
-  } else {
-    TBSYS_LOG(INFO, "empty sstable, skip check block offset");
   }
   /// block index
   if (OB_SUCCESS == err && cur_offset > trailer_->block_index_record_offset_) {
@@ -1318,54 +1191,6 @@ int  sb::chunkserver::ObSCSSTableChecker::check_offset_size(const int64_t sstabl
   return err;
 }
 
-void  sb::chunkserver::ObSCSSTableChecker::dump() {
-#ifdef OB_SSTABLE_CHECKER_DEBUG
-  TBSYS_LOG(INFO, "size_: %d \n"
-            "trailer_version_: %d \n"
-            "table_version_: %ld \n"
-            "first_block_data_offset_: %ld \n"
-            "block_count_: %ld \n"
-            "block_index_record_offset_: %ld \n"
-            "block_index_record_size_: %ld \n"
-            "bloom_filter_hash_count_: %ld \n"
-            "bloom_filter_record_offset_: %ld \n"
-            "bloom_filter_record_size_: %ld \n"
-            "schema_record_offset_: %ld \n"
-            "schema_record_size_: %ld \n"
-            "block_size_: %ld \n"
-            "row_count_: %ld \n"
-            "sstable_checksum_: %lu \n"
-            "first_table_id_: %lu \n"
-            "frozen_time_: %ld \n"
-            "range_record_offset_: %ld \n"
-            "range_record_size_: %ld \n"
-            "compressor_name_: %s \n"
-            "row_value_store_style_: %s \n",
-            trailer_->size_,
-            trailer_->version_,
-            trailer_->table_version_,
-            trailer_->first_block_data_offset_,
-            trailer_->block_count_,
-            trailer_->block_index_record_offset_,
-            trailer_->block_index_record_size_,
-            trailer_->bloom_filter_hash_count_,
-            trailer_->bloom_filter_record_offset_,
-            trailer_->bloom_filter_record_size_,
-            trailer_->schema_record_offset_,
-            trailer_->schema_record_size_,
-            trailer_->blocksize_,
-            trailer_->row_count_,
-            trailer_->sstable_checksum_,
-            trailer_->first_table_id_,
-            trailer_->frozen_time_,
-            trailer_->range_record_offset_,
-            trailer_->range_record_size_,
-            trailer_->compressor_name_,
-            trailer_->row_value_store_style_ == OB_SSTABLE_STORE_DENSE ? "dense" : "sparse");
-#endif
-  TBSYS_LOG(INFO, "range: %s", to_cstring(range_));
-}
-
 int main(int argc , char** argv) {
   int result = 0;
   TBSYS_LOGGER.setLogLevel("INFO");
@@ -1375,14 +1200,8 @@ int main(int argc , char** argv) {
     result = OB_INVALID_ARGUMENT;
   }
   for (int i = 1; i < argc && 0 == result; i++) {
-    ObSCSSTableChecker* checker = new ObSCSSTableChecker();
-    if (checker != NULL) {
-      result = checker->check(argv[i]);
-      checker->dump();
-      delete checker;
-    } else {
-      TBSYS_LOG(WARN, "failed to new ObSCSSTableChecker");
-    }
+    ObSCSSTableChecker checker;
+    result = checker.check(argv[i]);
     if (OB_SUCCESS != result) {
       TBSYS_LOG(WARN, "%s check fail", argv[i]);
     } else {

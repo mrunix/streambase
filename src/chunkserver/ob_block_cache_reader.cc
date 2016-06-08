@@ -1,14 +1,18 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_block_cache_reader.h for read cached block.
+ * Version: 5567
+ *
+ * ob_block_cache_reader.cc
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
+ *     huating <huating.zmq@taobao.com>
+ * Changes:
+ *     qushan <qushan@taobao.com>
  *
  */
 #include <tblog.h>
@@ -23,18 +27,12 @@ using namespace common;
 using namespace common::serialization;
 using namespace sstable;
 
-ObSSTableReader* ObBlockCacheReader::get_sstable_reader(const uint64_t sstable_id,
-                                                        ObTablet*& tablet) {
+ObSSTableReader* ObBlockCacheReader::get_sstable_reader(const uint64_t sstable_id) {
   ObSSTableReader* reader = NULL;
   ObSSTableId sst_id(sstable_id);
-  int ret = OB_SUCCESS;
-  tablet = NULL;
 
   if (NULL != tablet_image_) {
-    ret = tablet_image_->acquire_tablet(sst_id, tablet_version_, tablet);
-    if (OB_SUCCESS == ret && NULL != tablet) {
-      ret = tablet->find_sstable(sst_id, reader);
-    }
+    tablet_image_->acquire_sstable(sst_id, tablet_version_, reader);
   }
 
   return reader;
@@ -145,14 +143,13 @@ int ObBlockCacheReader::read_next_block(ObBlockCache& block_cache,
   const ObSSTableSchemaColumnDef* column_def  = NULL;
   ObDataIndexKey dataindex_key;
   static ObBufferHandle handle; //we must ensure only one thread call this function
-  ObTablet* tablet = NULL;
 
   table_id = OB_INVALID_ID;
   column_group_id = OB_INVALID_ID;
   ret = block_cache.get_next_block(dataindex_key, handle);
   if (OB_SUCCESS == ret) {
     if (NULL == sstable_reader) {
-      reader = get_sstable_reader(dataindex_key.sstable_id, tablet);
+      reader = get_sstable_reader(dataindex_key.sstable_id);
     } else {
       reader = sstable_reader;
     }
@@ -164,7 +161,7 @@ int ObBlockCacheReader::read_next_block(ObBlockCache& block_cache,
     } else if (NULL != (schema = reader->get_schema())
                && NULL != (column_def = schema->get_column_def(0))) {
       table_id = column_def->table_id_;
-      column_group_id = schema->get_table_first_column_group_id(table_id);
+      column_group_id = column_def->column_group_id_;
       ret = parse_record_buffer(handle, dataindex_key.size, reader);
     } else {
       TBSYS_LOG(INFO, "Problem get sstable scheam, sstable id=%lu, reader=%p, "
@@ -180,8 +177,8 @@ int ObBlockCacheReader::read_next_block(ObBlockCache& block_cache,
     TBSYS_LOG(WARN, "load block from obcache failed, ret=%d", ret);
   }
 
-  if (NULL == sstable_reader && NULL != tablet) {
-    ret = tablet_image_->release_tablet(tablet);
+  if (NULL == sstable_reader && NULL != reader) {
+    ret = tablet_image_->release_sstable(tablet_version_, reader);
   }
 
   return ret;
@@ -190,15 +187,14 @@ int ObBlockCacheReader::read_next_block(ObBlockCache& block_cache,
 int ObBlockCacheReader::get_start_key_of_next_block(ObBlockCache& block_cache,
                                                     uint64_t& table_id,
                                                     uint64_t& column_group_id,
-                                                    ObRowkey& start_key,
+                                                    ObString& start_key,
                                                     ObSSTableReader* sstable_reader) {
   int ret                   = OB_SUCCESS;
   const char* start_row     = NULL;
   int64_t pos               = 0;
   int64_t block_header_size = sizeof(ObSSTableBlockHeader);
-  int64_t column_count      = 0;
+  int16_t key_len           = 0;
 
-  UNUSED(start_key);
   do {
     //traverse until find a valid block or reach the end block
     ret = read_next_block(block_cache, table_id, column_group_id, sstable_reader);
@@ -211,15 +207,15 @@ int ObBlockCacheReader::get_start_key_of_next_block(ObBlockCache& block_cache,
       ret = OB_ERROR;
     }
     if (OB_SUCCESS == ret) {
-      sstable_reader->get_schema()->get_rowkey_column_count(table_id, column_count);
       start_row = uncompressed_buf_.get_buffer() + sizeof(ObSSTableBlockHeader);
-      if (column_count == 0) {
-      } else {
-        start_key.assign(const_cast<ObObj*>(start_key.ptr()), column_count);
-        ret = start_key.deserialize_objs(start_row, uncompressed_data_size_ - block_header_size, pos);
-      }
+      ret = decode_i16(start_row, uncompressed_data_size_ - block_header_size,
+                       pos, &key_len);
     }
-
+    if (OB_SUCCESS == ret && key_len > 0) {
+      start_key.assign(const_cast<char*>(start_row + sizeof(int16_t)), key_len);
+    } else {
+      TBSYS_LOG(WARN, "failed to deserialize key length, key_len=%d", key_len);
+    }
   } else if (OB_ITER_END == ret) {
     //complete traversal, do nothing
   }

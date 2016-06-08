@@ -1,8 +1,18 @@
-/// 此单测需要将以下三个函数变成虚函数
-///     ObUpdateServerMain的get_update_server
-///     ObUpdateServer的get_table_mgr
-///     UpsTableMgr的replay
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * test_ob_ups_replay_runnable.cc for ...
+ *
+ * Authors:
+ *   yanran <yanran.hfs@taobao.com>
+ *
+ */
 #include <gtest/gtest.h>
 
 #include "common/ob_log_writer.h"
@@ -212,3 +222,5 @@ int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+
+

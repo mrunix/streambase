@@ -160,7 +160,7 @@ int ObMergeMeta::parse(const char* idx_file) {
   return ret;
 }
 } /* chunkserver */
-} /* oceanbase */
+} /* sb */
 
 
 using namespace sb;

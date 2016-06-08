@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * monitor_tool.cc for ...
+ *
+ * Authors:
+ *   xielun <xielun.szd@taobao.com>
+ *
+ */
 #include <getopt.h>
 
 #include "tbnet.h"
@@ -60,10 +75,8 @@ int ObMonitorClient::clear_cache(const ObServer& server) {
   int64_t timeout = 10 * 1000 * 1000L;
   ObDataBuffer data_buff;
   ThreadSpecificBuffer::Buffer* buffer = rpc_buffer_.get_buffer();
-  if (NULL != buffer) {
-    buffer->reset();
-    data_buff.set_data(buffer->current(), buffer->remain());
-  }
+  buffer->reset();
+  data_buff.set_data(buffer->current(), buffer->remain());
   int err = client_.send_request(server, OB_CLEAR_REQUEST, MY_VERSION, timeout, data_buff);
   if (OB_SUCCESS != err) {
     TBSYS_LOG(WARN, "failed to send request, err=%d", err);
@@ -200,5 +213,7 @@ int main(int argc, char** argv) {
   }
   return ret;
 }
+
+
 
 

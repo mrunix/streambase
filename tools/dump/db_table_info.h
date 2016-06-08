@@ -29,9 +29,12 @@ namespace api {
 const int k2M = 1024 * 1024 * 2;
 const int kTabletDupNr = 3;
 
+typedef common::ObString DbRowKey;
 using namespace sb::common;
 
+
 class DbRecord;
+
 struct TabletSliceLocation {
   TabletSliceLocation()
     : ip_v4(0), cs_port(0), ms_port(0), tablet_version(0), server_avail(false) { }
@@ -41,86 +44,6 @@ struct TabletSliceLocation {
   unsigned short ms_port;
   int64_t tablet_version;
   bool server_avail;
-};
-
-struct TabletStats {
-  TabletStats() : hit_times(0) { }
-
-  int64_t hit_times;
-};
-
-class RefBuffer {
- public:
-  RefBuffer() : ptr_(NULL), ref_(NULL) { }
-
-  ~RefBuffer() {
-    unref();
-  }
-
-  RefBuffer(const RefBuffer& other) {
-    if (other.ref_ != NULL) {
-      __sync_add_and_fetch(&other.ref_->ref_count, 1);
-      ptr_ = other.ptr_;
-      ref_ = other.ref_;
-    } else {
-      ptr_ = NULL;
-      ref_ = NULL;
-    }
-  }
-
-  RefBuffer& operator=(const RefBuffer& other) {
-    if (ptr_ != other.ptr_) {
-      RefBuffer tmp(other);
-      swap(tmp);
-    }
-    return *this;
-  }
-
-  inline char* alloc(int64_t sz) {
-    ptr_ = (char*)ob_malloc(sz, ObModIds::TEST);
-    if (ptr_ != NULL) {
-      ref();
-    }
-    return ptr_;
-  }
-
-  inline void free(char* ptr) {
-    ob_free(ptr);
-  }
-
-  void swap(RefBuffer& other) {
-    std::swap(ptr_, other.ptr_);
-    std::swap(ref_, other.ref_);
-  }
- private:
-  struct RefCtrlBlock {
-    int64_t ref_count;
-    RefCtrlBlock() : ref_count(1) { }
-  };
-
-  void ref() {
-    if (ref_ != NULL) {
-      __sync_add_and_fetch(&ref_->ref_count, 1);
-    } else {
-      ref_ = new(std::nothrow) RefCtrlBlock();
-    }
-  }
-
-  void unref() {
-    if (ref_ != NULL) {
-      int64_t ref_count = __sync_add_and_fetch(&ref_->ref_count, -1);
-      if (ref_count <= 0) {
-        delete ref_;
-        free(ptr_);
-
-        ref_ = NULL;
-        ptr_ = NULL;
-      }
-    }
-  }
- private:
-  char* ptr_;
-  RefCtrlBlock* ref_;
 };
 
 class TabletInfo {
@@ -138,28 +61,21 @@ class TabletInfo {
 
   int parse_from_record(DbRecord* recp);
 
-  int get_one_avail_slice(TabletSliceLocation& loc, const ObRowkey& rowkey);
+  int get_one_avail_slice(TabletSliceLocation& loc, const DbRowKey& rowkey);
 
   TabletSliceLocation slice_[kTabletDupNr];
 
-  const ObRowkey& get_end_key() const;
+  DbRowKey get_end_key();
 
-  int assign_end_key(const ObRowkey& key);
+  int assign_end_key(const DbRowKey& key);
 
-  TabletStats stats() const { return stats_; }
-
-  bool expired(uint64_t timeout) const;
   int64_t ocuppy_size_;
   int64_t record_count_;
  private:
   int parse_one_cell(const common::ObCellInfo* cell);
   int check_validity();
 
-  uint64_t timestamp_;
-  TabletStats stats_;
-  //ObMemBuf rowkey_buffer_;
-  RefBuffer rowkey_buffer_;
-  ObRowkey rowkey_;
+  std::string rowkey_buffer_;
 };
 }
 }

@@ -16,7 +16,7 @@
 
 #ifndef  OB_API_DB_DUMPER_WRITER_INC
 #define  OB_API_DB_DUMPER_WRITER_INC
-#include "oceanbase_db.h"
+#include "sb_db.h"
 #include "db_record_set.h"
 #include "db_parse_log.h"
 #include "db_dumper_config.h"
@@ -24,7 +24,6 @@
 #include "common/file_utils.h"
 #include "common/page_arena.h"
 #include "common/thread_buffer.h"
-#include "file_appender.h"
 
 #include <set>
 #include <list>
@@ -44,11 +43,7 @@ class RowKeyMemStorage;
 class DbDumperWriteHandler {
  public:
   virtual ~DbDumperWriteHandler() { }
-  virtual int push_record(const char* data, int len) {
-    UNUSED(data);
-    UNUSED(len);
-    return OB_SUCCESS;
-  }
+  virtual int push_record(const char* data, int len) { return OB_SUCCESS; }
   virtual int start() { return OB_SUCCESS; }
   virtual void stop() {  }
   virtual uint64_t get_id() { return 0; }
@@ -127,7 +122,7 @@ class DbDumperWriter : public Runnable, public DbDumperWriteHandler {
 
   uint64_t id_;
   std::string path_;
-  AppendableFile* file_;
+  FileUtils file_;
 
   std::list<RecordInfo*> records_;
 

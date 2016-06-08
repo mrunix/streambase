@@ -9,7 +9,6 @@
 #include "stats.h"
 #include "client_rpc.h"
 
-using namespace sb::common;
 
 namespace sb {
 namespace tools {
@@ -23,7 +22,6 @@ struct Present {
     ShowCurrent,
   };
   static const int32_t SERVER_COUNT = 5;
-  static const int64_t SERVER_TYPE_DAILY_MERGE = 5;
   struct Item {
     std::string name;
     int32_t width; // width of showing console
@@ -53,29 +51,11 @@ class ObServerStats : public Stats {
   };
 
  public:
-  explicit ObServerStats(ObClientRpcStub& stub, const common::ObRole server_type)
+  explicit ObServerStats(ObClientRpcStub& stub, const int64_t server_type)
     : rpc_stub_(stub), show_header_(50), show_date_(1) {
     store_.current.set_server_type(server_type);
     store_.prev.set_server_type(server_type);
     store_.diff.set_server_type(server_type);
-    switch (server_type) {
-    case OB_ROOTSERVER:
-      mod_ = OB_STAT_ROOTSERVER;
-      break;
-    case OB_UPDATESERVER:
-      mod_ = OB_STAT_UPDATESERVER;
-      break;
-    case OB_CHUNKSERVER:
-      mod_ = OB_STAT_CHUNKSERVER;
-      break;
-    case OB_MERGESERVER:
-      mod_ = OB_STAT_MERGESERVER;
-      break;
-    default:
-      mod_ = 0;
-      TBSYS_LOG(WARN, "invalid role");
-      break;
-    }
   }
 
   virtual ~ObServerStats() {}
@@ -115,7 +95,6 @@ class ObServerStats : public Stats {
   int32_t show_date_;
   Store store_;
   Present present_;
-  uint64_t mod_;
 };
 
 

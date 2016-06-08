@@ -1,24 +1,20 @@
-////===================================================================
-//
-// ob_ups_cache.h / updateserver / Oceanbase
-//
-// Copyright (C) 2010 Taobao.com, Inc.
-//
-// Created on 2011-02-24 by Rongxuan (rongxuan.lc@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_ups_cache.h for ...
+ *
+ * Authors:
+ *   rongxuan <rongxuan.lc@taobao.com>
+ *
+ */
 #ifndef  OCEANBASE_UPDATESERVER_UPSCACHE_H_
-#define  OCEANBASE_UPDATESERVER_UPSCACHE_H_
+#define  OCEANBASE_UPDATEKSERVER_UPSCACHE_H_
 
 
 #include <string.h>
@@ -32,17 +28,21 @@ namespace updateserver {
 struct ObUpsCacheKey {
   uint64_t table_id: 16;
   uint64_t column_id: 16;
-  uint32_t reserve;
-  common::ObRowkey row_key;
-  ObUpsCacheKey(): table_id(0), column_id(0), row_key() {
+  int32_t nbyte;
+  char* buffer;
+  ObUpsCacheKey(): table_id(0), column_id(0), nbyte(0), buffer(NULL) {
   };
   int64_t hash() const {
-    return row_key.murmurhash2(table_id + column_id);
+    int64_t hash_for_int = common::murmurhash2(this, sizeof(ObUpsCacheKey) - sizeof(char*), 0);
+    int64_t hash_for_rowkey = common::murmurhash2(this->buffer, nbyte, 0);
+
+    return (hash_for_int + hash_for_rowkey);
   };
   bool operator == (const ObUpsCacheKey& other) const {
     return (table_id == other.table_id
             && column_id == other.column_id
-            && row_key == other.row_key);
+            && nbyte == other.nbyte
+            && 0 == strncmp(buffer, other.buffer, nbyte));
   };
 };
 struct ObUpsCacheValue {
@@ -71,18 +71,15 @@ inline updateserver::ObUpsCacheKey* do_copy(const updateserver::ObUpsCacheKey& o
   if (NULL != ret) {
     ret->table_id = other.table_id;
     ret->column_id = other.column_id;
-    BufferAllocator allocator(buffer + sizeof(updateserver::ObUpsCacheKey));
-    int tmp_ret = other.row_key.deep_copy(ret->row_key, allocator);
-    if (OB_SUCCESS != tmp_ret) {
-      TBSYS_LOG(WARN, "deep_copy rowkey fail ret=%d", tmp_ret);
-      ret = NULL;
-    }
+    ret->nbyte = other.nbyte;
+    ret->buffer = buffer + sizeof(updateserver::ObUpsCacheKey);
+    memcpy(ret->buffer, other.buffer, other.nbyte);
   }
   return ret;
 }
 
 inline int32_t do_size(const updateserver::ObUpsCacheKey& key, UPSCacheKeyDeepCopyTag) {
-  return (static_cast<int32_t>(sizeof(updateserver::ObUpsCacheKey) + key.row_key.get_deep_copy_size()));
+  return (sizeof(updateserver::ObUpsCacheKey) + key.nbyte);
 }
 
 inline void do_destroy(updateserver::ObUpsCacheKey* key, UPSCacheKeyDeepCopyTag) {
@@ -119,7 +116,7 @@ inline int32_t do_size(const updateserver::ObUpsCacheValue& value, ObUpsCacheVal
   common::ObString strVal;
   value.value.get_varchar(strVal);
   int32_t length = strVal.length();
-  return static_cast<int32_t>(sizeof(updateserver::ObUpsCacheValue)) + length;
+  return (sizeof(updateserver::ObUpsCacheValue) + length);
 }
 
 inline void do_destroy(updateserver::ObUpsCacheValue* value, ObUpsCacheValueDeepCopyTag) {
@@ -138,29 +135,26 @@ class ObUpsCache {
  public:
   friend class ObBufferHandle;
   friend class test::TestBlockCacheHelper;
-  static const int64_t MIN_KVCACHE_SIZE = 1024L * 1024L * 100L; //100M
+  static const int64_t MIN_KVCACHE_SIZE = 1024L * 1024L * 500L; //500M
   static const int64_t KVCACHE_ITEM_SIZE = 128;
   static const int64_t KVCACHE_BLOCK_SIZE = 1024L * 1024L; //1M
-  typedef common::KeyValueCache<ObUpsCacheKey, ObUpsCacheValue,
-          KVCACHE_ITEM_SIZE, KVCACHE_BLOCK_SIZE,
-          common::KVStoreCacheComponent::SingleObjFreeList,
-          common::hash::SpinReadWriteDefendMode> KVCache;
+  typedef common::KeyValueCache<ObUpsCacheKey, ObUpsCacheValue, KVCACHE_ITEM_SIZE, KVCACHE_BLOCK_SIZE> KVCache;
   typedef common::CacheHandle Handle;
  public:
   ObUpsCache();
   ~ObUpsCache();
 
-  int init(const int64_t cache_size = 0);
+  int init(const int64_t cache_size, const int64_t max_cache_size_limit);
   int destroy();
   // 获取某个缓存项
   // 如果缓存项存在，返回OB_SUCCESS; 如果缓存项不存在，返回OB_NOT_EXIST；否则，返回OB_ERROR
   int get(const uint64_t table_id,
-          const common::ObRowkey& row_key, ObBufferHandle& buffer_handle,
+          const common::ObString& row_key, ObBufferHandle& buffer_handle,
           const uint64_t column_id, updateserver::ObUpsCacheValue& value);
 
   // 加入缓存项
   int put(const uint64_t table_id,
-          const common::ObRowkey& row_key,
+          const common::ObString& row_key,
           const uint64_t column_id,
           const updateserver::ObUpsCacheValue& value);
 
@@ -170,18 +164,26 @@ class ObUpsCache {
   //在查询缓存是需要转换为0的。
   // 如果缓存项存在，返回OB_SUCCESS; 如果缓存项不存在，返回OB_NOT_EXIST；否则，返回OB_ERROR；
   int is_row_exist(const uint64_t table_id,
-                   const common::ObRowkey& row_key,
+                   const common::ObString& row_key,
                    bool& is_exist,
                    ObBufferHandle& buffer_handle);
 
   // 设置行是否存在标志，行不存在也需要记录到缓存中
-  int set_row_exist(const uint64_t table_id, const common::ObRowkey& row_key, const bool is_exist);
+  int set_row_exist(const uint64_t table_id, const common::ObString& row_key, const bool is_exist);
 
  private:
+
+  // 设置缓存大小限制，单位为字节
+  void set_cache_size_limit(const int64_t cache_size);
+
   //设置缓存占用内存，单位为字节
   void set_cache_size(const int64_t cache_size);
 
  public:
+
+  // 获取缓存大小限制，单位为字节
+  int64_t get_cache_size_limit(void);
+
   // 获取缓存占用的内存，单位为字节
   int64_t get_cache_size(void);
 
@@ -191,6 +193,7 @@ class ObUpsCache {
  private:
   bool inited_;
   KVCache kv_cache_;
+  int64_t max_cache_size_limit_;
   int64_t cache_size_;
 };
 
@@ -253,3 +256,5 @@ class ObBufferHandle {
 }
 
 #endif //OCEANBAST_UPDATESERVER_UPSCACHE_H
+
+

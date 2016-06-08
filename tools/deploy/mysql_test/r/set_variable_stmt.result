@@ -1,5 +1,0 @@
-set @@global.autocommit=1;
-set @@global.autocommit='1';
-ERROR HY004: type not match
-set @@session.autocommit='1';
-ERROR HY004: type not match

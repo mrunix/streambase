@@ -1,37 +1,36 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * test_tablemgr.cc for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #include "updateserver/ob_update_server_main.h"
 #include "updateserver/ob_update_server.h"
 #include "updateserver/ob_table_mgr.h"
-#include "test_helper.h"
-#include "test_utils.h"
-#include "../common/test_rowkey_helper.h"
 
 using namespace sb;
 using namespace common;
 using namespace updateserver;
 
-static CharArena allocator_;
 #define UPS ObUpdateServerMain::get_instance()->get_update_server()
-
-class MockLogMgr : public ObILogWriter {
- public:
-  int switch_log_file(uint64_t& new_log_file_id) {
-    TBSYS_LOG(INFO, "[MOCK] new_log_file_id=%lu", new_log_file_id);
-    return OB_SUCCESS;
-  };
-  int write_replay_point(uint64_t replay_point) {
-    TBSYS_LOG(INFO, "[MOCK] replay_point=%lu", replay_point);
-    return OB_SUCCESS;
-  };
-};
 
 void fill_memtable(MemTable& memtable) {
   ObUpsMutator mutator;
   ObMutatorCellInfo cellinfo;
-  uint64_t trans_descriptor = 0;
+  MemTableTransHandle handle;
 
   cellinfo.op_type.set_ext(ObActionFlag::OP_INSERT);
   cellinfo.cell_info.table_id_ = 1001;
-  cellinfo.cell_info.row_key_ = make_rowkey("rk0001_00000000000", &allocator_);
+  cellinfo.cell_info.row_key_.assign("rk0001_00000000000", 17);
   cellinfo.cell_info.column_id_ = 5;
   cellinfo.cell_info.value_.set_int(1023);
   int ret = mutator.get_mutator().add_cell(cellinfo);
@@ -41,11 +40,11 @@ void fill_memtable(MemTable& memtable) {
   ret = mutator.get_mutator().add_cell(cellinfo);
   assert(OB_SUCCESS == ret);
 
-  cellinfo.cell_info.row_key_ = make_rowkey("rk0002_00000000000", &allocator_);
+  cellinfo.cell_info.row_key_.assign("rk0002_00000000000", 17);
   ret = mutator.get_mutator().add_cell(cellinfo);
   assert(OB_SUCCESS == ret);
 
-  cellinfo.cell_info.row_key_ = make_rowkey("rk0003_00000000000", &allocator_);
+  cellinfo.cell_info.row_key_.assign("rk0003_00000000000", 17);
   ret = mutator.get_mutator().add_cell(cellinfo);
   assert(OB_SUCCESS == ret);
 
@@ -54,25 +53,18 @@ void fill_memtable(MemTable& memtable) {
   ret = mutator.get_mutator().add_cell(cellinfo);
   assert(OB_SUCCESS == ret);
 
-  prepare_mutator(mutator.get_mutator());
-
-  ret = memtable.start_transaction(WRITE_TRANSACTION, trans_descriptor);
+  ret = memtable.start_transaction(WRITE_TRANSACTION, handle);
   assert(OB_SUCCESS == ret);
-  ret = memtable.start_mutation(trans_descriptor);
+  ret = memtable.set(handle, mutator);
   assert(OB_SUCCESS == ret);
-  ret = memtable.set(trans_descriptor, mutator);
-  assert(OB_SUCCESS == ret);
-  ret = memtable.end_mutation(trans_descriptor, false);
-  assert(OB_SUCCESS == ret);
-  ret = memtable.end_transaction(trans_descriptor, false);
+  ret = memtable.end_transaction(handle);
   assert(OB_SUCCESS == ret);
 }
 
-void get_table(TableMgr& tm, const ObList<ITableEntity*>& tlist) {
+void get_table(const ObList<ITableEntity*>& tlist) {
   int ret = OB_SUCCESS;
-  ITableEntity::Guard guard(tm.get_resource_pool());
   uint64_t table_id = 1001;
-  ObString row_key(17, 17, (char*)"rk0001_00000000000");
+  ObString row_key(17, 17, "rk0001_00000000000");
   ObList<ITableEntity*>::const_iterator iter;
   int64_t index = 0;
   for (iter = tlist.begin(); iter != tlist.end(); iter++, index++) {
@@ -82,26 +74,27 @@ void get_table(TableMgr& tm, const ObList<ITableEntity*>& tlist) {
     assert(NULL != table_utils);
     table_utils->reset();
 
-    uint64_t trans_descriptor = table_utils->get_trans_descriptor();
+    TableTransHandle* trans_handle = &(table_utils->get_trans_handle());
+    assert(NULL != trans_handle);
 
-    ITableIterator* titer = table_entity->alloc_iterator(tm.get_resource_pool(), guard);;
+    ITableIterator* titer = &(table_utils->get_table_iter());
     assert(NULL != titer);
 
     ColumnFilter* cf = ITableEntity::get_tsi_columnfilter();
     assert(NULL != cf);
     cf->add_column(0);
 
-    ret = table_entity->start_transaction(trans_descriptor);
+    ret = table_entity->start_transaction(*trans_handle);
     assert(OB_SUCCESS == ret);
 
-    //ret = table_entity->get(trans_descriptor, table_id, row_key, cf, titer);
+    //ret = table_entity->get(*trans_handle, table_id, row_key, cf, titer);
     //assert(OB_SUCCESS == ret);
-    ObNewRange range;
+    ObRange range;
     range.table_id_ = table_id;
     range.border_flag_.set_inclusive_start();
     range.border_flag_.set_inclusive_end();
-    range.start_key_ =  make_rowkey("rk0001_00000000000", &allocator_);
-    range.end_key_ =  make_rowkey("rk0002_00000000000", &allocator_);
+    range.start_key_.assign_ptr("rk0001_0000000000", 17);
+    range.end_key_.assign_ptr("rk0002_0000000000", 17);
     //range.border_flag_.set_min_value();
     //range.border_flag_.set_max_value();
     ObScanParam scan_param;
@@ -110,19 +103,19 @@ void get_table(TableMgr& tm, const ObList<ITableEntity*>& tlist) {
     scan_param.add_column(5);
     scan_param.add_column(6);
     scan_param.add_column(7);
-    ret = table_entity->scan(trans_descriptor, scan_param, titer);
+    ret = table_entity->scan(*trans_handle, scan_param, titer);
 
     while (OB_SUCCESS == titer->next_cell()) {
       ObCellInfo* cell_info = NULL;
       bool is_row_changed = false;
       if (OB_SUCCESS == titer->get_cell(&cell_info, &is_row_changed)) {
-        fprintf(stderr, "[result] %s %d\n", common::print_cellinfo(cell_info), is_row_changed);
+        fprintf(stderr, "[result] %s %d\n", print_cellinfo(cell_info), is_row_changed);
       }
     }
     fprintf(stderr, "[result] ==========\n");
 
     table_utils->reset();
-    ret = table_entity->end_transaction(trans_descriptor);
+    ret = table_entity->end_transaction(*trans_handle);
     assert(OB_SUCCESS == ret);
 
   }
@@ -139,33 +132,31 @@ int main(int argc, char** argv) {
   char* root = argv[1];
   char* raid = argv[2];
   char* store = argv[3];
-  MockLogMgr mlm;
-  TableMgr tm(mlm);
+  TableMgr tm;
   SSTableMgr& sstm = UPS.get_sstable_mgr();
   CommonSchemaManagerWrapper schema_mgr;
   tbsys::CConfig config;
   schema_mgr.parse_from_file("test_schema.ini", config);
   UPS.get_table_mgr().set_schemas(schema_mgr);
 
-  //common::ObiRole obi_role;
-  //ObUpsRoleMgr role_mgr;
-  //ObUpsSlaveMgr slave_mgr;
-  //ObLogReplayWorker replay_log_worker;
-  //ObReplayLogSrc replay_log_src;
-  //ObLogCursor start_cursor;
-  //role_mgr.set_role(ObUpsRoleMgr::MASTER);
-  //int ret = slave_mgr.init(&role_mgr, &UPS.get_ups_rpc_stub(), 1000000);
-  //assert(OB_SUCCESS == ret);
-  //ret = UPS.get_log_mgr().init("./commitlog", 64 * 1024 * 1024, &replay_log_worker, &replay_log_src, &(UPS.get_table_mgr()), &slave_mgr, &obi_role, &role_mgr, 0);
-  //assert(OB_SUCCESS == ret);
-  //ret = UPS.get_log_mgr().replay_local_log();
-  //assert(OB_SUCCESS == ret);
-  //UPS.get_log_mgr().start_log(set_cursor(start_cursor, 5, 30, 0));
-
-  int ret = tm.init();
+  common::ObRoleMgr role_mgr;
+  common::ObSlaveMgr slave_mgr;
+  role_mgr.set_role(ObRoleMgr::MASTER);
+  int ret = slave_mgr.init(0, &UPS.get_ups_rpc_stub(), 1000000, 6000000, 4000000, 3);
+  assert(OB_SUCCESS == ret);
+  ret = UPS.get_log_mgr().init("./commitlog", 64 * 1024 * 1024, &slave_mgr, &role_mgr, 0);
+  assert(OB_SUCCESS == ret);
+  ret = UPS.get_log_mgr().replay_log(UPS.get_table_mgr());
   assert(OB_SUCCESS == ret);
 
-  ret = UPS.get_sstable_query().init(100 << 20, 100 << 20);
+  ret = tm.init();
+  assert(OB_SUCCESS == ret);
+
+  sstable::ObBlockCacheConf bc_conf;
+  bc_conf.block_cache_memsize_mb = 100;
+  sstable::ObBlockIndexCacheConf bic_conf;
+  bic_conf.cache_mem_size = 100 * 1024 * 1024;
+  ret = UPS.get_sstable_query().init(bc_conf, bic_conf);
   assert(OB_SUCCESS == ret);
 
   ret = sstm.init(root, raid, store);
@@ -175,6 +166,7 @@ int main(int argc, char** argv) {
   assert(OB_SUCCESS == ret);
 
   sstm.load_new();
+  tm.sstable_scan_finished(3);
 
   TableItem* ti = tm.get_active_memtable();
   assert(NULL != ti);
@@ -183,8 +175,6 @@ int main(int argc, char** argv) {
 
   ret = tm.replay_freeze_memtable(SSTableID::get_id(11, 2, 2), SSTableID::get_id(11, 1, 1), 7);
   assert(OB_SUCCESS == ret);
-
-  tm.sstable_scan_finished(3);
   tm.log_table_info();
 
   ObVersionRange vg;
@@ -192,12 +182,11 @@ int main(int argc, char** argv) {
   vg.end_version_ = 10;
   vg.border_flag_.set_inclusive_start();
   vg.border_flag_.set_inclusive_end();
-  SSTableID max_version;
+  uint64_t max_version = 0;
   ObList<ITableEntity*> tlist;
-  bool is_final_minor = false;
-  ret = tm.acquire_table(vg, max_version.id, tlist, is_final_minor);
+  ret = tm.acquire_table(vg, max_version, tlist);
   assert(OB_SUCCESS == ret);
-  assert(10 == max_version.major_version);
+  assert(10 == max_version);
   assert(3 == tlist.size());
   tm.revert_table(tlist);
 
@@ -223,12 +212,12 @@ int main(int argc, char** argv) {
   vg.end_version_ = 100;
   vg.border_flag_.set_inclusive_start();
   vg.border_flag_.set_inclusive_end();
-  vg.border_flag_.set_max_value();
-  ret = tm.acquire_table(vg, max_version.id, tlist, is_final_minor);
+  max_version = 0;
+  ret = tm.acquire_table(vg, max_version, tlist);
   assert(OB_SUCCESS == ret);
-  assert(12 == max_version.major_version);
+  assert(12 == max_version);
   assert(6 == tlist.size());
-  get_table(tm, tlist);
+  get_table(tlist);
 
   tm.log_table_info();
   sstm.log_sstable_info();
@@ -247,12 +236,14 @@ int main(int argc, char** argv) {
   tm.log_table_info();
   sstm.log_sstable_info();
 
-  ObString dump_dir(2, 2, (char*)"./");
+  ObString dump_dir(2, 2, "./");
   tm.dump_memtable2text(dump_dir);
 
   tm.destroy();
 
   fprintf(stderr, "MemTableUtils=%ld SSTableUtils=%ld GetParam=%ld SSTableGetter=%ld SSTableScanner=%ld\n",
-          sizeof(MemTableUtils), sizeof(SSTableUtils), sizeof(ObGetParam), sizeof(sstable::ObSSTableGetter), sizeof(sstable::ObSSTableScanner));
+          sizeof(MemTableUtils), sizeof(SSTableUtils), sizeof(ObGetParam), sizeof(sstable::ObSSTableGetter), sizeof(sstable::ObSeqSSTableScanner));
 }
+
+
 

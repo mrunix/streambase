@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,7 +17,6 @@
 #include <stdint.h>
 #include "common/ob_define.h"
 #include "common/ob_server.h"
-#include "common/ob_array.h"
 
 namespace sb {
 namespace syschecker {
@@ -31,14 +30,6 @@ class ObSyscheckerParam {
   static const int64_t DEFAULT_READ_THERAD_COUNT    = 20;
   static const int64_t DEFAULT_SYSCHECKER_COUNT     = 1;
   static const int64_t DEFAULT_STAT_DUMP_INTERVAL   = 0;
-  static const int64_t DEFAULT_PERF_TEST            = 0;
-  static const int64_t DEFAULT_SQL_READ             = 0;
-  static const int64_t DEFAULT_READ_TABLE_TYPE      = 0;
-  static const int64_t DEFAULT_WRITE_TABLE_TYPE     = 0;
-  static const int64_t DEFAULT_GET_ROW_CNT          = 0;
-  static const int64_t DEFAULT_SCAN_ROW_CNT         = 0;
-  static const int64_t DEFAULT_UPDATE_ROW_CNT       = 0;
-  static const int64_t DEFAULT_CHECK_RESULT         = 1;
 
   ObSyscheckerParam();
   ~ObSyscheckerParam();
@@ -55,8 +46,13 @@ class ObSyscheckerParam {
     return update_server_;
   }
 
-  common::ObArray<common::ObServer>& get_chunk_servers() { return chunk_servers_; }
-  common::ObArray<common::ObServer>& get_merge_servers() { return merge_servers_; }
+  inline const int64_t get_merge_server_count() {
+    return merge_server_count_;
+  }
+
+  inline const common::ObServer* get_merge_server() const {
+    return merge_server_;
+  }
 
   inline const int64_t get_network_time_out() const {
     return network_time_out_;
@@ -90,49 +86,17 @@ class ObSyscheckerParam {
     return stat_dump_interval_;
   }
 
-  inline const int64_t is_perf_test() const {
-    return (perf_test_ == 0) ? false : true;
-  }
-
-  inline const bool is_sql_read() const {
-    return is_sql_read_;
-  }
-
-  inline const int64_t is_check_result() const {
-    return (check_result_ == 0) ? false : true;
-  }
-
-  inline const int64_t get_read_table_type() const {
-    return read_table_type_;
-  }
-
-  inline const int64_t get_write_table_type() const {
-    return write_table_type_;
-  }
-
-  inline const int64_t get_get_row_cnt() const {
-    return get_row_cnt_;
-  }
-
-  inline const int64_t get_scan_row_cnt() const {
-    return scan_row_cnt_;
-  }
-
-  inline const int64_t get_update_row_cnt() const {
-    return update_row_cnt_;
-  }
-
  private:
   int load_string(char* dest, const int64_t size,
                   const char* section, const char* name, bool not_null);
-  int parse_server(char* str, common::ObArray<common::ObServer>& servers);
-  int load_server();
+  int parse_merge_server(char* str);
+  int load_merge_server();
 
  private:
   common::ObServer root_server_;
   common::ObServer update_server_;
-  common::ObArray<common::ObServer> merge_servers_;
-  common::ObArray<common::ObServer> chunk_servers_;
+  int64_t merge_server_count_;
+  common::ObServer* merge_server_;
   int64_t network_time_out_;
   int64_t write_thread_count_;
   int64_t read_thread_count_;
@@ -141,16 +105,6 @@ class ObSyscheckerParam {
   int64_t specified_read_param_;
   int64_t operate_full_row_;
   int64_t stat_dump_interval_;
-
-  // preformance test param
-  int64_t perf_test_;
-  int64_t is_sql_read_;
-  int64_t check_result_;
-  int64_t read_table_type_;
-  int64_t write_table_type_;
-  int64_t get_row_cnt_;
-  int64_t scan_row_cnt_;
-  int64_t update_row_cnt_;
 };
 } // end namespace syschecker
 } // end namespace sb

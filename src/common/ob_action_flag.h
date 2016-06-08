@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_action_flag.h for ...
+ *
+ * Authors:
+ *   maoqi <maoqi@taobao.com>
+ *
+ */
 #ifndef OCEANBASE_COMMON_ACTION_FLAG_H__
 #define OCEANBASE_COMMON_ACTION_FLAG_H__
 
@@ -23,11 +38,6 @@ class ObActionFlag {
   static const int64_t OP_DEL_TABLE             = 14;
   static const int64_t OP_NOP                   = 15;
   static const int64_t OP_ROW_EXIST             = 16;
-  static const int64_t OP_END_ROW               = 17;
-  static const int64_t OP_VALID                 = 18;
-  static const int64_t OP_NEW_ADD               = 19;
-  static const int64_t OP_RETURN_UPDATE_RESULT  = 0x0000000100000000;
-  static const int64_t OP_ACTION_FLAG_LOW_MASK  = 0x00000000ffffffff;
 
   // serialize ext obj type
   static const int64_t BASIC_PARAM_FIELD        = 50;
@@ -38,7 +48,7 @@ class ObActionFlag {
   static const int64_t COLUMN_PARAM_FIELD       = 55;
   static const int64_t SORT_PARAM_FIELD         = 56;
   static const int64_t LIMIT_PARAM_FIELD        = 57;
-  static const int64_t SELECT_CLAUSE_WHERE_FIELD = 58;
+  static const int64_t FILTER_PARAM_FIELD       = 58;
   static const int64_t MUTATOR_PARAM_FIELD      = 59;
   static const int64_t TABLET_RANGE_FIELD       = 60;
   static const int64_t OBDB_SEMANTIC_FIELD      = 61;
@@ -49,39 +59,9 @@ class ObActionFlag {
   static const int64_t UPDATE_COND_PARAM_FIELD  = 66;
   static const int64_t UPDATE_COND_FIELD        = 67;
   static const int64_t RESERVE_PARAM_FIELD      = 68;
-  /// extention field add when ms 0.3
-  static const int64_t SELECT_CLAUSE_RETURN_INFO_FIELD = 69;
-  static const int64_t GROUPBY_CLAUSE_RETURN_INFO_FIELD = 70;
-
-  static const int64_t SELECT_CLAUSE_COMP_COLUMN_FIELD = 71;
-  static const int64_t GROUPBY_CLAUSE_COMP_COLUMN_FIELD = 72;
-
-  /// static const int64_t SELECT_CLAUSE_WHERE_FILED= 58;
-  static const int64_t GROUPBY_CLAUSE_HAVING_FIELD = 73;
-
-  /// topk param
-  static const int64_t TOPK_PARAM_FIELD        = 74;
-
-  static const int64_t PREFETCH_PARAM_FIELD     = 75;
-  static const int64_t MUTATOR_TYPE_FIELD       = 76;
-  /// obscanner meta param
-  static const int64_t META_PARAM_FIELD         = 80;
-  /// add for SQL
-  static const int64_t SQL_PROJECT_PARAM_FIELD      = 81;
-  static const int64_t SQL_FILTER_PARAM_FIELD       = 82;
-  static const int64_t SQL_LIMIT_PARAM_FIELD        = 83;
-  static const int64_t SQL_SCALAR_AGG_PARAM_FIELD   = 84;
-  static const int64_t SQL_GROUP_BY_PARAM_FIELD     = 85;
-  static const int64_t SQL_GROUP_SORT_PARAM_FIELD   = 86;
-  /// end extention field add when ms 0.3
-  static const int64_t NEWRANGE_PARAM_FIELD     = 87;
-  static const int64_t FORMED_ROW_KEY_FIELD     = 88;
-  static const int64_t TABLET_LOCATION_FIELD    = 89;
-  // add for SQL
-  static const int64_t SQL_DATA_VERSION        = 90;
-  static const int64_t DML_TYPE_FIELD          = 91;
 };
 } /* common */
-} /* oceanbase */
+} /* sb */
 
 #endif
+

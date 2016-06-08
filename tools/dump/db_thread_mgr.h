@@ -14,23 +14,18 @@ using namespace tbsys;
 
 const int kMaxRowkeysInMem = 1000000;
 const int kMaxUsedBytes = 1024 * 1024 * 1;
-const int kMutiGetKeyNr = 15;
+
+struct TableRowkey {
+  ObString rowkey;
+  uint64_t table_id;
+  int op;
+};
 
 struct TableRowkeyComparor {
   int operator()(const TableRowkey& lhs, const TableRowkey& rhs) {
     if (lhs.table_id != rhs.table_id)
       return lhs.table_id < rhs.table_id;
     return lhs.rowkey < rhs.rowkey;
-  }
-};
-
-struct MallocAllocator {
-  inline char* alloc(int64_t sz) {
-    return new(std::nothrow) char[sz];
-  }
-
-  inline void free(char* ptr) {
-    delete []ptr;
   }
 };
 
@@ -46,8 +41,8 @@ class DbThreadMgr : public CDefaultRunnable {
   }
 
   ~DbThreadMgr() {
-    TBSYS_LOG(INFO, "Inserted Lines = %ld, Writen Lines = %ld", inserted_lines_, writen_lines_);
-    TBSYS_LOG(INFO, "all keys size %zu", all_keys_.size());
+    TBSYS_LOG(INFO, "Inserted Lines = %d, Writen Lines = %d", inserted_lines_, writen_lines_);
+    TBSYS_LOG(INFO, "all keys size %d", all_keys_.size());
   }
 
   int destroy() {
@@ -60,20 +55,18 @@ class DbThreadMgr : public CDefaultRunnable {
   }
 
 
-  int insert_key(const ObRowkey& key, uint64_t table_id, int op, uint64_t timestamp, int64_t seq) {
+  int insert_key(const ObString& key, uint64_t table_id, int op) {
     int ret = OB_SUCCESS;
 
-    ObRowkey new_key;
-    if (clone_rowkey(key, new_key) != OB_SUCCESS) {
-      TBSYS_LOG(ERROR, "clone rowkey failed, ret = %d", ret);
+    ObString new_key;
+    if (clone_rowkey(key, &new_key) != OB_SUCCESS) {
+      TBSYS_LOG(ERROR, "can't clone rowkey");
       ret = OB_ERROR;
     } else {
       TableRowkey tab_key;
       tab_key.rowkey = new_key;
       tab_key.table_id = table_id;
       tab_key.op = op;
-      tab_key.seq = seq;
-      tab_key.timestamp = timestamp;
 
       cond_.lock();
       all_keys_.push_back(tab_key);
@@ -88,41 +81,26 @@ class DbThreadMgr : public CDefaultRunnable {
     return ret;
   }
 
-  int clone_rowkey(const ObRowkey& rowkey, ObRowkey& out) {
+  int clone_rowkey(const ObString& rowkey, ObString* out) {
+    //char *ptr = allocater_.alloc(rowkey.length());
     int ret = OB_SUCCESS;
-    ret = rowkey.deep_copy(out, allocator_);
+    char* ptr = new(std::nothrow) char[rowkey.length()];
+    if (ptr == NULL) {
+      TBSYS_LOG(INFO, "Can't allocate more memory");
+      ret = OB_ERROR;
+    }
+
+    memcpy(ptr, rowkey.ptr(), rowkey.length());
+    out->assign_ptr(ptr, rowkey.length());
     return ret;
   }
 
-  void free_rowkey(ObRowkey& rowkey) {
-    allocator_.free((char*)const_cast<ObObj*>(rowkey.ptr()));
+  void free_rowkey(ObString rowkey) {
+    delete [] rowkey.ptr();
   }
 
-  void free_table_keys(TableRowkey* keys, int64_t key_nr) {
-    for (int64_t i = 0; i < key_nr; i++) {
-      free_rowkey(keys[i].rowkey);
-    }
-  }
-
-  void dump_keys(TableRowkey* keys, int64_t key_nr, const char* msg) {
-    static __thread char buffer[OB_MAX_ROW_KEY_LENGTH];
-
-    for (int64_t i = 0; i < key_nr; i++) {
-      int64_t sz = keys[i].rowkey.to_string(buffer, OB_MAX_ROW_KEY_LENGTH);
-      buffer[sz] = 0;
-
-      TBSYS_LOG(INFO, "[%s]:rowkey=%s, op=%d, table_id=%ld", msg, buffer, keys[i].op, keys[i].table_id);
-    }
-  }
-
-  int init(DbDumper* dumper, int muti_get_nr = kMutiGetKeyNr) {
+  int init(DbDumper* dumper) {
     int ret = OB_SUCCESS;
-
-    if (muti_get_nr > 0 && muti_get_nr <= kMutiGetKeyNr) {
-      muti_get_nr_ = muti_get_nr;
-    }
-
-    TBSYS_LOG(INFO, "[DbThreadMgr]:muti_get_nr=%d", muti_get_nr_);
 
     dumper_ = dumper;
     if (dumper_ == NULL) {
@@ -134,16 +112,11 @@ class DbThreadMgr : public CDefaultRunnable {
 
   void run(CThread* thd, void* arg) {
     TableRowkey key;
-    int muti_key_nr = 0;
-    TableRowkey muti_keys[kMutiGetKeyNr];
-    UNUSED(thd);
-    UNUSED(arg);
 
     DbRecordSet rs;
     rs.init();
 
     while (true) {
-      muti_key_nr = 0;
       bool do_work = false;
 
       cond_.lock();
@@ -151,15 +124,9 @@ class DbThreadMgr : public CDefaultRunnable {
         cond_.wait();
 
       if (!all_keys_.empty()) {
-
-        while (!all_keys_.empty() && muti_key_nr < muti_get_nr_) {
-          key = all_keys_.front();
-          all_keys_.pop_front();
-          muti_keys[muti_key_nr++] = key;
-        }
-
-        if (muti_key_nr != 0)
-          do_work = true;
+        key = all_keys_.front();
+        all_keys_.pop_front();
+        do_work = true;
       } else if (_stop) {
         //all work done
         cond_.unlock();
@@ -168,36 +135,25 @@ class DbThreadMgr : public CDefaultRunnable {
       cond_.unlock();
 
       if (do_work) {
-        int max_retries = 20;
+        int max_retries = 10;
         int ret = OB_SUCCESS;
-        int back_off = 1;
 
         while (max_retries-- > 0) {
           //TODO:ret = do dump key, when not success
-          ret = dumper_->do_dump_rowkey(muti_keys, muti_key_nr, rs);
-
+          ret = dumper_->do_dump_rowkey(key.table_id, key.rowkey, key.op, rs);
           if (ret == OB_SUCCESS) {
-            __sync_fetch_and_add(&writen_lines_, muti_key_nr);
+            CThreadGuard guard(&mutex_);
+            writen_lines_++;
             break;
           }
-
-          TBSYS_LOG(INFO, "db_thread_mgr backoff sleeping, time=[%d]", back_off);
-          sleep(back_off);
-
-          if ((back_off << 1) < 5) {
-            back_off = back_off << 2;
-          } else {
-            back_off = 5;
-          }
         }
 
-        if (ret != OB_SUCCESS) {
+        if (max_retries == 0 && ret != OB_SUCCESS) {
           //TODO:dump rowkey
-          TBSYS_LOG(ERROR, "Max Retries, skipping records, num=%d", muti_key_nr);
-          dump_keys(muti_keys, muti_key_nr, "DUMP FAILED");
+          TBSYS_LOG(ERROR, "Max Retries, skipping record");
         }
 
-        free_table_keys(muti_keys, muti_key_nr);
+        free_rowkey(key.rowkey);
       }
     }
 
@@ -230,7 +186,6 @@ class DbThreadMgr : public CDefaultRunnable {
   void wait_completion() {
     bool empty = false;
     TBSYS_LOG(INFO, "start waiting thread mgr");
-
     while (true) {
       cond_.lock();
       empty = all_keys_.empty();
@@ -240,7 +195,8 @@ class DbThreadMgr : public CDefaultRunnable {
         TBSYS_LOG(INFO, "finish waiting thread mgr");
         break;
       }
-      usleep(10000);
+      sleep(1);
+      //        usleep(100000);
     }
   }
 
@@ -253,7 +209,6 @@ class DbThreadMgr : public CDefaultRunnable {
     running_ = false;
     duplicate_lines_ = inserted_lines_ = writen_lines_ = 0;
     writer_waiting_ = false;
-    muti_get_nr_ = kMutiGetKeyNr;
   }
 
  private:
@@ -272,9 +227,6 @@ class DbThreadMgr : public CDefaultRunnable {
 
   bool writer_waiting_;
   CThreadCond insert_cond_;
-
-  int muti_get_nr_;
-  MallocAllocator allocator_;
 };
 
 #endif

@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -13,7 +13,6 @@
  */
 #include "ob_syschecker.h"
 #include "common/ob_malloc.h"
-#include "common/ob_mutator.h"
 #include "common/utility.h"
 
 namespace sb {
@@ -23,7 +22,7 @@ using namespace common;
 ObSyschecker::ObSyschecker()
   : rule_(syschecker_schema_), client_(servers_mgr_),
     write_worker_(client_, rule_, stat_),
-    read_worker_(client_, rule_, stat_, param_) {
+    read_worker_(client_, rule_, stat_) {
 
 }
 
@@ -31,72 +30,27 @@ ObSyschecker::~ObSyschecker() {
 
 }
 
-int ObSyschecker::translate_user_schema(const ObSchemaManagerV2& ori_schema_mgr,
-                                        ObSchemaManagerV2& user_schema_mgr) {
-  int ret = OB_SUCCESS;
-
-  user_schema_mgr.set_version(ori_schema_mgr.get_version());
-  user_schema_mgr.set_app_name(ori_schema_mgr.get_app_name());
-
-  const ObTableSchema* table_schema = NULL;
-  const ObColumnSchemaV2* column_schema = NULL;
-
-  // add user table schema
-  for (table_schema = ori_schema_mgr.table_begin();
-       table_schema != ori_schema_mgr.table_end() && table_schema != NULL && OB_SUCCESS == ret;
-       table_schema++) {
-    TBSYS_LOG(INFO, "table_id=%lu", table_schema->get_table_id());
-    if (table_schema->get_table_id() <= 1000) continue; // omit system table
-    ret = user_schema_mgr.add_table(*((ObTableSchema*) table_schema));
-    if (OB_SUCCESS != ret) {
-      TBSYS_LOG(WARN, "failed to add table schema");
-    }
-  }
-
-  for (column_schema = ori_schema_mgr.column_begin();
-       column_schema != ori_schema_mgr.column_end() && column_schema != NULL && OB_SUCCESS == ret;
-       column_schema++) {
-    if (column_schema->get_table_id() <= 1000) continue; // omit system table
-    ret = user_schema_mgr.add_column(*((ObColumnSchemaV2*) column_schema));
-    if (OB_SUCCESS != ret) {
-      TBSYS_LOG(WARN, "failed to add column schema");
-    }
-  }
-
-  user_schema_mgr.sort_column();
-  return ret;
-}
-
-
 int ObSyschecker::init_servers_manager() {
   int ret                       = OB_SUCCESS;
-  int64_t server_count    = 0;
+  int64_t merge_server_count    = 0;
+  const ObServer* merge_server  = NULL;
 
-  ObServer server;
+  ret = servers_mgr_.init(param_.get_merge_server_count() + 2);
   if (OB_SUCCESS == ret) {
-    server = param_.get_update_server();
-    if (server.get_ipv4() == 0 || server.get_port() == 0) {
-      ret = client_.set_ups_by_rs();
-    } else {
-      ret = servers_mgr_.set_update_server(param_.get_update_server());
-    }
+    ret = servers_mgr_.set_root_server(param_.get_root_server());
   }
 
   if (OB_SUCCESS == ret) {
-    server_count = param_.get_merge_servers().count();
-    if (server_count == 0) {
-      ret = client_.set_ms_by_rs();
-    } else {
-      servers_mgr_.set_merge_servers(param_.get_merge_servers());
-    }
+    ret = servers_mgr_.set_update_server(param_.get_update_server());
   }
 
   if (OB_SUCCESS == ret) {
-    server_count = param_.get_chunk_servers().count();
-    if (server_count == 0) {
-      ret = client_.set_cs_by_rs();
-    } else {
-      servers_mgr_.set_chunk_servers(param_.get_chunk_servers());
+    merge_server_count = param_.get_merge_server_count();
+    merge_server = param_.get_merge_server();
+    for (int64_t i = 0;
+         i < merge_server_count && NULL != merge_server && OB_SUCCESS == ret;
+         ++i) {
+      ret = servers_mgr_.add_merge_server(merge_server[i]);
     }
   }
 
@@ -169,7 +123,6 @@ int ObSyschecker::read_rowkey_range(ObScanner& scanner) {
   ObScannerIterator iter;
   ObCellInfo cell_info;
 
-  TBSYS_LOG(DEBUG, "read_rowkey_range");
   for (iter = scanner.begin();
        iter != scanner.end() && OB_SUCCESS == ret;
        iter++, index++) {
@@ -179,13 +132,13 @@ int ObSyschecker::read_rowkey_range(ObScanner& scanner) {
       if (0 == index) {
         ret = get_cell_value(cell_info, prefix);
         if (OB_SUCCESS == ret) {
-          TBSYS_LOG(INFO, "get cur_max_prefix=%ld", prefix);
+          TBSYS_LOG(DEBUG, "get cur_max_prefix=%ld", prefix);
           rule_.add_cur_max_prefix(prefix + param_.get_syschecker_no());
         }
       } else if (1 == index) {
         ret = get_cell_value(cell_info, suffix);
         if (OB_SUCCESS == ret) {
-          TBSYS_LOG(INFO, "get cur_max_suffix=%ld", suffix);
+          TBSYS_LOG(DEBUG, "get cur_max_suffix=%ld", suffix);
           rule_.add_cur_max_suffix(suffix + param_.get_syschecker_no());
         }
       } else {
@@ -198,47 +151,23 @@ int ObSyschecker::read_rowkey_range(ObScanner& scanner) {
   return ret;
 }
 
-void dump_scanner(ObScanner& scanner) {
-  ObScannerIterator iter;
-  int total_count = 0;
-  int row_count = 0;
-  bool is_row_changed = false;
-  ObNewRange range;
-  scanner.get_range(range);
-  fprintf(stderr, "scanner range:%s, size=%ld\n", to_cstring(range), scanner.get_size());
-  for (iter = scanner.begin(); iter != scanner.end(); iter++) {
-    ObCellInfo* cell_info;
-    iter.get_cell(&cell_info, &is_row_changed);
-    if (is_row_changed) {
-      ++row_count;
-      fprintf(stderr, "table_id:%lu, rowkey:%s\n", cell_info->table_id_, to_cstring(cell_info->row_key_));
-    }
-    fprintf(stderr, "%s\n", to_cstring(cell_info->value_));
-    ++total_count;
-  }
-  fprintf(stderr, "row_count=%d,total_count=%d\n", row_count, total_count);
-}
-
 int ObSyschecker::init_rowkey_range() {
   int ret                               = OB_SUCCESS;
   const ObTableSchema* wt_schema        = NULL;
   const ObColumnSchemaV2* column_schema = NULL;
   const char* column_name               = NULL;
   int32_t column_size                   = 0 ;
-  int32_t query_size                    = 0 ;
   ObGetParam get_param;
   ObScanner scanner;
   ObCellInfo cell_info;
   ObString table_name;
-  ObObj rowkey_obj_array[MAX_SYSCHECKER_ROWKEY_COLUMN_COUNT];
-  ObRowkey row_key;
+  char key_buf[MAX_SYSCHECKER_ROWKEY_LEN];
+  ObString row_key;
   ObVersionRange ver_range;
 
   //the row with key 0 in wide table stores row key range
-  for (int i = 0; i < MAX_SYSCHECKER_ROWKEY_COLUMN_COUNT; ++i) {
-    rowkey_obj_array[i].set_int(0);
-  }
-  row_key.assign(rowkey_obj_array, MAX_SYSCHECKER_ROWKEY_COLUMN_COUNT);
+  memset(key_buf, 0, MAX_SYSCHECKER_ROWKEY_LEN);
+  row_key.assign(key_buf, MAX_SYSCHECKER_ROWKEY_LEN);
   table_name = syschecker_schema_.get_wt_name();
 
   //build get_param
@@ -247,22 +176,14 @@ int ObSyschecker::init_rowkey_range() {
   if (NULL != wt_schema) {
     column_schema = syschecker_schema_.get_schema_manager().
                     get_table_schema(wt_schema->get_table_id(), column_size);
-    const ObRowkeyInfo& rowkey_info = syschecker_schema_.get_schema_manager()
-                                      .get_table_schema(wt_schema->get_table_id())->get_rowkey_info();
-
-    for (int64_t i = 0; i < column_size && query_size < 2 && OB_SUCCESS == ret; ++i) {
-      if (rowkey_info.is_rowkey_column(column_schema[i].get_id())) {
-        continue;
-      }
-
+    for (int64_t i = 0; i < 2 && column_size >= 2 && OB_SUCCESS == ret; ++i) {
       cell_info.reset();
       cell_info.table_name_ = table_name;
       cell_info.row_key_ = row_key;
       if (NULL != &column_schema[i]) {
         column_name = column_schema[i].get_name();
         cell_info.column_name_.assign(const_cast<char*>(column_name),
-                                      static_cast<int32_t>(strlen(column_name)));
-        query_size++;
+                                      strlen(column_name));
         ret = get_param.add_cell(cell_info);
       } else {
         ret = OB_ERROR;
@@ -276,13 +197,14 @@ int ObSyschecker::init_rowkey_range() {
 
   if (OB_SUCCESS == ret) {
     ver_range.start_version_ = 0;
+    ver_range.end_version_ = INT64_MAX - 1;
     ver_range.border_flag_.set_inclusive_start();
-    ver_range.border_flag_.set_max_value();
+    ver_range.border_flag_.set_inclusive_end();
     get_param.set_version_range(ver_range);
     ret = client_.ms_get(get_param, scanner);
     if (OB_SUCCESS != ret) {
-      TBSYS_LOG(WARN, "failed to get cell from merge server, ret=%d, rowkey:%s",
-                ret, to_cstring(row_key));
+      TBSYS_LOG(WARN, "failed to get cell from merge server, rowkey:");
+      hex_dump(row_key.ptr(), row_key.length(), true, TBSYS_LOG_LEVEL_WARN);
     }
   }
 
@@ -296,17 +218,12 @@ int ObSyschecker::init_rowkey_range() {
 int ObSyschecker::init() {
   int ret = OB_SUCCESS;
 
-  if (OB_SUCCESS != (ret = param_.load_from_config())) {
-    TBSYS_LOG(WARN, "failed to load_from_config");
-  } else if (param_.get_root_server().get_ipv4() == 0 || param_.get_root_server().get_port() == 0) {
-    TBSYS_LOG(ERROR, "rootserver ip must define.");
-    ret = common::OB_INVALID_ARGUMENT;
-  } else if (OB_SUCCESS != (ret = servers_mgr_.set_root_server(param_.get_root_server()))) {
-    TBSYS_LOG(WARN, "failed to set_root_server");
-  } else if (OB_SUCCESS != (ret = client_.init(param_.get_network_time_out()))) {
-    TBSYS_LOG(WARN, "failed to init client");
-  } else if (OB_SUCCESS != (ret = init_servers_manager())) {
-    TBSYS_LOG(WARN, "failed to init servers manager");
+  ret = param_.load_from_config();
+  if (OB_SUCCESS == ret) {
+    ret = init_servers_manager();
+    if (OB_SUCCESS != ret) {
+      TBSYS_LOG(WARN, "failed to init servers manager");
+    }
   }
 
   //for debuging
@@ -314,18 +231,17 @@ int ObSyschecker::init() {
     param_.dump_param();
   }
 
-  ObSchemaManagerV2 schema_manager;
-  ObSchemaManagerV2& syschecker_schema_manager = syschecker_schema_.get_schema_manager();
   if (OB_SUCCESS == ret) {
-    //ret = client_.fetch_schema(0, syschecker_schema_.get_schema_manager());
-    ret = client_.fetch_schema(0, schema_manager);
+    ret = client_.init(param_.get_network_time_out());
     if (OB_SUCCESS != ret) {
-      TBSYS_LOG(WARN, "failed to fetch schema from root server");
-    } else {
-      ret = translate_user_schema(schema_manager, syschecker_schema_manager);
-      if (OB_SUCCESS != ret) {
-        TBSYS_LOG(WARN, "failed to translate schema manager, ret=%d", ret);
-      }
+      TBSYS_LOG(WARN, "failed to init client");
+    }
+  }
+
+  if (OB_SUCCESS == ret) {
+    ret = client_.fetch_schema(0, syschecker_schema_.get_schema_manager());
+    if (OB_SUCCESS != ret) {
+      TBSYS_LOG(WARN, "failed to featch schema from root server");
     }
   }
 
@@ -344,13 +260,15 @@ int ObSyschecker::init() {
     } else {
       ret = init_rowkey_range();
       if (OB_SUCCESS != ret) {
-        TBSYS_LOG(WARN, "failed to get current key range from oceanbase");
+        TBSYS_LOG(WARN, "failed to get current key range from sb");
       }
     }
   }
 
   if (OB_SUCCESS == ret) {
-    ret = rule_.init(param_);
+    ret = rule_.init(param_.get_syschecker_count(),
+                     param_.is_specified_read_param(),
+                     param_.is_operate_full_row());
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(WARN, "failed to init syschecker rule");
     }
@@ -365,7 +283,7 @@ int ObSyschecker::start() {
   int64_t read_thread_count   = 0;
   int64_t stat_dump_interval  = 0;
 
-  srandom(static_cast<int32_t>(time(0)));
+  srandom(time(0));
   ret = ob_init_memory_pool();
   if (OB_SUCCESS == ret) {
     ret = init();
@@ -377,17 +295,17 @@ int ObSyschecker::start() {
     stat_dump_interval = param_.get_stat_dump_interval();
 
     if (write_thread_count > 0) {
-      write_worker_.setThreadCount(static_cast<int32_t>(write_thread_count));
+      write_worker_.setThreadCount(write_thread_count);
       write_worker_.start();
     }
 
     if (read_thread_count > 0) {
-      read_worker_.setThreadCount(static_cast<int32_t>(read_thread_count));
+      read_worker_.setThreadCount(read_thread_count);
       read_worker_.start();
     }
 
     if (stat_dump_interval > 0) {
-      ret = stat_.init(stat_dump_interval, param_.is_check_result());
+      ret = stat_.init(stat_dump_interval);
       if (OB_SUCCESS != ret) {
         TBSYS_LOG(WARN, "failed to init stat");
       }
@@ -415,7 +333,8 @@ int ObSyschecker::wait() {
   if (!param_.is_specified_read_param()) {
     write_rowkey_range();
   }
-  client_.destroy();
+  client_.stop();
+  client_.wait();
 
   return OB_SUCCESS;
 }
@@ -431,10 +350,10 @@ int ObSyschecker::set_cell_value(ObObj& obj, const ObObjType type,
     obj.set_int(value);
     break;
   case ObFloatType:
-    obj.set_float(static_cast<float>(value));
+    obj.set_float(value);
     break;
   case ObDoubleType:
-    obj.set_double(static_cast<double>(value));
+    obj.set_double(value);
     break;
   case ObDateTimeType:
     obj.set_datetime(value);
@@ -445,7 +364,7 @@ int ObSyschecker::set_cell_value(ObObj& obj, const ObObjType type,
   case ObVarcharType:
     if (NULL != value_buf) {
       value_len = sprintf(value_buf, "%ld", value);
-      varchar.assign(value_buf, static_cast<int32_t>(value_len));
+      varchar.assign(value_buf, value_len);
       obj.set_varchar(varchar);
     } else {
       ret = OB_ERROR;
@@ -477,17 +396,15 @@ int ObSyschecker::write_rowkey_range() {
   ObMutator mutator;
   ObScanner scanner;
   ObString table_name;
-  ObObj rowkey_obj_array[MAX_SYSCHECKER_ROWKEY_COLUMN_COUNT];
-  ObRowkey row_key;
+  char key_buf[MAX_SYSCHECKER_ROWKEY_LEN];
+  ObString row_key;
   ObString column_name;
   ObObj obj;
   char value_buf[32];
 
   //the row with key 0 in wide table stores row key range
-  for (int i = 0; i < MAX_SYSCHECKER_ROWKEY_COLUMN_COUNT; ++i) {
-    rowkey_obj_array[i].set_int(0);
-  }
-  row_key.assign(rowkey_obj_array, MAX_SYSCHECKER_ROWKEY_COLUMN_COUNT);
+  memset(key_buf, 0, MAX_SYSCHECKER_ROWKEY_LEN);
+  row_key.assign(key_buf, MAX_SYSCHECKER_ROWKEY_LEN);
   table_name = syschecker_schema_.get_wt_name();
 
   //build mutator
@@ -509,7 +426,7 @@ int ObSyschecker::write_rowkey_range() {
         if (OB_SUCCESS == ret) {
           column_name_str = column_schema[i].get_name();
           column_name.assign(const_cast<char*>(column_name_str),
-                             static_cast<int32_t>(strlen(column_name_str)));
+                             strlen(column_name_str));
           ret = mutator.update(table_name, row_key, column_name, obj);
         }
       } else {

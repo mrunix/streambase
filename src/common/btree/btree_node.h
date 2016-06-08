@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./btree_node.h for ...
+ *
+ * Authors:
+ *   duolong <duolong@taobao.com>
+ *
+ */
 #ifndef OCEANBASE_COMMON_BTREE_BTREE_NODE_H_
 #define OCEANBASE_COMMON_BTREE_BTREE_NODE_H_
 
@@ -29,52 +44,52 @@ class BtreeNode {
   /**
    * 初始化
    */
-  int32_t init(int16_t max_size);
+  int32_t init(size_t max_size);
 
   /**
    * 在pos位置增加一个key
    */
-  int32_t add_pair(int16_t pos, const char* key, const char* value, BtreeKeyCompare* compr);
+  int32_t add_pair(size_t pos, const char* key, const char* value, BtreeKeyCompare* compr);
 
   /**
    * 把pos位置key删除掉, 并且返回删除的BtreeKeyValuePair
    */
-  int32_t remove_pair(int16_t pos, BtreeKeyValuePair& pair);
+  int32_t remove_pair(size_t pos, BtreeKeyValuePair& pair);
 
   /**
    * 搜索Pair的位置
    */
-  int32_t find_pos(const char* key, BtreeKeyCompare* compr, int64_t& equal_flag);
+  size_t find_pos(const char* key, BtreeKeyCompare* compr, int64_t& equal_flag);
 
   /**
    * 根据pos, 得到key,value对
    */
-  BtreeKeyValuePair* get_pair(int16_t pos);
+  BtreeKeyValuePair* get_pair(size_t pos);
 
   /**
    * 根据pos, 得到下次key,value对
    */
-  BtreeKeyValuePair* get_next_pair(int16_t pos);
+  BtreeKeyValuePair* get_next_pair(size_t pos);
 
   /**
    * 设置key,value对
    */
-  int32_t set_pair(int16_t pos, const char* key, const char* value, const int32_t flag, BtreeKeyCompare* compr);
+  int32_t set_pair(size_t pos, const char* key, const char* value, const int32_t flag, BtreeKeyCompare* compr);
 
   /**
    * 得到当前个数
    */
-  int32_t get_size();
+  size_t get_size();
 
   /**
    * 移出size个pair到next_node上
    */
-  int32_t move_pair_out(BtreeNode* next_node, int32_t size);
+  int32_t move_pair_out(BtreeNode* next_node, size_t size);
 
   /**
    * 从next_node上移入size个pair到此node上
    */
-  int32_t move_pair_in(BtreeNode* next_node, int32_t size);
+  int32_t move_pair_in(BtreeNode* next_node, size_t size);
 
   /**
    * 把next_node全部搬到当前节点上, 不改变next_node上的内容.
@@ -142,15 +157,15 @@ class BtreeNode {
   /**
    * 移动pair对, 向后移
    */
-  void pair_move_backward(int16_t dst, int16_t src, int32_t n);
+  void pair_move_backward(size_t dst, size_t src, size_t n);
   /**
    * 移动pair对, 向前移
    */
-  void pair_move_forward(int16_t dst, int16_t src, int32_t n);
+  void pair_move_forward(size_t dst, size_t src, size_t n);
 
  private:
-  int16_t max_size_;                 // 最大object数
-  int16_t size_;                     // 当前pair个数
+  size_t max_size_;                 // 最大object数
+  size_t size_;                     // 当前pair个数
   uint8_t read_only_: 1;             // 是否只读
   uint8_t deleted_: 1;               // 设置为删除
   uint8_t is_leaf_: 1;               // 是否叶节点
@@ -161,4 +176,5 @@ class BtreeNode {
 } // end namespace sb
 
 #endif
+
 

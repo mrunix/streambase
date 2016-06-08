@@ -1,15 +1,18 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
+ * Version: 5567
+ *
+ * ob_column_group_scanner.h
+ *
  * Authors:
- *   duanfei <duanfei@taobao.com>
- *   qushan <qushan@taobao.com>
- *     modified at 2010/10/8
- *     use new ObSSTableBlockScanner.
+ *     qushan <qushan@taobao.com>
+ * Changes:
+ *     huating <huating.zmq@taobao.com>
  *
  */
 #ifndef OCEANBASE_SSTABLE_COLUMN_GROUP_SCANNER_H_
@@ -30,8 +33,8 @@ class ObBlockCache;
 
 class ObColumnGroupScanner : public common::ObIterator {
  public:
-  static const int64_t UNCOMPRESSED_BLOCK_BUFSIZ = 1024 * 1024;
-  static const int64_t BLOCK_INTERNAL_BUFSIZ = 1024 * 1024;
+  static const int64_t UNCOMPRESSED_BLOCK_BUFSIZ = 256 * 1024;
+  static const int64_t BLOCK_INTERNAL_BUFSIZ = 256 * 1024;
   ObColumnGroupScanner();
   virtual ~ObColumnGroupScanner();
 
@@ -39,51 +42,8 @@ class ObColumnGroupScanner : public common::ObIterator {
    * implements interface of ObIterator, share same sematics.
    */
   int next_cell();
-
-  inline int get_cell(common::ObCellInfo** cell) {
-    return get_cell(cell, NULL);
-  }
-
-  inline int get_cell(common::ObCellInfo** cell, bool* is_row_changed) {
-    int ret = common::OB_SUCCESS;
-
-    if (NULL != cell) {
-      *cell = NULL;
-    }
-
-    if (NULL == cell) {
-      TBSYS_LOG(ERROR, "invalid arguments, cell=%p.", cell);
-      ret = common::OB_INVALID_ARGUMENT;
-    } else if (ITERATE_NOT_START == iterate_status_) {
-      TBSYS_LOG(ERROR, "iterate not start.");
-      ret = common::OB_NOT_INIT;
-    } else if (ITERATE_IN_ERROR == iterate_status_) {
-      TBSYS_LOG(ERROR, "iterate in error.");
-      ret = common::OB_ERROR;
-    } else {
-      ret = scanner_.get_cell(cell, is_row_changed);
-      // set table_id ignored by ObSSTableBlockScanner.
-      if (common::OB_SUCCESS == ret) {
-        (*cell)->table_id_ = scan_param_->get_table_id();
-      } else {
-        TBSYS_LOG(ERROR, "block scanner get cell failed, ret=%d", ret);
-      }
-    }
-
-    return ret;
-  }
-
-  inline int is_row_finished(bool* is_row_finished) {
-    int ret = common::OB_SUCCESS;
-    if (NULL != is_row_finished) {
-      if (ITERATE_END == iterate_status_) {
-        *is_row_finished = true;
-      } else {
-        ret = scanner_.is_row_finished(is_row_finished);
-      }
-    }
-    return ret;
-  }
+  int get_cell(sb::common::ObCellInfo** cell);
+  int get_cell(sb::common::ObCellInfo** cell, bool* is_row_changed);
 
   /**
    * @param [in] group_id group id of this scanner.
@@ -94,11 +54,9 @@ class ObColumnGroupScanner : public common::ObIterator {
    *  OB_SUCCESS  on success otherwise on failure.
    */
   int set_scan_param(const uint64_t group_id, const uint64_t group_seq,
-                     const int64_t group_size, const ObSSTableScanParam* scan_param,
-                     const ObSSTableReader* const sstable_reader);
+                     const ObSSTableScanParam* scan_param, const ObSSTableReader* const sstable_reader);
 
-  int initialize(ObBlockIndexCache* block_index_cache, ObBlockCache* block_cache,
-                 const common::ObRowkeyInfo* rowkey_info = NULL);
+  int initialize(ObBlockIndexCache* block_index_cache, ObBlockCache* block_cache);
 
  private:
   /**
@@ -162,7 +120,6 @@ class ObColumnGroupScanner : public common::ObIterator {
    */
   int trans_input_column_id(const uint64_t group_id,
                             const uint64_t group_seq,
-                            const int64_t group_size,
                             const ObSSTableScanParam* scan_param,
                             const ObSSTableReader* sstable_reader);
 
@@ -195,11 +152,11 @@ class ObColumnGroupScanner : public common::ObIterator {
   // input parameters set by initialize
   ObBlockIndexCache* block_index_cache_;
   ObBlockCache* block_cache_;
-  const common::ObRowkeyInfo* rowkey_info_;
 
   // internal status
   int64_t iterate_status_;
   int64_t index_array_cursor_;
+  ObBlockPositionInfos index_array_;
 
   // input parameters set by set_scan_param
   uint64_t group_id_;
@@ -211,7 +168,6 @@ class ObColumnGroupScanner : public common::ObIterator {
   int64_t uncompressed_data_bufsiz_;
   char* block_internal_buffer_;
   int64_t block_internal_bufsiz_;
-  ObBlockPositionInfos index_array_;
 
   // for densense format sstable
   ObScanColumnIndexes current_scan_column_indexes_;

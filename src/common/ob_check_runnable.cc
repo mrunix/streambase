@@ -1,17 +1,18 @@
 /**
- * (C) 2007-2010 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
  * Version: $Id$
  *
+ * ob_check_runnable.cc for ...
+ *
  * Authors:
  *   yanran <yanran.hfs@taobao.com>
- *     - some work details if you want
+ *
  */
-
 #include "ob_check_runnable.h"
 #include "ob_lease_common.h"
 
@@ -76,7 +77,7 @@ void ObCheckRunnable::run(tbsys::CThread* thread, void* arg) {
         }
       }
     }
-    usleep(static_cast<useconds_t>(check_period_));
+    usleep(check_period_);
   }
 }
 
@@ -108,7 +109,6 @@ int64_t ObCheckRunnable::get_lease_status_() {
   timeval time_val;
   gettimeofday(&time_val, NULL);
   int64_t cur_time_us = time_val.tv_sec * 1000 * 1000 + time_val.tv_usec;
-  TBSYS_LOG(DEBUG, "lease_time_ = %ld, lease_interval_ =%ld, cur_time_us=%ld", lease_time_, lease_interval_, cur_time_us);
   if (lease_time_ + lease_interval_ < cur_time_us) {
     TBSYS_LOG(WARN, "Lease expired, lease_time_=%ld, lease_interval_=%ld, cur_time_us=%ld",
               lease_time_, lease_interval_, cur_time_us);
@@ -132,7 +132,7 @@ int ObCheckRunnable::renew_lease_() {
   } else {
     err = rpc_stub_->renew_lease(*server_, *slave_addr_, renew_lease_timeout_);
     if (OB_SUCCESS != err) {
-      TBSYS_LOG(WARN, "failed to renew lease, err=%d, timeout=%ld, server=%s", err, renew_lease_timeout_, server_->to_cstring());
+      TBSYS_LOG(WARN, "failed to renew lease, err=%d, timeout=%ld", err, renew_lease_timeout_);
     }
   }
 
@@ -156,4 +156,5 @@ int ObCheckRunnable::renew_lease(const ObLease& lease) {
 void ObCheckRunnable::set_renew_lease_timeout(const int64_t renew_lease_timeout) {
   renew_lease_timeout_ = renew_lease_timeout;
 }
+
 

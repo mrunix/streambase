@@ -31,7 +31,7 @@ inline int get_current_date(char* p , size_t size) {
   time_t now = time(NULL);
   struct tm tm_now;
   localtime_r(&now, &tm_now);
-  return static_cast<int32_t>(strftime(p, size, "%Y-%m-%d", &tm_now));
+  return strftime(p, size, "%Y-%m-%d", &tm_now);
 }
 
 inline int64_t gen_usec() {
@@ -41,14 +41,11 @@ inline int64_t gen_usec() {
 }
 
 
-int transform_date_to_time(const char* str, int len, sb::common::ObDateTime& t);
-
 int ObDateTime2MySQLDate(int64_t ob_time, int time_type, char* outp, int size);
 
 int serialize_cell(sb::common::ObCellInfo* cell, sb::common::ObDataBuffer& buff);
 
 int append_header_delima(sb::common::ObDataBuffer& buff);
-
 int append_delima(sb::common::ObDataBuffer& buff);
 
 int append_end_rec(sb::common::ObDataBuffer& buff);
@@ -56,11 +53,4 @@ int append_end_rec(sb::common::ObDataBuffer& buff);
 const char* get_op_string(int action);
 
 int db_utils_init();
-
-void encode_int32(char* buf, uint32_t value);
-
-int32_t decode_int32(const char* buf);
-
-int append_obj(const sb::common::ObObj& obj, sb::common::ObDataBuffer& buff);
 #endif   /* ----- #ifndef db_utils_INC  ----- */
-

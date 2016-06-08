@@ -4,7 +4,7 @@
 #include "base_client.h"
 
 using namespace sb::common;
-using namespace sb::rootserver;
+using namespace sb::nameserver;
 
 ObClientServerStub::ObClientServerStub()
   : frame_buffer_(FRAME_BUFFER_SIZE) {

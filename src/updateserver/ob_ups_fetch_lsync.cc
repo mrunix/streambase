@@ -29,8 +29,7 @@ ObUpsFetchLsync::~ObUpsFetchLsync() {
 }
 
 int ObUpsFetchLsync::init(const common::ObServer& lsync_server, const uint64_t log_id,
-                          const uint64_t log_seq, //ObUpsRpcStub *rpc_stub,
-                          ObUpsRpcStub* rpc_stub,
+                          const uint64_t log_seq, ObUpsRpcStub* rpc_stub,
                           ObCommitLogReceiver* clog_receiver, const int64_t fetch_timeout,
                           common::ObRoleMgr* role_mgr) {
   int ret = OB_SUCCESS;
@@ -71,7 +70,7 @@ void ObUpsFetchLsync::run(tbsys::CThread* thread, void* arg) {
       err = rpc_stub_->fetch_lsync(get_lsync_server(), log_id_, log_seq_, log_data, log_len, fetch_timeout_ - TIMEOUT_DELTA);
       if (OB_SUCCESS != err && OB_RESPONSE_TIME_OUT != err && OB_NEED_RETRY != err && OB_NOT_REGISTERED != err) {
         TBSYS_LOG(ERROR, "fetch_lsync error, err=%d log_id_=%lu log_seq_=%lu log_data=%p log_len=%ld",
-                  err, log_id_, log_seq_, log_data, log_len);
+                  log_id_, log_seq_, log_data, log_len);
         role_mgr_->set_state(ObRoleMgr::ERROR);
       } else if (OB_SUCCESS == err) {
         if (log_len > 0) {

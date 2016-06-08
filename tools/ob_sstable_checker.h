@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -20,14 +20,8 @@
 #include "common/bloom_filter.h"
 #include "common/ob_define.h"
 #include "common/compress/ob_compressor.h"
-#include "common/ob_rowkey.h"
-#include "common/ob_object.h"
-#include "common/ob_define.h"
-#include "sstable/ob_sstable_row.h"
-
 #define DEF_DESERIALIZE_AND_CHECK_MEMBER(T) \
   static T * deserialize_and_check(char *data_buf, const int64_t size, int64_t &pos)
-
 namespace sb {
 namespace chunkserver {
 /// @struct  ObSCRecordHeader sstable中record头，非压缩存储，磁盘上存放网络字节序
@@ -58,27 +52,41 @@ struct ObSCRecordHeader {
 /// @struct  ObSCSSTableTrailer sstable文件trailer
 struct ObSCSSTableTrailer {
   DEF_DESERIALIZE_AND_CHECK_MEMBER(ObSCSSTableTrailer);
+  /// @property size of ObSSTableTrailer
   int32_t size_;
+  /// @property version of this struct
   int32_t version_;
+  /// @property version of table
   int64_t table_version_;
+  /// @property offset of first data block
   int64_t first_block_data_offset_;
+  /// @property count of block in sstable
   int64_t block_count_;
+  /// @property offset of block index in sstable file
   int64_t block_index_record_offset_;
+  /// @property size of block index
   int64_t block_index_record_size_;
+  /// @property hash count of bloom filter
   int64_t bloom_filter_hash_count_;
+  /// @property offset of bloom filter in sstable file
   int64_t bloom_filter_record_offset_;
+  /// @property size of bloom filter record
   int64_t bloom_filter_record_size_;
+  /// @property offset of shcema record in sstable file
   int64_t schema_record_offset_;
+  /// @property size of schema record
   int64_t schema_record_size_;
+  /// @property size of block, disk block
   int64_t blocksize_;
+  /// @property number of record stored in sstable file
   int64_t row_count_;
+  /// @property checksum of sstable file
   uint64_t sstable_checksum_;
   uint64_t first_table_id_;
-  int64_t frozen_time_;
-  int64_t range_record_offset_;  //range record offset in sstable
-  int64_t range_record_size_;    //range record size, includes record header
   int64_t reserved64_[sb::sstable::ObSSTableTrailer::RESERVED_LEN];
+  /// @property compressed method name
   char compressor_name_[sb::common::OB_MAX_COMPRESSOR_NAME_LENGTH];
+  /// @property format of row 稠密(dense)，稀疏(sparse)或者混合(mixed)格式
   int16_t row_value_store_style_;
   int16_t reserved_;
 };
@@ -153,8 +161,7 @@ struct ObSCSSTableBlockIndexHeader {
   int64_t sstable_block_count_;
   /// @property offset of end key string arrays, according to block index self
   int32_t end_key_char_stream_offset_;
-  int16_t rowkey_flag_;
-  int16_t reserved16_;
+  int32_t reserved32_;
   int64_t reserved64_[2];
   ObSCBlockInfo   block_info_array_[0];
 };
@@ -183,40 +190,32 @@ class ObSCSSTableChecker {
   ~ObSCSSTableChecker();
   /// @fn check if sstable format is correct
   int check(const char* sstable_fname);
-
-  void dump();
  private:
   /// @fn check record offset and size
   int check_offset_size(const int64_t sstable_file_size);
   /// @fn check record rowkey order
   int check_rowkey_order(const int sstable_fd);
   /// @fn check a single row
-  int check_row(const char* row, const int64_t row_len,
-                common::ObRowkey& row_key, const int32_t column_count);
+  int check_row(const char* row, const int64_t row_len, const char*& key, int64_t& key_len);
   /// @property estimate item number in each block
   static const int64_t BLOOM_FILTER_ITEMS_ESTIMATE  = 1024 * 32 * 4;
   /// @property 2M byte memory to read block
   static const int64_t BLOCK_SIZE = 2 * 1024 * 1024;
   ObSCTrailerOffset trailer_offset_;
   ObSCSSTableTrailer* trailer_;
-  sb::common::ObNewRange range_;
   sb::common::ObMemBuffer trailer_buffer_;
 
   ObSCTableSchemaHeader schema_;
   sb::common::ObMemBuffer schema_buffer_;
-  sb::common::ObMemBuffer range_buffer_;
-  sb::common::ObMemBuf row_key_buf_;
+  sb::common::ObMemBuffer key_stream_buffer_;
   ObSCRecordHeader*       bloom_filter_record_;
   sb::common::ObMemBuffer bloom_filter_buffer_;
-  sb::common::ObBloomFilterV1 bloom_filter_readed_;
-  sb::common::ObBloomFilterV1 bloom_filter_generated_;
+  sb::common::BloomFilter bloom_filter_readed_;
+  sb::common::BloomFilter bloom_filter_generated_;
   ObSCSSTableBlockIndexHeader*   block_index_;
   sb::common::ObMemBuffer block_index_buffer_;
   sb::common::ObMemBuffer block_buffer_;
   sb::common::ObMemBuffer decompress_block_buffer_;
-  common::ObMemBuf bf_key_buf_;              //bloom filter key buf
-  common::ObObj start_key_obj_array[common::OB_MAX_ROWKEY_COLUMN_NUMBER];
-  common::ObObj end_key_obj_array[common::OB_MAX_ROWKEY_COLUMN_NUMBER];
 };
 }
 }

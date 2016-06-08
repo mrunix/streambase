@@ -20,11 +20,7 @@
 #include <tblog.h>
 #include <gtest/gtest.h>
 #include "test_helper.h"
-#include "test_rowkey_helper.h"
 #include "common/ob_mutator.h"
-
-
-#define TRUE 1
 
 using namespace std;
 using namespace sb::common;
@@ -34,7 +30,6 @@ int init_mem_pool() {
   return 0;
 }
 static int init_mem_pool_ret = init_mem_pool();
-static CharArena  allocator_;
 
 namespace sb {
 namespace tests {
@@ -77,19 +72,17 @@ TEST_F(TestMutator, test_add_cell) {
   char row_key_strs[ROW_NUM][50];
   char column_strs[ROW_NUM][COL_NUM][50];
   ObString table_name;
-  ObString tmpstr;
-  table_name.assign((char*)"oceanbase_table", static_cast<int32_t>(strlen("oceanbase_table")));
+  table_name.assign("sb_table", strlen("sb_table"));
   // init cell infos
   for (int64_t i = 0; i < ROW_NUM; ++i) {
     sprintf(row_key_strs[i], "row_key_%08ld", i);
     for (int64_t j = 0; j < COL_NUM; ++j) {
       cell_infos[i][j].table_name_ = table_name;
-      tmpstr.assign_ptr(row_key_strs[i], static_cast<int32_t>(strlen(row_key_strs[i])));
-      cell_infos[i][j].row_key_ = TestRowkeyHelper(tmpstr, &allocator_);
+      cell_infos[i][j].row_key_.assign(row_key_strs[i], strlen(row_key_strs[i]));
       //cell_infos[i][j].op_info_.set_update();
 
       sprintf(column_strs[i][j], "column_name_%08ld_%08ld", i, j);
-      cell_infos[i][j].column_name_.assign(column_strs[i][j], static_cast<int32_t>(strlen(column_strs[i][j])));
+      cell_infos[i][j].column_name_.assign(column_strs[i][j], strlen(column_strs[i][j]));
 
       cell_infos[i][j].value_.set_int(1000 + i * COL_NUM + j);
     }
@@ -134,19 +127,17 @@ TEST_F(TestMutator, test_serialize) {
   char row_key_strs[ROW_NUM][50];
   char column_strs[ROW_NUM][COL_NUM][50];
   ObString table_name;
-  ObString tmpstr;
-  table_name.assign((char*)"oceanbase_table", static_cast<int32_t>(strlen("oceanbase_table")));
+  table_name.assign("sb_table", strlen("sb_table"));
   // init cell infos
   for (int64_t i = 0; i < ROW_NUM; ++i) {
     sprintf(row_key_strs[i], "row_key_%08ld", i);
     for (int64_t j = 0; j < COL_NUM; ++j) {
       cell_infos[i][j].table_name_ = table_name;
-      tmpstr.assign_ptr(row_key_strs[i], static_cast<int32_t>(strlen(row_key_strs[i])));
-      cell_infos[i][j].row_key_ = TestRowkeyHelper(tmpstr, &allocator_);
+      cell_infos[i][j].row_key_.assign(row_key_strs[i], strlen(row_key_strs[i]));
       //cell_infos[i][j].op_info_.set_update();
 
       sprintf(column_strs[i][j], "column_name_%08ld_%08ld", i, j);
-      cell_infos[i][j].column_name_.assign(column_strs[i][j], static_cast<int32_t>(strlen(column_strs[i][j])));
+      cell_infos[i][j].column_name_.assign(column_strs[i][j], strlen(column_strs[i][j]));
 
       cell_infos[i][j].value_.set_int(1000 + i * COL_NUM + j);
     }
@@ -207,8 +198,7 @@ TEST_F(TestMutator, test_serialize_id) {
   char row_key_strs[ROW_NUM][50];
   char column_strs[ROW_NUM][COL_NUM][50];
   ObString table_name;
-  ObString tmpstr;
-  table_name.assign((char*)"oceanbase_table", static_cast<int32_t>(strlen("oceanbase_table")));
+  table_name.assign("sb_table", strlen("sb_table"));
   uint64_t table_id = 10;
   // init cell infos
   for (int64_t i = 0; i < ROW_NUM; ++i) {
@@ -217,8 +207,7 @@ TEST_F(TestMutator, test_serialize_id) {
       //cell_infos[i][j].table_name_ = table_name;
       cell_infos[i][j].table_name_.assign(NULL, 0);
       cell_infos[i][j].table_id_ = table_id;
-      tmpstr.assign_ptr(row_key_strs[i], static_cast<int32_t>(strlen(row_key_strs[i])));
-      cell_infos[i][j].row_key_ = TestRowkeyHelper(tmpstr, &allocator_);
+      cell_infos[i][j].row_key_.assign(row_key_strs[i], strlen(row_key_strs[i]));
 
       sprintf(column_strs[i][j], "column_name_%08ld_%08ld", i, j);
       //cell_infos[i][j].column_name_.assign(column_strs[i][j], strlen(column_strs[i][j]));
@@ -333,9 +322,9 @@ TEST_F(TestMutator, test_db_ob_sem) {
   int err = OB_SUCCESS;
   ObMutator mutator;
   ObString table_name;
-  table_name.assign((char*)"oceanbase", static_cast<int32_t>(strlen("oceanbase")));
+  table_name.assign("sb", strlen("sb"));
   ObString row_key;
-  row_key.assign((char*)"row_key", static_cast<int32_t>(strlen("row_key")));
+  row_key.assign("row_key", strlen("row_key"));
 
   err = mutator.use_db_sem();
   EXPECT_EQ(0, err);
@@ -380,18 +369,17 @@ TEST_F(TestMutator, test_del_row) {
   int err = OB_SUCCESS;
   ObMutator mutator;
   ObString table_name;
-  table_name.assign((char*)"oceanbase", static_cast<int32_t>(strlen("oceanbase")));
-  ObString str_row_key;
-  str_row_key.assign((char*)"row_key", static_cast<int32_t>(strlen("row_key")));
-  ObRowkey row_key = TestRowkeyHelper(str_row_key, &allocator_);
+  table_name.assign("sb", strlen("sb"));
+  ObString row_key;
+  row_key.assign("row_key", strlen("row_key"));
 
   ObMutatorCellInfo update_op;
   update_op.op_type.set_ext(ObActionFlag::OP_UPDATE);
   update_op.cell_info.table_name_ = table_name;
   update_op.cell_info.row_key_ = row_key;
-  update_op.cell_info.column_name_.assign((char*)"column_name", static_cast<int32_t>(strlen("column_name")));
+  update_op.cell_info.column_name_.assign("column_name", strlen("column_name"));
   ObString value;
-  value.assign((char*)"test", static_cast<int32_t>(strlen("test")));
+  value.assign("test", strlen("test"));
   update_op.cell_info.value_.set_varchar(value);
 
   err = mutator.add_cell(update_op);
@@ -424,7 +412,7 @@ TEST_F(TestMutator, test_del_row) {
   ASSERT_TRUE(NULL != mutation);
 
   check_string(table_name, mutation->cell_info.table_name_);
-  EXPECT_EQ(row_key, mutation->cell_info.row_key_);
+  check_string(row_key, mutation->cell_info.row_key_);
   int64_t ext_val = 0;
   mutation->cell_info.value_.get_ext(ext_val);
   EXPECT_TRUE(ObActionFlag::OP_DEL_ROW == ext_val);
@@ -440,9 +428,8 @@ TEST_F(TestMutator, test_del_row_id) {
   int err = OB_SUCCESS;
   ObMutator mutator;
   uint64_t table_id = 10;
-  ObString str_row_key;
-  str_row_key.assign((char*)"row_key", static_cast<int32_t>(strlen("row_key")));
-  ObRowkey row_key = TestRowkeyHelper(str_row_key, &allocator_);
+  ObString row_key;
+  row_key.assign("row_key", strlen("row_key"));
 
   ObMutatorCellInfo update_op;
   update_op.op_type.set_ext(ObActionFlag::OP_UPDATE);
@@ -452,7 +439,7 @@ TEST_F(TestMutator, test_del_row_id) {
   update_op.cell_info.column_id_ = 2;
   update_op.cell_info.column_name_.assign(NULL, 0);
   ObString value;
-  value.assign((char*)"test", static_cast<int32_t>(strlen("test")));
+  value.assign("test", strlen("test"));
   update_op.cell_info.value_.set_varchar(value);
 
   err = mutator.add_cell(update_op);
@@ -489,7 +476,7 @@ TEST_F(TestMutator, test_del_row_id) {
   ASSERT_TRUE(NULL != mutation);
 
   EXPECT_EQ(table_id, mutation->cell_info.table_id_);
-  EXPECT_EQ(row_key, mutation->cell_info.row_key_);
+  check_string(row_key, mutation->cell_info.row_key_);
   int64_t ext_val = 0;
   mutation->cell_info.value_.get_ext(ext_val);
   EXPECT_TRUE(ObActionFlag::OP_DEL_ROW == ext_val);
@@ -506,12 +493,11 @@ TEST_F(TestMutator, test_update) {
   int err = OB_SUCCESS;
   ObMutator mutator;
   ObString table_name;
-  table_name.assign((char*)"oceanbase", static_cast<int32_t>(strlen("oceanbase")));
-  ObString str_row_key;
-  str_row_key.assign((char*)"row_key", static_cast<int32_t>(strlen("row_key")));
-  ObRowkey row_key = TestRowkeyHelper(str_row_key, &allocator_);
+  table_name.assign("sb", strlen("sb"));
+  ObString row_key;
+  row_key.assign("row_key", strlen("row_key"));
   ObString column_name;
-  column_name.assign((char*)"column_name", static_cast<int32_t>(strlen("column_name")));
+  column_name.assign("column_name", strlen("column_name"));
   int64_t int_val = 9999;
   ObObj value;
   value.set_int(int_val);
@@ -536,7 +522,7 @@ TEST_F(TestMutator, test_update) {
   ASSERT_TRUE(NULL != mutation);
 
   check_string(table_name, mutation->cell_info.table_name_);
-  EXPECT_EQ(row_key, mutation->cell_info.row_key_);
+  check_string(row_key, mutation->cell_info.row_key_);
   check_string(column_name, mutation->cell_info.column_name_);
   int64_t tmp_int = 0;
   mutation->cell_info.value_.get_int(tmp_int);
@@ -553,12 +539,11 @@ TEST_F(TestMutator, test_insert) {
   int err = OB_SUCCESS;
   ObMutator mutator;
   ObString table_name;
-  table_name.assign((char*)"oceanbase", static_cast<int32_t>(strlen("oceanbase")));
-  ObString str_row_key;
-  str_row_key.assign((char*)"row_key", static_cast<int32_t>(strlen("row_key")));
-  ObRowkey row_key = TestRowkeyHelper(str_row_key, &allocator_);
+  table_name.assign("sb", strlen("sb"));
+  ObString row_key;
+  row_key.assign("row_key", strlen("row_key"));
   ObString column_name;
-  column_name.assign((char*)"column_name", static_cast<int32_t>(strlen("column_name")));
+  column_name.assign("column_name", strlen("column_name"));
   int64_t int_val = 9999;
   ObObj value;
   value.set_int(int_val);
@@ -583,7 +568,7 @@ TEST_F(TestMutator, test_insert) {
   ASSERT_TRUE(NULL != mutation);
 
   check_string(table_name, mutation->cell_info.table_name_);
-  EXPECT_EQ(row_key, mutation->cell_info.row_key_);
+  check_string(row_key, mutation->cell_info.row_key_);
   check_string(column_name, mutation->cell_info.column_name_);
   int64_t tmp_int = 0;
   mutation->cell_info.value_.get_int(tmp_int);
@@ -600,12 +585,11 @@ TEST_F(TestMutator, test_add) {
   int err = OB_SUCCESS;
   ObMutator mutator;
   ObString table_name;
-  table_name.assign((char*)"oceanbase", static_cast<int32_t>(strlen("oceanbase")));
-  ObString str_row_key;
-  str_row_key.assign((char*)"row_key", static_cast<int32_t>(strlen("row_key")));
-  ObRowkey row_key = TestRowkeyHelper(str_row_key, &allocator_);
+  table_name.assign("sb", strlen("sb"));
+  ObString row_key;
+  row_key.assign("row_key", strlen("row_key"));
   ObString column_name;
-  column_name.assign((char*)"column_name", static_cast<int32_t>(strlen("column_name")));
+  column_name.assign("column_name", strlen("column_name"));
   int64_t int_val = 9999;
 
   err = mutator.add(table_name, row_key, column_name, int_val);
@@ -628,7 +612,7 @@ TEST_F(TestMutator, test_add) {
   ASSERT_TRUE(NULL != mutation);
 
   check_string(table_name, mutation->cell_info.table_name_);
-  EXPECT_EQ(row_key, mutation->cell_info.row_key_);
+  check_string(row_key, mutation->cell_info.row_key_);
   check_string(column_name, mutation->cell_info.column_name_);
   int64_t tmp_int = 0;
   bool is_add = false;
@@ -647,12 +631,11 @@ TEST_F(TestMutator, test_modify_id) {
   int err = OB_SUCCESS;
   ObMutator mutator;
   ObString table_name;
-  table_name.assign((char*)"oceanbase", static_cast<int32_t>(strlen("oceanbase")));
-  ObString str_row_key;
-  str_row_key.assign((char*)"row_key", static_cast<int32_t>(strlen("row_key")));
-  ObRowkey row_key = TestRowkeyHelper(str_row_key, &allocator_);
+  table_name.assign("sb", strlen("sb"));
+  ObString row_key;
+  row_key.assign("row_key", strlen("row_key"));
   ObString column_name;
-  column_name.assign((char*)"column_name", static_cast<int32_t>(strlen("column_name")));
+  column_name.assign("column_name", strlen("column_name"));
   uint64_t table_id = 1000;
   uint64_t column_id = 10;
   int64_t int_val = 9999;
@@ -674,7 +657,7 @@ TEST_F(TestMutator, test_modify_id) {
   mutation->cell_info.table_id_ = table_id;
 
   check_string(table_name, mutation->cell_info.table_name_);
-  EXPECT_EQ(row_key, mutation->cell_info.row_key_);
+  check_string(row_key, mutation->cell_info.row_key_);
   check_string(column_name, mutation->cell_info.column_name_);
   int64_t tmp_int = 0;
   mutation->cell_info.value_.get_int(tmp_int);
@@ -693,7 +676,7 @@ TEST_F(TestMutator, test_modify_id) {
   EXPECT_EQ(0, err);
   ASSERT_TRUE(NULL != mutation);
   EXPECT_EQ(table_id, mutation->cell_info.table_id_);
-  EXPECT_EQ(row_key, mutation->cell_info.row_key_);
+  check_string(row_key, mutation->cell_info.row_key_);
   EXPECT_EQ(column_id, mutation->cell_info.column_id_);
 }
 
@@ -707,8 +690,7 @@ TEST_F(TestMutator, test_combination) {
   char row_key_strs[ROW_NUM][50];
   char column_strs[ROW_NUM][COL_NUM][50];
   ObString table_name;
-  ObString tmpstr;
-  table_name.assign((char*)"oceanbase_table", static_cast<int32_t>(strlen("oceanbase_table")));
+  table_name.assign("sb_table", strlen("sb_table"));
   int64_t op_array_size = 6;
   int64_t op_array[100] = {ObActionFlag::OP_UPDATE, ObActionFlag::OP_INSERT,
                            ObActionFlag::OP_DEL_ROW, ObActionFlag::OP_USE_OB_SEM,
@@ -719,15 +701,14 @@ TEST_F(TestMutator, test_combination) {
     sprintf(row_key_strs[i], "row_key_%08ld", i);
     for (int64_t j = 0; j < COL_NUM; ++j) {
       cell_infos[i][j].cell_info.table_name_ = table_name;
-      tmpstr.assign_ptr(row_key_strs[i], static_cast<int32_t>(strlen(row_key_strs[i])));
-      cell_infos[i][j].cell_info.row_key_ = TestRowkeyHelper(tmpstr, &allocator_);
-      cell_infos[i][j].op_type.set_null();
+      cell_infos[i][j].cell_info.row_key_.assign(row_key_strs[i], strlen(row_key_strs[i]));
+
       int64_t op_array_idx = rand() % op_array_size;
 
       if (ObActionFlag::OP_UPDATE == op_array[op_array_idx]
           || ObActionFlag::OP_INSERT == op_array[op_array_idx]) {
         sprintf(column_strs[i][j], "column_name_%08ld_%08ld", i, j);
-        cell_infos[i][j].cell_info.column_name_.assign(column_strs[i][j], static_cast<int32_t>(strlen(column_strs[i][j])));
+        cell_infos[i][j].cell_info.column_name_.assign(column_strs[i][j], strlen(column_strs[i][j]));
 
         cell_infos[i][j].cell_info.value_.set_int(1000 + i * COL_NUM + j);
         cell_infos[i][j].op_type.set_ext(op_array[op_array_idx]);
@@ -739,7 +720,7 @@ TEST_F(TestMutator, test_combination) {
         cell_infos[i][j].cell_info.value_.set_ext(op_array[op_array_idx]);
       } else {
         sprintf(column_strs[i][j], "column_name_%08ld_%08ld", i, j);
-        cell_infos[i][j].cell_info.column_name_.assign(column_strs[i][j], static_cast<int32_t>(strlen(column_strs[i][j])));
+        cell_infos[i][j].cell_info.column_name_.assign(column_strs[i][j], strlen(column_strs[i][j]));
 
         cell_infos[i][j].cell_info.value_.set_int(1000 + i * COL_NUM + j, true);
       }
@@ -790,13 +771,13 @@ TEST_F(TestMutator, test_combination) {
       cell_infos[row_idx][col_idx].cell_info.value_.get_ext(tmp_int);
       EXPECT_EQ(tmp_int, ext_val);
     } else if (ObActionFlag::OP_DEL_ROW == ext_val) {
-      EXPECT_EQ(cell_infos[row_idx][col_idx].cell_info.row_key_, cur_cell->cell_info.row_key_);
+      check_string(cell_infos[row_idx][col_idx].cell_info.row_key_, cur_cell->cell_info.row_key_);
       check_string(cell_infos[row_idx][col_idx].cell_info.table_name_, cur_cell->cell_info.table_name_);
       int64_t tmp_int = 0;
       cell_infos[row_idx][col_idx].cell_info.value_.get_ext(tmp_int);
       EXPECT_EQ(tmp_int, ext_val);
     } else if (ObActionFlag::OP_UPDATE == real_op_int || ObActionFlag::OP_INSERT == real_op_int) {
-      EXPECT_EQ(cell_infos[row_idx][col_idx].cell_info.row_key_, cur_cell->cell_info.row_key_);
+      check_string(cell_infos[row_idx][col_idx].cell_info.row_key_, cur_cell->cell_info.row_key_);
       check_string(cell_infos[row_idx][col_idx].cell_info.table_name_, cur_cell->cell_info.table_name_);
       check_string(cell_infos[row_idx][col_idx].cell_info.column_name_, cur_cell->cell_info.column_name_);
       int64_t tmp_int = 0;
@@ -807,7 +788,7 @@ TEST_F(TestMutator, test_combination) {
       EXPECT_EQ(op_int, real_op_int);
     } else {
       // add op
-      EXPECT_EQ(cell_infos[row_idx][col_idx].cell_info.row_key_, cur_cell->cell_info.row_key_);
+      check_string(cell_infos[row_idx][col_idx].cell_info.row_key_, cur_cell->cell_info.row_key_);
       check_string(cell_infos[row_idx][col_idx].cell_info.table_name_, cur_cell->cell_info.table_name_);
       check_string(cell_infos[row_idx][col_idx].cell_info.column_name_, cur_cell->cell_info.column_name_);
 
@@ -835,9 +816,8 @@ TEST_F(TestMutator, test_combination_id) {
   char row_key_strs[ROW_NUM][50];
   //char column_strs[ROW_NUM][COL_NUM][50];
   ObString table_name;
-  ObString tmpstr;
   uint64_t table_id = 10;
-  table_name.assign((char*)"oceanbase_table", static_cast<int32_t>(strlen("oceanbase_table")));
+  table_name.assign("sb_table", strlen("sb_table"));
   int64_t op_array_size = 6;
   int64_t op_array[100] = {ObActionFlag::OP_UPDATE, ObActionFlag::OP_INSERT,
                            ObActionFlag::OP_DEL_ROW, ObActionFlag::OP_USE_OB_SEM,
@@ -849,9 +829,7 @@ TEST_F(TestMutator, test_combination_id) {
     for (int64_t j = 0; j < COL_NUM; ++j) {
       //cell_infos[i][j].cell_info.table_name_ = table_name;
       cell_infos[i][j].cell_info.table_id_ = table_id;
-      tmpstr.assign_ptr(row_key_strs[i], static_cast<int32_t>(strlen(row_key_strs[i])));
-      cell_infos[i][j].cell_info.row_key_ = TestRowkeyHelper(tmpstr, &allocator_);
-      cell_infos[i][j].op_type.set_null();
+      cell_infos[i][j].cell_info.row_key_.assign(row_key_strs[i], strlen(row_key_strs[i]));
 
       int64_t op_array_idx = rand() % op_array_size;
 
@@ -923,14 +901,14 @@ TEST_F(TestMutator, test_combination_id) {
       cell_infos[row_idx][col_idx].cell_info.value_.get_ext(tmp_int);
       EXPECT_EQ(tmp_int, ext_val);
     } else if (ObActionFlag::OP_DEL_ROW == ext_val) {
-      EXPECT_EQ(cell_infos[row_idx][col_idx].cell_info.row_key_, cur_cell->cell_info.row_key_);
+      check_string(cell_infos[row_idx][col_idx].cell_info.row_key_, cur_cell->cell_info.row_key_);
       //check_string(cell_infos[row_idx][col_idx].cell_info.table_name_, cur_cell->cell_info.table_name_);
       EXPECT_EQ(cell_infos[row_idx][col_idx].cell_info.table_id_, cur_cell->cell_info.table_id_);
       int64_t tmp_int = 0;
       cell_infos[row_idx][col_idx].cell_info.value_.get_ext(tmp_int);
       EXPECT_EQ(tmp_int, ext_val);
     } else if (ObActionFlag::OP_UPDATE == real_op_int || ObActionFlag::OP_INSERT == real_op_int) {
-      EXPECT_EQ(cell_infos[row_idx][col_idx].cell_info.row_key_, cur_cell->cell_info.row_key_);
+      check_string(cell_infos[row_idx][col_idx].cell_info.row_key_, cur_cell->cell_info.row_key_);
       //check_string(cell_infos[row_idx][col_idx].cell_info.table_name_, cur_cell->cell_info.table_name_);
       //check_string(cell_infos[row_idx][col_idx].cell_info.column_name_, cur_cell->cell_info.column_name_);
       EXPECT_EQ(cell_infos[row_idx][col_idx].cell_info.table_id_, cur_cell->cell_info.table_id_);
@@ -943,7 +921,7 @@ TEST_F(TestMutator, test_combination_id) {
       EXPECT_EQ(op_int, real_op_int);
     } else {
       // add op
-      EXPECT_EQ(cell_infos[row_idx][col_idx].cell_info.row_key_, cur_cell->cell_info.row_key_);
+      check_string(cell_infos[row_idx][col_idx].cell_info.row_key_, cur_cell->cell_info.row_key_);
       //check_string(cell_infos[row_idx][col_idx].cell_info.table_name_, cur_cell->cell_info.table_name_);
       //check_string(cell_infos[row_idx][col_idx].cell_info.column_name_, cur_cell->cell_info.column_name_);
       EXPECT_EQ(cell_infos[row_idx][col_idx].cell_info.table_id_, cur_cell->cell_info.table_id_);
@@ -968,18 +946,14 @@ TEST_F(TestMutator, test_name_and_id) {
   ObMutatorCellInfo cell_info1;
   ObMutatorCellInfo cell_info2;
 
-  ObString str_row_key;
-  str_row_key.assign((char*)"row_key", static_cast<int32_t>(strlen("row_key")));
-  ObRowkey row_key = TestRowkeyHelper(str_row_key, &allocator_);
-
-  cell_info1.cell_info.table_name_.assign((char*)"table", static_cast<int32_t>(strlen("table")));
-  cell_info1.cell_info.column_name_.assign((char*)"column", static_cast<int32_t>(strlen("column")));
-  cell_info1.cell_info.row_key_ = row_key;
+  cell_info1.cell_info.table_name_.assign("table", strlen("table"));
+  cell_info1.cell_info.column_name_.assign("column", strlen("column"));
+  cell_info1.cell_info.row_key_.assign("row_key", strlen("row_key"));
   cell_info1.cell_info.value_.set_int(100);
 
   cell_info2.cell_info.table_id_ = 10;
   cell_info2.cell_info.column_id_ = 2;
-  cell_info2.cell_info.row_key_ = row_key;
+  cell_info2.cell_info.row_key_.assign("row_key", strlen("row_key"));
   cell_info2.cell_info.value_.set_int(100);
 
   ObMutator mutator;
@@ -989,9 +963,9 @@ TEST_F(TestMutator, test_name_and_id) {
   EXPECT_NE(0, err);
 
   ObMutatorCellInfo cell_info3;
-  cell_info3.cell_info.table_name_.assign((char*)"table", static_cast<int32_t>(strlen("table")));
+  cell_info3.cell_info.table_name_.assign("table", strlen("table"));
   cell_info3.cell_info.column_id_ = 2;
-  cell_info3.cell_info.row_key_ = row_key;
+  cell_info3.cell_info.row_key_.assign("row_key", strlen("row_key"));
   cell_info3.cell_info.value_.set_int(100);
 
   ObMutator mutator1;
@@ -999,54 +973,197 @@ TEST_F(TestMutator, test_name_and_id) {
   EXPECT_NE(0, err);
 }
 
-TEST_F(TestMutator, test_mutator_different_tablename_and_same_rowkey) {
+TEST_F(TestMutator, test_mutator_with_exist_condition) {
+  static const int64_t ROW_NUM = 100;
+  static const int64_t COL_NUM = 5;
+
+  int err = OB_SUCCESS;
+  ObCellInfo cell_infos[ROW_NUM][COL_NUM];
+  char row_key_strs[ROW_NUM][50];
+  char column_strs[ROW_NUM][COL_NUM][50];
+  ObString table_name;
+  table_name.assign("sb_table", strlen("sb_table"));
+  // init cell infos
+  for (int64_t i = 0; i < ROW_NUM; ++i) {
+    sprintf(row_key_strs[i], "row_key_%08ld", i);
+    for (int64_t j = 0; j < COL_NUM; ++j) {
+      cell_infos[i][j].table_name_ = table_name;
+      cell_infos[i][j].row_key_.assign(row_key_strs[i], strlen(row_key_strs[i]));
+      //cell_infos[i][j].op_info_.set_update();
+
+      sprintf(column_strs[i][j], "column_name_%08ld_%08ld", i, j);
+      cell_infos[i][j].column_name_.assign(column_strs[i][j], strlen(column_strs[i][j]));
+
+      cell_infos[i][j].value_.set_int(1000 + i * COL_NUM + j);
+    }
+  }
+
   ObMutator mutator;
+  TestMutatorHelper helper(mutator);
+  // add cell to array
+  for (int64_t i = 0; i < ROW_NUM; ++i) {
+    for (int64_t j = 0; j < COL_NUM; ++j) {
+      ObMutatorCellInfo mutation;
+      mutation.cell_info = cell_infos[i][j];
+      mutation.op_type.set_ext(ObActionFlag::OP_UPDATE);
 
-  ObString table_name1;
-  table_name1.assign_ptr(const_cast<char*>("table1"), 6);
-  ObString table_name2;
-  table_name2.assign_ptr(const_cast<char*>("table2"), 6);
-  ObString rowkey;
-  rowkey.assign_ptr(const_cast<char*>("rowkey"), 6);
-  ObString column_name1;
-  column_name1.assign_ptr(const_cast<char*>("column1"), 7);
-  ObString column_name2;
-  column_name2.assign_ptr(const_cast<char*>("column2"), 7);
+      err = helper.add_cell(mutation);
+      EXPECT_EQ(0, err);
+    }
+  }
 
-  mutator.update(table_name1, TestRowkeyHelper(rowkey, &allocator_), column_name1, ObObj());
-  mutator.update(table_name2, TestRowkeyHelper(rowkey, &allocator_), column_name2, ObObj());
+  // add update condition
+  ObUpdateCondition& update_condition = mutator.get_update_condition();
+  char table_name_str[128];
+  strcpy(table_name_str, "table_name");
+  char row_key_str[128];
+  strcpy(row_key_str, "row_key");
+  char column_name_str[128];
+  strcpy(column_name_str, "column_name");
+  ObCondInfo cond_info;
+  cond_info.table_name_.assign(table_name_str, strlen(table_name_str));
+  cond_info.row_key_.assign(row_key_str, strlen(row_key_str));
+  cond_info.column_name_.assign(column_name_str, strlen(column_name_str));
+  cond_info.value_.set_ext(ObActionFlag::OP_ROW_DOES_NOT_EXIST);
 
+  err = update_condition.add_cond(cond_info.table_name_, cond_info.row_key_, false);
+  EXPECT_EQ(0, err);
+  EXPECT_EQ(1, update_condition.get_count());
+  check_exist_cond_info(cond_info, *update_condition[0]);
+
+  int64_t serialize_size = mutator.get_serialize_size();
+  ASSERT_TRUE(serialize_size > 0);
+  char* buf = new char[serialize_size + 1024];
+  memset(buf, 0xfe, serialize_size + 1024);
   int64_t pos = 0;
-  int64_t size = 2 * 1024 * 1024;
-  char* buffer = new char[size];
-  mutator.serialize(buffer, size, pos);
+  err = mutator.serialize(buf, serialize_size, pos);
+  EXPECT_EQ(0, err);
+  EXPECT_EQ(serialize_size, pos);
+
+  ObMutator new_mutator;
   pos = 0;
-  mutator.deserialize(buffer, size, pos);
-  delete[] buffer;
+  err = new_mutator.deserialize(buf, serialize_size, pos);
+  EXPECT_EQ(serialize_size, pos);
+  // check condition
+  const ObUpdateCondition& new_condition = new_mutator.get_update_condition();
+  EXPECT_EQ(1, new_condition.get_count());
+  check_exist_cond_info(cond_info, *new_condition[0]);
 
-  int ret = mutator.next_cell();
-  EXPECT_EQ(OB_SUCCESS, ret);
-  ObMutatorCellInfo* nil = NULL;
-  ObMutatorCellInfo* ci = NULL;
-  bool irc = false;
-  bool irf = false;
-  ret = mutator.get_cell(&ci, &irc, &irf);
-  EXPECT_EQ(OB_SUCCESS, ret);
-  EXPECT_NE(nil, ci);
-  EXPECT_EQ(true, irc);
-  EXPECT_EQ(true, irf);
+  // check result
+  int64_t count = 0;
+  ObMutatorCellInfo* cur_cell = NULL;
+  while (OB_SUCCESS == new_mutator.next_cell()) {
+    err = new_mutator.get_cell(&cur_cell);
+    EXPECT_EQ(0, err);
+    ASSERT_TRUE(NULL != cur_cell);
+    check_cell_with_name(cell_infos[count / COL_NUM][count % COL_NUM], cur_cell->cell_info);
+    int64_t ext_val = 0;
+    cur_cell->op_type.get_ext(ext_val);
+    EXPECT_TRUE(ObActionFlag::OP_UPDATE == ext_val);
+    ++count;
+  }
+  EXPECT_EQ(ROW_NUM * COL_NUM, count);
 
-  ret = mutator.next_cell();
-  EXPECT_EQ(OB_SUCCESS, ret);
-  ret = mutator.get_cell(&ci, &irc, &irf);
-  EXPECT_EQ(OB_SUCCESS, ret);
-  EXPECT_NE(nil, ci);
-  EXPECT_EQ(true, irc);
-  EXPECT_EQ(true, irf);
-
-  ret = mutator.next_cell();
-  EXPECT_EQ(OB_ITER_END, ret);
+  delete[] buf;
 }
+
+TEST_F(TestMutator, test_mutator_with_cell_condition) {
+  static const int64_t ROW_NUM = 100;
+  static const int64_t COL_NUM = 5;
+
+  int err = OB_SUCCESS;
+  ObCellInfo cell_infos[ROW_NUM][COL_NUM];
+  char row_key_strs[ROW_NUM][50];
+  char column_strs[ROW_NUM][COL_NUM][50];
+  ObString table_name;
+  table_name.assign("sb_table", strlen("sb_table"));
+  // init cell infos
+  for (int64_t i = 0; i < ROW_NUM; ++i) {
+    sprintf(row_key_strs[i], "row_key_%08ld", i);
+    for (int64_t j = 0; j < COL_NUM; ++j) {
+      cell_infos[i][j].table_name_ = table_name;
+      cell_infos[i][j].row_key_.assign(row_key_strs[i], strlen(row_key_strs[i]));
+      //cell_infos[i][j].op_info_.set_update();
+
+      sprintf(column_strs[i][j], "column_name_%08ld_%08ld", i, j);
+      cell_infos[i][j].column_name_.assign(column_strs[i][j], strlen(column_strs[i][j]));
+
+      cell_infos[i][j].value_.set_int(1000 + i * COL_NUM + j);
+    }
+  }
+
+  ObMutator mutator;
+  TestMutatorHelper helper(mutator);
+  // add cell to array
+  for (int64_t i = 0; i < ROW_NUM; ++i) {
+    for (int64_t j = 0; j < COL_NUM; ++j) {
+      ObMutatorCellInfo mutation;
+      mutation.cell_info = cell_infos[i][j];
+      mutation.op_type.set_ext(ObActionFlag::OP_UPDATE);
+
+      err = helper.add_cell(mutation);
+      EXPECT_EQ(0, err);
+    }
+  }
+
+  // add update condition
+  ObUpdateCondition& update_condition = mutator.get_update_condition();
+  char table_name_str[128];
+  strcpy(table_name_str, "table_name");
+  char row_key_str[128];
+  strcpy(row_key_str, "row_key");
+  char column_name_str[128];
+  strcpy(column_name_str, "column_name");
+  ObCondInfo cond_info;
+  cond_info.table_name_.assign(table_name_str, strlen(table_name_str));
+  cond_info.row_key_.assign(row_key_str, strlen(row_key_str));
+  cond_info.column_name_.assign(column_name_str, strlen(column_name_str));
+  cond_info.op_type_ = EQ;
+  cond_info.value_.set_int(100);
+
+  err = update_condition.add_cond(cond_info.table_name_, cond_info.row_key_,
+                                  cond_info.column_name_, cond_info.op_type_, cond_info.value_);
+  EXPECT_EQ(0, err);
+  EXPECT_EQ(1, update_condition.get_count());
+  check_cond_info(cond_info, *update_condition[0]);
+
+  int64_t serialize_size = mutator.get_serialize_size();
+  ASSERT_TRUE(serialize_size > 0);
+  char* buf = new char[serialize_size + 1024];
+  memset(buf, 0xfe, serialize_size + 1024);
+  int64_t pos = 0;
+  err = mutator.serialize(buf, serialize_size, pos);
+  EXPECT_EQ(0, err);
+  EXPECT_EQ(serialize_size, pos);
+
+  ObMutator new_mutator;
+  pos = 0;
+  err = new_mutator.deserialize(buf, serialize_size, pos);
+  EXPECT_EQ(serialize_size, pos);
+  // check condition
+  const ObUpdateCondition& new_condition = new_mutator.get_update_condition();
+  EXPECT_EQ(1, new_condition.get_count());
+  check_cond_info(cond_info, *new_condition[0]);
+
+  // check result
+  int64_t count = 0;
+  ObMutatorCellInfo* cur_cell = NULL;
+  while (OB_SUCCESS == new_mutator.next_cell()) {
+    err = new_mutator.get_cell(&cur_cell);
+    EXPECT_EQ(0, err);
+    ASSERT_TRUE(NULL != cur_cell);
+    check_cell_with_name(cell_infos[count / COL_NUM][count % COL_NUM], cur_cell->cell_info);
+    int64_t ext_val = 0;
+    cur_cell->op_type.get_ext(ext_val);
+    EXPECT_TRUE(ObActionFlag::OP_UPDATE == ext_val);
+    ++count;
+  }
+  EXPECT_EQ(ROW_NUM * COL_NUM, count);
+
+  delete[] buf;
+}
+
+
 
 } // end namespace common
 } // end namespace tests

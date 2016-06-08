@@ -1,4 +1,18 @@
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * page_arena.h for ...
+ *
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
+ */
 #ifndef OCEANBASE_COMMON_PAGE_ARENA_H_
 #define OCEANBASE_COMMON_PAGE_ARENA_H_
 
@@ -7,8 +21,7 @@
 #include <string.h>
 #include "ob_define.h"
 #include "ob_malloc.h"
-#include "ob_mod_define.h"
-#include "ob_allocator.h"
+
 
 
 namespace sb {
@@ -24,28 +37,20 @@ inline size_t get_align_offset(void* p) {
   return size;
 }
 
-struct DefaultPageAllocator: public ObIAllocator {
-  DefaultPageAllocator(): mod_id_(ObModIds::OB_PAGE_ARENA) {};
-  virtual ~DefaultPageAllocator() {};
-  void* alloc(const int64_t sz) { return ob_tc_malloc(sz, mod_id_); }
-  void free(void* p) { ob_tc_free(p); }
+struct DefaultPageAllocator {
+  void* allocate(const int64_t sz) { return ob_malloc(sz); }
+  void deallocate(void* p) { ob_free(p); }
   void freed(const int64_t sz) {UNUSED(sz); /* mostly for effcient bulk stat reporting */ }
-  void set_mod_id(int32_t mod_id) {mod_id_ = mod_id;};
- private:
-  int32_t mod_id_;
 };
 
-struct ModulePageAllocator: public ObIAllocator {
-  explicit ModulePageAllocator(int32_t mod_id = ObModIds::OB_MODULE_PAGE_ALLOCATOR) : mod_id_(mod_id), allocator_(NULL) {}
-  explicit ModulePageAllocator(ObIAllocator& allocator) : allocator_(&allocator) {}
-  virtual ~ModulePageAllocator() {}
+struct ModulePageAllocator {
+  explicit ModulePageAllocator(int32_t mod_id = 0) : mod_id_(mod_id) {}
   void set_mod_id(int32_t mod_id) { mod_id_ = mod_id; }
-  void* alloc(const int64_t sz) { return (NULL == allocator_) ? ob_tc_malloc(sz, mod_id_) : allocator_->alloc(sz); }
-  void free(void* p) { (NULL == allocator_) ? ob_tc_free(p, mod_id_) : allocator_->free(p); }
+  void* allocate(const int64_t sz) { return ob_malloc(sz, mod_id_); }
+  void deallocate(void* p) { ob_free(p, mod_id_); }
   void freed(const int64_t sz) {UNUSED(sz); /* mostly for effcient bulk stat reporting */ }
  private:
   int32_t mod_id_;
-  ObIAllocator* allocator_;
 };
 
 /**
@@ -56,18 +61,17 @@ struct ModulePageAllocator: public ObIAllocator {
 template <typename CharT = char, class PageAllocatorT = DefaultPageAllocator>
 class PageArena {
  public:
-  static const int64_t DEFAULT_PAGE_SIZE = 64 * 1024; // default 64KB
+  static const int64_t DEFAULT_PAGE_SIZE = 64 * 1024 ; // default 64KB
  private: // types
   typedef PageArena<CharT, PageAllocatorT> Self;
 
   struct Page {
-    uint64_t magic_;
     Page* next_page_;
     char* alloc_end_;
     const char* page_end_;
     char buf_[0];
 
-    Page(const char* end) : magic_(0x1234abcddbca4321), next_page_(0), page_end_(end) {
+    Page(const char* end) : next_page_(0), page_end_(end) {
       alloc_end_ = buf_;
     }
 
@@ -128,16 +132,13 @@ class PageArena {
 
   Page* alloc_new_page(const int64_t sz) {
     Page* page = NULL;
-    void* ptr = page_allocator_.alloc(sz);
+    void* ptr = page_allocator_.allocate(sz);
 
     if (NULL != ptr) {
       page  = new(ptr) Page((char*)ptr + sz);
 
       total_  += sz;
       ++pages_;
-    } else {
-      TBSYS_LOG(ERROR, "cannot allocate memory.sz=%ld, pages_=%ld,total_=%ld",
-                sz, pages_, total_);
     }
 
     return page;
@@ -151,9 +152,6 @@ class PageArena {
         page->reuse();
       } else {
         page = alloc_new_page(sz);
-        if (NULL == page) {
-          TBSYS_LOG(ERROR, "extend_page sz =%ld cannot alloc new page", sz);
-        }
         insert_tail(page);
       }
     }
@@ -172,11 +170,8 @@ class PageArena {
   }
 
   inline bool is_normal_overflow(const int64_t sz) {
-    return sz <= page_limit_;
-  }
-
-  inline bool is_large_page(Page* page) {
-    return NULL == page ? false : page->raw_size() > page_size_;
+    return sz <= page_limit_
+           && cur_page_->remain() < page_limit_ / 2;
   }
 
   CharT* alloc_big(const int64_t sz) {
@@ -188,26 +183,6 @@ class PageArena {
       ptr = p->alloc(sz);
     }
     return ptr;
-  }
-
-  void free_large_pages() {
-    Page** current = &header_;
-    while (NULL != *current) {
-      Page* entry = *current;
-      if (is_large_page(entry)) {
-        *current = entry->next_page_;
-        pages_ -= 1;
-        total_ -= entry->raw_size();
-        page_allocator_.free(entry);
-      } else {
-        tailer_ = *current;
-        current = &entry->next_page_;
-      }
-
-    }
-    if (NULL == header_) {
-      tailer_ = NULL;
-    }
   }
 
   void reset() {
@@ -271,17 +246,12 @@ class PageArena {
 
   void set_page_size(const int64_t sz) {
     assert(sz > (int64_t)sizeof(Page));
-    // set page size only in initialized.
-    if (NULL == header_ && 0 == total_) {
-      page_size_ = sz;
-    }
+    page_size_ = sz;
   }
 
   void set_page_alloctor(const PageAllocatorT& alloc) {
     page_allocator_ = alloc;
   }
-
-  void set_mod_id(int32_t mod_id) {page_allocator_.set_mod_id(mod_id);};
 
   /** allocate sz bytes */
   CharT* alloc(const int64_t sz) {
@@ -306,17 +276,6 @@ class PageArena {
       }
     }
     return ret;
-  }
-
-  template<class T>
-  T* new_object() {
-    T* ret = NULL;
-    void* tmp = (void*)alloc_aligned(sizeof(T));
-    if (NULL == tmp) {
-      TBSYS_LOG(WARN, "fail to alloc mem for T");
-    } else {
-      new(tmp)T();
-    }
   }
 
   /** allocate sz bytes */
@@ -420,7 +379,7 @@ class PageArena {
     while (NULL != header_) {
       page = header_;
       header_ = header_->next_page_;
-      page_allocator_.free(page);
+      page_allocator_.deallocate(page);
     }
     page_allocator_.freed(total_);
 
@@ -451,13 +410,13 @@ class PageArena {
 
       total_ -= page->raw_size();
 
-      page_allocator_.free(page);
+      page_allocator_.deallocate(page);
 
       ++current_sleep_pages;
       --pages_;
 
       if (sleep_pages > 0 && current_sleep_pages >= sleep_pages) {
-        ::usleep(static_cast<useconds_t>(sleep_interval_us));
+        ::usleep(sleep_interval_us);
         current_sleep_pages = 0;
       }
     }
@@ -475,7 +434,6 @@ class PageArena {
   }
 
   void reuse() {
-    free_large_pages();
     used_ = 0;
     cur_page_ = header_;
     if (NULL != cur_page_) {
@@ -495,37 +453,9 @@ typedef PageArena<> CharArena;
 typedef PageArena<unsigned char> ByteArena;
 typedef PageArena<char, ModulePageAllocator> ModuleArena;
 
-class ObArenaAllocator: public ObIAllocator {
- public:
-  ObArenaAllocator(int32_t mod_id, const int64_t page_size = 64 * 1024)
-    : arena_(page_size, ModulePageAllocator(mod_id)) {};
-  virtual ~ObArenaAllocator() {};
- public:
-  virtual void* alloc(const int64_t sz) {return arena_.alloc(sz);};
-  virtual void free(void* ptr) {arena_.free(reinterpret_cast<char*>(ptr));};
-  void reuse() {arena_.reuse();};
-  virtual void set_mod_id(int32_t mod_id) {UNUSED(mod_id);};
- private:
-  ModuleArena arena_;
-};
-
-#define ALLOC_OBJECT(allocator, obj, T, arg...) \
-    do \
-    { \
-      obj = NULL; \
-      void *tmp = reinterpret_cast<void *>(allocator.alloc_aligned(sizeof(T))); \
-      if (NULL == tmp) \
-      { \
-        TBSYS_LOG(WARN, "alloc mem for %s", #T); \
-      } \
-      else \
-      { \
-        obj = new(tmp) T(##arg); \
-      } \
-    } \
-    while (0)
 
 } // end namespace common
 } // end namespace sb
 
 #endif // end if OCEANBASE_COMMON_PAGE_ARENA_H_
+

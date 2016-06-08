@@ -1,22 +1,18 @@
-////===================================================================
-//
-// ob_table_engine.h / hash / common / Oceanbase
-//
-// Copyright (C) 2010, 2011 Taobao.com, Inc.
-//
-// Created on 2010-09-09 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_table_engine.h for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #ifndef  OCEANBASE_UPDATESERVER_TABLE_ENGINE_H_
 #define  OCEANBASE_UPDATESERVER_TABLE_ENGINE_H_
 #include <stdlib.h>
@@ -30,147 +26,83 @@
 #include "common/ob_read_common_data.h"
 #include "common/utility.h"
 #include "common/ob_crc64.h"
-#include "common/qlock.h"
 #include "ob_ups_utils.h"
-#include "ob_ups_compact_cell_iterator.h"
-#include "ob_session_mgr.h"
 
 namespace sb {
 namespace updateserver {
 const int64_t CELL_INFO_SIZE_UNIT = 1024L;
 
-struct ObCellInfoNode {
-  int64_t modify_time;
-  ObCellInfoNode* next;
-  char buf[0];
-
-  std::pair<int64_t, int64_t> get_size_and_cnt() const;
-};
-
-struct ObUndoNode {
-  ObCellInfoNode* head;
-  ObUndoNode* next;
-};
-
-class ObCellInfoNodeIterable {
- protected:
-  struct CtrlNode {
-    uint64_t column_id;
-    common::ObObj value;
-    CtrlNode* next;
-  };
- public:
-  ObCellInfoNodeIterable();
-  virtual ~ObCellInfoNodeIterable();
- public:
-  int next_cell();
-  int get_cell(uint64_t& column_id, common::ObObj& value);
-  void reset();
- public:
-  void set_cell_info_node(const ObCellInfoNode* cell_info_node);
-  void set_mtime(const uint64_t column_id, const ObModifyTime value);
-  void set_rne();
-  void set_head();
- private:
-  const ObCellInfoNode* cell_info_node_;
-  bool is_iter_end_;
-  ObUpsCompactCellIterator cci_;
-  CtrlNode* ctrl_list_;
-  CtrlNode head_node_;
-  CtrlNode rne_node_;
-  CtrlNode mtime_node_;
-};
-
-class ObCellInfoNodeIterableWithCTime : public ObCellInfoNodeIterable, public RowkeyInfoCache {
- public:
-  ObCellInfoNodeIterableWithCTime();
-  virtual ~ObCellInfoNodeIterableWithCTime();
- public:
-  int next_cell();
-  int get_cell(uint64_t& column_id, common::ObObj& value);
-  void reset();
- public:
-  void set_ctime_column_id(const uint64_t column_id);
-  void set_rowkey_column(const uint64_t table_id, const common::ObRowkey& row_key);
-  void set_nop();
- private:
-  int inner_err;
-  bool is_iter_end_;
-  CtrlNode* ext_list_;
-  CtrlNode* list_iter_;
+struct UpsCellInfo {
   uint64_t column_id_;
   common::ObObj value_;
-  CtrlNode ctime_node_;
-  CtrlNode rowkey_node_[OB_MAX_ROWKEY_COLUMN_NUMBER];
-  CtrlNode nop_node_;
+  inline void reset() {
+    column_id_ = common::OB_INVALID_ID;
+    value_.reset();
+  }
+  inline int64_t checksum(const int64_t current) const {
+    int64_t ret = current;
+    ret = common::ob_crc64(ret, &column_id_, sizeof(column_id_));
+    ret = value_.checksum(ret);
+    return ret;
+  }
 };
 
-#define __USING_FORMED_ROWKEY__
-#ifdef __USING_FORMED_ROWKEY__
-typedef common::ObRowkey UpsRowKey;
-#else
-typedef common::ObString UpsRowKey;
-#endif
-
-struct TEHashKey {
-  uint32_t table_id;
-  int32_t rk_length;
-  const ObObj* row_key;
-
-  TEHashKey() : table_id(UINT32_MAX),
-    rk_length(0),
-    row_key(NULL) {
-  };
-  inline int64_t hash() const {
-    common::ObRowkey rk(const_cast<ObObj*>(row_key), rk_length);
-    //return (rk.murmurhash2(0) + table_id);
-    return (rk.murmurhash64A(0) + table_id);
-  };
-  inline bool operator == (const TEHashKey& other) const {
-    bool bret = false;
-    if (table_id == other.table_id
-        && other.rk_length == rk_length) {
-      bret = true;
-      for (int64_t i = 0; i < rk_length && bret; i++) {
-        if (common::ObNullType == row_key[i].get_type()
-            || common::ObNullType == other.row_key[i].get_type()) {
-          bret = (common::ObNullType == row_key[i].get_type()) && (common::ObNullType == other.row_key[i].get_type());
-        } else {
-          bret = (0 == row_key[i].compare_same_type(other.row_key[i]));
-        }
-      }
+struct ObCellInfoNode {
+  UpsCellInfo cell_info;
+  ObCellInfoNode* next;
+  inline void reset() {
+    cell_info.reset();
+    next = NULL;
+  }
+  inline int64_t checksum(const int64_t current) const {
+    return cell_info.checksum(current);
+  }
+  inline int64_t size() const {
+    int64_t ret = sizeof(cell_info.column_id_) + sizeof(cell_info.value_);
+    if (common::ObVarcharType == cell_info.value_.get_type()) {
+      common::ObString varchar;
+      cell_info.value_.get_varchar(varchar);
+      ret += varchar.length();
     }
-    return bret;
-  };
+    // 按CELL_INFO_SIZE_UNIT向上取整
+    ret = (ret + CELL_INFO_SIZE_UNIT - 1) & ~(CELL_INFO_SIZE_UNIT - 1);
+    ret = ret / CELL_INFO_SIZE_UNIT;
+    return ret;
+  }
 };
 
 struct TEKey {
   uint64_t table_id;
-  UpsRowKey row_key;
+  common::ObString row_key;
 
-  TEKey(const uint64_t table_id, const UpsRowKey& row_key): table_id(table_id), row_key(row_key)
-  {}
   TEKey() : table_id(common::OB_INVALID_ID), row_key() {
   };
   inline int64_t hash() const {
-    //return row_key.murmurhash2(0) + table_id;
-    return row_key.murmurhash64A(0) + table_id;
+    return (common::murmurhash2(row_key.ptr(), row_key.length(), 0) + table_id);
   };
-  inline void checksum(common::ObBatchChecksum& bc) const {
-    bc.fill(&table_id, sizeof(table_id));
-    row_key.checksum(bc);
+  inline int64_t checksum(const int64_t current) const {
+    int64_t ret = current;
+    ret = common::ob_crc64(ret, &table_id, sizeof(table_id));
+    ret = common::ob_crc64(ret, row_key.ptr(), row_key.length());
+    return ret;
   };
-  inline const char* log_str() const {
+  const char* log_str() const {
     static const int32_t BUFFER_SIZE = 2048;
     static __thread char BUFFER[2][BUFFER_SIZE];
-    static __thread uint64_t i = 0;
-    snprintf(BUFFER[i % 2], BUFFER_SIZE, "table_id=%lu rowkey=[%s] rowkey_ptr=%p rowkey_length=%ld",
-             table_id, sb::common::to_cstring(row_key), row_key.ptr(), row_key.length());
+    static __thread int64_t i = 0;
+    if (NULL != row_key.ptr()
+        && 0 != row_key.length()
+        && !isprint(row_key.ptr()[0])) {
+      char hex_buffer[BUFFER_SIZE] = {'\0'};
+      common::hex_to_str(row_key.ptr(), row_key.length(), hex_buffer, BUFFER_SIZE);
+      snprintf(BUFFER[i % 2], BUFFER_SIZE, "table_id=%lu row_ptr=%p row_key=[0x %s] key_length=%d",
+               table_id, row_key.ptr(), hex_buffer, row_key.length());
+    } else {
+      snprintf(BUFFER[i % 2], BUFFER_SIZE, "table_id=%lu row_ptr=%p row_key=[%.*s] key_length=%d",
+               table_id, row_key.ptr(), row_key.length(), row_key.ptr(), row_key.length());
+    }
     return BUFFER[i++ % 2];
   };
-  inline const char* to_cstring() const {
-    return log_str();
-  }
   inline bool operator == (const TEKey& other) const {
     return (table_id == other.table_id
             && row_key == other.row_key);
@@ -198,88 +130,50 @@ struct TEKey {
   };
 };
 
-static const uint8_t IST_NO_INDEX = 0x0;
-static const uint8_t IST_HASH_INDEX = 0x1;
-static const uint8_t IST_BTREE_INDEX = 0x2;
+const int8_t ROW_ST_UNKNOW = 0;
+const int8_t ROW_ST_EXIST = 1;
+const int8_t ROW_ST_NOT_EXIST = 2;
 
-struct TEValueUCInfo;
 struct TEValue {
-  ObUndoNode* undo_list; // tevalue的bit copy必须先复制undolist
-  uint8_t index_stat;
   int16_t cell_info_cnt;
+  int8_t row_stat;
+  int8_t update_count;
   int16_t cell_info_size; // 单位为1K
+  int16_t reserve2;
   ObCellInfoNode* list_head;
   ObCellInfoNode* list_tail;
-  TEValueUCInfo* cur_uc_info;
-  QLock row_lock;
+  int64_t create_time;
+  int64_t modify_time;
 
   TEValue() {
     reset();
   };
-  inline void reset() {
-    index_stat = IST_NO_INDEX;
+  inline int64_t checksum(const int64_t current) const {
+    int64_t ret = current;
+    ret = common::ob_crc64(ret, &cell_info_cnt, sizeof(cell_info_cnt));
+    ret = common::ob_crc64(ret, &row_stat, sizeof(row_stat));
+    ret = common::ob_crc64(ret, &create_time, sizeof(create_time));
+    ret = common::ob_crc64(ret, &modify_time, sizeof(modify_time));
+    return ret;
+  };
+  void reset() {
     cell_info_cnt = 0;
+    row_stat = ROW_ST_UNKNOW;
+    update_count = 0;
     cell_info_size = 0;
     list_head = NULL;
     list_tail = NULL;
-    cur_uc_info = NULL;
-    row_lock.reset();
-    undo_list = NULL;
+    create_time = 0;
+    modify_time = 0;
   };
-  inline const char* log_str() const {
+  const char* log_str() const {
     static const int32_t BUFFER_SIZE = 2048;
     static __thread char BUFFER[2][BUFFER_SIZE];
-    static __thread uint64_t i = 0;
-    snprintf(BUFFER[i % 2], BUFFER_SIZE, "index_stat=%hhu cell_info_cnt=%hd cell_info_size=%hdKB "
-             "list_head=%p list_tail=%p cur_uc_info=%p lock_uid=%x lock_nref=%u undo_list=%p",
-             index_stat, cell_info_cnt, cell_info_size,
-             list_head, list_tail, cur_uc_info,
-             row_lock.uid_, row_lock.n_ref_, undo_list);
+    static __thread int64_t i = 0;
+    snprintf(BUFFER[i % 2], BUFFER_SIZE, "cell_info_cnt=%hd row_stat=%hhd update_count=%hhd cell_info_size=%hdKB list_head=%p list_tail=%p create_time=%s modify_time=%s",
+             cell_info_cnt, row_stat, update_count, cell_info_size, list_head, list_tail, time2str(create_time), time2str(modify_time));
     return BUFFER[i++ % 2];
   };
-  inline const char* log_list() {
-    static const int32_t BUFFER_SIZE = 2048;
-    static __thread char BUFFER[2][BUFFER_SIZE];
-    static __thread uint64_t i = 0;
-    char* buffer = BUFFER[i++ % 2];
-    int64_t pos = snprintf(buffer, BUFFER_SIZE, "list_head=%p ", list_head);
-    ObCellInfoNode* iter = list_head;
-    while (NULL != iter
-           && pos < BUFFER_SIZE) {
-      pos += snprintf(buffer + pos, BUFFER_SIZE - pos, "next=%p ", iter);
-      iter = iter->next;
-    }
-    if (pos < BUFFER_SIZE) {
-      snprintf(buffer + pos, BUFFER_SIZE - pos, "list_tail=%p", list_tail);
-    }
-    return buffer;
-  };
-  inline const char* to_cstring() const {
-    return log_str();
-  }
-  inline bool is_empty() const {
-    return (NULL == list_head);
-  };
-  int64_t get_cur_version() const {
-    return list_tail ? list_tail->modify_time : -1;
-  }
-};
-
-class TEValueSessionCallback : public ISessionCallback {
- public:
-  TEValueSessionCallback() {};
-  ~TEValueSessionCallback() {};
- public:
-  int cb_func(const bool rollback, void* data, BaseSessionCtx& session);
-};
-
-class MemTable;
-class TransSessionCallback : public ISessionCallback {
- public:
-  TransSessionCallback() {};
-  ~TransSessionCallback() {};
- public:
-  int cb_func(const bool rollback, void* data, BaseSessionCtx& session);
 };
 
 enum TETransType {
@@ -289,8 +183,19 @@ enum TETransType {
 };
 
 extern bool get_key_prefix(const TEKey& te_key, TEKey& prefix_key);
+
+typedef std::pair<TEKey, TEValue> TEKVPair;
+
+class HashEngine;
+class HashEngineIterator;
+class HashEngineTransHandle;
+class BtreeEngine;
+class BtreeEngineIterator;
+class BtreeEngineTransHandle;
 }
 }
 
 #endif //OCEANBASE_UPDATESERVER_TABLE_ENGINE_H_
+
+
 

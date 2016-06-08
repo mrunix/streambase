@@ -1,23 +1,21 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * dumpsst.cc is for what ...
+ * Version: $Id$
  *
  * Authors:
  *   MaoQi maoqi@taobao.com
  *   huating <huating.zmq@taobao.com>
  *   rongxuan <rongxuan.lc@taobao.com>
- *
+ *   qushan <qushan@taobao.com>
  */
-
 
 #include "common/ob_define.h"
 #include "common/ob_malloc.h"
-#include "common/ob_rowkey.h"
 #include "common/ob_object.h"
 #include "common/utility.h"
 #include "common/ob_crc64.h"
@@ -31,7 +29,6 @@
 #include "chunkserver/ob_disk_manager.h"
 #include "common/ob_range.h"
 #include "common/ob_array_helper.h"
-#include "common/ob_schema_manager.h"
 //#include "ob_tablet_meta.h"
 #include "sstable/ob_sstable_block_reader.h"
 #include "sstable/ob_sstable_block_index_v2.h"
@@ -52,9 +49,6 @@ using namespace sb::sstable;
 using namespace sb::chunkserver;
 
 const char* g_sstable_directory = NULL;
-const int64_t LARGE_BUFSIZ = 1024 * 512L; // 512KB
-ObSchemaManagerV2 g_schema;
-ObMergerSchemaManager g_sm;
 
 void hex_dump_rowkey(const void* data, const int32_t size,
                      const bool char_type) {
@@ -180,7 +174,7 @@ void print_obj(int o, const ObObj& obj) {
 
 void print_row(int r, const ObSSTableRow& row) {
   fprintf(stderr, "ROW %d ROW_KEY:\n", r);
-  //hex_dump_rowkey(row.get_row_key().ptr(),row.get_row_key().length(),false);
+  hex_dump_rowkey(row.get_row_key().ptr(), row.get_row_key().length(), false);
   for (int i = 0; i < row.get_obj_count(); ++i) {
     print_obj(i, *row.get_obj(i));
   }
@@ -188,26 +182,105 @@ void print_row(int r, const ObSSTableRow& row) {
 }
 
 void display_trailer_table_info(const ObSSTableTrailer& trailer) {
-  UNUSED(trailer);
   /*
-     int64_t table_count = trailer.get_table_count();
-     uint64_t table_id   = OB_INVALID_ID;
-     ObString start_key;
-     ObString end_key;
+  int64_t table_count = trailer.get_table_count();
+  uint64_t table_id   = OB_INVALID_ID;
+  ObString start_key;
+  ObString end_key;
 
-     for (int64_t i = 0; i < table_count; ++i)
-     {
-     table_id = trailer.get_table_id(i);
-     start_key = trailer.get_start_key(table_id);
-     end_key = trailer.get_end_key(table_id);
+  for (int64_t i = 0; i < table_count; ++i)
+  {
+    table_id = trailer.get_table_id(i);
+    start_key = trailer.get_start_key(table_id);
+    end_key = trailer.get_end_key(table_id);
 
-     fprintf(stderr, "table_id_: %lu \n"
-     "start_key: ", table_id);
-     hex_dump_rowkey(start_key.ptr(), start_key.length(), false);
-     fprintf(stderr, "end_key: ");
-     hex_dump_rowkey(end_key.ptr(), end_key.length(), false);
-     }
-     */
+    fprintf(stderr, "table_id_: %lu \n"
+        "start_key: ", table_id);
+    hex_dump_rowkey(start_key.ptr(), start_key.length(), false);
+    fprintf(stderr, "end_key: ");
+    hex_dump_rowkey(end_key.ptr(), end_key.length(), false);
+  }
+  */
+}
+
+int dump_tablet(const ObTablet& tablet, const bool dump_sstable) {
+  char range_buf[OB_RANGE_STR_BUFSIZ];
+  tablet.get_range().to_string(range_buf, OB_RANGE_STR_BUFSIZ);
+  uint64_t tablet_checksum = 0;
+  tablet.get_checksum(tablet_checksum);
+  fprintf(stderr, "range=%s, data version=%ld, disk_no=%d, "
+          "row count=%ld, occupy size = %ld crc sum=%lu, merged=%d\n",
+          range_buf, tablet.get_data_version(), tablet.get_disk_no(),
+          tablet.get_row_count(), tablet.get_occupy_size(),
+          tablet_checksum, tablet.is_merged());
+  const common::ObArrayHelper<sstable::ObSSTableReader*>& sstable_reader_list_
+    = tablet.get_sstable_reader_list();
+  const common::ObArrayHelper<sstable::ObSSTableId>& sstable_id_list_
+    = tablet.get_sstable_id_list();
+  int64_t size = sstable_id_list_.get_array_index();
+  if (dump_sstable) {
+    for (int64_t i = 0; i < size; ++i) {
+      ObSSTableReader* reader = *sstable_reader_list_.at(i);
+      if (NULL != reader) {
+        fprintf(stderr, "sstable [%ld]: id=%ld, "
+                "trailer size = %ld, row count =%ld,block count=%ld\n",
+                i, sstable_id_list_.at(i)->sstable_file_id_,
+                reader->get_trailer().get_size(),
+                reader->get_trailer().get_row_count(),
+                reader->get_trailer().get_block_count()) ;
+      }
+    }
+  } else {
+    for (int64_t i = 0; i < size; ++i) {
+      fprintf(stderr, "sstable [%ld]: id=%ld\n",
+              i, sstable_id_list_.at(i)->sstable_file_id_) ;
+    }
+  }
+  return OB_SUCCESS;
+}
+
+void dump_multi_version_tablet_image(ObMultiVersionTabletImage& image, bool load_sstable) {
+  ObTablet* tablet  = NULL;
+  uint64_t crcsum = 0;
+  int tablet_index = 0;
+  char range_bufstr[OB_MAX_FILE_NAME_LENGTH * 4];
+
+  int ret = image.begin_scan_tablets();
+  while (OB_SUCCESS == ret) {
+    ret = image.get_next_tablet(tablet);
+    if (OB_SUCCESS == ret) {
+      tablet->get_range().to_string(range_bufstr, OB_MAX_FILE_NAME_LENGTH * 4);
+      tablet->get_checksum(crcsum);
+      fprintf(stderr, "tablet(%d) : %s \n", tablet_index, range_bufstr);
+      fprintf(stderr, "\t info: data version = %ld , disk no = %d, "
+              "row count = %ld, occupy size = %ld , crc sum = %ld, merged=%d \n",
+              tablet->get_data_version(), tablet->get_disk_no(), tablet->get_row_count(),
+              tablet->get_occupy_size(), crcsum, tablet->is_merged());
+      // dump sstable content
+      const ObArrayHelper<ObSSTableId>& sstable_id_array = tablet->get_sstable_id_list();
+      const ObArrayHelper<ObSSTableReader*>& sstable_reader_array = tablet->get_sstable_reader_list();
+
+      if (!load_sstable) {
+        for (int64_t idx = 0; idx < sstable_id_array.get_array_index(); ++idx) {
+          ObSSTableId id = *sstable_id_array.at(idx);
+          fprintf(stderr, "\t sstable[%ld]:%ld\n", idx, id.sstable_file_id_);
+        }
+      } else {
+        for (int64_t idx = 0; idx < sstable_reader_array.get_array_index(); ++idx) {
+          ObSSTableReader* reader = *sstable_reader_array.at(idx);
+          fprintf(stderr, "\t sstable[%ld]:%ld, size = %d, block count = %ld , row count = %ld\n",
+                  idx, sstable_id_array.at(idx)->sstable_file_id_,
+                  reader->get_trailer().get_size(),
+                  reader->get_trailer().get_block_count(),
+                  reader->get_trailer().get_row_count());
+        }
+      }
+
+      ++tablet_index;
+    }
+    if (NULL != tablet) image.release_tablet(tablet);
+  }
+  image.end_scan_tablets();
 }
 
 int change_new_index(
@@ -217,7 +290,6 @@ int change_new_index(
   const char* action,
   const int64_t table_id,
   const char* range_str,
-  const char* new_range_str,
   const int32_t hex_format,
   const bool dump_sstable
 ) {
@@ -229,7 +301,7 @@ int change_new_index(
   int64_t parse_version = 0;
   int32_t parse_disk_no = 0;
 
-  ObNewRange range;
+  ObRange range;
   range.table_id_ = table_id;
   ObTablet* tablet = NULL;
 
@@ -242,38 +314,14 @@ int change_new_index(
     parse_disk_no = disk_no;
   }
 
-  fprintf(stderr, "change_meta, action=%s,  idx_path=%s, version=%ld, disk=%d, table=%ld, range_str=%s, new_range_str=%s\n",
-          action, idx_path, parse_version, parse_disk_no, table_id, range_str, new_range_str);
-
   image.set_data_version(parse_version);
   int err = image.read(idx_path, parse_disk_no, dump_sstable);
   if (OB_SUCCESS != err) {
     fprintf(stderr, "read image file failed\n");
-  } else if (NULL == action) {
-    fprintf(stderr, "action not set\n");
   } else if (OB_SUCCESS != (err = parse_range_str(range_str, hex_format, range))) {
     fprintf(stderr, "parse_range_str %s error.\n", range_str);
   } else if (strcmp(action, "remove_range") == 0) {
     err = image.remove_tablet(range, parse_disk_no);
-  } else if (strcmp(action, "change_range") == 0) {
-    ObNewRange new_range;
-    //ObTablet * new_tablet = NULL;
-    if (NULL == new_range_str) {
-      err = OB_ERROR;
-    } else if (OB_SUCCESS != (err = parse_range_str(new_range_str, hex_format, new_range))) {
-      fprintf(stderr, "parse_range_str %s error.\n", new_range_str);
-    } else if (OB_SUCCESS != (err = image.acquire_tablet(range,
-                                                         ObMultiVersionTabletImage::SCAN_FORWARD, tablet))) {
-      fprintf(stderr, "find table %s error.\n", range_str);
-    } else {
-      char range_buf[OB_MAX_FILE_NAME_LENGTH];
-      tablet->get_range().to_string(range_buf, OB_MAX_FILE_NAME_LENGTH);
-      fprintf(stderr, "before change_range: %s\n", range_buf);
-      new_range.table_id_ = table_id;
-      tablet->set_range(new_range);
-      tablet->get_range().to_string(range_buf, OB_MAX_FILE_NAME_LENGTH);
-      fprintf(stderr, "after change_range: %s\n", range_buf);
-    }
   } else if (strcmp(action, "set_merged_flag") == 0) {
     err = image.acquire_tablet(range,
                                ObMultiVersionTabletImage::SCAN_FORWARD, tablet);
@@ -285,7 +333,6 @@ int change_new_index(
                                ObMultiVersionTabletImage::SCAN_FORWARD, tablet);
     if (OB_SUCCESS == err && NULL != tablet) {
       tablet->set_merged(0);
-      tablet->set_removed(0);
     }
   } else if (strcmp(action, "find_tablet") == 0) {
     err = image.acquire_tablet(range,
@@ -293,26 +340,11 @@ int change_new_index(
     if (OB_SUCCESS == err && NULL != tablet) {
       dump_tablet(*tablet, dump_sstable);
     }
-  } else if (strcmp(action, "clear_all_merged_flag") == 0) {
-    err = image.begin_scan_tablets();
-    while (OB_SUCCESS == err) {
-      err = image.get_next_tablet(tablet);
-      if (OB_SUCCESS == err) {
-        tablet->set_merged(0);
-        tablet->set_removed(0);
-      }
-      if (NULL != tablet) {
-        image.release_tablet(tablet);
-      }
-    }
-    err = image.end_scan_tablets();
   }
 
   snprintf(idx_path, OB_MAX_FILE_NAME_LENGTH, "%s/%s.new", g_sstable_directory, idx_file);
   if (OB_SUCCESS == err && strcmp(action, "find_tablet") != 0) {
-    image.write(idx_path, parse_disk_no);
-  } else if (OB_SUCCESS != err) {
-    fprintf(stderr, "action err:%d\n", err);
+    image.write(idx_path, parse_disk_no, false);
   }
 
   if (NULL != tablet) image.release_tablet(tablet);
@@ -324,21 +356,19 @@ int change_new_index(
 int dump_new_index(const char* idx_file, const int64_t version, const int32_t disk_no, const bool load_sstable) {
   FileInfoCache cache;
   cache.init(128);
-  ObTabletImage image;
-  image.set_fileinfo_cache(cache);
+  ObMultiVersionTabletImage image(cache);
   char idx_path[OB_MAX_FILE_NAME_LENGTH];
   snprintf(idx_path, OB_MAX_FILE_NAME_LENGTH, "%s/%s", g_sstable_directory, idx_file);
   int64_t parse_version = 0;
   int32_t parse_disk_no = 0;
-  int num = sscanf(idx_file, "%*[^_]_%ld_%d", &parse_version, &parse_disk_no);
+  int num = sscanf(idx_file, "idx_%ld_%d", &parse_version, &parse_disk_no);
   if (num < 2) {
     parse_version = version;
     parse_disk_no = disk_no;
   }
-  image.set_data_version(parse_version);
-  int err = image.read(idx_path, parse_disk_no, load_sstable);
+  int err = image.read(idx_path, parse_version, parse_disk_no, load_sstable);
   if (OB_SUCCESS == err) {
-    dump_tablet_image(image, load_sstable);
+    dump_multi_version_tablet_image(image, load_sstable);
   } else {
     fprintf(stderr, "read image file failed\n");
   }
@@ -356,7 +386,7 @@ int meta_filter(const struct dirent* d) {
 }
 
 int find_tablet(const char* data_dir, const char* app_name,
-                int32_t disk_no, const ObNewRange& range) {
+                int32_t disk_no, const ObRange& range) {
   int ret = OB_SUCCESS;
   if (NULL == data_dir || NULL == app_name) {
     fprintf(stderr, "the input param error\n");
@@ -393,7 +423,24 @@ int find_tablet(const char* data_dir, const char* app_name,
         fprintf(stderr, "found in tablet idx=%s, disk_no=%d,"
                 "version=%ld, range=<%s>\n",
                 sstable_idx_file, disk_no, dest_tablet->get_data_version(), range_buf);
-        dump_tablet(*dest_tablet, true);
+        const ObArrayHelper<ObSSTableId>& sstable_id_list =
+          dest_tablet->get_sstable_id_list();
+        for (int j = 0; j < sstable_id_list.get_array_index(); ++j) {
+          ObSSTableId* id = sstable_id_list.at(j);
+          ModuleArena arena;
+          FileInfoCache cache;
+          cache.init(10);
+          ObSSTableReader reader(arena, cache);
+          g_sstable_directory = sstable_dir;
+          ret = reader.open(*id);
+          if (OB_SUCCESS != ret) continue;
+          fprintf(stderr, "sstable[%d] id=%ld, "
+                  "row_count=%ld, occupy_size=%ld, crcsum=%lu\n",
+                  j, id->sstable_file_id_,
+                  reader.get_trailer().get_row_count(),
+                  reader.get_sstable_size(),
+                  reader.get_trailer().get_sstable_checksum());
+        }
         fprintf(stderr, "----------------------------------\n");
         image.release_tablet(dest_tablet);
       }
@@ -411,15 +458,17 @@ int search_index(const char* data_dir, const char* app_name,
     fprintf(stderr, "the input param error!\n");
     ret = -2;
   }
-  ObNewRange range;
+  ObRange range;
   if (0 == ret) {
     ret = parse_range_str(range_str, hex_format, range);
   }
   char buf[OB_RANGE_STR_BUFSIZ * 2];
   if (0 == ret) {
     range.table_id_ = table_id;
-    range.to_string(buf, OB_RANGE_STR_BUFSIZ * 2);
-    fprintf(stderr, "search range:%s\n", buf);
+    int no_ret = 0;
+    no_ret = range.to_string(buf, OB_RANGE_STR_BUFSIZ * 2);
+    if (OB_SUCCESS == no_ret) fprintf(stderr, "search range:%s\n", buf);
+    else fprintf(stderr, "range to_string failed\n");
   }
 
   ObDiskManager disk_manager;
@@ -443,7 +492,7 @@ int get_content(int fd, int64_t offset, int64_t size, char* buf) {
   int ret = 0;
 
   if (0 == ret) {
-    ret = static_cast<int32_t>(pread(fd, buf, size, offset));
+    ret = pread(fd, buf, size, offset);
     if (ret != size) {
       printf("read fd =%d failed, errno=%d, %s\n", fd, errno, strerror(errno));
       ret = -1;
@@ -457,12 +506,12 @@ int dump_trailer(const char* header, const ObSSTableTrailer& trailer) {
   fprintf(stderr, "%s, size=%d, row_count=%ld, block_count=%ld\n",
           header, trailer.get_size(), trailer.get_row_count(), trailer.get_block_count());
   /*
-     fprintf(stderr, "dump start_key, end_key:\n");
-     ObString start_key = trailer.get_start_key(trailer.get_table_id(0));
-     ObString end_key = trailer.get_end_key(trailer.get_table_id(0));
-     hex_dump(start_key.ptr(), start_key.length());
-     hex_dump(end_key.ptr(), end_key.length());
-     */
+  fprintf(stderr, "dump start_key, end_key:\n");
+  ObString start_key = trailer.get_start_key(trailer.get_table_id(0));
+  ObString end_key = trailer.get_end_key(trailer.get_table_id(0));
+  hex_dump(start_key.ptr(), start_key.length());
+  hex_dump(end_key.ptr(), end_key.length());
+  */
   fprintf(stderr, "-----------------------------------------------------\n");
   return 0;
 }
@@ -491,7 +540,7 @@ int DumpSSTable::get_block_index(const char* file_name, const ObSSTableTrailer& 
   ObSSTableBlockIndexV2* tmp_index = NULL;
 
   if (0 == ret) {
-    block_index_buffer = (char*)ob_malloc(block_index_size + bi_size, ObModIds::TEST);
+    block_index_buffer = (char*)ob_malloc(block_index_size + bi_size);
     if (NULL == block_index_buffer) {
       fprintf(stderr, "malloc block index buffer failure\n");
       ret = OB_ERROR;
@@ -501,7 +550,7 @@ int DumpSSTable::get_block_index(const char* file_name, const ObSSTableTrailer& 
     get_content(fd, block_index_offset, block_index_size, block_index_buffer + bi_size);
     tmp_index = new(block_index_buffer) ObSSTableBlockIndexV2(block_index_size, false);
     object_size = tmp_index->get_deserialize_size();
-    base_ptr = (char*)ob_malloc(object_size, ObModIds::TEST);
+    base_ptr = (char*)ob_malloc(object_size);
     if (NULL == base_ptr) {
       fprintf(stderr, "malloc deserialize object buffer failure\n");
       ret = OB_ERROR;
@@ -548,8 +597,8 @@ int get_block_buffer(const char* file_name,
   char* compressed_data_ptr = NULL;
   int compressed_data_size = 0;
   if (OB_SUCCESS == ret) {
-    compressed_data_ptr = (char*)ob_malloc(block_pos->block_record_size_, ObModIds::TEST);
-    compressed_data_size = static_cast<int32_t>(block_pos->block_record_size_);
+    compressed_data_ptr = (char*)ob_malloc(block_pos->block_record_size_);
+    compressed_data_size = block_pos->block_record_size_;
     if (NULL == compressed_data_ptr) {
       fprintf(stderr, "malloc block buffer failure\n");
       ret = OB_ERROR;
@@ -577,11 +626,11 @@ int get_block_buffer(const char* file_name,
 
   data_checksum = header.data_checksum_;
   real_size = sstable_block_data_size;
-  char* uncompressed_data_ptr = (char*)ob_malloc(max_block_size, ObModIds::TEST);
   if (OB_SUCCESS == ret) {
     if (header.is_compress()) {
       ObCompressor* dec = reader.get_decompressor();
       if (NULL != dec) {
+        char* uncompressed_data_ptr = (char*)ob_malloc(max_block_size);
         ret = dec->decompress(sstable_block_data_ptr, sstable_block_data_size,
                               uncompressed_data_ptr, max_block_size, real_size);
 
@@ -597,9 +646,10 @@ int get_block_buffer(const char* file_name,
         TBSYS_LOG(ERROR, "get_decompressor failed, maybe decompress library install incorrectly.");
         ret = OB_CS_COMPRESS_LIB_ERROR;
       }
-    } else {
-      memcpy(uncompressed_data_ptr, sstable_block_data_ptr, sstable_block_data_size);
-      sstable_block_data_ptr = uncompressed_data_ptr;
+    }
+
+    else {
+      sstable_block_data_ptr = compressed_data_ptr;
       sstable_block_data_size = real_size;
     }
   }
@@ -607,9 +657,9 @@ int get_block_buffer(const char* file_name,
   /*
      pos = 0;
      ret = block_reader.deserialize(sstable_block_data_ptr, sstable_block_data_size, pos);
-     */
+   */
 
-  if (NULL != compressed_data_ptr) ob_free(compressed_data_ptr);
+  if (NULL != compressed_data_ptr && sstable_block_data_ptr != compressed_data_ptr) ob_free(compressed_data_ptr);
   if (fd > 0) close(fd);
   return ret;
 }
@@ -637,7 +687,7 @@ int compare_block_content(
   int64_t src_col_cnt = OB_MAX_COLUMN_NUMBER;
   ObObj dst_obj_array[OB_MAX_COLUMN_NUMBER];
   int64_t dst_col_cnt = OB_MAX_COLUMN_NUMBER;
-  ObRowkey src_key, dst_key;
+  ObString src_key, dst_key;
   if (0 == ret) {
     while (0 == ret && src_it != src_block_reader.end() && dst_it != dst_block_reader.end()) {
       ret = src_block_reader.get_row(OB_SSTABLE_STORE_DENSE, src_it, src_key, id_array, src_obj_array, src_col_cnt);
@@ -647,7 +697,9 @@ int compare_block_content(
         if (ret) { fprintf(stderr, "get dst row failure i = %ld\n", i);  }
       }
       if ((0 == ret) && (src_key.compare(dst_key) != 0)) {
-        fprintf(stderr, "rowkey %ld not equal, src[%s], dst[%s] \n", i, to_cstring(src_key), to_cstring(dst_key));
+        fprintf(stderr, "rowkey %ld not equal \n", i);
+        hex_dump(src_key.ptr(), src_key.length(), false, TBSYS_LOG_LEVEL_WARN);
+        hex_dump(dst_key.ptr(), dst_key.length(), false, TBSYS_LOG_LEVEL_WARN);
         ret = -1;
       }
 
@@ -665,14 +717,14 @@ int compare_block_content(
           if (0 == ret && ltype != rtype) {
             fprintf(stderr, "row index %ld column %ld src type[%d] != dst type[%d], dump rowkey :\n",
                     i, j, ltype, rtype);
-            fprintf(stderr, "%s", to_cstring(src_key));
+            hex_dump(src_key.ptr(), src_key.length(), false, TBSYS_LOG_LEVEL_WARN);
             ret = -1;
           }
 
           if (0 == ret && src_obj_array[j] != dst_obj_array[j]) {
             fprintf(stderr, "row index %ld column %ld not equal, dump rowkey :\n",
                     i, j);
-            TBSYS_LOG(WARN, "%s", to_cstring(src_key));
+            hex_dump(src_key.ptr(), src_key.length(), false, TBSYS_LOG_LEVEL_WARN);
             src_obj_array[j].dump(TBSYS_LOG_LEVEL_WARN);
             dst_obj_array[j].dump(TBSYS_LOG_LEVEL_WARN);
             ret = -1;
@@ -700,7 +752,7 @@ int compare_block_content(
       ret = src_block_reader.get_row(OB_SSTABLE_STORE_DENSE, src_it, src_key, id_array, src_obj_array, src_col_cnt);
       if (ret) { fprintf(stderr, "get src row failure i = %ld\n", i); }
       if (0 == ret) {
-        TBSYS_LOG(WARN, "%s", to_cstring(src_key));
+        hex_dump(src_key.ptr(), src_key.length(), false, TBSYS_LOG_LEVEL_WARN);
         ++src_it;
         ++i;
       }
@@ -712,7 +764,7 @@ int compare_block_content(
       ret = dst_block_reader.get_row(OB_SSTABLE_STORE_DENSE, dst_it, dst_key, id_array, dst_obj_array, dst_col_cnt);
       if (ret) { fprintf(stderr, "get src row failure i = %ld\n", i);  }
       if (0 == ret) {
-        TBSYS_LOG(WARN, "%s", to_cstring(dst_key));
+        hex_dump(dst_key.ptr(), dst_key.length(), false, TBSYS_LOG_LEVEL_WARN);
         ++dst_it;
         ++i;
       }
@@ -749,7 +801,7 @@ int DumpSSTable::compare_block(
   int64_t dst_base_size = 0;
   uint64_t dst_data_checksum = 0;
   ObSSTableBlockReader src_block_reader, dst_block_reader;
-  int64_t __attribute__((unused)) pos = 0;
+  int64_t pos = 0;
 
   if (OB_SUCCESS == ret) {
     ret = get_block_buffer(src_file_name, src_reader, src_block_pos, src_base_ptr, src_base_size, src_data_checksum);
@@ -769,15 +821,10 @@ int DumpSSTable::compare_block(
   }
 
   const int32_t internal_bufsiz = 1024 * 128;
-  int64_t column_count = 0;
   if (OB_SUCCESS == ret) {
     char src_internal_buf[internal_bufsiz];
-    src_reader.get_schema()->get_rowkey_column_count(src_block_pos->table_id_, column_count);
-    ObSSTableBlockReader::BlockDataDesc data_desc(NULL, column_count,
-                                                  src_reader.get_trailer().get_row_value_store_style());
-    ObSSTableBlockReader::BlockData block_data(src_internal_buf, internal_bufsiz,
-                                               src_base_ptr, src_base_size);
-    ret = src_block_reader.deserialize(data_desc, block_data);
+    ret = src_block_reader.deserialize(
+            src_internal_buf, internal_bufsiz, src_base_ptr, src_base_size, pos);
     if (OB_SUCCESS != ret) {
       fprintf(stderr, "deserialize src block failed\n");
     }
@@ -786,12 +833,8 @@ int DumpSSTable::compare_block(
   pos = 0;
   if (OB_SUCCESS == ret) {
     char dst_internal_buf[internal_bufsiz];
-    dst_reader.get_schema()->get_rowkey_column_count(dst_block_pos->table_id_, column_count);
-    ObSSTableBlockReader::BlockDataDesc data_desc(NULL, column_count,
-                                                  dst_reader.get_trailer().get_row_value_store_style());
-    ObSSTableBlockReader::BlockData block_data(dst_internal_buf, internal_bufsiz,
-                                               dst_base_ptr, dst_base_size);
-    ret = dst_block_reader.deserialize(data_desc, block_data);
+    ret = dst_block_reader.deserialize(
+            dst_internal_buf, internal_bufsiz, dst_base_ptr, dst_base_size, pos);
     if (OB_SUCCESS != ret) {
       fprintf(stderr, "deserialize dst block failed\n");
     }
@@ -833,15 +876,15 @@ int DumpSSTable::compare_block_index(
   int64_t i = 0;
   if (0 == ret) {
     while (0 == ret && src_it != src_index.end() && dst_it != dst_index.end()) {
-      ObRowkey src_end_key = src_it->rowkey_;
-      ObRowkey dst_end_key = dst_it->rowkey_;
+      ObString src_end_key = src_index.get_end_key(src_it);
+      ObString dst_end_key = dst_index.get_end_key(dst_it);
       if (src_end_key.compare(dst_end_key) != 0) {
         fprintf(stderr, "index %ld not equal, src offset = %ld, "
                 "size = %ld, dst offset = %ld, size = %ld\n", i,
                 src_it->block_offset_, src_it->block_record_size_,
                 dst_it->block_offset_, dst_it->block_record_size_);
-        fprintf(stderr, "src key [%s]\n", to_cstring(src_end_key));
-        fprintf(stderr, "dst key [%s]\n", to_cstring(dst_end_key));
+        hex_dump(src_end_key.ptr(), src_end_key.length(), false, TBSYS_LOG_LEVEL_WARN);
+        hex_dump(dst_end_key.ptr(), dst_end_key.length(), false, TBSYS_LOG_LEVEL_WARN);
         ret = -1;
       }
       if (0 == ret) {
@@ -868,7 +911,8 @@ int DumpSSTable::compare_block_index(
     while (src_it != src_index.end()) {
       fprintf(stderr, "src has more index %ld src offset = %ld, size = %ld\n",
               i, src_it->block_offset_, src_it->block_record_size_);
-      src_it->rowkey_.dump(TBSYS_LOG_LEVEL_WARN);
+      ObString src_end_key = src_index.get_end_key(src_it);
+      hex_dump(src_end_key.ptr(), src_end_key.length(), false, TBSYS_LOG_LEVEL_WARN);
       ++src_it;
       ++i;
     }
@@ -876,7 +920,8 @@ int DumpSSTable::compare_block_index(
     while (dst_it != dst_index.end()) {
       fprintf(stderr, "dst has more index %ld src offset = %ld, size = %ld\n",
               i, dst_it->block_offset_, dst_it->block_record_size_);
-      dst_it->rowkey_.dump(TBSYS_LOG_LEVEL_WARN);
+      ObString dst_end_key = dst_index.get_end_key(dst_it);
+      hex_dump(dst_end_key.ptr(), dst_end_key.length(), false, TBSYS_LOG_LEVEL_WARN);
       ++dst_it;
       ++i;
     }
@@ -898,7 +943,6 @@ int DumpSSTable::compare_sstable(
   const ObSSTableTrailer& dst_trailer = dst_reader.get_trailer();
   dump_trailer("src", src_trailer);
   dump_trailer("dst", dst_trailer);
-  UNUSED(ignore_size);
 
   char src_file_name[OB_MAX_FILE_NAME_LENGTH];
   char dst_file_name[OB_MAX_FILE_NAME_LENGTH];
@@ -943,9 +987,14 @@ int DumpSSTable::compare_sstable(
 }
 
 DumpSSTable::~DumpSSTable() {
-  if (block_index_ != NULL) {
-    free((char*)block_index_);
-    block_index_ = NULL;
+  if (compressor_ != NULL) {
+    destroy_compressor(compressor_);
+    compressor_ = NULL;
+  }
+
+  if (block_index_entry_ != NULL) {
+    free(block_index_entry_);
+    block_index_entry_ = NULL;
   }
 }
 
@@ -964,7 +1013,7 @@ int DumpSSTable::open(const int64_t sstable_file_id) {
   char filename[OB_MAX_FILE_NAME_LENGTH];
   get_sstable_path(id, filename, OB_MAX_FILE_NAME_LENGTH);
 
-  if (OB_SUCCESS == ret && ((ret = reader_.open(id, 0)) != OB_SUCCESS)) {
+  if (OB_SUCCESS == ret && ((ret = reader_.open(id)) != OB_SUCCESS)) {
     fprintf(stderr, "open sstable (%ld,%s) failed (%d)\n", sstable_file_id , filename, ret);
   } else {
     opened_ = true;
@@ -974,11 +1023,19 @@ int DumpSSTable::open(const int64_t sstable_file_id) {
     }
   }
 
+  if (OB_SUCCESS == ret) {
+    const ObSSTableTrailer& trailer = reader_.get_trailer();
+    compressor_ = create_compressor(trailer.get_compressor_name());
+    if (NULL == compressor_) {
+      ret = OB_ERROR;
+    }
+  }
+
   if ((ret = load_schema()) != OB_SUCCESS) {
-    fprintf(stderr, "load schema failed\n");
+    fprintf(stderr, "load schema failed");
   }
   if ((ret = load_block_index()) != OB_SUCCESS) {
-    fprintf(stderr, "load block index failed\n");
+    fprintf(stderr, "load block index failed");
   }
   return ret;
 }
@@ -988,12 +1045,9 @@ ObSSTableReader& DumpSSTable::get_reader() {
 }
 int DumpSSTable::load_block_index() {
   int ret = OB_SUCCESS;
-  char* block_index_buffer = NULL;
-  char* block_index_object_buffer = NULL;
-  int64_t block_index_object_bufsiz = 0;
-  int64_t block_index_size = 0;
+  char* buf = NULL;
+  int64_t tmp_size = 0;
   int64_t pos = 0;
-  int64_t nsize = 0;
   const ObSSTableTrailer& trailer = reader_.get_trailer();
   if (!opened_) {
     fprintf(stderr, "file not open\n");
@@ -1001,36 +1055,84 @@ int DumpSSTable::load_block_index() {
   }
 
   if (OB_SUCCESS == ret) {
-    block_index_size = trailer.get_block_index_record_size();
+    tmp_size = trailer.get_block_index_record_size();
     util_.lseek(trailer.get_block_index_record_offset(), SEEK_SET);
 
-    block_index_buffer = (char*)malloc(block_index_size);
-    if (NULL == block_index_buffer) {
+    buf = (char*)malloc(tmp_size);
+    if (NULL == buf) {
       fprintf(stderr, "failed to malloc memory\n");
       ret = OB_ALLOCATE_MEMORY_FAILED;
-    } else if ((nsize = util_.read(block_index_buffer, block_index_size)) != block_index_size) {
-      fprintf(stderr, "read block index header failed: index size=%ld, nsize=%ld\n", block_index_size, nsize);
-      ret = OB_ERROR;
+    }
+    if (OB_SUCCESS == ret) {
+
+      if ((ret = util_.read(buf, tmp_size)) != tmp_size) {
+        fprintf(stderr, "read block index header failed:%d", ret);
+      } else {
+        ret = OB_SUCCESS;
+      }
     }
   }
 
-  if (OB_SUCCESS == ret) {
-    ObSSTableBlockIndexV2 v2;
-    block_index_object_bufsiz = v2.get_deserialize_size(block_index_buffer, block_index_size, pos);
-    block_index_object_buffer = (char*) malloc(sizeof(ObSSTableBlockIndexV2) + block_index_object_bufsiz);
+  //skip record header
+  pos += sizeof(ObRecordHeader);
 
-    const char* base = block_index_object_buffer + sizeof(ObSSTableBlockIndexV2);
-    int64_t base_length = block_index_object_bufsiz;
-    block_index_ = reinterpret_cast<ObSSTableBlockIndexV2*>(block_index_object_buffer);
-    pos = 0;
-    ret = block_index_->deserialize(block_index_buffer, block_index_size, pos, base, base_length);
+  //first block index header
+
+  if (OB_SUCCESS == ret) {
+    if ((ret = block_index_header_.deserialize(buf, tmp_size, pos)) != OB_SUCCESS) {
+      fprintf(stderr, "deserialize block index header failed");
+    }
   }
 
 
+  //element
+  ObSSTableBlockIndexV2::ObSSTableBlockIndexElement element;
+  if (OB_SUCCESS == ret) {
+    int64_t key_length = trailer.get_block_index_record_size() - block_index_header_.end_key_offset_;
 
-  if (block_index_buffer != NULL) {
-    free(block_index_buffer);
-    block_index_buffer = NULL;
+    int64_t index_entry_length = sizeof(*block_index_entry_) * block_index_header_.block_count_ ;
+    char* ptr = (char*)malloc(index_entry_length + key_length);
+    block_index_entry_ = reinterpret_cast<ObSSTableBlockIndexV2::IndexEntryType*>(ptr);
+    ObSSTableBlockIndexV2::IndexEntryType* entry = block_index_entry_;
+    //fprintf(stderr,"entry:%p\n",entry);
+
+    int64_t current_block_offset = 0;
+    int64_t current_key_offset = 0;
+
+    memcpy(ptr + sizeof(*block_index_entry_) * block_index_header_.block_count_ , buf + sizeof(ObRecordHeader) + block_index_header_.end_key_offset_, key_length);
+
+    for (int64_t i = 0; i < block_index_header_.block_count_; ++i) {
+      memset(&element, 0, sizeof(element));
+      ret = element.deserialize(buf, tmp_size, pos);
+      if (ret == OB_SUCCESS) {
+        entry->block_offset_ = current_block_offset;
+        entry->block_record_size_ = element.block_record_size_;
+        entry->table_id_ = element.table_id_;
+
+        current_block_offset += element.block_record_size_;
+
+        if (current_key_offset + element.block_end_key_size_ <= key_length) {
+          entry->end_key_offset_ =  current_key_offset + index_entry_length;
+          entry->end_key_size_ = element.block_end_key_size_;
+          current_key_offset += element.block_end_key_size_;
+        } else {
+          fprintf(stderr, "key out of range, current_key_offset=%ld,key size=%d, key_length=%ld",
+                  current_key_offset, element.block_end_key_size_, key_length);
+          ret = OB_ERROR;
+          break;
+        }
+        ++entry;
+      } else {
+        fprintf(stderr, "deserialize element of block index array error.");
+        ret = OB_ERROR;
+        break;
+      }
+    }
+  }
+
+  if (buf != NULL) {
+    free(buf);
+    buf = NULL;
   }
 
   return ret;
@@ -1084,9 +1186,9 @@ int DumpSSTable::read_and_decompress_record(const int16_t magic, const int64_t o
         memcpy(r_buf, payload_ptr, record_header.data_length_);
         data_size = record_header.data_length_;
       } else {
-        if ((ret = reader_.get_decompressor()->decompress(payload_ptr, payload_size,
-                                                          r_buf, record_header.data_length_,
-                                                          data_size)) != OB_SUCCESS) {
+        if ((ret = compressor_->decompress(payload_ptr, payload_size,
+                                           r_buf, record_header.data_length_,
+                                           data_size)) != OB_SUCCESS) {
           fprintf(stderr, "decompress failed\n");
         }
       }
@@ -1146,7 +1248,7 @@ void DumpSSTable::dump_another_block(int32_t block_id) {
   ObRecordHeader record_header;
   ObSSTableBlockHeader block_header;
   ObSSTableBlockReader block_reader;
-  ObRowkey row_key;
+  ObString row_key;
   ObObj current_ids[OB_MAX_COLUMN_NUMBER];
   ObObj current_columns[OB_MAX_COLUMN_NUMBER];
   int64_t column_count = 0;
@@ -1156,7 +1258,7 @@ void DumpSSTable::dump_another_block(int32_t block_id) {
   //TODO
   //check block id
 
-  const ObSSTableBlockIndexV2::IndexEntryType* entry = block_index_->begin() + block_id;
+  ObSSTableBlockIndexV2::IndexEntryType* entry = block_index_entry_ + block_id;
 
   ret = read_and_decompress_record(ObSSTableWriter::DATA_BLOCK_MAGIC,
                                    entry->block_offset_,
@@ -1174,11 +1276,7 @@ void DumpSSTable::dump_another_block(int32_t block_id) {
     char index_array[entry_size];
     pos = 0;
 
-    ObSSTableBlockReader::BlockDataDesc data_desc(NULL, 1,
-                                                  reader_.get_trailer().get_row_value_store_style());
-    ObSSTableBlockReader::BlockData block_data(index_array, entry_size, data, size);
-
-    ret = block_reader.deserialize(data_desc, block_data);
+    ret = block_reader.deserialize(index_array, entry_size, data, size, pos);
     if (OB_SUCCESS != ret) {
       fprintf(stderr, "deserialize block index failed");
     } else {
@@ -1224,7 +1322,7 @@ void DumpSSTable::dump_another_block(int32_t block_id) {
           //set the new row
           new_row.clear();
           new_row.set_table_id(table_id);
-          new_row.set_rowkey(row_key);
+          new_row.set_row_key(row_key);
           new_row.set_column_group_id(column_group_id_array[column_group_idx]);
 
           //add columns to new row
@@ -1265,10 +1363,10 @@ void DumpSSTable::dump_another_sstable(const char* file_dir_, const char* compre
   char dest_file_[1000];
   char src_compressor_[1000];
   ObString compressor_name_;
-  snprintf(dest_file_, sizeof(dest_file_), "%s", file_dir_);
-  sstable_file_name_.assign(dest_file_, static_cast<int32_t>(strlen(dest_file_)));
-  snprintf(src_compressor_, sizeof(src_compressor_), "%s", compressor_);
-  compressor_name_.assign(src_compressor_, static_cast<int32_t>(strlen(src_compressor_)));
+  snprintf(dest_file_, sizeof(dest_file_), file_dir_);
+  sstable_file_name_.assign(dest_file_, strlen(dest_file_));
+  snprintf(src_compressor_, sizeof(src_compressor_), compressor_);
+  compressor_name_.assign(src_compressor_, strlen(src_compressor_));
   //create sstable writer
   ret = writer_.create_sstable(*reader_.get_schema(), sstable_file_name_, compressor_name_ , 2);
 
@@ -1289,69 +1387,59 @@ void DumpSSTable::load_block(int32_t block_id) {
   int ret = OB_SUCCESS;
   char* data = NULL;
   int64_t size = 0;
-  int64_t internal_bufsiz = 128 * 1024;
-  char* internal_buffer = NULL;
-  int64_t column_count = 0;
+  int64_t pos = 0;
   ObRecordHeader record_header;
+  ObSSTableBlockHeader block_header;
   ObSSTableBlockReader block_reader;
-  ObRowkey row_key;
-  char rowkey_buffer[OB_RANGE_STR_BUFSIZ];
+  ObString row_key;
   ObObj current_ids[OB_MAX_COLUMN_NUMBER];
   ObObj current_columns[OB_MAX_COLUMN_NUMBER];
+  int64_t column_count = 0;
 
   //TODO
   //check block id
 
-  const ObSSTableBlockIndexV2::IndexEntryType* entry = block_index_->begin() + block_id;
+  ObSSTableBlockIndexV2::IndexEntryType* entry = block_index_entry_ + block_id;
 
   ret = read_and_decompress_record(ObSSTableWriter::DATA_BLOCK_MAGIC,
                                    entry->block_offset_,
                                    entry->block_record_size_,
                                    record_header, data, size);
+  if (OB_SUCCESS == ret) {
+    if ((ret = block_header.deserialize(data, size, pos)) != OB_SUCCESS) {
+      fprintf(stderr, "deserialize block header failed");
+    }
+  }
 
   if (OB_SUCCESS == ret) {
-    internal_buffer = (char*) malloc(internal_bufsiz);
-    const ObRowkeyInfo& rowkey_info = g_schema.get_table_schema(entry->table_id_)->get_rowkey_info();
-    reader_.get_schema()->get_rowkey_column_count(entry->table_id_, column_count);
-    ObSSTableBlockReader::BlockDataDesc data_desc(&rowkey_info, column_count,
-                                                  reader_.get_trailer().get_row_value_store_style());
-    ObSSTableBlockReader::BlockData block_data(internal_buffer, internal_bufsiz, data, size);
+    int64_t entry_size = sizeof(ObSSTableBlockReader::IndexEntryType)
+                         * (block_header.row_count_ + 1);
+    char index_array[entry_size];
+    pos = 0;
 
-    ret = block_reader.deserialize(data_desc, block_data);
+    ret = block_reader.deserialize(index_array, entry_size, data, size, pos);
     if (OB_SUCCESS != ret) {
       fprintf(stderr, "deserialize block index failed");
     } else {
-      const ObSSTableBlockReader::IndexEntryType* index = block_reader.begin();
-      fprintf(stderr, "this block has %d rows\n", block_reader.get_row_count());
-      int32_t i = 0;
-      int64_t column_id = 0;
-      while (OB_SUCCESS == ret && index != block_reader.end()) {
+      ObSSTableBlockReader::IndexEntryType* index =
+        (ObSSTableBlockReader::IndexEntryType*)index_array;
+      fprintf(stderr, "this block has %d rows\n", block_header.row_count_);
+      for (int32_t i = 0; i < block_header.row_count_ && OB_SUCCESS == ret; ++i) {
         column_count = OB_MAX_COLUMN_NUMBER;
         ret = block_reader.get_row(reader_.get_trailer().get_row_value_store_style(),
-                                   index, row_key, current_ids, current_columns, column_count);
+                                   &index[i], row_key, current_ids,
+                                   current_columns, column_count);
         if (OB_SUCCESS == ret) {
-          row_key.to_string(rowkey_buffer, OB_RANGE_STR_BUFSIZ);
-          fprintf(stderr, "ROW %d ROW_KEY: %s\n", i, rowkey_buffer);
-          const ObSSTableSchemaColumnDef* def = schema_.get_group_schema(entry->table_id_, entry->column_group_id_, size);
+          fprintf(stderr, "ROW %d ROW_KEY:\n", i);
+          hex_dump_rowkey(row_key.ptr(), row_key.length(), false);
           for (int j = 0; j < column_count; ++j) {
-            if (reader_.get_trailer().get_row_value_store_style() == OB_SSTABLE_STORE_SPARSE) {
-              current_ids[j].get_int(column_id);
-              ::print_obj(static_cast<int>(column_id), current_columns[j]);
-            } else {
-              if (NULL != def && j < size) {
-                column_id = def[j].column_name_id_;
-              } else {
-                column_id = j;
-              }
-              ::print_obj(static_cast<int>(column_id), current_columns[j]);
-            }
+            print_obj(j, current_ids[j]);
+            print_obj(j, current_columns[j]);
           }
           fprintf(stderr, "ROW %d END\n", i);
         } else {
           fprintf(stderr, "deserialize row failed");
         }
-        ++index;
-        ++i;
       }
     }
   }
@@ -1360,12 +1448,6 @@ void DumpSSTable::load_block(int32_t block_id) {
     free(data);
     data = NULL;
   }
-
-  if (NULL != internal_buffer) {
-    free(internal_buffer);
-    internal_buffer = NULL;
-  }
-
   return;
 }
 
@@ -1412,9 +1494,7 @@ void DumpSSTable::display_trailer_info() {
           "row_count_: %ld \n"
           "sstable_checksum_: %lu \n"
           "compressor_name_: %s \n"
-          "row_value_store_style_: %s \n"
-          "frozen_time_: %ld \n"
-          "block_index_memory_size: %ld \n" ,
+          "row_value_store_style_: %s \n" ,
           trailer.get_size(),
           trailer.get_trailer_version(),
           trailer.get_table_version(),
@@ -1431,44 +1511,30 @@ void DumpSSTable::display_trailer_info() {
           trailer.get_row_count(),
           trailer.get_sstable_checksum(),
           trailer.get_compressor_name(),
-          trailer.get_row_value_store_style() == 1 ? "dense" : "sparse",
-          trailer.get_frozen_time(),
-          block_index_->get_deserialize_size());
+          trailer.get_row_value_store_style() == 1 ? "dense" : "sparse");
 
   display_trailer_table_info(trailer);
 }
 
-void DumpSSTable::display_bloom_filter() {
-  const ObBloomFilterV1* bfv1 = dynamic_cast<const ObBloomFilterV1*>(reader_.get_bloom_filter());
-  if (NULL == bfv1) {
-    fprintf(stderr, "sstable has no bloom filter\n");
-  } else {
-    fprintf(stderr, "ptr=%p, size=%ld\n", bfv1->get_buffer(), bfv1->get_nbyte());
-    hex_dump(bfv1->get_buffer(), (int32_t)bfv1->get_nbyte());
-  }
-}
-
 void DumpSSTable::display_block_index() {
-  const ObSSTableBlockIndexV2::IndexEntryType* entry = block_index_->begin();
-  fprintf(stderr, "%8s %8s %8s %8s %8s %8s\n", "block#", "table", "group", "offset", "size", "key");
-  int64_t i = 0;
-  while (entry != block_index_->end()) {
-    fprintf(stderr, "%8ld %8lu %8lu %8ld %8ld %s\n",
-            i, entry->table_id_, entry->column_group_id_,
-            entry->block_offset_, entry->block_record_size_, to_cstring(entry->rowkey_));
+  ObSSTableBlockIndexV2::IndexEntryType* entry = block_index_entry_;
+  fprintf(stderr, "%8s %8s %8s %8s %8s %8s", "block#", "table", "offset", "size", "koffset", "ksize\n");
+  for (int64_t i = 0; i < block_index_header_.block_count_; ++i) {
+    fprintf(stderr, "%8ld %8lu %8ld %8ld %8d %8d\n",
+            i, entry->table_id_, entry->block_offset_, entry->block_record_size_, entry->end_key_offset_,
+            entry->end_key_size_);
+    hex_dump_rowkey(((char*)block_index_entry_) + entry->end_key_offset_, entry->end_key_size_, false);
     ++entry;
-    ++i;
   }
 }
 
 void DumpSSTable::display_schema_info() {
   const ObSSTableSchemaColumnDef* col = NULL;
   fprintf(stderr, "SCHEMA INFO:\n");
-  fprintf(stderr, "COLUMN COUNT:%ld\n", reader_.get_schema()->get_column_count());
-  for (int32_t i = 0; i < reader_.get_schema()->get_column_count(); ++i) {
-    if ((col = reader_.get_schema()->get_column_def(i)) != NULL) {
-      fprintf(stderr, "%8d %8d %8d %8d %8u %8d\n", i,
-              col->table_id_, col->column_group_id_, col->rowkey_seq_, col->column_name_id_, col->column_value_type_);
+  fprintf(stderr, "COLUMN COUNT:%ld\n", schema_.get_column_count());
+  for (int32_t i = 0; i < schema_.get_column_count(); ++i) {
+    if ((col = schema_.get_column_def(i)) != NULL) {
+      fprintf(stderr, "%8d %8u %8d\n", i, col->column_name_id_, col->column_value_type_);
     }
   }
   return;
@@ -1483,7 +1549,6 @@ struct CmdLineParam {
   int32_t disk_no;
   int64_t table_version;
   const char* search_range;
-  const char* new_range;
   int64_t table_id;
   const char* app_name;
   int32_t hex_format;
@@ -1492,7 +1557,6 @@ struct CmdLineParam {
   int64_t dst_file_id;
   const char* compressor_name;
   const char* output_sst_dir;
-  const char* schema_file;
 };
 
 
@@ -1504,7 +1568,7 @@ void usage() {
   printf("   -I| --idx_file_name must be set while cmd_type is dump_meta\n");
   printf("   -f| --file_id sstable file id\n");
   printf("   -p| --dst_file_id must be set while cmp_type is cmp_sstable\n");
-  printf("   -d| --dump_content [dump_index|dump_schema|dump_trailer] could be set while cmd_type is dump_sstable\n");
+  printf("   -d| --dump_content [dump_sstable_index|dump_sstable_schema|dump_trailer] could be set while cmd_type is dump_sstable\n");
   printf("   -b| --block_id show rows number in block,could be set  while cmd_type is dump_sstable and dump_content is dump_trailer\n");
   printf("   -i| --tablet_version must be set while cmp_type is dump_meta \n");
   printf("   -r| --search_range must be set while cmp_type is search _meta\n");
@@ -1513,15 +1577,14 @@ void usage() {
   printf("   -x| --hex_format (0 plain string/1 hex string/2 number)\n");
   printf("   -h| --help print this help info\n");
   printf("   samples:\n");
-  printf("   -c dump_meta -P idx_file_path [-i disk_no -v data_version -x]\n");
-  printf("   -c dump_sstable -d dump_index -P sstable_file_path\n");
-  printf("   -c dump_sstable -d dump_schema -P sstable_file_path\n");
-  printf("   -c dump_sstable -d dump_trailer -P sstable_file_path\n");
-  printf("   -c dump_sstable -d dump_block -P sstable_file_path -b block_id\n");
+  printf("   -c dump_meta -I idx_file_name -D idx_file_directory [-i disk_no -v data_version -x]\n");
+  printf("   -c dump_sstable -d dump_sstable_index -f sstable_id -D sstable_directory \n");
+  printf("   -c dump_sstable -d dump_sstable_schema -f sstable_id -D sstable_directory \n");
+  printf("   -c dump_sstable -d dump_trailer -f sstable_id -D sstable_directory \n");
   printf("   -c search_meta -t table_id -r search_range -a app_name -x hex_format -D sstable_directory \n");
   printf("   -c change_meta -t table_id -r search_range -d action"
-         "(remove_range/set_merged_flag/clear_merged_flag/find_tablet/change_range) "
-         "-x hex_format -D sstable_directory [-i disk_no -v data_version -f dump_sstable -n new_range]\n");
+         "(remove_range/set_merged_flag/clear_merged_flag/find_tablet) "
+         "-x hex_format -D sstable_directory [-i disk_no -v data_version -f dump_sstable]\n");
   printf("\n");
   exit(0);
 }
@@ -1556,7 +1619,7 @@ bool is_all_num(char*  str) {
 bool safe_char_int32(char* src_str , int32_t& dst_num) {
   bool ret = true;
   char* tmp_str = src_str;
-  char* str = NULL;
+  char* str;
   int str_len = 0;
   int dot_num = 0;
   int64_t src_num_64;
@@ -1630,8 +1693,8 @@ bool safe_char_int32(char* src_str , int32_t& dst_num) {
        return false;
        }
        dst_num = src_num & 0xffffffff;
-       */
-    dst_num = static_cast<int32_t>(src_num_32);
+     */
+    dst_num = src_num_32;
   }
   return ret;
 }
@@ -1800,9 +1863,7 @@ void deal_cmd_line(char* optarg_tmp , CmdLineParam& clp) {
 
 void parse_cmd_line(int argc, char** argv, CmdLineParam& clp) {
   int opt = 0;
-  const char* opt_string = "c:f:p:d:b:i:r:t:a:I:D:hx:v:qo:s:n:P:S:";
-  const char* file_path = NULL;
-
+  const char* opt_string = "c:f:p:d:b:i:r:t:a:F:I:D:hx:v:qo:s:";
   struct option longopts[] = {
     {"help", 0, NULL, 'h'},
     {"cmd_type", 1, NULL, 'c'},
@@ -1815,15 +1876,12 @@ void parse_cmd_line(int argc, char** argv, CmdLineParam& clp) {
     {"tablet_version", 1, NULL, 'v'},
     {"disk_no", 1, NULL, 'i'},
     {"search_range", 1, NULL, 'r'},
-    {"new_range", 1, NULL, 'n'},
     {"table_id", 1, NULL, 't'},
     {"app_name", 1, NULL, 'a'},
     {"hex_format", 0, NULL, 'x'},
     {"quiet", 0, NULL, 'q'},
     {"output_sstable_directory", 1, NULL, 'o'},
     {"compressor_name", 1, NULL, 's'},
-    {"file_path", 1, NULL, 'P'},
-    {"schema", 1, NULL, 'S'},
     {0, 0, 0, 0}
   };
 
@@ -1847,9 +1905,6 @@ void parse_cmd_line(int argc, char** argv, CmdLineParam& clp) {
     case 'p':
       clp.dst_file_id = strtoll(optarg, NULL, 10);
       break;
-    case 'P':
-      file_path = optarg;
-      break;
     case 'D':
       g_sstable_directory = optarg;
       break;
@@ -1869,9 +1924,6 @@ void parse_cmd_line(int argc, char** argv, CmdLineParam& clp) {
     case 'r':
       clp.search_range = optarg;
       break;
-    case 'n':
-      clp.new_range = optarg;
-      break;
     case 't':
       clp.table_id = strtoll(optarg, NULL, 10);
       break;
@@ -1879,7 +1931,7 @@ void parse_cmd_line(int argc, char** argv, CmdLineParam& clp) {
       clp.app_name = optarg;
       break;
     case 'x':
-      clp.hex_format = static_cast<int32_t>(strtoll(optarg, NULL, 10));
+      clp.hex_format = strtoll(optarg, NULL, 10);
       break;
     case 'q':
       clp.quiet = 1;
@@ -1896,63 +1948,13 @@ void parse_cmd_line(int argc, char** argv, CmdLineParam& clp) {
       fprintf(stderr, "compressor_name = %s\n", clp.compressor_name);
     }
     break;
-    case 'S':
-      clp.schema_file = optarg;
-      break;
     default:
       usage();
       exit(1);
     }
   }
 
-  if (NULL == clp.cmd_type) {
-    fprintf(stderr, "cmd_type not set.\n");
-    usage();
-    exit(-1);
-  }
-
-  if (0 <= clp.block_id
-      && (0 != strcmp("dump_block", clp.dump_content)
-          || NULL == clp.dump_content)) {
-    fprintf(stderr, "-i should appear after -d and the -d must be dump trailer\n");
-    usage();
-    exit(-1);
-  }
-
-  if (0 == strcmp("dump_sstable", clp.cmd_type)
-      && NULL == clp.dump_content) {
-    fprintf(stderr, "-d must be appear when the cmd_type is dump_sstable\n");
-    usage();
-    exit(-1);
-  }
-
-
-
-  char* fp = new char[OB_MAX_FILE_NAME_LENGTH];
-  memset(fp, 0, OB_MAX_FILE_NAME_LENGTH);
-  const char* directory = NULL;
-  const char* name = NULL;
-  if (NULL != file_path) {
-    strcpy(fp, file_path);
-    char* p = strrchr(fp, '/');
-    if (NULL != p) {
-      *p = 0;
-      directory = fp;
-      name = p + 1;
-    }
-  }
-
-  if (0 == strcmp("dump_sstable", clp.cmd_type)) {
-    if (NULL != name) clp.file_id = strtoll(name, NULL, 10);
-    if (NULL != directory) g_sstable_directory = directory;
-  }
-
-  if (0 == strcmp("dump_meta", clp.cmd_type)) {
-    if (NULL != name) clp.idx_file_name = name;
-    if (NULL != directory) g_sstable_directory = directory;
-  }
-
-  if (NULL == g_sstable_directory && NULL == file_path) {
+  if (NULL == g_sstable_directory) {
     fprintf(stderr, "sstable directory not set");
     usage();
     exit(-1);
@@ -1970,6 +1972,20 @@ void parse_cmd_line(int argc, char** argv, CmdLineParam& clp) {
     usage();
     exit(-1);
   }
+
+  if (0 <= clp.block_id
+      && (0 != strcmp("dump_trailer", clp.dump_content)
+          || NULL == clp.dump_content)) {
+    fprintf(stderr, "-i should appear after -d and the -d must be dump trailer\n");
+    usage();
+    exit(-1);
+  }
+  if (0 == strcmp("dump_sstable", clp.cmd_type)
+      && NULL == clp.dump_content) {
+    fprintf(stderr, "-d must be appear when the cmd_type is dump_sstable\n");
+    usage();
+    exit(-1);
+  }
 }
 
 int main(const int argc, char** argv) {
@@ -1982,13 +1998,6 @@ int main(const int argc, char** argv) {
 
   ob_init_crc64_table(OB_DEFAULT_CRC64_POLYNOM);
   ob_init_memory_pool();
-  tbsys::CConfig config;
-
-  if (NULL != clp.schema_file) {
-    g_schema.parse_from_file(clp.schema_file, config);
-    g_sm.init(false, g_schema);
-    set_global_sstable_schema_manager(&g_sm);
-  }
 
   //if dump_sstable
   if (0 == strcmp("dump_sstable", clp.cmd_type)) {
@@ -1999,19 +2008,14 @@ int main(const int argc, char** argv) {
       exit(1);
     }
     //dump sstable index
-    if (0 == strcmp("dump_index", clp.dump_content)) {
+    if (0 == strcmp("dump_sstable_index", clp.dump_content)) {
       dump.display_block_index();
     }
-    if (0 == strcmp("dump_schema", clp.dump_content)) {
+    if (0 == strcmp("dump_sstable_schema", clp.dump_content)) {
       dump.display_schema_info();
     }
     if (0 == strcmp("dump_trailer", clp.dump_content)) {
       dump.display_trailer_info();
-    }
-    if (0 == strcmp("dump_bloom_filter", clp.dump_content)) {
-      dump.display_bloom_filter();
-    }
-    if (0 == strcmp("dump_block", clp.dump_content)) {
       if (0 <= clp.block_id) {
         if (clp.block_id == clp.block_n)
           dump.load_block(clp.block_id);
@@ -2036,7 +2040,7 @@ int main(const int argc, char** argv) {
   }
   if (0 == strcmp("change_meta", clp.cmd_type)) {
     change_new_index(clp.idx_file_name, clp.table_version, clp.disk_no, clp.dump_content,
-                     clp.table_id, clp.search_range, clp.new_range, clp.hex_format, clp.file_id);
+                     clp.table_id, clp.search_range, clp.hex_format, clp.file_id);
   }
 
   //if search_meta

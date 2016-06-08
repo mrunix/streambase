@@ -18,24 +18,44 @@
 #include <stdint.h>
 #include "gtest/gtest.h"
 #include "common/ob_common_param.h"
-#include "common/ob_common_stat.h"
 #include "sstable/ob_blockcache.h"
 #include "sstable/ob_sstable_writer.h"
 #include "sstable/ob_disk_path.h"
+#include "sstable/ob_sstable_stat.h"
 #include "chunkserver/ob_fileinfo_cache.h"
 #include "chunkserver/ob_block_cache_reader.h"
 #include "chunkserver/ob_block_cache_loader.h"
 #include "chunkserver/ob_switch_cache_utility.h"
-#include "chunkserver/ob_chunk_server_config.h"
-#include "../common/test_rowkey_helper.h"
 
 using namespace sb::common;
 using namespace sb::sstable;
 using namespace sb::chunkserver;
 
-
 namespace sb {
 namespace sstable {
+void inc_stat(const uint64_t table_id, const int32_t index, const int64_t inc_value) {
+  UNUSED(table_id);
+  UNUSED(index);
+  UNUSED(inc_value);
+
+  //TODO: add your handle code
+  switch (index) {
+  case INDEX_BLOCK_INDEX_CACHE_HIT:
+    break;
+  case INDEX_BLOCK_INDEX_CACHE_MISS:
+    break;
+  case INDEX_BLOCK_CACHE_HIT:
+    break;
+  case INDEX_BLOCK_CACHE_MISS:
+    break;
+  case INDEX_DISK_IO_NUM:
+    break;
+  case INDEX_DISK_IO_BYTES:
+    break;
+  default:
+    break;
+  }
+}
 }
 }
 
@@ -51,7 +71,7 @@ static const int64_t SSTABLE_ROW_NUM = 100;
 static const int64_t ROW_NUM = SSTABLE_NUM * SSTABLE_ROW_NUM;
 static const int64_t COL_NUM = 5;
 static const int64_t NON_EXISTENT_ROW_NUM = 100;
-static const ObString table_name(strlen("sstable") + 1, strlen("sstable") + 1, (char*)"sstable");
+static const ObString table_name(strlen("sstable") + 1, strlen("sstable") + 1, "sstable");
 static const int64_t OB_MAX_GET_COLUMN_NUMBER = 128;
 
 static char sstable_file_path[OB_MAX_FILE_NAME_LENGTH];
@@ -62,8 +82,6 @@ static FileInfoCache fic;
 static ModulePageAllocator mod(0);
 static ModuleArena allocator(ModuleArena::DEFAULT_PAGE_SIZE, mod);
 static ObSSTableReader reader_(allocator, fic);
-static CharArena allocator_;
-
 
 class TestObBlockCacheReaderLoader: public ::testing::Test {
  public:
@@ -75,19 +93,27 @@ class TestObBlockCacheReaderLoader: public ::testing::Test {
   ~TestObBlockCacheReaderLoader() {
   }
 
+  void init_conf(ObBlockCacheConf& conf) {
+    conf.block_cache_memsize_mb = 128;
+    conf.ficache_max_num = 1024;
+  }
+
   int init() {
     int ret = OB_SUCCESS;
 
+    ObBlockCacheConf conf;
+    init_conf(conf);
     EXPECT_EQ(OB_SUCCESS, ret);
 
-    ret = old_block_cache_.init(conf_.block_cache_size);
+    ret = old_block_cache_.init(conf);
     EXPECT_EQ(OB_SUCCESS, ret);
-    ret = new_block_cache_.init(conf_.block_cache_size);
+    ret = new_block_cache_.init(conf);
     EXPECT_EQ(OB_SUCCESS, ret);
 
-    ret = old_index_cache_.init(conf_.block_index_cache_size);
+    ObBlockIndexCacheConf bic_conf = {16 * 1024 * 1024};
+    ret = old_index_cache_.init(bic_conf);
     EXPECT_EQ(OB_SUCCESS, ret);
-    ret = new_index_cache_.init(conf_.block_index_cache_size);
+    ret = new_index_cache_.init(bic_conf);
     EXPECT_EQ(OB_SUCCESS, ret);
 
     return ret;
@@ -96,7 +122,6 @@ class TestObBlockCacheReaderLoader: public ::testing::Test {
   static int init_sstable(ObSSTableReader& sstable, const ObCellInfo** cell_infos,
                           const int64_t row_num, const int64_t col_num, const int64_t sst_id = 0L) {
     int err = OB_SUCCESS;
-    UNUSED(sstable);
 
     ObSSTableSchema sstable_schema;
     ObSSTableSchemaColumnDef column_def;
@@ -112,25 +137,16 @@ class TestObBlockCacheReaderLoader: public ::testing::Test {
     char* path_str = sstable_file_path;
     int64_t path_len = OB_MAX_FILE_NAME_LENGTH;
 
-    column_def.reserved_ = 0;
-    column_def.rowkey_seq_ = 1;
-    column_def.column_group_id_ = 0;
-    column_def.column_name_id_ = 1; //rowkey column id;
-    column_def.column_value_type_ = ObVarcharType;
-    column_def.table_id_ = static_cast<uint32_t>(table_id);
-    sstable_schema.add_column_def(column_def);
-
     for (int64_t i = 0; i < col_num; ++i) {
       column_def.reserved_ = 0;
-      column_def.rowkey_seq_ = 0;
       if (i >= 2) {
         column_def.column_group_id_ = 2;
       } else {
         column_def.column_group_id_ = 0;
       }
-      column_def.column_name_id_ = static_cast<uint16_t>(cell_infos[0][i].column_id_);
+      column_def.column_name_id_ = cell_infos[0][i].column_id_;
       column_def.column_value_type_ = cell_infos[0][i].value_.get_type();
-      column_def.table_id_ = static_cast<uint32_t>(table_id);
+      column_def.table_id_ = table_id;
       sstable_schema.add_column_def(column_def);
     }
 
@@ -145,19 +161,19 @@ class TestObBlockCacheReaderLoader: public ::testing::Test {
     char cmd[256];
     sprintf(cmd, "mkdir -p %s", path_str);
     system(cmd);
-    path.assign((char*)path_str, static_cast<int32_t>(strlen(path_str)));
-    compress_name.assign((char*)"lzo_1.0", static_cast<int32_t>(strlen("lzo_1.0")));
+    path.assign((char*)path_str, strlen(path_str));
+    compress_name.assign("lzo_1.0", strlen("lzo_1.0"));
     remove(path.ptr());
 
     ObSSTableWriter writer;
-    err = writer.create_sstable(sstable_schema, path, compress_name, 0, 1, 4 * 1024);
+    err = writer.create_sstable(sstable_schema, path, compress_name, 0);
     EXPECT_EQ(OB_SUCCESS, err);
 
     for (int64_t i = 0; i < row_num; ++i) {
       ObSSTableRow row;
       row.set_table_id(table_id);
       row.set_column_group_id(0);
-      err = row.set_rowkey(cell_infos[i][0].row_key_);
+      err = row.set_row_key(cell_infos[i][0].row_key_);
       EXPECT_EQ(OB_SUCCESS, err);
       for (int64_t j = 0; j < 2; ++j) {
         err = row.add_obj(cell_infos[i][j].value_);
@@ -173,7 +189,7 @@ class TestObBlockCacheReaderLoader: public ::testing::Test {
       ObSSTableRow row;
       row.set_table_id(table_id);
       row.set_column_group_id(2);
-      err = row.set_rowkey(cell_infos[i][0].row_key_);
+      err = row.set_row_key(cell_infos[i][0].row_key_);
       EXPECT_EQ(OB_SUCCESS, err);
       for (int64_t j = 2; j < col_num; ++j) {
         err = row.add_obj(cell_infos[i][j].value_);
@@ -192,7 +208,7 @@ class TestObBlockCacheReaderLoader: public ::testing::Test {
     err = fic.init(1024);
     EXPECT_EQ(OB_SUCCESS, err);
 
-    err = reader_.open(sstable_id, 0);
+    err = reader_.open(sstable_id);
     EXPECT_EQ(OB_SUCCESS, err);
     EXPECT_TRUE(reader_.is_opened());
 
@@ -220,7 +236,7 @@ class TestObBlockCacheReaderLoader: public ::testing::Test {
       for (int64_t j = 0; j < COL_NUM; ++j) {
         cell_infos[i][j].table_id_ = table_id;
         sprintf(row_key_strs[i][j], "row_key_%08ld", i);
-        cell_infos[i][j].row_key_ = make_rowkey(row_key_strs[i][j], &allocator_);
+        cell_infos[i][j].row_key_.assign(row_key_strs[i][j], strlen(row_key_strs[i][j]));
         cell_infos[i][j].column_id_ = j + 2;
         cell_infos[i][j].value_.set_int(1000 + i * COL_NUM + j);
       }
@@ -273,7 +289,6 @@ class TestObBlockCacheReaderLoader: public ::testing::Test {
   }
 
  public:
-  ObChunkServerConfig conf_;
   ObBlockIndexCache old_index_cache_;
   ObBlockCache old_block_cache_;
   ObBlockIndexCache new_index_cache_;
@@ -288,8 +303,8 @@ TEST_F(TestObBlockCacheReaderLoader, test_block_cache_loader) {
   uint64_t table_id = 100;
   uint64_t column_group_id = 0;
 
-  ObRowkey start_key = cell_infos[0][0].row_key_;
-  ObRowkey end_key = cell_infos[ROW_NUM - 1][0].row_key_;
+  ObString start_key = cell_infos[0][0].row_key_;
+  ObString end_key = cell_infos[ROW_NUM - 1][0].row_key_;
 
   ret = cache_loader_.load_block_into_cache(old_index_cache_, old_block_cache_,
                                             table_id, column_group_id,
@@ -324,7 +339,7 @@ TEST_F(TestObBlockCacheReaderLoader, test_block_cache_loader_twice) {
   uint64_t table_id = 100;
   uint64_t column_group_id = 0;
 
-  ObRowkey start_key = cell_infos[0][0].row_key_;
+  ObString start_key = cell_infos[0][0].row_key_;
 
   ret = cache_loader_.load_block_into_cache(old_index_cache_, old_block_cache_,
                                             table_id, column_group_id,
@@ -352,8 +367,8 @@ TEST_F(TestObBlockCacheReaderLoader, test_block_cache_switch) {
   uint64_t table_id = 100;
   uint64_t column_group_id = 0;
 
-  ObRowkey start_key = cell_infos[0][0].row_key_;
-  ObRowkey end_key = cell_infos[ROW_NUM - 1][0].row_key_;
+  ObString start_key = cell_infos[0][0].row_key_;
+  ObString end_key = cell_infos[ROW_NUM - 1][0].row_key_;
 
   ret = cache_loader_.load_block_into_cache(old_index_cache_, old_block_cache_,
                                             table_id, column_group_id,
@@ -371,24 +386,27 @@ TEST_F(TestObBlockCacheReaderLoader, test_block_cache_switch) {
                                             table_id, column_group_id,
                                             start_key, &reader_);
   ASSERT_EQ(OB_SUCCESS, ret);
-  //ret = cache_reader_.get_start_key_of_next_block(old_block_cache_, table_id,
-  //                                                column_group_id, end_key, &reader_);
-  //ASSERT_EQ(OB_SUCCESS, ret);
-  //ret = cache_loader_.load_block_into_cache(new_index_cache_, new_block_cache_,
-  //                                          table_id, column_group_id,
-  //                                          end_key, &reader_);
-  //ASSERT_EQ(OB_SUCCESS, ret);
+  ret = cache_reader_.get_start_key_of_next_block(old_block_cache_, table_id,
+                                                  column_group_id, end_key, &reader_);
+  ASSERT_EQ(OB_SUCCESS, ret);
+  ret = cache_loader_.load_block_into_cache(new_index_cache_, new_block_cache_,
+                                            table_id, column_group_id,
+                                            end_key, &reader_);
+  ASSERT_EQ(OB_SUCCESS, ret);
   ret = cache_reader_.get_start_key_of_next_block(old_block_cache_, table_id,
                                                   column_group_id, end_key, &reader_);
   ASSERT_EQ(OB_ITER_END, ret);
 
   ret = cache_utility_.destroy_cache(old_block_cache_, old_index_cache_);
   ASSERT_EQ(OB_SUCCESS, ret);
+  ObBlockCacheConf conf;
+  init_conf(conf);
   old_block_cache_.set_fileinfo_cache(fic);
-  ret = old_block_cache_.init(conf_.block_cache_size);
+  ret = old_block_cache_.init(conf);
   EXPECT_EQ(OB_SUCCESS, ret);
+  ObBlockIndexCacheConf bic_conf = {16 * 1024 * 1024};
   old_index_cache_.set_fileinfo_cache(fic);
-  ret = old_index_cache_.init(conf_.block_index_cache_size);
+  ret = old_index_cache_.init(bic_conf);
   EXPECT_EQ(OB_SUCCESS, ret);
 
   ret = cache_reader_.get_start_key_of_next_block(new_block_cache_, table_id,
@@ -398,13 +416,13 @@ TEST_F(TestObBlockCacheReaderLoader, test_block_cache_switch) {
                                             table_id, column_group_id,
                                             start_key, &reader_);
   ASSERT_EQ(OB_SUCCESS, ret);
-  //ret = cache_reader_.get_start_key_of_next_block(new_block_cache_, table_id,
-  //                                                column_group_id, end_key, &reader_);
-  //ASSERT_EQ(OB_SUCCESS, ret);
-  //ret = cache_loader_.load_block_into_cache(old_index_cache_, old_block_cache_,
-  //                                          table_id, column_group_id,
-  //                                          end_key, &reader_);
-  //ASSERT_EQ(OB_SUCCESS, ret);
+  ret = cache_reader_.get_start_key_of_next_block(new_block_cache_, table_id,
+                                                  column_group_id, end_key, &reader_);
+  ASSERT_EQ(OB_SUCCESS, ret);
+  ret = cache_loader_.load_block_into_cache(old_index_cache_, old_block_cache_,
+                                            table_id, column_group_id,
+                                            end_key, &reader_);
+  ASSERT_EQ(OB_SUCCESS, ret);
   ret = cache_reader_.get_start_key_of_next_block(old_block_cache_, table_id,
                                                   column_group_id, end_key, &reader_);
   ASSERT_EQ(OB_ITER_END, ret);
@@ -415,7 +433,7 @@ TEST_F(TestObBlockCacheReaderLoader, test_block_cache_load_one_file) {
   uint64_t table_id = 100;
   uint64_t column_group_id = 0;
   uint64_t column_group_id2 = 2;
-  ObRowkey row_key;
+  ObString row_key;
 
   for (int i = 0; i < ROW_NUM; i++) {
     row_key = cell_infos[i][0].row_key_;

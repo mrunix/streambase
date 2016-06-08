@@ -1,17 +1,18 @@
 /**
- * (C) 2007-2010 Taobao Inc.
+ * (C) 2007-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
  * Version: $Id$
  *
+ * ob_update_gen.cc for ...
+ *
  * Authors:
  *   yanran <yanran.hfs@taobao.com>
- *     - some work details if you want
+ *
  */
-
 #include "ob_update_gen.h"
 
 #include <assert.h>
@@ -141,3 +142,4 @@ int ObUpdateGen::gen_line(int n, ObString& row_key, int64_t sum, ObRandom& ran, 
 
   return ret;
 }
+

@@ -18,7 +18,6 @@
 #include <iostream>
 #include <string>
 #include <stdarg.h>
-#include <stdio.h>
 #include "db_msg_report.h"
 
 using namespace std;

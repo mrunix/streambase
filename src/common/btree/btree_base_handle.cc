@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./btree_base_handle.cc for ...
+ *
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
+ */
 #include <stdio.h>
 #include "btree_base_handle.h"
 #include "btree_root_pointer.h"
@@ -46,3 +61,4 @@ BtreeCallback::~BtreeCallback() {
 }
 } // end namespace common
 } // end namespace sb
+

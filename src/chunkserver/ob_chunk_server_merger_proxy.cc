@@ -1,26 +1,33 @@
-/*
- * (C) 2007-2010 TaoBao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- * ob_chunk_server_merger_proxy.cc is for what ...
+ * Version: 5567
  *
- * Version: $id$
+ * ob_chunk_server_merger_proxy.cc
  *
  * Authors:
- *   MaoQi maoqi@taobao.com
+ *     maoqi <maoqi@taobao.com>
+ * Changes:
+ *     qushan <qushan@taobao.com>
+ *     yubai <yubai.lk@taobao.com>
+ *     xielun <xielun.szd@taobao.com>
  *
  */
 
 #include "ob_chunk_server_merger_proxy.h"
 #include "common/ob_read_common_data.h"
+#include "common/ob_range.h"
 #include "common/ob_scanner.h"
 #include "common/ob_cell_array.h"
+#include "mergeserver/ob_ms_tablet_location_item.h"
 
 namespace sb {
 using namespace common;
+using namespace mergeserver;
 
 namespace chunkserver {
 
@@ -32,12 +39,15 @@ ObChunkServerMergerProxy::~ObChunkServerMergerProxy() {}
 
 
 int ObChunkServerMergerProxy::cs_scan(const common::ObScanParam& scan_param,
+                                      mergeserver::ObMergerTabletLocation& addr,
                                       common::ObScanner& scanner,
                                       common::ObIterator*& it_out) {
   int ret = OB_SUCCESS;
 
   ObCellInfo cell_ext;
+  UNUSED(addr);
   it_out = NULL;
+  cell_array_.clear();
 
   if ((ret = cs_reader_.scan(scan_param)) != OB_SUCCESS) {
     TBSYS_LOG(DEBUG, "scan chunkserver failed");
@@ -51,7 +61,7 @@ int ObChunkServerMergerProxy::cs_scan(const common::ObScanParam& scan_param,
     cell_ext.table_id_ = scan_param.get_table_id();
     cell_ext.row_key_ = scan_param.get_range()->end_key_;
 
-    scanner.reset();
+    scanner.clear();
     scanner.set_range(*scan_param.get_range());
     //data version
     scanner.set_data_version(scan_param.get_version_range().start_version_);
@@ -69,5 +79,5 @@ void ObChunkServerMergerProxy::reset() {
   cs_reader_.reset();
 }
 } /* chunkserver */
-} /* oceanbase */
+} /* sb */
 

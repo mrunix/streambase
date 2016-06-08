@@ -19,7 +19,7 @@ const Present::ServerInfo& Present::get_server_info(const int32_t server_type) c
 }
 
 void Present::init() {
-  // rootserver
+  // nameserver
   ServerInfo& root_server_info = server_info_[ObStatManager::SERVER_TYPE_ROOT - 1];
   root_server_info.push_back(Item("succ_get_count", 4, PerSecond));
   root_server_info.push_back(Item("succ_scan_count", 4, PerSecond));

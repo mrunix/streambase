@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -640,7 +640,7 @@ int ObSSTableTrailerV1::set_column_count(const int64_t index,
   int ret = OB_SUCCESS;
 
   if (index >= 0 && index < table_count_ && NULL != table_info_) {
-    table_info_[index].column_count_ = static_cast<int16_t>(column_count);
+    table_info_[index].column_count_ = column_count;
   } else {
     TBSYS_LOG(WARN, "invalid param, index=%ld, column_count=%ld, "
               "table_count=%d, table_info=%p",
@@ -699,7 +699,7 @@ const char* ObSSTableTrailerV1::get_compressor_name() const {
 
 int ObSSTableTrailerV1::set_compressor_name(const char* name) {
   int ret = OB_SUCCESS;
-  int len = static_cast<int32_t>(strlen(name));
+  int len = strlen(name);
 
   if ((NULL != name) && (len <= OB_MAX_COMPRESSOR_NAME_LENGTH)) {
     memcpy(compressor_name_, name, strlen(name));
@@ -761,7 +761,7 @@ int ObSSTableTrailerV1::init_table_info(const int64_t table_count) {
 
   if (OB_SUCCESS == ret) {
     table_info_ = static_cast<ObTableTrailerInfoV1*>(
-                    ob_malloc(table_count * sizeof(ObTableTrailerInfoV1), ObModIds::TEST));
+                    ob_malloc(table_count * sizeof(ObTableTrailerInfoV1)));
     if (NULL == table_info_) {
       TBSYS_LOG(ERROR, "Problem allocating memory for table trailer info");
       ret = OB_ERROR;
@@ -787,7 +787,7 @@ int ObSSTableTrailerV1::ensure_key_buf_space(const int64_t size) {
     if (key_buf_len - key_data_size_ < size) {
       key_buf_len = key_data_size_ + size * 2;
     }
-    new_buf = static_cast<char*>(ob_malloc(key_buf_len, ObModIds::TEST));
+    new_buf = static_cast<char*>(ob_malloc(key_buf_len));
     if (NULL == new_buf) {
       TBSYS_LOG(ERROR, "Problem allocating memory for key buffer");
       ret = OB_ERROR;
@@ -822,7 +822,7 @@ int ObSSTableTrailerV1::set_start_key(const int64_t table_index, ObString& start
               table_index, table_count_, size, ptr);
     ret = OB_ERROR;
   } else {
-    table_info_[table_index].start_row_key_length_ = static_cast<int16_t>(size);
+    table_info_[table_index].start_row_key_length_ = size;
     ret = ensure_key_buf_space(size);
     if (OB_SUCCESS == ret) {
       memcpy(key_buf_ + key_data_size_, ptr, size);
@@ -849,7 +849,7 @@ int ObSSTableTrailerV1::set_end_key(const int64_t table_index, ObString& end_key
               table_index, table_count_, size, ptr);
     ret = OB_ERROR;
   } else {
-    table_info_[table_index].end_row_key_length_ = static_cast<int16_t>(size);
+    table_info_[table_index].end_row_key_length_ = size;
     ret = ensure_key_buf_space(size);
     if (OB_SUCCESS == ret) {
       memcpy(key_buf_ + key_data_size_, ptr, size);
@@ -954,7 +954,7 @@ int ObSSTableTrailerV1::set_key_buf(ObString key_buf) {
 }
 
 ObString ObSSTableTrailerV1::get_key_buf() const {
-  return ObString(static_cast<int32_t>(key_data_size_), static_cast<int32_t>(key_data_size_), key_buf_);
+  return ObString(key_data_size_, key_data_size_, key_buf_);
 }
 
 void ObSSTableTrailerV1::reset() {

@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * test_client_wrapper.cc for ...
+ *
+ * Authors:
+ *   rizhao <rizhao.ych@taobao.com>
+ *
+ */
 #include <gtest/gtest.h>
 #include <stdlib.h>
 #include <map>
@@ -57,30 +72,28 @@ TEST_F(TestClientWrapper, init) {
   ObServer merge_server;
   ObUpsTableMgr ups_table_mgr;
   ups_table_mgr.init();
-  ObUpsCache ups_cache;
-  ups_cache.init();
 
   ObClientWrapper client_wrapper(rpc_retry_times, rpc_timeout, root_server,
-                                 update_server, merge_server, ups_table_mgr, ups_cache);
+                                 update_server, merge_server, ups_table_mgr);
 
   ObMergerRpcStub stub;
-  ASSERT_TRUE(OB_SUCCESS != client_wrapper.init(NULL, NULL, NULL));
-  ASSERT_TRUE(OB_SUCCESS != client_wrapper.init(&stub, NULL, NULL));
+  EXPECT_TRUE(OB_SUCCESS != client_wrapper.init(NULL, NULL, NULL));
+  EXPECT_TRUE(OB_SUCCESS != client_wrapper.init(&stub, NULL, NULL));
 
   ObMergerSchemaManager* schema = new ObMergerSchemaManager;
-  ASSERT_TRUE(NULL != schema);
-  ASSERT_TRUE(OB_SUCCESS != client_wrapper.init(&stub, schema, NULL));
+  EXPECT_TRUE(NULL != schema);
+  EXPECT_TRUE(OB_SUCCESS != client_wrapper.init(&stub, schema, NULL));
 
   ObMergerTabletLocationCache* location = new ObMergerTabletLocationCache;
-  ASSERT_TRUE(NULL != location);
+  EXPECT_TRUE(NULL != location);
 
-  ASSERT_TRUE(OB_SUCCESS == client_wrapper.init(&stub, schema, location));
-  ASSERT_TRUE(rpc_timeout == client_wrapper.get_proxy().get_rpc_timeout());
-  ASSERT_TRUE(root_server == client_wrapper.get_proxy().get_root_server());
-  ASSERT_TRUE(update_server == client_wrapper.get_proxy().get_update_server());
-  ASSERT_TRUE(NULL != client_wrapper.get_proxy().get_rpc_stub());
+  EXPECT_TRUE(OB_SUCCESS == client_wrapper.init(&stub, schema, location));
+  EXPECT_TRUE(rpc_timeout == client_wrapper.get_proxy().get_rpc_timeout());
+  EXPECT_TRUE(root_server == client_wrapper.get_proxy().get_root_server());
+  EXPECT_TRUE(update_server == client_wrapper.get_proxy().get_update_server());
+  EXPECT_TRUE(NULL != client_wrapper.get_proxy().get_rpc_stub());
 
-  ASSERT_TRUE(OB_SUCCESS != client_wrapper.init(&stub, schema, location));
+  EXPECT_TRUE(OB_SUCCESS != client_wrapper.init(&stub, schema, location));
 
   delete schema;
   schema = NULL;
@@ -100,7 +113,7 @@ TEST_F(TestClientWrapper, get) {
   streamer.setPacketFactory(&factory);
   transport.start();
   ObClientManager client_manager;
-  ASSERT_TRUE(OB_SUCCESS == client_manager.initialize(&transport, &streamer));
+  EXPECT_TRUE(OB_SUCCESS == client_manager.initialize(&transport, &streamer));
 
   // start root server
   MockRootServer root;
@@ -128,19 +141,17 @@ TEST_F(TestClientWrapper, get) {
   tbsys::CConfig c1;
   ObSchemaManagerV2 schema_manager(200);
   ASSERT_EQ(true, schema_manager.parse_from_file("./test1.ini", c1));
-  //(*manager_param).init(schema_manager);
+  (*manager_param).init(schema_manager);
   CommonSchemaManagerWrapper ups_schema_mgr;
   ups_schema_mgr.set_impl(schema_manager);
 
   ObUpsTableMgr& ups_table_mgr = ObUpdateServerMain::get_instance()->get_update_server().get_table_mgr();
   ups_table_mgr.init();
   ret = ups_table_mgr.set_schemas(ups_schema_mgr);
-  ASSERT_EQ(0, ret);
-  ObUpsCache ups_cache;
-  ups_cache.init();
+  EXPECT_EQ(0, ret);
 
   ObClientWrapper* client_wrapper = new ObClientWrapper(1, timeout, root_server,
-                                                        update_server, merge_server, ups_table_mgr, ups_cache);
+                                                        update_server, merge_server, ups_table_mgr);
 
   //set the get_param
   ObGetParam get_param;
@@ -153,7 +164,7 @@ TEST_F(TestClientWrapper, get) {
     cell[i - 1].table_id_ = 1001;
     cell[i - 1].row_key_ = row_key;
     cell[i - 1].column_id_ = i;
-    ASSERT_TRUE(OB_SUCCESS == get_param.add_cell(cell[i - 1]));
+    EXPECT_TRUE(OB_SUCCESS == get_param.add_cell(cell[i - 1]));
 
   }
   delete[] cell;
@@ -167,18 +178,18 @@ TEST_F(TestClientWrapper, get) {
   get_param.set_version_range(range);
 
   //uninited
-  ASSERT_TRUE(OB_SUCCESS != client_wrapper->get(get_param, schema_manager));
+  EXPECT_TRUE(OB_SUCCESS != client_wrapper->get(get_param, schema_manager));
   //init
   ObMergerTabletLocationCache* location = new ObMergerTabletLocationCache;
-  ASSERT_TRUE(NULL != location);
-  ASSERT_TRUE(OB_SUCCESS == location->init(50000 * 5, 1000, 10000));
+  EXPECT_TRUE(NULL != location);
+  EXPECT_TRUE(OB_SUCCESS == location->init(50000 * 5, 1000, 10000));
   ObMergerRpcStub stub;
-  ASSERT_TRUE(OB_SUCCESS == stub.init(&buffer, &client_manager));
+  EXPECT_TRUE(OB_SUCCESS == stub.init(&buffer, &client_manager));
 
   //success
-  ASSERT_TRUE(OB_SUCCESS == client_wrapper->init(&stub, manager_param, location));
+  EXPECT_TRUE(OB_SUCCESS == client_wrapper->init(&stub, manager_param, location));
   // get from chunkserver only
-  ASSERT_TRUE(OB_SUCCESS == client_wrapper->get(get_param, schema_manager));
+  EXPECT_TRUE(OB_SUCCESS == client_wrapper->get(get_param, schema_manager));
 
   //test get_cell
   ObCellInfo* cell_info = NULL;
@@ -188,13 +199,13 @@ TEST_F(TestClientWrapper, get) {
   uint64_t column_id;
   for (; ; i++) {
     j = 0;
-    ASSERT_TRUE(OB_SUCCESS == client_wrapper->get_cell(&cell_info));
+    EXPECT_TRUE(OB_SUCCESS == client_wrapper->get_cell(&cell_info));
     table_id = cell_info->table_id_;
     column_id = cell_info->column_id_;
     cell_info->value_.get_int(j);
-    ASSERT_EQ(1001, (int64_t) table_id);
-    ASSERT_EQ((int64_t) column_id, i + 1);
-    ASSERT_EQ((int64_t)(i + 2233), j);
+    EXPECT_EQ(1001, (int64_t) table_id);
+    EXPECT_EQ((int64_t) column_id, i + 1);
+    EXPECT_EQ((int64_t)(i + 2233), j);
     ret = client_wrapper->next_cell();
     if (ret != OB_SUCCESS) {
       break;
@@ -203,20 +214,19 @@ TEST_F(TestClientWrapper, get) {
   TBSYS_LOG(INFO, "i=%d", i);
   TBSYS_LOG(INFO, "table_id=%u,column_id=%u", cell_info->table_id_, cell_info->column_id_);
 
+  // get data from update server (invalid start version)
+  // change the version range
   range.start_version_ = 0;
   range.end_version_ = 2;
   get_param.set_version_range(range);
-
-  // get data from update server (invalid start version)
-  // change the version range
-  //
-  //ret = client_wrapper->get(get_param,schema_manager);
-  //ASSERT_EQ(OB_INVALID_START_VERSION, ret);
-
-  ups_table_mgr.sstable_scan_finished(10);
-  // updateserver has no data
   ret = client_wrapper->get(get_param, schema_manager);
-  ASSERT_EQ(OB_SUCCESS, ret);
+  EXPECT_EQ(OB_INVALID_START_VERSION, ret);
+
+  // updateserver has no data
+  ups_table_mgr.sstable_scan_finished(10);
+
+  ret = client_wrapper->get(get_param, schema_manager);
+  EXPECT_EQ(OB_SUCCESS, ret);
 
   // updateserver has data, need merge
   TestUpsTableMgrHelper test_helper(ups_table_mgr);
@@ -239,7 +249,7 @@ TEST_F(TestClientWrapper, get) {
     ObMutatorCellInfo mutator_cell;
     mutator_cell.cell_info = ups_cell[i - 1];
     mutator_cell.op_type.set_ext(ObActionFlag::OP_UPDATE);
-    ASSERT_TRUE(OB_SUCCESS == mutator.add_cell(mutator_cell));
+    EXPECT_TRUE(OB_SUCCESS == mutator.add_cell(mutator_cell));
 
   }
   delete[] ups_cell;
@@ -249,7 +259,7 @@ TEST_F(TestClientWrapper, get) {
   ASSERT_EQ(0, ret);
   ups_mutator.set_mutate_timestamp(0);
   ret = active_memtable.set(write_handle, ups_mutator);
-  ASSERT_EQ(0, ret);
+  EXPECT_EQ(0, ret);
   ret = active_memtable.end_transaction(write_handle);
   ASSERT_EQ(0, ret);
 
@@ -257,13 +267,13 @@ TEST_F(TestClientWrapper, get) {
   ASSERT_EQ(0, ret);
   for (i = 0; ; i++) {
     j = 0;
-    ASSERT_TRUE(OB_SUCCESS == client_wrapper->get_cell(&cell_info));
+    EXPECT_TRUE(OB_SUCCESS == client_wrapper->get_cell(&cell_info));
     table_id = cell_info->table_id_;
     column_id = cell_info->column_id_;
     cell_info->value_.get_int(j);
-    ASSERT_EQ(1001, (int64_t) table_id);
-    ASSERT_EQ((int64_t) column_id, i + 1);
-    ASSERT_EQ((int64_t)(2 * i + 2233), j);
+    EXPECT_EQ(1001, (int64_t) table_id);
+    EXPECT_EQ((int64_t) column_id, i + 1);
+    EXPECT_EQ((int64_t)(2 * i + 2233), j);
     ret = client_wrapper->next_cell();
     if (ret != OB_SUCCESS) {
       break;
@@ -293,3 +303,5 @@ int main(int argc, char** argv) {
   // TBSYS_LOGGER.setLogLevel("ERROR");
   return RUN_ALL_TESTS();
 }
+
+

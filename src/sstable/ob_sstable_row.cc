@@ -1,18 +1,19 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_sstable_row.cc for persistent ssatable single row.
+ * Version: 5567
+ *
+ * ob_sstable_row.cc
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
+ *     huating <huating.zmq@taobao.com>
  *
  */
 #include "ob_sstable_row.h"
-#include "common/ob_rowkey.h"
 
 namespace sb {
 namespace sstable {
@@ -20,34 +21,26 @@ using namespace common;
 using namespace common::serialization;
 
 ObSSTableRow::ObSSTableRow()
-  : table_id_(OB_INVALID_ID),
-    column_group_id_(OB_INVALID_ID),
-    rowkey_obj_count_(0),
-    row_key_buf_(NULL),
-    row_key_buf_size_(DEFAULT_KEY_BUF_SIZE),
-    obj_count_(0),
-    string_buf_(ObModIds::OB_SSTABLE_WRITER),
-    binary_rowkey_info_(NULL) {
+  : table_id_(OB_INVALID_ID), column_group_id_(OB_INVALID_ID), row_key_buf_(NULL),
+    row_key_len_(0), row_key_buf_size_(DEFAULT_KEY_BUF_SIZE), objs_(NULL),
+    objs_buf_size_(DEFAULT_OBJS_BUF_SIZE), obj_count_(0),
+    string_buf_(ObModIds::OB_SSTABLE_WRITER) {
 }
-
-ObSSTableRow::ObSSTableRow(const ObRowkeyInfo* rowkey_info)
-  : table_id_(OB_INVALID_ID),
-    column_group_id_(OB_INVALID_ID),
-    rowkey_obj_count_(0),
-    row_key_buf_(NULL),
-    row_key_buf_size_(DEFAULT_KEY_BUF_SIZE),
-    obj_count_(0),
-    string_buf_(ObModIds::OB_SSTABLE_WRITER),
-    binary_rowkey_info_(rowkey_info) {
-}
-
 
 ObSSTableRow::~ObSSTableRow() {
   if (NULL != row_key_buf_) {
     ob_free(row_key_buf_);
     row_key_buf_ = NULL;
   }
+  if (NULL != objs_) {
+    ob_free(objs_);
+    objs_ = NULL;
+  }
   string_buf_.clear();
+}
+
+const int64_t ObSSTableRow::get_obj_count() const {
+  return obj_count_;
 }
 
 int ObSSTableRow::set_obj_count(const int64_t obj_count,
@@ -59,25 +52,14 @@ int ObSSTableRow::set_obj_count(const int64_t obj_count,
               obj_count, sparse_format);
     ret = OB_ERROR;
   } else {
-    obj_count_ = static_cast<int32_t>(obj_count);
+    obj_count_ = obj_count;
   }
 
   return ret;
 }
 
-const ObRowkeyInfo* ObSSTableRow::get_rowkey_info() const {
-  return binary_rowkey_info_;
-}
-
-int ObSSTableRow::set_rowkey_info(const ObRowkeyInfo* rowkey_info) {
-  int ret = OB_SUCCESS;
-  if (NULL == rowkey_info) {
-    TBSYS_LOG(WARN, "invalide argument rowkey_info=%p", rowkey_info);
-    ret = OB_ERROR;
-  } else {
-    binary_rowkey_info_ = rowkey_info;
-  }
-  return ret;
+const uint64_t ObSSTableRow::get_table_id() const {
+  return table_id_;
 }
 
 int ObSSTableRow::set_table_id(const uint64_t table_id) {
@@ -91,16 +73,29 @@ int ObSSTableRow::set_table_id(const uint64_t table_id) {
   return ret;
 }
 
+const uint64_t ObSSTableRow::get_column_group_id() const {
+  return column_group_id_;
+}
+
 int ObSSTableRow::set_column_group_id(const uint64_t column_group_id) {
   int ret = OB_SUCCESS;
   if (OB_INVALID_ID == column_group_id) {
-    TBSYS_LOG(WARN, "invalid argument column_group_id=%lu", column_group_id);
+    TBSYS_LOG(WARN, "invalid argument column_group_id=%u", column_group_id);
     ret = OB_ERROR;
   } else {
     column_group_id_ = column_group_id;
   }
-
   return ret;
+}
+
+const ObString ObSSTableRow::get_row_key() const {
+  ObString row_key;
+
+  if (NULL != row_key_buf_ && row_key_len_ > 0) {
+    row_key.assign(row_key_buf_, row_key_len_);
+  }
+
+  return row_key;
 }
 
 const ObObj* ObSSTableRow::get_obj(const int32_t index) const {
@@ -115,15 +110,16 @@ const ObObj* ObSSTableRow::get_obj(const int32_t index) const {
   return obj;
 }
 
-const ObObj* ObSSTableRow::get_row_objs(int64_t& obj_count) {
-  obj_count = obj_count_;
-  return objs_;
-}
-
 int ObSSTableRow::clear() {
   int ret = OB_SUCCESS;
 
-  rowkey_obj_count_ = 0;
+  row_key_len_ = 0;
+  if (NULL != row_key_buf_ && row_key_buf_size_ > 0) {
+    memset(row_key_buf_, 0, row_key_buf_size_);
+  }
+  if (NULL != objs_) {
+    memset(objs_, 0, objs_buf_size_);
+  }
   obj_count_ = 0;
   ret = string_buf_.reset();
 
@@ -150,7 +146,7 @@ int ObSSTableRow::ensure_key_buf_space(const int64_t size) {
         ob_free(row_key_buf_);
         row_key_buf_ = NULL;
       }
-      row_key_buf_size_ =  static_cast<int32_t>(key_len);
+      row_key_buf_size_ = key_len;
       row_key_buf_ = new_buf;
       memset(row_key_buf_, 0, row_key_buf_size_);
     }
@@ -159,204 +155,181 @@ int ObSSTableRow::ensure_key_buf_space(const int64_t size) {
   return ret;
 }
 
-int ObSSTableRow::set_rowkey(const ObRowkey& rowkey) {
-  int ret = OB_SUCCESS;
-  int64_t length = rowkey.get_obj_cnt();
-  const ObObj* ptr = rowkey.get_obj_ptr();
+int ObSSTableRow::ensure_objs_buf_space(const int64_t size) {
+  int ret               = OB_SUCCESS;
+  char* new_buf         = NULL;
+  int64_t reamin_size   = objs_buf_size_ - OBJ_SIZE * obj_count_;
+  int64_t objs_buf_len  = 0;
 
-  if (length <= 0 || NULL == ptr) {
-    TBSYS_LOG(WARN, "invalid row key, len=%ld ptr=%p", length, ptr);
+  if (size <= 0) {
+    TBSYS_LOG(WARN, "invalid obj length, size=%ld", size);
     ret = OB_ERROR;
-  } else {
-    // copy %rowkey's obj array to %objs_
-    for (int64_t i = 0; i < length && OB_SUCCESS == ret;  ++i) {
-      ret = add_obj(ptr[i]);
+  } else if (NULL == objs_ || (NULL != objs_ && size > reamin_size)) {
+    objs_buf_len = size > reamin_size
+                   ? (objs_buf_size_ * 2) : objs_buf_size_;
+    if (objs_buf_len - OBJ_SIZE * obj_count_ < size) {
+      objs_buf_len = OBJ_SIZE * obj_count_ + size * 2;
     }
-    if (OB_SUCCESS == ret) {
-      rowkey_obj_count_ = length;
+    new_buf = static_cast<char*>(ob_malloc(objs_buf_len));
+    if (NULL == new_buf) {
+      TBSYS_LOG(ERROR, "Problem allocating memory for key buffer");
+      ret = OB_ERROR;
+    } else {
+      memset(new_buf, 0, objs_buf_len);
+      if (NULL != objs_) {
+        memcpy(new_buf, objs_, OBJ_SIZE * obj_count_);
+        ob_free(objs_);
+        objs_ = NULL;
+      }
+      objs_buf_size_ = objs_buf_len;
+      objs_ = reinterpret_cast<ObObj*>(new_buf);
     }
   }
 
   return ret;
 }
 
-int ObSSTableRow::set_binary_rowkey(const common::ObString& binary_rowkey) {
-  // translate binary rowkey to object array;
-  ObObj obj_array[OB_MAX_ROWKEY_COLUMN_NUMBER];
-  int64_t array_size = NULL == binary_rowkey_info_ ? OB_MAX_ROWKEY_COLUMN_NUMBER : binary_rowkey_info_->get_size();
+int ObSSTableRow::set_row_key(const ObString& key) {
   int ret = OB_SUCCESS;
+  int64_t key_len = key.length();
 
-  if (binary_rowkey.length() <= 0 || NULL == binary_rowkey.ptr()) {
-    TBSYS_LOG(WARN, "invalid row key, ken_len=%d ptr=%p",
-              binary_rowkey.length(), binary_rowkey.ptr());
+  if (key_len <= 0 || NULL == key.ptr()) {
+    TBSYS_LOG(WARN, "invalid row key, ken_len=%ld ptr=%p",
+              key_len, key.ptr());
     ret = OB_ERROR;
-  } else if (NULL == binary_rowkey_info_) {
-    TBSYS_LOG(WARN, "must set rowkey info when you use old binary rowkey format.");
-    ret = OB_INVALID_ARGUMENT;
-  } else if (obj_count_ > 0) {
-    TBSYS_LOG(WARN, "set binary_rowkey must before add obj.");
-    ret = OB_INVALID_ARGUMENT;
-  } else if (OB_SUCCESS != (ret = ObRowkeyHelper::binary_rowkey_to_obj_array(
-                                    *binary_rowkey_info_, binary_rowkey, obj_array, array_size))) {
-    TBSYS_LOG(WARN, "translate binary rowkey to object array error.");
-  } else {
-    for (int64_t i = 0; OB_SUCCESS == ret && i < array_size; ++i) {
-      ret = add_obj(obj_array[i]);
-    }
-    if (OB_SUCCESS == ret) {
-      rowkey_obj_count_ = array_size;
-    }
+  } else if (OB_SUCCESS == (ret = ensure_key_buf_space(key_len))) {
+    memcpy(row_key_buf_, key.ptr(), key_len);
+    row_key_len_ = key_len;
   }
 
   return ret;
 }
 
-int ObSSTableRow::get_binary_rowkey(common::ObString& binary_rowkey) const {
+int ObSSTableRow::add_obj(const ObObj& obj) {
   int ret = OB_SUCCESS;
-  if (NULL == binary_rowkey_info_) {
-    TBSYS_LOG(WARN, "must set rowkey info when you use old binary rowkey format.");
-    ret = OB_INVALID_ARGUMENT;
-  } else if (obj_count_ <  binary_rowkey_info_->get_size()) {
-    TBSYS_LOG(WARN, "obj_count_=%d < rowkey size=%ld", obj_count_, binary_rowkey_info_->get_size());
-    ret = OB_INVALID_ARGUMENT;
-  } else if (OB_SUCCESS != (ret = const_cast<ObSSTableRow*>(this)->ensure_key_buf_space(
-                                    binary_rowkey_info_->get_binary_rowkey_length()))) {
-    TBSYS_LOG(WARN, "cannot alloc key length=%ld ", binary_rowkey_info_->get_binary_rowkey_length());
+  ObObj stored_obj;
+
+  if (obj_count_ < OB_MAX_COLUMN_NUMBER) {
+    ret = ensure_objs_buf_space(OBJ_SIZE);
+    if (OB_SUCCESS == ret) {
+      //have enough space to store this object
+      ret = string_buf_.write_obj(obj, &stored_obj);
+      if (OB_SUCCESS == ret) {
+        objs_[obj_count_++] = stored_obj;
+      }
+    }
   } else {
-    binary_rowkey.assign(row_key_buf_, row_key_buf_size_);
-    ret = ObRowkeyHelper::obj_array_to_binary_rowkey(
-            *binary_rowkey_info_, binary_rowkey, objs_, binary_rowkey_info_->get_size());
+    TBSYS_LOG(WARN, "can't add obj anymore, max_count=%ld, obj_count=%d",
+              OB_MAX_COLUMN_NUMBER, obj_count_);
+    ret = OB_ERROR;
   }
+
+  return ret;
+}
+
+int ObSSTableRow::add_obj(const ObObj& obj, const uint64_t column_id) {
+  int ret = OB_SUCCESS;
+  ObObj stored_obj;
+  ObObj id_obj;
+
+  if (column_id == OB_INVALID_ID) {
+    TBSYS_LOG(WARN, "invalid column id, column_id=%lu", column_id);
+    ret = OB_ERROR;
+  }
+
+  if (OB_SUCCESS == ret) {
+    id_obj.set_int(column_id);
+    ret = ensure_objs_buf_space(OBJ_SIZE * 2);
+    if (OB_SUCCESS == ret) {
+      //have enough space to store this object
+      ret = string_buf_.write_obj(obj, &stored_obj);
+      if (OB_SUCCESS == ret) {
+        objs_[obj_count_++] = id_obj;
+        objs_[obj_count_++] = stored_obj;
+      }
+    }
+  }
+
   return ret;
 }
 
 int ObSSTableRow::check_schema(const ObSSTableSchema& schema) const {
   int ret              = OB_SUCCESS;
   int64_t column_count = 0;
-  int64_t rowkey_column_count = OB_MAX_ROWKEY_COLUMN_NUMBER;
-  const ObSSTableSchemaColumnDef* rowkey_column_defs[rowkey_column_count];
-
   const ObSSTableSchemaColumnDef* column_def = schema.get_group_schema(table_id_, column_group_id_,
                                                column_count);
   ObObjType obj_type   = ObNullType;
 
-  if (column_count <= 0 || obj_count_ <= 0 || NULL == column_def) {
+  if (column_count <= 0 || obj_count_ <= 0
+      || NULL == column_def || column_count != obj_count_) {
     TBSYS_LOG(WARN, "invalid column count in scheam or obj count in row,"
-              "column_count=%ld, obj_count=%d, column_def=%p",
+              "column_count=%d, obj_count=%d, column_def=%p",
               column_count, obj_count_, column_def);
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = schema.get_rowkey_column_count(table_id_, rowkey_column_count))) {
-    TBSYS_LOG(WARN, "get rowkey column count of table=%ld error.", table_id_);
-  } else if (OB_SUCCESS != (ret = schema.get_rowkey_columns(table_id_, rowkey_column_defs, rowkey_column_count))) {
-    TBSYS_LOG(WARN, "get rowkey column defs of table=%ld error.", table_id_);
-  } else {
-    // compare rowkey objs;
-    int64_t def_index = 0;
-    int64_t obj_index = 0;
+  }
 
-    for (; def_index < rowkey_column_count; ++def_index) {
-      int16_t seq = rowkey_column_defs[def_index]->rowkey_seq_;
-      if (seq <= 0 || seq > rowkey_column_count) {
-        TBSYS_LOG(ERROR, "seq=%d not legal, rowkey column count=%ld",
-                  seq, rowkey_column_count);
-        ret = OB_SUCCESS;
-        break;
-      } else if (rowkey_column_defs[def_index]->column_value_type_ !=  objs_[seq - 1].get_type()
-                 && ObNullType != objs_[seq - 1].get_type()) { // allow NULL rowkey column
-        TBSYS_LOG(WARN, "rowkey obj[i=%ld,seq=%d,id=%d] type is inconsistent "
-                  "with column type, obj_type=%d, column_type=%d", def_index, seq,
-                  rowkey_column_defs[def_index]->column_name_id_,
-                  objs_[seq - 1].get_type(), rowkey_column_defs[def_index]->column_value_type_);
-        ret = OB_ERROR;
-        break;
-      }
-    }
-
-    // compare columns;
-    obj_index = rowkey_column_count;
-    // skip rowkey columns;
-    if (is_binary_rowkey() && obj_index == 0) {
-      obj_index = binary_rowkey_info_->get_size();
-    }
-    def_index = 0;
-    while (obj_index < obj_count_ && def_index < column_count) {
-      obj_type = objs_[obj_index].get_type();
-      if (NULL == column_def + def_index) {
+  if (OB_SUCCESS == ret) {
+    for (int64_t i = 0; i < obj_count_; ++i) {
+      obj_type = objs_[i].get_type();
+      if (NULL == column_def + i) {
         TBSYS_LOG(WARN, "problem get column def, column_def=%p", column_def);
         ret = OB_ERROR;
         break;
-      } else if (column_def[def_index].rowkey_seq_ != 0) {
-        ++def_index;
-        continue;
-      } else if (ObNullType != obj_type
-                 && obj_type != column_def[def_index].column_value_type_) {
-        TBSYS_LOG(WARN, "value obj[i=%ld,id=%d] type is inconsistent with column type,"
-                  "obj_type=%d, column_type=%d", def_index,
-                  column_def[def_index].column_name_id_, obj_type,
-                  column_def[def_index].column_value_type_);
+      }
+      /**
+       * ingore ObNullType, because if add new column, we will
+       * initialize the column obj with ObNullType, and the schema
+       * also store the actual column type
+       */
+      else if (ObNullType != obj_type
+               && obj_type != column_def[i].column_value_type_) {
+        TBSYS_LOG(WARN, "obj type is inconsistent with column type,"
+                  "obj_type=%d, column_type=%d", obj_type,
+                  column_def[i].column_value_type_);
         ret = OB_ERROR;
         break;
-      } else {
-        ++def_index;
-        ++obj_index;
       }
-    }
-
-    if (OB_SUCCESS == ret && (obj_index != obj_count_ || def_index != column_count)) {
-      TBSYS_LOG(WARN, "column count not match, obj_index=%ld, obj_count_=%d,"
-                "def_index=%ld, column_count=%ld", obj_index, obj_count_, def_index, column_count);
-      ret = OB_SIZE_OVERFLOW;
     }
   }
 
   return ret;
 }
 
-int ObSSTableRow::serialize(char* buf, const int64_t buf_len, int64_t& pos,
-                            const int64_t row_serialize_size) const {
+DEFINE_SERIALIZE(ObSSTableRow) {
   int ret                 = OB_SUCCESS;
-  int64_t serialize_size  = row_serialize_size > 0 ? row_serialize_size : get_serialize_size();
-  int64_t start_obj_index = 0;
+  int16_t row_key_len     = row_key_len_;
+  int64_t serialize_size  = get_serialize_size();
 
   if ((NULL == buf) || (serialize_size + pos > buf_len)) {
     TBSYS_LOG(WARN, "invalid param, buf=%p, buf_len=%ld, pos=%ld,"
               "serialize_size=%ld",
               buf, buf_len, pos, serialize_size);
     ret = OB_ERROR;
-  } else {
-    if (is_binary_rowkey()) {
-      // serialize use old binary rowkey format;
-      ObString binary_rowkey;
-      ret = get_binary_rowkey(binary_rowkey);
-      if (OB_SUCCESS == ret) {
-        ret = encode_i16(buf, buf_len, pos, static_cast<int16_t>(binary_rowkey.length()));
-      }
-      if (OB_SUCCESS == ret) {
-        memcpy(buf + pos, binary_rowkey.ptr(), binary_rowkey.length());
-        pos += binary_rowkey.length();
+  }
 
-        start_obj_index += binary_rowkey_info_->get_size();
+  if (OB_SUCCESS == ret) {
+    ret = encode_i16(buf, buf_len, pos, row_key_len);
+    if (OB_SUCCESS == ret) {
+      memcpy(buf + pos, row_key_buf_, row_key_len);
+      pos += row_key_len;
+      for (int64_t i = 0; ret == OB_SUCCESS && i < obj_count_; ++i) {
+        ret = objs_[i].serialize(buf, buf_len, pos);
+        if (OB_SUCCESS != ret) {
+          TBSYS_LOG(WARN, "failed to serialzie obj, current obj index=%ld,"
+                    "obj_count=%d", i, obj_count_);
+        }
       }
-    }
-
-    for (int64_t i = start_obj_index; i < obj_count_; ++i) {
-      ret = objs_[i].serialize(buf, buf_len, pos);
-      if (OB_SUCCESS != ret) {
-        TBSYS_LOG(WARN, "failed to serialzie obj, current obj index=%ld,"
-                  "obj_count=%d", i, obj_count_);
-        break;
-      }
+    } else {
+      TBSYS_LOG(WARN, "failed to serialize key length");
     }
   }
-  return ret;
-}
 
-DEFINE_SERIALIZE(ObSSTableRow) {
-  return serialize(buf, buf_len, pos, 0);
+  return ret;
 }
 
 DEFINE_DESERIALIZE(ObSSTableRow) {
   int ret                 = OB_SUCCESS;
+  int16_t key_len         = 0;
   int64_t i               = 0;
 
   if (NULL == buf || data_len <= 0 || pos > data_len) {
@@ -366,9 +339,19 @@ DEFINE_DESERIALIZE(ObSSTableRow) {
   }
 
   if (OB_SUCCESS == ret && obj_count_ > 0) {
-    //end of deserialze sstable rowkey in obobj way
+    ret = decode_i16(buf, data_len, pos, &key_len);
+    if (OB_SUCCESS == ret && key_len > 0
+        && OB_SUCCESS == (ret = ensure_key_buf_space(key_len))) {
+      memcpy(row_key_buf_, buf + pos, key_len);
+      pos += key_len;
+      row_key_len_ = key_len;
+    } else {
+      TBSYS_LOG(WARN, "failed to deserialize row key, key_len=%d", key_len);
+    }
+
     for (i = 0; OB_SUCCESS == ret && i < obj_count_; ++i) {
-      if (obj_count_ < DEFAULT_MAX_COLUMN_NUMBER) {
+      ret = ensure_objs_buf_space(OBJ_SIZE);
+      if (OB_SUCCESS == ret) {
         ret = objs_[i].deserialize(buf, data_len, pos);
         if (OB_SUCCESS != ret) {
           TBSYS_LOG(WARN, "failed to deserialzie obj, current obj index=%ld,"
@@ -382,26 +365,20 @@ DEFINE_DESERIALIZE(ObSSTableRow) {
                 "get obj_count=%ld", obj_count_, i);
       ret = OB_ERROR;
     }
-  } else {
-    ret = OB_ERROR;
-    TBSYS_LOG(ERROR, "deserialize sstable row failed, objcount = %d, binary_rowkey_info_ = %p",
-              obj_count_, binary_rowkey_info_);
   }
+
   return ret;
 }
 
 DEFINE_GET_SERIALIZE_SIZE(ObSSTableRow) {
   int64_t total_size = 0;
-  int64_t start_obj_index = 0;
-  if (is_binary_rowkey()) {
-    //key length occupies 2 bytes
-    total_size += sizeof(int16_t) + binary_rowkey_info_->get_binary_rowkey_length();
-    start_obj_index += binary_rowkey_info_->get_size();
-  }
 
-  for (int64_t i = start_obj_index; i < obj_count_; ++i) {
+  //add row key length
+  total_size += 2 + row_key_len_; //key length occupies 2 bytes
+  for (int64_t i = 0; i < obj_count_; ++i) {
     total_size += objs_[i].get_serialize_size();
   }
+
   return total_size;
 }
 } // end namespace sstable

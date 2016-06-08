@@ -1,24 +1,24 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_sstable_scanner.h for what ...
+ * Version: 5567
+ *
+ * ob_sstable_scanner.cc
  *
  * Authors:
- *   duanfei <duanfei@taobao.com>
- *   qushan <qushan@taobao.com>
- *     modified at 2010/10/8
- *     use new ObSSTableBlockScanner.
+ *     qushan <qushan@taobao.com>
+ * Changes:
+ *     huating <huating.zmq@taobao.com>
  *
  */
 #include "ob_sstable_scanner.h"
 #include "common/utility.h"
 #include "common/ob_define.h"
 #include "common/ob_record_header.h"
-#include "common/ob_schema_manager.h"
 #include "ob_sstable_reader.h"
 #include "ob_sstable_writer.h"
 #include "ob_blockcache.h"
@@ -31,9 +31,7 @@ ObSSTableScanner::ObSSTableScanner()
   : block_index_cache_(NULL),
     block_cache_(NULL),
     internal_scanner_obj_ptr_(NULL),
-    internal_scanner_obj_count_(0),
-    column_group_size_(0),
-    end_of_data_(false) {
+    internal_scanner_obj_count_(0) {
 }
 
 ObSSTableScanner::~ObSSTableScanner() {
@@ -68,56 +66,44 @@ int ObSSTableScanner::initialize(
 
   // reset members of object.
   scan_param_.reset();
-  merger_.reset();
-  column_group_size_ = 0;
-  end_of_data_ = false;
+  ObMerger::reset();
 
   return iret;
 }
 
-int ObSSTableScanner::set_column_group_scanner(
-  const uint64_t* group_array, const int64_t group_size,
-  const ObSSTableReader* const sstable_reader,
-  const ObRowkeyInfo* rowkey_info) {
-  int ret = OB_SUCCESS;
+int ObSSTableScanner::next_cell() {
+  return ObMerger::next_cell();
+}
 
-  if (NULL == group_array || group_size < 0) {
-    TBSYS_LOG(WARN, "invalid param, group_array=%p, group_size=%ld",
-              group_array, group_size);
-    ret = OB_INVALID_ARGUMENT;
-  } else if (1 == group_size) {
-    column_group_size_ = group_size;
-    ret = set_single_column_group_scanner(group_array[0], sstable_reader, rowkey_info);
-  } else {
-    column_group_size_ = group_size;
-    ret = set_mult_column_group_scanner(group_array, group_size, sstable_reader, rowkey_info);
-  }
+int ObSSTableScanner::get_cell(ObCellInfo** cell) {
+  return ObMerger::get_cell(cell, NULL);
+}
 
-  return ret;
+int ObSSTableScanner::get_cell(ObCellInfo** cell, bool* is_row_changed) {
+  return ObMerger::get_cell(cell, is_row_changed);
 }
 
 
-int ObSSTableScanner::set_mult_column_group_scanner(
+int ObSSTableScanner::set_column_group_scanner(
   const uint64_t* group_array, const int64_t group_size,
-  const ObSSTableReader* const sstable_reader,
-  const common::ObRowkeyInfo* rowkey_info) {
+  const ObSSTableReader* const sstable_reader) {
   int iret = OB_SUCCESS;
   ObColumnGroupScanner* column_group_scanner = NULL;
   uint64_t current_group_id = 0;
   int64_t group_seq = 0;
 
-  internal_scanner_obj_ptr_ = GET_TSI_MULT(ModuleArena, TSI_SSTABLE_MODULE_ARENA_1)->alloc(
+  internal_scanner_obj_ptr_ = GET_TSI(ModuleArena)->alloc(
                                 sizeof(ObColumnGroupScanner) * group_size);
   if (NULL == internal_scanner_obj_ptr_) {
     TBSYS_LOG(ERROR, "alloc memory for column group scanner failed,"
               "group_size=%ld", group_size);
     iret = OB_ALLOCATE_MEMORY_FAILED;
-    common::ModuleArena* internal_buffer_arena = GET_TSI_MULT(common::ModuleArena, TSI_SSTABLE_MODULE_ARENA_1);
+    common::ModuleArena* internal_buffer_arena = GET_TSI(common::ModuleArena);
     TBSYS_LOG(ERROR, "thread local page arena hold memory usage,"
               "total=%ld,used=%ld,pages=%ld", internal_buffer_arena->total(),
               internal_buffer_arena->used(), internal_buffer_arena->pages());
   } else {
-    merger_.set_asc(!scan_param_.is_reverse_scan());
+    ObMerger::set_asc(!scan_param_.is_reverse_scan());
 
     for (; group_seq < group_size && OB_SUCCESS == iret; ++group_seq) {
       char* object_ptr = internal_scanner_obj_ptr_ + group_seq * sizeof(ObColumnGroupScanner);
@@ -125,15 +111,15 @@ int ObSSTableScanner::set_mult_column_group_scanner(
 
       column_group_scanner = new(object_ptr) ObColumnGroupScanner();
       if (OB_SUCCESS != (iret =
-                           column_group_scanner->initialize(block_index_cache_, block_cache_, rowkey_info))) {
+                           column_group_scanner->initialize(block_index_cache_, block_cache_))) {
         TBSYS_LOG(ERROR, "column group scanner initialize , iret=%d,"
                   "current_group_id=%ld, group_seq=%ld", iret, current_group_id, group_seq);
       } else if (OB_SUCCESS != (iret =
                                   column_group_scanner->set_scan_param(
-                                    current_group_id, group_seq, group_size, &scan_param_, sstable_reader))) {
+                                    current_group_id, group_seq, &scan_param_, sstable_reader))) {
         TBSYS_LOG(ERROR, "column group scanner set scan parameter error, iret=%d,"
                   "current_group_id=%ld, group_seq=%ld", iret, current_group_id, group_seq);
-      } else if (OB_SUCCESS != (iret = merger_.add_iterator(column_group_scanner))) {
+      } else if (OB_SUCCESS != (iret = add_iterator(column_group_scanner))) {
         TBSYS_LOG(ERROR, "add iterator to ObMerger error, iret=%d,"
                   "current_group_id=%ld, group_seq=%ld", iret, current_group_id, group_seq);
       } else {
@@ -146,25 +132,6 @@ int ObSSTableScanner::set_mult_column_group_scanner(
   }
 
   return iret;
-}
-
-int ObSSTableScanner::set_single_column_group_scanner(
-  const uint64_t column_group_id,
-  const ObSSTableReader* const sstable_reader,
-  const common::ObRowkeyInfo* rowkey_info) {
-  int ret = OB_SUCCESS;
-
-  if (OB_SUCCESS != (ret =
-                       column_group_scanner_.initialize(block_index_cache_, block_cache_, rowkey_info))) {
-    TBSYS_LOG(ERROR, "single column group scanner initialize , ret=%d,"
-              "column_group_id=%lu, group_seq=%d", ret, column_group_id, 0);
-  } else if (OB_SUCCESS != (ret = column_group_scanner_.set_scan_param(
-                                    column_group_id, 0, 1, &scan_param_, sstable_reader))) {
-    TBSYS_LOG(ERROR, "single column group scanner set scan parameter error, ret=%d,"
-              "column_group_id=%lu, group_seq=%d", ret, column_group_id, 0);
-  }
-
-  return ret;
 }
 
 /**
@@ -182,33 +149,25 @@ int ObSSTableScanner::set_scan_param(
   const ObScanParam& scan_param,
   const ObSSTableReader* const sstable_reader,
   ObBlockCache& block_cache,
-  ObBlockIndexCache& block_index_cache,
-  bool not_exit_col_ret_nop) {
+  ObBlockIndexCache& block_index_cache) {
   int iret = OB_SUCCESS;
   uint64_t group_array[OB_MAX_COLUMN_GROUP_NUMBER];
   int64_t group_size = OB_MAX_COLUMN_GROUP_NUMBER;
 
-  int64_t table_id = scan_param.get_range()->table_id_;
-
-  if (NULL == sstable_reader || sstable_reader->empty()
-      || !sstable_reader->get_schema()->is_table_exist(table_id)) {
-    end_of_data_ = true;
+  if (NULL == sstable_reader) {
+    TBSYS_LOG(ERROR , "invalid argument, sstable_reader is NULL.");
+    iret = OB_INVALID_ARGUMENT;
   } else if (OB_SUCCESS != (iret = initialize(block_cache, block_index_cache))) {
     TBSYS_LOG(ERROR, "initialize column_group_scanner error ret=%d", iret);
-  } else if (OB_SUCCESS != (iret = trans_input_scan_range(scan_param, not_exit_col_ret_nop))) {
+  } else if (OB_SUCCESS != (iret = trans_input_scan_range(scan_param))) {
     TBSYS_LOG(ERROR , "trans_input_scan_range error, ret=%d,", iret);
   } else if (OB_SUCCESS != (iret = trans_input_column_id(scan_param,
                                                          sstable_reader->get_schema(), group_array, group_size))) {
     TBSYS_LOG(ERROR, "trans_input_column_id error, ret=%d", iret);
-  } else if (sstable_reader->get_schema()->is_binary_rowkey_format(table_id)
-             && OB_SUCCESS != (iret = get_global_schema_rowkey_info(table_id, rowkey_info_))) {
-    TBSYS_LOG(ERROR, "old fashion binary rowkey format, MUST set rowkey schema.");
-    iret = OB_ERROR;
   } else if (OB_SUCCESS != (iret = set_column_group_scanner(
-                                     group_array, group_size, sstable_reader, &rowkey_info_))) {
+                                     group_array, group_size, sstable_reader))) {
     TBSYS_LOG(ERROR, "set_column_group_scanner error, ret=%d", iret);
   }
-
   return iret;
 }
 
@@ -242,29 +201,6 @@ int ObSSTableScanner::trans_input_whole_row(
   return iret;
 }
 
-bool ObSSTableScanner::is_columns_in_one_group(const ObScanParam& scan_param,
-                                               const ObSSTableSchema* schema, const uint64_t group_id) {
-  bool ret = false;
-  int64_t i = 0;
-  int64_t index = -1;
-  uint64_t table_id = scan_param.get_table_id();
-  int64_t column_id_size = scan_param.get_column_id_size();
-  const uint64_t* const column_ids = scan_param.get_column_id();
-
-  for (i = 0; i < column_id_size; ++i) {
-    index = schema->find_offset_column_group_schema(table_id, group_id,
-                                                    column_ids[i]);
-    if (index < 0) {
-      break;
-    }
-  }
-  if (i == column_id_size) {
-    ret = true;
-  }
-
-  return ret;
-}
-
 int ObSSTableScanner::trans_input_column_id(
   const common::ObScanParam& scan_param,
   const ObSSTableSchema* schema,
@@ -290,8 +226,7 @@ int ObSSTableScanner::trans_input_column_id(
       column_id = column_id_begin[i];
       column_index = schema->find_offset_first_column_group_schema(
                        scan_param.get_table_id(), column_id, column_group_id);
-      if (column_index < 0 || OB_INVALID_ID == column_group_id
-          || ObSSTableSchemaColumnDef::ROWKEY_COLUMN_GROUP_ID == column_group_id) {
+      if (column_index < 0 || OB_INVALID_ID == column_group_id) {
         has_invalid_column = true;
       } else if (!column_group_exists(group_array, current_group_size, column_group_id)) {
         if (current_group_size > group_size) {
@@ -305,25 +240,15 @@ int ObSSTableScanner::trans_input_column_id(
       }
     }
 
-    /**
-     * if all columns are in one column group, just read one column
-     * group, it's better for daily merger column group by column
-     * group.
-     */
-    if (current_group_size > 1) {
-      for (int64_t i = 0; i < current_group_size; ++i) {
-        column_group_id = group_array[i];
-        if (is_columns_in_one_group(scan_param, schema, column_group_id)) {
-          group_array[0] = column_group_id;
-          current_group_size = 1;
-          break;
-        }
-      }
-    }
-
     // all columns are invalid column,
     if (0 == current_group_size && has_invalid_column && group_size > 0) {
-      group_array[current_group_size++] = schema->get_table_first_column_group_id(scan_param.get_table_id());
+      const ObSSTableSchemaColumnDef* def = schema->get_column_def(0);
+      if (NULL == def) {
+        TBSYS_LOG(ERROR, "internal error, sstable has null schema.");
+        iret = OB_ERROR;
+      } else {
+        group_array[current_group_size++] = def->column_group_id_;
+      }
     }
 
     group_size = current_group_size;
@@ -331,33 +256,35 @@ int ObSSTableScanner::trans_input_column_id(
   return iret;
 }
 
-int ObSSTableScanner::trans_input_scan_range(const ObScanParam& scan_param,
-                                             bool not_exit_col_ret_nop) {
+int ObSSTableScanner::trans_input_scan_range(const ObScanParam& scan_param) {
   int iret = OB_SUCCESS;
   scan_param_.assign(scan_param);
 
-  scan_param_.set_not_exit_col_ret_nop(not_exit_col_ret_nop);
   if (!scan_param_.is_valid()) {
     TBSYS_LOG(ERROR, "input scan parmeter invalid, cannot scan any data.");
     iret = OB_INVALID_ARGUMENT;
   }
 
-  const ObNewRange& input_range = *scan_param.get_range();
-  ObRowkey start_key = input_range.start_key_;
-  ObRowkey end_key   = input_range.end_key_;
+  const ObRange& input_range = *scan_param.get_range();
+  ObString start_key = input_range.start_key_;
+  ObString end_key   = input_range.end_key_;
 
-  if (OB_SUCCESS == iret && input_range.start_key_.is_min_row()) { // only end_key valid
-    if ((!input_range.end_key_.is_max_row())
+  char range_buf[OB_RANGE_STR_BUFSIZ];
+
+  if (OB_SUCCESS == iret && input_range.border_flag_.is_min_value()) { // only end_key valid
+    if ((!input_range.border_flag_.is_max_value())
         && (NULL == end_key.ptr() || end_key.length() <= 0)) {
-      TBSYS_LOG(ERROR, "invalid end key, rang=%s", to_cstring(input_range));
+      input_range.to_string(range_buf, OB_RANGE_STR_BUFSIZ);
+      TBSYS_LOG(ERROR, "invalid end key, rang=%s", range_buf);
       iret = OB_INVALID_ARGUMENT;
     }
   }
 
-  if (OB_SUCCESS == iret && input_range.end_key_.is_max_row()) { // only start_key valid
-    if ((!input_range.start_key_.is_min_row())
+  if (OB_SUCCESS == iret && input_range.border_flag_.is_max_value()) { // only start_key valid
+    if ((!input_range.border_flag_.is_min_value())
         && (NULL == start_key.ptr() || start_key.length() <= 0)) {
-      TBSYS_LOG(ERROR, "invalid start key, range=%s", to_cstring(input_range));
+      input_range.to_string(range_buf, OB_RANGE_STR_BUFSIZ);
+      TBSYS_LOG(ERROR, "invalid start key, range=%s", range_buf);
       iret = OB_INVALID_ARGUMENT;
     }
   }
@@ -365,34 +292,5 @@ int ObSSTableScanner::trans_input_scan_range(const ObScanParam& scan_param,
   return iret;
 }
 
-/**
- * this function must be invoke before doing query request
- * like SCAN
- *
- */
-int reset_query_thread_local_buffer() {
-  int err = OB_SUCCESS;
-
-  static common::ModulePageAllocator mod_allocator(ObModIds::OB_SSTABLE_GET_SCAN);
-  static const int64_t QUERY_INTERNAL_PAGE_SIZE = 2L * 1024L * 1024L;
-
-  common::ModuleArena* internal_buffer_arena = GET_TSI_MULT(common::ModuleArena, TSI_SSTABLE_MODULE_ARENA_1);
-  if (NULL == internal_buffer_arena) {
-    TBSYS_LOG(ERROR, "cannot get tsi object of PageArena");
-    err = OB_ALLOCATE_MEMORY_FAILED;
-  } else {
-    if (internal_buffer_arena->total() > QUERY_INTERNAL_PAGE_SIZE * 16) {
-      TBSYS_LOG(WARN, "thread local page arena hold memory over limited,"
-                "total=%ld,used=%ld,pages=%ld", internal_buffer_arena->total(),
-                internal_buffer_arena->used(), internal_buffer_arena->pages());
-      internal_buffer_arena->partial_slow_free(0, 0, QUERY_INTERNAL_PAGE_SIZE);
-    }
-    internal_buffer_arena->set_page_size(QUERY_INTERNAL_PAGE_SIZE);
-    internal_buffer_arena->set_page_alloctor(mod_allocator);
-    internal_buffer_arena->reuse();
-  }
-
-  return err;
-}
 }//end namespace sstable
 }//end namespace sb

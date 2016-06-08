@@ -19,30 +19,17 @@
 namespace sb {
 namespace common {
 
-
-
 // --------------------------------------------------------
 // class ObVector<T, Allocator> implements
 // --------------------------------------------------------
 template <typename T, typename Allocator>
-ObVector<T, Allocator>::ObVector(Allocator* alloc)
+ObVector<T, Allocator>::ObVector()
   : mem_begin_(NULL), mem_end_(NULL), mem_end_of_storage_(NULL) {
-  if (NULL == alloc) {
-    pallocator_ = &default_allocator_;
-  } else {
-    pallocator_ = alloc;
-  }
-  pallocator_->set_mod_id(ObModIds::VECTOR);
 }
 
 template <typename T, typename Allocator>
-ObVector<T, Allocator>::ObVector(int32_t size, Allocator* alloc)
+ObVector<T, Allocator>::ObVector(int32_t size)
   : mem_begin_(NULL), mem_end_(NULL), mem_end_of_storage_(NULL) {
-  if (NULL == alloc) {
-    pallocator_ = &default_allocator_;
-  } else {
-    pallocator_ = alloc;
-  }
   expand(size);
 }
 
@@ -54,7 +41,7 @@ ObVector<T, Allocator>::~ObVector() {
 template <typename T, typename Allocator>
 void ObVector<T, Allocator>::destroy() {
   if (mem_begin_) {
-    pallocator_->free(mem_begin_);
+    allocator_.free(mem_begin_);
     mem_begin_ = NULL;
     mem_end_ = NULL;
     mem_end_of_storage_ = NULL;
@@ -68,11 +55,7 @@ int ObVector<T, Allocator>::push_back(const_value_type value) {
 
 template <typename T, typename Allocator>
 void ObVector<T, Allocator>::clear() {
-  pallocator_->free(mem_begin_);
-  if (pallocator_ == &default_allocator_) {
-    pallocator_->free();
-  }
-  mem_end_ = mem_begin_ = mem_end_of_storage_ = NULL;
+  mem_end_ = mem_begin_;
 }
 
 /**
@@ -112,7 +95,7 @@ int32_t ObVector<T, Allocator>::expand(int32_t size) {
 template <typename T, typename Allocator>
 typename ObVector<T, Allocator>::iterator ObVector<T, Allocator>::alloc_array(const int32_t size) {
   iterator ptr = reinterpret_cast<iterator>
-                 (pallocator_->alloc(size * sizeof(value_type)));
+                 (allocator_.alloc(size * sizeof(value_type)));
   return ptr;
 }
 
@@ -137,7 +120,7 @@ typename ObVector<T, Allocator>::iterator ObVector<T, Allocator>::move(iterator 
     const_iterator begin, const_iterator end) {
   assert(dest);
   assert(end >= begin);
-  int32_t n = static_cast<int32_t>(end - begin);
+  int32_t n = end - begin;
   if (n > 0)
     ::memmove(dest, begin, n * sizeof(value_type));
   return dest + n;
@@ -151,7 +134,7 @@ typename ObVector<T, Allocator>::iterator ObVector<T, Allocator>::copy(iterator 
     const_iterator begin, const_iterator end) {
   assert(dest);
   assert(end >= begin);
-  int32_t n = static_cast<int32_t>(end - begin);
+  int32_t n = end - begin;
   if (n > 0)
     ::memcpy(dest, begin, n * sizeof(value_type));
   return dest + n;
@@ -166,31 +149,6 @@ int ObVector<T, Allocator>::remove(iterator pos) {
     iterator new_end_pos = move(pos, pos + 1, mem_end_);
     assert(mem_end_ == new_end_pos + 1);
     mem_end_ = new_end_pos;
-  }
-  return ret;
-}
-
-template <typename T, typename Allocator>
-int ObVector<T, Allocator>::remove(iterator start_pos, iterator end_pos) {
-  int ret = OB_SUCCESS;
-  if (start_pos < mem_begin_ || start_pos >= mem_end_
-      || end_pos < mem_begin_ || end_pos > mem_end_) {
-    ret = OB_ARRAY_OUT_OF_RANGE;
-  } else if (end_pos - start_pos > 0) {
-    iterator new_end_pos = move(start_pos, end_pos, mem_end_);
-    assert(mem_end_ == new_end_pos + (end_pos - start_pos));
-    mem_end_ = new_end_pos;
-  }
-  return ret;
-}
-
-template <typename T, typename Allocator>
-int ObVector<T, Allocator>::remove(const int32_t index) {
-  int ret = OB_SUCCESS;
-  if (index >= 0 && index < size()) {
-    ret = remove(mem_begin_ + index);
-  } else {
-    ret = OB_ENTRY_NOT_EXIST;
   }
   return ret;
 }
@@ -412,14 +370,5 @@ int ObSortedVector<T, Allocator>::remove_if(const ValueType& value,
   return ret;
 }
 
-template <typename T, typename Allocator>
-int ObSortedVector<T, Allocator>::remove(iterator start_pos, iterator end_pos) {
-  int ret = OB_SUCCESS;
-  if (end_pos - start_pos > 0) {
-    ret = vector_.remove(start_pos, end_pos);
-  }
-  return ret;
-}
-
 } // end namespace common
-} // end namespace oceanbase
+} // end namespace sb

@@ -79,7 +79,5 @@ ENDIF()
 
 # Library
 SET(SYSLIBS stdc++ pthread rt dl nsl m c crypt ssl aio numa crypto)
-SET(EASYLIB ${PROJECT_SOURCE_DIR}/external/libeasy/lib64/libeasy.a)
-#SET(TBSYSLIB ${PROJECT_SOURCE_DIR}/external/tb-common-utils/lib/libtbsys.a)
 SET(GTEST_LIB gtest)
 SET(GMOCK_LIB gmock)

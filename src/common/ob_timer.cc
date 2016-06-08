@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_timer.cc for ...
+ *
+ * Authors:
+ *   maoqi <maoqi@taobao.com>
+ *
+ */
 #include "common/ob_timer.h"
 namespace sb {
 namespace common {
@@ -40,26 +55,22 @@ void ObTimer::destroy() {
 int ObTimer::schedule(ObTimerTask& task, const int64_t delay, bool repeate /*=false*/) {
   int ret = OB_ERROR;
   if (delay < 0 || (tasks_num_ >= MAX_TASK_NUM) || !inited_ || destroyed_) {
-    TBSYS_LOG(WARN, "check schedule param failed:delay[%ld], task[%d], max[%d], init[%d], destroy[%d]",
-              delay, tasks_num_, MAX_TASK_NUM, inited_, destroyed_);
     ret = OB_ERROR;
   } else {
     Monitor<Mutex>::Lock guard(monitor_);
     int64_t time = Time::now(Time::Monotonic).toMicroSeconds() + delay;
     ret = insert_token(Token(time, repeate ? delay : 0, &task));
     if (OB_SUCCESS == ret) {
-      if (0 == wakeup_time_ || wakeup_time_ >= time) {
+      if (0 == wakeup_time_ || wakeup_time_ <= time) {
         monitor_.notify();
       }
-    } else {
-      TBSYS_LOG(WARN, "insert token failed:ret[%d]", ret);
     }
   }
   return ret;
 }
 
 int ObTimer::insert_token(const Token& token) {
-  int __attribute__((unused)) ret = OB_ERROR;
+  int ret = OB_ERROR;
   if (tasks_num_ >= MAX_TASK_NUM) {
     ret = OB_ERROR;
   } else {
@@ -92,8 +103,11 @@ void ObTimer::cancel(const ObTimerTask& task) {
     }
 
     if (pos != -1) {
-      memmove(&tokens_[pos], &tokens_[pos + 1],
-              sizeof(tokens_[0]) * (tasks_num_ - pos - 1));
+      if (pos == tasks_num_ - 1) {
+        //remove the last item
+      } else {
+        memmove(&tokens_[pos], &tokens_[pos + 1], tasks_num_ - pos - 1);
+      }
       --tasks_num_;
     }
   }
@@ -149,7 +163,7 @@ void ObTimer::run() {
         }
       }
     }
-    if (token.task != NULL && !destroyed_)
+    if (token.task != NULL)
       token.task->runTimerTask();
   }
 }
@@ -161,3 +175,4 @@ void ObTimer::dump() const {
 }
 } /* common */
 } /* chunkserver */
+

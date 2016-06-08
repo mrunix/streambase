@@ -32,6 +32,7 @@ SET(LOCAL_CXX_FLAGS  "${TB_COMMON_FLAGS}")
 SET(LOCAL_CXX_FILES  ${tbnet_lib_sources})
 SET(LOCAL_LIBRARIES
 	${SYSLIBS}
+	tbsys.static
 )
 BUILD_LIBRARY()
 

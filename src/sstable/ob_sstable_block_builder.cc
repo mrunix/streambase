@@ -1,21 +1,22 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_sstable_block_builder.cc for persistent ssatable block
- * and store inner block index.
+ * Version: 5567
+ *
+ * ob_sstable_block_builder.cc
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
+ *     huating <huating.zmq@taobao.com>
+ * Changes:
+ *     fangji <fangji.hcm@taobao.com>
  *
  */
 #include <tblog.h>
 #include "common/serialization.h"
-#include "common/ob_row_util.h"
-#include "common/ob_crc64.h"
 #include "ob_sstable_block_builder.h"
 
 namespace sb {
@@ -36,19 +37,51 @@ ObSSTableBlockBuilder::~ObSSTableBlockBuilder() {
   }
 }
 
+const char* ObSSTableBlockBuilder::row_index_buf() const {
+  return row_index_buf_;
+}
+
+const char* ObSSTableBlockBuilder::block_buf() const {
+  return block_buf_;
+}
+
 void ObSSTableBlockBuilder::reset() {
   row_index_buf_cur_ = row_index_buf_;
   memset(&block_header_, 0, sizeof(ObSSTableBlockHeader));
+  if (NULL != block_buf_) {
+    memset(block_buf_, 0, block_buf_size_);
+  }
 
   //reserve space to store block header
   block_buf_cur_ = block_buf_ + block_header_.get_serialize_size();
 }
 
-inline const int64_t ObSSTableBlockBuilder::get_row_index_remain() const {
+const int64_t ObSSTableBlockBuilder::get_row_index_array_offset() const {
+  return block_header_.row_index_array_offset_;
+}
+
+const int64_t ObSSTableBlockBuilder::get_row_count() const {
+  return block_header_.row_count_;
+}
+
+const int64_t ObSSTableBlockBuilder::get_block_size() const {
+  return ((block_buf_cur_ - block_buf_)
+          + (row_index_buf_cur_ - row_index_buf_));
+}
+
+const int64_t ObSSTableBlockBuilder::get_row_index_size() const {
+  return (row_index_buf_cur_ - row_index_buf_);
+}
+
+const int64_t ObSSTableBlockBuilder::get_block_data_size() const {
+  return (block_buf_cur_ - block_buf_);
+}
+
+const int64_t ObSSTableBlockBuilder::get_row_index_remain() const {
   return (row_index_buf_size_ - (row_index_buf_cur_ - row_index_buf_));
 }
 
-inline const int64_t ObSSTableBlockBuilder::get_block_data_remain() const {
+const int64_t ObSSTableBlockBuilder::get_block_data_remain() const {
   return (block_buf_size_ - row_index_buf_size_
           - (block_buf_cur_ - block_buf_));
 }
@@ -153,6 +186,7 @@ int ObSSTableBlockBuilder::init(const int64_t block_size) {
   }
 
   if (OB_SUCCESS == ret && NULL != block_buf_) {
+    memset(block_buf_, 0, block_buf_size_);
     //reserve space to store block header
     block_buf_cur_ = block_buf_ + block_header_.get_serialize_size();
     row_index_buf_ = block_buf_ + block_buf_size_ - row_index_buf_size_;
@@ -188,16 +222,16 @@ int ObSSTableBlockBuilder::ensure_space(const int64_t size) {
     ret = OB_ERROR;
   } else if (index_remain < 0 || block_remain - size < 0) {
     //enlarge block buffer
-    int new_buffer_size =  static_cast<int>(block_buf_size_);
+    int new_buffer_size = block_buf_size_;
     char* new_index_buffer = NULL;
     //if( block_remain + BLOCK_DATA_BUFFER_SIZE < size)
     if ((block_buf_size_ - row_index_buf_size_) * 2 - get_block_data_size() < size) {
       //1k align
-      new_buffer_size =  static_cast<int32_t>((block_buf_cur_ - block_buf_ + row_index_buf_size_ * 2
-                                               + size + (SSTABLE_BLOCK_BUF_ALIGN_SIZE - 1))
-                                              & ~(SSTABLE_BLOCK_BUF_ALIGN_SIZE - 1));
+      new_buffer_size = (block_buf_cur_ - block_buf_ + row_index_buf_size_ * 2
+                         + size + (SSTABLE_BLOCK_BUF_ALIGN_SIZE - 1))
+                        & ~(SSTABLE_BLOCK_BUF_ALIGN_SIZE - 1);
     } else {
-      new_buffer_size =  static_cast<int32_t>(block_buf_size_ * 2);
+      new_buffer_size = block_buf_size_ * 2;
     }
 
     char* new_block_buffer = static_cast<char*>(ob_malloc(new_buffer_size, ObModIds::OB_SSTABLE_WRITER));
@@ -225,10 +259,10 @@ int ObSSTableBlockBuilder::ensure_space(const int64_t size) {
   return ret;
 }
 
-int ObSSTableBlockBuilder::add_row(const ObSSTableRow& row, uint64_t& row_checksum, const int64_t row_serialize_size) {
+int ObSSTableBlockBuilder::add_row(const ObSSTableRow& row) {
   int ret             = OB_SUCCESS;
-  int32_t row_offset  = (int32_t)get_block_data_size();
-  int64_t row_size    = row_serialize_size > 0 ? row_serialize_size : row.get_serialize_size();
+  int32_t row_offset  = get_block_data_size();
+  int64_t row_size    = row.get_serialize_size();
   int64_t block_pos   = 0;
   int64_t index_pos   = 0;
 
@@ -240,8 +274,8 @@ int ObSSTableBlockBuilder::add_row(const ObSSTableRow& row, uint64_t& row_checks
   }
 
   if (OB_SUCCESS == ret && 0 == get_row_count()) {
-    block_header_.table_id_        =  static_cast<uint32_t>(row.get_table_id());
-    block_header_.column_group_id_ =  static_cast<uint16_t>(row.get_column_group_id());
+    block_header_.table_id_        = row.get_table_id();
+    block_header_.column_group_id_ = row.get_column_group_id();
   }
 
   //check whether the row has same table id&&group id with current block
@@ -257,65 +291,7 @@ int ObSSTableBlockBuilder::add_row(const ObSSTableRow& row, uint64_t& row_checks
   if (OB_SUCCESS == ret
       && OB_SUCCESS == (ret = ensure_space(row_size))) {
     ret = row.serialize(block_buf_cur_,
-                        get_block_data_remain(), block_pos, row_size);
-    if (OB_SUCCESS == ret) {
-      //Calculate the row checksum
-      row_checksum = common::ob_crc64(block_buf_cur_, block_pos);
-
-      ret = encode_i32(row_index_buf_cur_,
-                       get_row_index_remain(),
-                       index_pos, row_offset);
-      if (OB_SUCCESS == ret) {
-        block_buf_cur_ += block_pos;
-        row_index_buf_cur_ += index_pos;
-        block_header_.row_count_++;
-      } else {
-        TBSYS_LOG(WARN, "failed to serialize row index");
-      }
-    } else {
-      TBSYS_LOG(WARN, "failed to serialize row");
-    }
-  }
-
-  return ret;
-}
-
-int ObSSTableBlockBuilder::add_row(
-  const uint64_t table_id, const uint64_t column_group_id,
-  const ObRow& row, const int64_t row_serialize_size) {
-  int ret             = OB_SUCCESS;
-  int32_t row_offset  = (int32_t)get_block_data_size();
-  int64_t row_size    = row_serialize_size;
-  int64_t block_pos   = 0;
-  int64_t index_pos   = 0;
-
-  if (row.get_column_num() <= 0 || OB_INVALID_ID == table_id
-      || 0 == table_id || OB_INVALID_ID == column_group_id) {
-    TBSYS_LOG(WARN, "invalid param, row column_count=%ld, row table id=%lu,"
-              "row column group id =%lu", row.get_column_num(), table_id, column_group_id);
-    ret = OB_ERROR;
-  }
-
-  if (OB_SUCCESS == ret && 0 == get_row_count()) {
-    block_header_.table_id_        =  static_cast<uint32_t>(table_id);
-    block_header_.column_group_id_ =  static_cast<uint16_t>(column_group_id);
-  }
-
-  //check whether the row has same table id&&group id with current block
-  if (OB_SUCCESS == ret && 0 != get_row_count()
-      && (table_id != block_header_.table_id_
-          || column_group_id != block_header_.column_group_id_)) {
-    TBSYS_LOG(WARN, "disargument  row (table_id=%lu, column_group_id=%lu),"
-              "block (table_id=%u, column_group_id=%u)", table_id,
-              column_group_id, block_header_.table_id_,
-              block_header_.column_group_id_);
-    ret = OB_ERROR;
-  }
-
-  if (OB_SUCCESS == ret
-      && OB_SUCCESS == (ret = ensure_space(row_size))) {
-    ret = ObRowUtil::serialize_row(row, block_buf_cur_,
-                                   get_block_data_remain(), block_pos);
+                        get_block_data_remain(), block_pos);
     if (OB_SUCCESS == ret) {
       ret = encode_i32(row_index_buf_cur_,
                        get_row_index_remain(),
@@ -337,7 +313,7 @@ int ObSSTableBlockBuilder::add_row(
 
 int ObSSTableBlockBuilder::build_block() {
   int ret               = OB_SUCCESS;
-  int32_t row_offset    = (int32_t)get_block_data_size();
+  int32_t row_offset    = get_block_data_size();
   int64_t index_remain  = get_row_index_remain() - ROW_INDEX_ITEM_SIZE;
   int64_t block_remain  = get_block_data_remain() - ROW_INDEX_ITEM_SIZE;
   int64_t block_pos     = 0;
@@ -367,7 +343,7 @@ int ObSSTableBlockBuilder::build_block() {
 
   if (OB_SUCCESS == ret) {
     // serialize block header
-    block_header_.row_index_array_offset_ = (int32_t)get_block_data_size();
+    block_header_.row_index_array_offset_ = get_block_data_size();
   }
 
   /**
@@ -399,7 +375,7 @@ const uint64_t ObSSTableBlockBuilder::get_column_group_id() const {
 int ObSSTableBlockBuilder::set_table_id(const uint64_t table_id) {
   int ret = OB_SUCCESS;
   if (0 == table_id || OB_INVALID_ID == table_id) {
-    TBSYS_LOG(WARN, "invalid argument table_id=%lu", table_id);
+    TBSYS_LOG(WARN, "invalid argument table_id=%u", table_id);
     ret = OB_ERROR;
   } else {
     block_header_.table_id_ = table_id & TABLE_ID_MASK;
@@ -410,7 +386,7 @@ int ObSSTableBlockBuilder::set_table_id(const uint64_t table_id) {
 int ObSSTableBlockBuilder::set_column_group_id(const uint64_t column_group_id) {
   int ret = OB_SUCCESS;
   if (OB_INVALID_ID == column_group_id) {
-    TBSYS_LOG(WARN, "invalid argument column_group_id=%lu", column_group_id);
+    TBSYS_LOG(WARN, "invalid argument column_group_id=%u", column_group_id);
     ret = OB_ERROR;
   } else {
     block_header_.column_group_id_ = column_group_id & COLUMN_GROUP_ID_MASK;

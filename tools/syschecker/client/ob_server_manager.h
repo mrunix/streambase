@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,7 +15,6 @@
 #define OCEANBASE_CLIENT_OB_SERVER_MANAGER_H_
 
 #include "common/ob_server.h"
-#include "common/ob_array.h"
 
 namespace sb {
 namespace client {
@@ -23,6 +22,8 @@ class ObServerManager {
  public:
   ObServerManager();
   ~ObServerManager();
+
+  int init(const int64_t servers_count);
 
   const common::ObServer& get_root_server() const;
   int set_root_server(const common::ObServer& root_server);
@@ -33,22 +34,12 @@ class ObServerManager {
   const common::ObServer& get_random_merge_server() const;
   int add_merge_server(const common::ObServer& merge_server);
 
-  const common::ObServer& get_random_chunk_server() const;
-  int add_chunk_server(const common::ObServer& chunk_server);
-
-  common::ObArray<common::ObServer>& get_chunk_servers() { return chunk_servers_; }
-  common::ObArray<common::ObServer>& get_merge_servers() { return merge_servers_; }
-  void set_chunk_servers(const common::ObArray<common::ObServer>& servers) { chunk_servers_ = servers; }
-  void set_merge_servers(const common::ObArray<common::ObServer>& servers) { merge_servers_ = servers; }
-
  private:
   DISALLOW_COPY_AND_ASSIGN(ObServerManager);
 
-  common::ObServer root_server_;
-  common::ObServer update_server_;
-  common::ObArray<common::ObServer> merge_servers_;
-  common::ObArray<common::ObServer> chunk_servers_;
-
+  int64_t servers_count_;
+  int64_t cur_merge_server_idx_;
+  common::ObServer* servers_;
 };
 } // namespace sb::client
 } // namespace Oceanbase

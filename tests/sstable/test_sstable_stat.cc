@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,8 +12,8 @@
  *
  */
 #include "common/ob_define.h"
-#include "common/ob_common_stat.h"
-using namespace sb::common;
+#include "sstable/ob_sstable_stat.h"
+
 #ifndef NO_STAT
 namespace sb {
 namespace sstable {
@@ -32,13 +32,9 @@ void set_stat(const uint64_t table_id, const int32_t index, const int64_t value)
     break;
   case INDEX_BLOCK_CACHE_MISS:
     break;
-  case INDEX_DISK_IO_READ_NUM:
+  case INDEX_DISK_IO_NUM:
     break;
-  case INDEX_DISK_IO_WRITE_NUM:
-    break;
-  case INDEX_DISK_IO_READ_BYTES:
-    break;
-  case INDEX_DISK_IO_WRITE_BYTES:
+  case INDEX_DISK_IO_BYTES:
     break;
   default:
     break;
@@ -60,13 +56,9 @@ void inc_stat(const uint64_t table_id, const int32_t index, const int64_t inc_va
     break;
   case INDEX_BLOCK_CACHE_MISS:
     break;
-  case INDEX_DISK_IO_READ_NUM:
+  case INDEX_DISK_IO_NUM:
     break;
-  case INDEX_DISK_IO_WRITE_NUM:
-    break;
-  case INDEX_DISK_IO_READ_BYTES:
-    break;
-  case INDEX_DISK_IO_WRITE_BYTES:
+  case INDEX_DISK_IO_BYTES:
     break;
   default:
     break;

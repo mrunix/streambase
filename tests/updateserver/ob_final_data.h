@@ -1,17 +1,16 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- * ob_final_data.h is for what ...
+ * Version: $Id$
  *
- * Version: $id: ob_final_data.h,v 0.1 11/1/2010 10:15a wushi Exp $
+ * ob_final_data.h for ...
  *
  * Authors:
  *   wushi <wushi.ly@taobao.com>
- *     - some work details if you want
  *
  */
 #include <iostream>
@@ -59,3 +58,5 @@ bool check_result(const sb::common::ObGetParam& get_param,
 
 bool check_result(const sb::common::ObScanParam& scan_param,
                   sb::common::ObScanner& ob_result, ObFinalResult& local_result);
+
+

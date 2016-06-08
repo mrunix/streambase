@@ -38,6 +38,8 @@ void ObMergerUpsTask::runTimerTask(void) {
     ret = rpc_proxy_->fetch_update_server_list(count);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(WARN, "fetch update server list failed:ret[%d]", ret);
+    } else {
+      TBSYS_LOG(DEBUG, "fetch update server list succ:count[%d]", count);
     }
   }
 }

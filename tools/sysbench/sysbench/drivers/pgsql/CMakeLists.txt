@@ -1,2 +1,0 @@
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR})
-ADD_LIBRARY(sbpgsql drv_pgsql.c)

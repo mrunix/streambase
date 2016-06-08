@@ -1,15 +1,18 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_sstable_schema.h for persistent schema.
+ * Version: 5567
+ *
+ * ob_sstable_schema.h
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
- *   fangji  <fangji.hcm@taobao.com>
+ *     huating <huating.zmq@taobao.com>
+ * Changes:
+ *     fangji <fangji.hcm@taobao.com>
  *
  */
 #ifndef OCEANBASE_SSTABLE_OB_SSTABLE_SCHEMA_H_
@@ -21,21 +24,6 @@
 #include "common/hash/ob_hashmap.h"
 
 namespace sb {
-namespace common {
-class ObSchemaManagerV2;
-class ObTableSchema;
-class ObRowkeyInfo;
-class ObMergerSchemaManager;
-}
-
-namespace sstable {
-// ugly code here.
-// sstable scan need a ObSchemaManagerV2 object for compatible.
-void set_global_sstable_schema_manager(common::ObMergerSchemaManager* manager);
-common::ObMergerSchemaManager* get_global_sstable_schema_manager(void);
-int get_global_schema_rowkey_info(const uint64_t table_id, common::ObRowkeyInfo& rowkey_info);
-}
-
 namespace sstable {
 struct ObSSTableSchemaHeader {
   int16_t column_count_;        //column count compatible for V0.1.0
@@ -46,19 +34,15 @@ struct ObSSTableSchemaHeader {
 };
 
 struct ObSSTableSchemaColumnDef {
-  static const uint16_t ROWKEY_COLUMN_GROUP_ID = 0xFFFF;
-
   int16_t  reserved_;           //reserved,must be 0 for V0.2.0
   uint16_t column_group_id_;    //column gropr id for V0.2.0
-  uint16_t rowkey_seq_;         //rowkey seqence for format rowkey
-  uint16_t column_name_id_;     //column name id
+  uint32_t column_name_id_;     //column name id
   int32_t  column_value_type_;  //type of column value ObObj
   uint32_t table_id_;           //table id  for V0.2.0
 
   //member used for query
-  int32_t table_group_next_;            //next column group offset base on start of column def array
-  int32_t group_column_next_;           //next column def offset which have same table_id && column_name_id
-  int32_t rowkey_column_next_;          //next column def offset which in same table.
+  int16_t table_group_next_;            //next column group offset base on start of column def array
+  int16_t group_column_next_;           //next column def offset which have same table_id && column_name_id
   mutable int32_t offset_in_group_;     //offset in column group
   NEED_SERIALIZE_AND_DESERIALIZE;
 };
@@ -71,8 +55,8 @@ struct CombineIdKey {
 };
 
 struct ValueSet {
-  int32_t head_offset_;
-  int32_t tail_offset_;
+  int16_t head_offset_;
+  int16_t tail_offset_;
   int32_t  size_;
   ValueSet() {
     head_offset_ = -1;
@@ -84,31 +68,12 @@ struct ValueSet {
 struct ObSSTableSchemaColumnDefCompare {
   bool operator()(const ObSSTableSchemaColumnDef& lhs, const ObSSTableSchemaColumnDef& rhs) {
     bool ret = true;
-    if (lhs.table_id_ > rhs.table_id_) {
+    if (lhs.table_id_ > rhs.table_id_
+        || (lhs.table_id_ == rhs.table_id_ && lhs.column_group_id_ > rhs.column_group_id_)
+        || (lhs.table_id_ == rhs.table_id_ && lhs.column_group_id_ == rhs.column_group_id_
+            && lhs.column_name_id_ >= rhs.column_name_id_)) {
       ret = false;
-    } else if (lhs.table_id_ == rhs.table_id_) {
-      if (lhs.column_group_id_ != ObSSTableSchemaColumnDef::ROWKEY_COLUMN_GROUP_ID
-          && rhs.column_group_id_ != ObSSTableSchemaColumnDef::ROWKEY_COLUMN_GROUP_ID) {
-        // normal columns(non-rowkey column) order by column_group_id_, column_name_id_
-        if (lhs.column_group_id_ > rhs.column_group_id_) {
-          ret = false;
-        } else if (lhs.column_group_id_ == rhs.column_group_id_ && lhs.column_name_id_ >= rhs.column_name_id_) {
-          ret = false;
-        }
-      } else if (lhs.column_group_id_ != ObSSTableSchemaColumnDef::ROWKEY_COLUMN_GROUP_ID
-                 && rhs.column_group_id_ == ObSSTableSchemaColumnDef::ROWKEY_COLUMN_GROUP_ID) {
-        // rowkey column must ahead non-rowkey column
-        ret = false;
-      } else if (lhs.column_group_id_ == ObSSTableSchemaColumnDef::ROWKEY_COLUMN_GROUP_ID
-                 && rhs.column_group_id_ == ObSSTableSchemaColumnDef::ROWKEY_COLUMN_GROUP_ID) {
-        // rowkey columns must be continuous and column id not duplicate.
-        if (lhs.rowkey_seq_ + 1 != rhs.rowkey_seq_ || lhs.column_name_id_ == rhs.column_name_id_) {
-          ret = false;
-        }
-      }
-      return ret;
     }
-
     return ret;
   }
 };
@@ -137,28 +102,6 @@ class ObSSTableSchema {
   const ObSSTableSchemaColumnDef* get_column_def(const int32_t index) const;
 
   /**
-   * get rowkey column count of table %table_id
-   *
-   * @param [in] table_id which table
-   * @param [out] rowkey_column_count
-   * @return OB_SUCCESS on success
-   */
-  int get_rowkey_column_count(const uint64_t table_id, int64_t& rowkey_column_count) const;
-  bool is_binary_rowkey_format(const uint64_t table_id) const;
-
-  /**
-   * get rowkey column definition at (%table_id, %rowkey_seq)
-   */
-  const ObSSTableSchemaColumnDef* get_rowkey_column(
-    const uint64_t table_id, const uint64_t rowkey_seq) const;
-  /**
-   * get all rowkey columns of table (%table_id)
-   * @param [out] defs, size
-   */
-  int get_rowkey_columns(const uint64_t table_id,
-                         const ObSSTableSchemaColumnDef** defs, int64_t& size) const;
-
-  /**
    * Get table schema
    *
    * @param[in]      table_id   which table schema to get
@@ -169,7 +112,6 @@ class ObSSTableSchema {
    *         return OB_ERROR
    */
   int get_table_column_groups_id(const uint64_t table_id, uint64_t* group_ids, int64_t& size) const;
-  uint64_t get_table_first_column_group_id(const uint64_t table_id) const;
 
   /**
    * get group column def array  by table id && group id
@@ -223,7 +165,6 @@ class ObSSTableSchema {
   const int64_t find_offset_column_group_schema(const uint64_t table_id, const uint64_t column_group_id,
                                                 const uint64_t column_id) const;
 
-
   /**
    * weather column exist in table
    *
@@ -233,15 +174,6 @@ class ObSSTableSchema {
    * @return bool      exist return true, else return false
    */
   bool is_column_exist(const uint64_t table_id, const uint64_t column_id) const;
-
-  /**
-   * weather table exist in schema
-   *
-   * @param table_id table id to check
-   *
-   * @return bool exist return true, else return false
-   */
-  bool is_table_exist(const uint64_t table_id) const;
 
   /**
    * WARING This function only can be used by sstable schema V0.2.0
@@ -260,7 +192,6 @@ class ObSSTableSchema {
    * reset scheam in order to reuse it
    */
   void reset();
-  void dump() const;
 
   NEED_SERIALIZE_AND_DESERIALIZE;
 
@@ -312,22 +243,17 @@ class ObSSTableSchema {
    *         OB_ERROR
    */
   int update_group_index_hashmap(const ObSSTableSchemaColumnDef& column_def);
-
-  /**
-   * update table rowkey column count hashmap
-   *
-   * @param table_id, rowkey_column_count
-   *
-   * @return int if success, return OB_SUCCESS, else return
-   *         OB_ERROR
-   */
-  int update_table_rowkey_hashmap(const ObSSTableSchemaColumnDef& column_def);
-
+#ifdef COMPATIBLE
+  const int64_t find_column_id(const uint64_t column_id)const;
+#endif
  private:
   DISALLOW_COPY_AND_ASSIGN(ObSSTableSchema);
 
  private:
   static const int64_t DEFAULT_COLUMN_DEF_SIZE = common::OB_MAX_TABLE_NUMBER * common::OB_MAX_COLUMN_NUMBER;
+  static const int64_t TABLE_ID_MASK           = 0xFFFF;
+  static const int64_t COLUMN_GROUP_ID_MASK    = 0xFF;
+  static const int64_t COLUMN_NAME_ID_MASK     = 0xFFFF;
 
  private:
   ObSSTableSchemaColumnDef column_def_array_[common::OB_MAX_COLUMN_NUMBER];   //column def buf for single table
@@ -335,46 +261,18 @@ class ObSSTableSchema {
   ObSSTableSchemaColumnDef* column_def_;                                      //column def pointer
   bool hash_init_;
   int64_t curr_group_head_;
-
-  // A table and all column group in it.
-  // table id => column group list.
   common::hash::ObHashMap<uint64_t, ValueSet,
          common::hash::NoPthreadDefendMode> table_schema_hashmap_;
 
-  // A column group and all columns in it.
-  // group id => column list.
   common::hash::ObHashMap<CombineIdKey, ValueSet,
          common::hash::NoPthreadDefendMode> group_schema_hashmap_;
 
-  // A column and all column group includes it.
-  // column id => column group list.
   common::hash::ObHashMap<CombineIdKey, ValueSet,
          common::hash::NoPthreadDefendMode> group_index_hashmap_;
-
-  // A table and all rowkey columns in it.
-  // table id => rowkey column list.
-  common::hash::ObHashMap<uint64_t, ValueSet,
-         common::hash::NoPthreadDefendMode> table_rowkey_hashmap_;
 #ifdef COMPATIBLE
   mutable int32_t version_;
 #endif
 };
-
-/**
- * only translate table %schema_table_id to sstable schema with new_table_id as table id
- */
-int build_sstable_schema(const uint64_t new_table_id, const uint64_t schema_table_id,
-                         const common::ObSchemaManagerV2& schema, ObSSTableSchema& sstable_schema, bool binary_format = false);
-
-/**
- * only translate table %table_id to sstable schema
- */
-int build_sstable_schema(const uint64_t table_id,
-                         const common::ObSchemaManagerV2& schema, ObSSTableSchema& sstable_schema, bool binary_format = false);
-/**
- * trsanlate all tables to sstable schema
- */
-int build_sstable_schema(const common::ObSchemaManagerV2& schema, ObSSTableSchema& sstable_schema, bool binary_format = false);
 } // namespace sb::sstable
 } // namespace Oceanbase
 

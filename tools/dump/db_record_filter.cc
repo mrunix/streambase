@@ -86,7 +86,7 @@ DbRowFilter* create_filter_from_str(std::string str) {
 }
 
 
-bool DbDateTimeFilter::operator()(DbRecord* record) const {
+bool DbDateTimeFilter::operator()(DbRecord* record) {
   ObCellInfo* cell;
   bool skip = false;
 
@@ -96,7 +96,7 @@ bool DbDateTimeFilter::operator()(DbRecord* record) const {
   else {
     char time_str[MAX_TIME_LEN];
     ObObjType type;
-    int64_t value = 0;
+    int64_t value;
 
     switch (filter_type_) {
     case MODIFY_TIME_FILTER_TYPE:

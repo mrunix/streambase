@@ -1,4 +1,18 @@
-
+/**
+ * (C) 2007-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * client_simulator.cc for ...
+ *
+ * Authors:
+ *   yanran <yanran.hfs@taobao.com>
+ *
+ */
 #include "client_simulator.h"
 
 using namespace sb::common;
@@ -319,7 +333,7 @@ int OBAPI::init_ms_addr_() {
 
   ObDataBuffer data_buff(buff_.ptr(), buff_.capacity());
   ObResultCode res;
-  rootserver::ObChunkServerManager ser_mgr;
+  nameserver::ObChunkServerManager ser_mgr;
 
   if (OB_SUCCESS == ret) {
     ret = client_.send_request(rs_, OB_DUMP_CS_INFO, MY_VERSION, timeout, data_buff);
@@ -342,7 +356,7 @@ int OBAPI::init_ms_addr_() {
 
   if (OB_SUCCESS == ret) {
     ObServer ms;
-    const rootserver::ObServerStatus* ss = NULL;
+    const nameserver::ObServerStatus* ss = NULL;
     for (ss = ser_mgr.begin(); ss != ser_mgr.end(); ++ss) {
       if (NULL == ss) {
         TBSYS_LOG(WARN, "Server in ObChunkServerManager is NULL, ret=%d", ret);
@@ -1226,4 +1240,5 @@ GI& GI::instance() {
   static GI instance_object;
   return instance_object;
 }
+
 

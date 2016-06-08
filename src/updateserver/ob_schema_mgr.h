@@ -1,22 +1,18 @@
-////===================================================================
-//
-// ob_schema_mgr.h updateserver / Oceanbase
-//
-// Copyright (C) 2010 Taobao.com, Inc.
-//
-// Created on 2010-10-08 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_schema_mgr.h for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #ifndef  OCEANBASE_UPDATESERVER_SCHEMA_MGR_H_
 #define  OCEANBASE_UPDATESERVER_SCHEMA_MGR_H_
 #include <stdlib.h>
@@ -115,4 +111,6 @@ class SchemaMgr {
 }
 
 #endif //OCEANBASE_UPDATESERVER_SCHEMA_MGR_H_
+
+
 

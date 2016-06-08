@@ -1,21 +1,18 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: $Id: file_utils.cc,v 0.1 2010/07/22 16:58:07 duanfei Exp $
+ * file_utils.cc for ...
  *
  * Authors:
- *   duanfei <duanfei@taobao.com>
- *     - some work details if you want
- *   Author Name ...
+ *   qushan <qushan@taobao.com>
  *
  */
-
 #include <errno.h>
 #include "ob_define.h"
 #include "file_utils.h"
@@ -42,7 +39,7 @@ int32_t FileUtils::open(const char* pathname, const int64_t flags, mode_t mode) 
     return -1;
   }
 
-  fd_ =::open(pathname, static_cast<int32_t>(flags), mode);
+  fd_ =::open(pathname, flags, mode);
   return fd_ < 0  ? -1 : fd_;
 }
 
@@ -51,7 +48,7 @@ int32_t FileUtils::open(const char* pathname, const int64_t flags) {
     return -1;
   }
 
-  fd_ =::open(pathname, static_cast<int32_t>(flags));
+  fd_ =::open(pathname, flags);
   return fd_ < 0  ? -1 : fd_;
 }
 
@@ -63,7 +60,7 @@ void FileUtils::close() {
 }
 
 int64_t FileUtils::lseek(const int64_t offset, const int64_t whence) {
-  return::lseek(fd_, offset, static_cast<int32_t>(whence));
+  return::lseek(fd_, offset, whence);
 }
 
 int64_t FileUtils::read(char* data, const int64_t size) {
@@ -149,20 +146,6 @@ int FileUtils::ftruncate(int64_t length) {
   return (::ftruncate(fd_, length));
 }
 
-int64_t FileUtils::get_size() {
-  int64_t size = 0;
-  if (fd_ < 0) {
-    size = -1;
-  } else {
-    struct stat st;
-    if (0 != (::fstat(fd_, &st))) {
-      size = -1;
-    } else {
-      size = st.st_size;
-    }
-  }
-  return size;
-}
-
 }//end namespace common
 }//end namespace sb
+

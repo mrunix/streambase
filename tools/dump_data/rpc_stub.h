@@ -6,16 +6,13 @@
 #include "common/thread_buffer.h"
 #include "common/ob_server.h"
 #include "common/ob_result.h"
-#include "common/ob_get_param.h"
 #include "common/ob_client_manager.h"
 #include "common/ob_packet.h"
 #include "common/ob_schema.h"
-#include "base_server.h"
 #include "task_info.h"
 
 namespace sb {
 namespace tools {
-class BaseServer;
 class RpcStub {
  public:
   RpcStub(common::ObClientManager* client, common::ThreadSpecificBuffer* buffer);
@@ -23,8 +20,7 @@ class RpcStub {
 
  public:
   static const int64_t DEFAULT_VERSION = 1;
-  // init base server
-  void set_base_server(BaseServer* server) {server_ = server;}
+
   /// fetch task
   int fetch_task(const common::ObServer& server, const int64_t timeout,
                  TaskCounter& count, TaskInfo& task);
@@ -71,8 +67,11 @@ class RpcStub {
   int scan(const common::ObServer& server, const int64_t timeout,
            const common::ObScanParam& param, common::ObScanner& result);
 
+  /// send packet
+  int send_packet(const int32_t pcode, const int32_t version, const common::ObDataBuffer& buffer,
+                  tbnet::Connection* conn, const int32_t channel_id);
+
  private:
-  BaseServer* server_;
   const common::ObClientManager* frame_;
   const common::ThreadSpecificBuffer* buffer_;
 };

@@ -35,16 +35,12 @@ DbDumperWriter::DbDumperWriter(uint64_t id, string path) {
 
   TBSYS_LOG(INFO, "DbDumperWriter %s", path_.c_str());
   log_id_ = 0;
-  file_ = NULL;
 }
 
 DbDumperWriter::~DbDumperWriter() {
-  TBSYS_LOG(INFO, "FILEID:%ld, PUSHEDLEN:%d, WRITENLEN:%d", id_, pushed_lines_,  writen_lines_);
+  TBSYS_LOG(INFO, "FILEID:%d, PUSHEDLEN:%d, WRITENLEN:%d", id_, pushed_lines_,  writen_lines_);
   stop();
-  if (file_ != NULL) {
-    delete file_;
-    file_ = NULL;
-  }
+  file_.close();
   sem_destroy(&sem_empty_);
 }
 
@@ -111,9 +107,10 @@ int DbDumperWriter::init_output_files() {
       TBSYS_LOG(ERROR, "when format path error");
       ret = OB_ERROR;
     } else {                                    /* create output file */
-      ret = AppendableFile::NewAppendableFile(path, file_);
-      if (ret != OB_SUCCESS) {
+      len = file_.open(path, O_RDWR | O_CREAT | O_TRUNC | O_APPEND, 0600);
+      if (len < 0) {
         TBSYS_LOG(ERROR, "when open file %s", path);
+        ret = OB_ERROR;
       }
     }
   }
@@ -126,13 +123,12 @@ void DbDumperWriter::wait_completion(bool rotate_date) {
     {
       CThreadGuard guard(&records_lock_);
       if (records_.empty()) {
-        TBSYS_LOG(INFO, "waiting tableid:%lu complete writing records", id_);
+        TBSYS_LOG(INFO, "waiting tableid:%d complete writing records", id_);
         break;
       }
     }
 
-    TBSYS_LOG(INFO, "DumperWrite Go to sleep");
-    usleep(5000);
+    usleep(100000);
   }
 
   int ret = OB_SUCCESS;
@@ -184,7 +180,7 @@ int DbDumperWriter::rotate_date_dir() {
   int ret = OB_SUCCESS;
   get_current_date(datebuf, MAX_DATE_LEN);
 
-  CThreadGuard guard(&records_lock_);
+  CThreadGuard guard(&records_lock_);           /* not necessary */
   //need to change dir
   if (current_date_.compare(datebuf)) {
     std::string tmp_path = path_ + "/" + current_date_ ;
@@ -195,16 +191,10 @@ int DbDumperWriter::rotate_date_dir() {
       TBSYS_LOG(ERROR, "can't write done file, path:%s, %d", tmp_path.c_str(), ret);
       report_msg(MSG_ERROR, "can't write done file, path:%s", tmp_path.c_str());
     }
-    TBSYS_LOG(INFO, "max writen files number=[%ld]", log_id_);
 
     //finish all tmp file
     if (ret == OB_SUCCESS) {
-      if (file_ != NULL) {
-        file_->Sync();
-        delete file_;
-        file_ = NULL;
-      }
-
+      file_.close();
       ret = mv_output_file();
       if (ret != OB_SUCCESS) {
         TBSYS_LOG(ERROR, "can't mv_out_file ");
@@ -234,13 +224,7 @@ int DbDumperWriter::rotate_output_file() {
 
   //protected file from write
   CThreadGuard guard(&records_lock_);
-
-  if (file_ != NULL) {
-    file_->Sync();
-    delete file_;
-    file_ = NULL;
-  }
-
+  file_.close();
   ret = mv_output_file();
   if (ret == OB_SUCCESS) {
     //rotate to next file
@@ -251,15 +235,17 @@ int DbDumperWriter::rotate_output_file() {
       TBSYS_LOG(ERROR, "file buffer is not enough");
       ret = OB_ERROR;
     } else {
-      ret = AppendableFile::NewAppendableFile(file_buf, file_);
-      if (ret != OB_SUCCESS) {
-        TBSYS_LOG(ERROR, "when open file %s", file_buf);
+      int fd = file_.open(file_buf, O_RDWR | O_CREAT | O_TRUNC | O_APPEND, 0600);
+      if (fd < 0) {
+        ret = OB_ERROR;
+        TBSYS_LOG(ERROR, "can't not create new file");
       }
     }
   }
 
   return ret;
 }
+
 
 bool DbDumperWriter::need_rotate_output_file() {
   int64_t interval = DUMP_CONFIG->rotate_file_interval();
@@ -275,17 +261,12 @@ int DbDumperWriter::start() {
     ret = OB_ERROR;
   }
 
-  if (DUMP_CONFIG->init_date() == NULL) {
-    char datebuf[MAX_DATE_LEN];
-    get_current_date(datebuf, MAX_DATE_LEN);
+  char datebuf[MAX_DATE_LEN];
+  get_current_date(datebuf, MAX_DATE_LEN);
 
-    std::string dir_path = path_ + "/" + datebuf;
-    current_date_ = datebuf;
-  } else {
-    current_date_ = DUMP_CONFIG->init_date();
-  }
+  std::string dir_path = path_ + "/" + datebuf;
+  current_date_ = datebuf;
 
-  TBSYS_LOG(INFO, "[dump writer]:init date=%s", current_date_.c_str());
   if (ret == OB_SUCCESS) {
     ret = init_output_files();
     if (ret != OB_SUCCESS) {
@@ -319,13 +300,9 @@ void DbDumperWriter::stop() {
 
 void DbDumperWriter::run(tbsys::CThread* thr_, void* arg) {
   last_rotate_time_ = time(NULL);
-  UNUSED(thr_);
-  UNUSED(arg);
-
-  int ret = OB_SUCCESS;
+  int ret;
 
   while (running_ || !records_.empty()) {
-    ret = OB_SUCCESS;
     bool flush = !running_;
 
     if (need_rotate_output_file()) {
@@ -336,13 +313,10 @@ void DbDumperWriter::run(tbsys::CThread* thr_, void* arg) {
       }
     }
 
-    if (ret == OB_SUCCESS) {
-      ret = write_record(flush);
-
-      if (ret != OB_SUCCESS) {
-        TBSYS_LOG(ERROR, "write record failed, %d", ret);
-        sleep(1);
-      }
+    ret = write_record(flush);
+    if (ret != OB_SUCCESS) {
+      TBSYS_LOG(ERROR, "write record failed, %d", ret);
+      sleep(1);
     }
   }
 
@@ -377,7 +351,6 @@ int DbDumperWriter::write_record(bool flush) {
   int ret = OB_SUCCESS;
   RecordInfo* rec = NULL;
   struct timespec timeout;
-  UNUSED(flush);
 
   timeout.tv_sec = time(NULL) + kSemWaitTimeout;
   timeout.tv_nsec = 0;
@@ -391,11 +364,11 @@ int DbDumperWriter::write_record(bool flush) {
   }
 
   if (rec != NULL) {
-    CThreadGuard gard(&records_lock_);
-
-    if (file_ == NULL || (ret = file_->Append(rec->buf, rec->length)) != OB_SUCCESS) {
+    if (file_.write(rec->buf, rec->length, false) < 0) {
       TBSYS_LOG(ERROR, "Write record failed, ret:%d, path:%s, len:%d", ret, path_.c_str(), rec->length);
     } else {
+      //doing this is ok, because only one thread is running
+      CThreadGuard gard(&records_lock_);
       writen_lines_++;
       records_.pop_front();
       free_record(rec);

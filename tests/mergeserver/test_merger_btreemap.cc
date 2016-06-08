@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * test_merger_btreemap.cc for ...
+ *
+ * Authors:
+ *   xielun <xielun.szd@taobao.com>
+ *
+ */
 #include <iostream>
 #include <sstream>
 #include <algorithm>
@@ -6,10 +21,11 @@
 
 #include "common/ob_schema.h"
 #include "common/ob_malloc.h"
-#include "common/location/ob_btree_map.h"
+#include "ob_ms_btreemap.h"
 
 using namespace std;
 using namespace sb::common;
+using namespace sb::mergeserver;
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();
@@ -149,4 +165,6 @@ TEST_F(TestBtreeMap, test_size) {
     EXPECT_TRUE(0 == tree.size());
   }
 }
+
+
 

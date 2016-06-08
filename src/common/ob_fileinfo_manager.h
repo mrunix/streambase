@@ -1,22 +1,18 @@
-////===================================================================
-//
-// ob_fileinfo_manager.h updateserver / Oceanbase
-//
-// Copyright (C) 2010 Taobao.com, Inc.
-//
-// Created on 2011-03-23 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_fileinfo_manager.h for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #ifndef  OCEANBASE_UPDATESERVER_FILEINFO_MANAGER_H_
 #define  OCEANBASE_UPDATESERVER_FILEINFO_MANAGER_H_
 #include <sys/types.h>
@@ -55,4 +51,5 @@ class IFileInfoMgr {
 }
 
 #endif //OCEANBASE_UPDATESERVER_FILEINFO_MANAGER_H_
+
 

@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -38,6 +38,8 @@ void check_string(const ObString& expected, const ObString& real);
 
 void check_obj(const ObObj& expected, const ObObj& real);
 
+void check_range(const ObRange& expected, const ObRange& real);
+
 void check_cell(const ObCellInfo& expected, const ObCellInfo& real);
 
 void check_cell_with_name(const ObCellInfo& expected, const ObCellInfo& real);
@@ -72,187 +74,94 @@ class GFactory {
   ThreadSpecificBuffer uncompressed_buffer_;
 };
 
-/*
 int write_cg_sstable(const ObCellInfo** cell_infos,
-    const int64_t row_num, const int64_t col_num, const char* sstable_file_path );
+                     const int64_t row_num, const int64_t col_num, const char* sstable_file_path);
 int write_sstable(const ObCellInfo** cell_infos,
-    const int64_t row_num, const int64_t col_num, const char* sstable_file_path );
+                  const int64_t row_num, const int64_t col_num, const char* sstable_file_path);
 
-class SSTableBuilder
-{
-  public:
-    SSTableBuilder();
-    ~SSTableBuilder();
-    typedef int (WRITE_SSTABLE_FUNC)(const ObCellInfo** cell_infos,
-        const int64_t row_num, const int64_t col_num, const char* sstable_file_path );
-    int generate_sstable_file(WRITE_SSTABLE_FUNC write_func, const ObSSTableId& sstable_id,
-                              const int64_t start_index = 0);
-    ObCellInfo** const get_cell_infos() const { return cell_infos; }
-  public:
-    static const int64_t table_id = 100;
-    static const int64_t ROW_NUM = 5000;
-    static const int64_t COL_NUM = 5;
-
-  private:
-    ObCellInfo** cell_infos;
-    char* row_key_strs[ROW_NUM][COL_NUM];
-};
-
-class MultSSTableBuilder
-{
-  public:
-    MultSSTableBuilder()
-    {
-
-    }
-
-    ~MultSSTableBuilder()
-    {
-
-    }
-
-    int generate_sstable_files();
-
-    int get_sstable_id(ObSSTableId & sstable_id, const int64_t index) const
-    {
-      int ret = OB_SUCCESS;
-
-      if (index < 0 || index >= SSTABLE_NUM)
-      {
-        ret = OB_ERROR;
-      }
-      else
-      {
-        sstable_id.sstable_file_id_ = index % DISK_NUM
-                                      + 256 * (index / DISK_NUM + 1) + 1;
-        sstable_id.sstable_file_offset_ = 0;
-      }
-
-      return ret;
-    }
-
-    ObCellInfo** const get_cell_infos(const int64_t index) const
-    {
-      return builder_[index].get_cell_infos();
-    }
-
-  public:
-    static const int64_t DISK_NUM = 12;
-    static const int64_t SSTABLE_NUM = DISK_NUM * 2;
-
-  private:
-    SSTableBuilder builder_[SSTABLE_NUM];
-};
-
-class TabletManagerIniter
-{
-  public:
-    TabletManagerIniter(ObTabletManager& tablet_mgr)
-    : inited_(false), tablet_mgr_(tablet_mgr)
-    {
-
-    }
-
-    ~TabletManagerIniter()
-    {
-
-    }
-
-    int init(bool create = false);
-
-    const MultSSTableBuilder& get_mult_sstable_builder() const
-    {
-      return builder_;
-    }
-
-  private:
-    int create_tablet(const ObRange& range, const ObSSTableId& sst_id, bool serving, const int64_t version = 1);
-    int create_tablets();
-
-  private:
-    bool inited_;
-    ObTabletManager& tablet_mgr_;
-    MultSSTableBuilder builder_;
-};
-*/
-
-int64_t random_number(int64_t min, int64_t max);
-
-struct CellInfoGen {
+class SSTableBuilder {
  public:
-  struct Desc {
-    int64_t column_group_id;
-    int64_t start_column;
-    int64_t end_column;
-  };
- public:
-  CellInfoGen(const int64_t tr, const int64_t tc);
-  ~CellInfoGen();
-  int gen(const Desc* desc, const int64_t size);
-
+  SSTableBuilder();
+  ~SSTableBuilder();
+  typedef int (WRITE_SSTABLE_FUNC)(const ObCellInfo** cell_infos,
+                                   const int64_t row_num, const int64_t col_num, const char* sstable_file_path);
+  int generate_sstable_file(WRITE_SSTABLE_FUNC write_func, const ObSSTableId& sstable_id,
+                            const int64_t start_index = 0);
+  ObCellInfo** const get_cell_infos() const { return cell_infos; }
  public:
   static const int64_t table_id = 100;
-  static const int64_t START_ID = 2;
+  static const int64_t ROW_NUM = 5000;
+  static const int64_t COL_NUM = 5;
 
+ private:
   ObCellInfo** cell_infos;
-  ObSSTableSchema schema;
-  int64_t total_rows;
-  int64_t total_columns;
+  char* row_key_strs[ROW_NUM][COL_NUM];
 };
 
-int write_sstable(const char* sstable_file_path, const int64_t row_num, const int64_t col_num, const CellInfoGen::Desc* desc , const int64_t size);
-int write_sstable(const ObSSTableId& sstable_id, const int64_t row_num, const int64_t col_num, const CellInfoGen::Desc* desc , const int64_t size);
-int write_block(ObSSTableBlockBuilder& builder, const CellInfoGen& cgen, const CellInfoGen::Desc* desc , const int64_t size);
-
-
-void create_rowkey(const int64_t row, const int64_t col_num, const int64_t rowkey_col_num, ObRowkey& rowkey);
-void create_new_range(ObNewRange& range,
-                      const int64_t col_num, const int64_t rowkey_col_num,
-                      const int64_t start_row, const int64_t end_row,
-                      const ObBorderFlag& border_flag);
-int check_rowkey(const ObRowkey& rowkey, const int64_t row, const int64_t col_num);
-int check_rows(const ObObj* columns, const int64_t col_size, const int64_t row, const int64_t col_num, const int64_t start_col);
-
-void set_obj_array(ObObj array[], const int types[], const int64_t values[],  const int64_t size);
-void set_rnd_obj_array(ObObj array[], const int64_t size, const int64_t min, const int64_t max);
-
-template <typename Func>
-int map_row(Func func, const CellInfoGen& cgen,  const CellInfoGen::Desc* desc, const int64_t size) {
-  int err = OB_SUCCESS;
-  ObCellInfo** cell_infos = cgen.cell_infos;
-  const CellInfoGen::Desc& key_desc = desc[0];
-  int64_t row_index = 0;
-  int64_t col_index = 0;
-  ObSSTableRow row;
-
-  for (int di = 1; di < size; ++di) {
-    const CellInfoGen::Desc& d = desc[di];
-
-    for (row_index = 0;  row_index < cgen.total_rows; ++row_index) {
-      row.clear();
-      row.set_table_id(CellInfoGen::table_id);
-      row.set_column_group_id(d.column_group_id);
-
-      // rowkey column
-      for (col_index = key_desc.start_column ; col_index  <= key_desc.end_column; ++col_index) {
-        err = row.add_obj(cell_infos[row_index][col_index].value_);
-        if (OB_SUCCESS != err) return err;
-      }
-      // obj column
-      for (col_index = d.start_column ; col_index  <= d.end_column; ++col_index) {
-        err = row.add_obj(cell_infos[row_index][col_index].value_);
-        if (OB_SUCCESS != err) return err;
-      }
-
-      err = func(row);
-      if (OB_SUCCESS != err) return err;
-    }
-
+class MultSSTableBuilder {
+ public:
+  MultSSTableBuilder() {
 
   }
 
-  return err;
-}
+  ~MultSSTableBuilder() {
+
+  }
+
+  int generate_sstable_files();
+
+  int get_sstable_id(ObSSTableId& sstable_id, const int64_t index) const {
+    int ret = OB_SUCCESS;
+
+    if (index < 0 || index >= SSTABLE_NUM) {
+      ret = OB_ERROR;
+    } else {
+      sstable_id.sstable_file_id_ = index % DISK_NUM
+                                    + 256 * (index / DISK_NUM + 1) + 1;
+      sstable_id.sstable_file_offset_ = 0;
+    }
+
+    return ret;
+  }
+
+  ObCellInfo** const get_cell_infos(const int64_t index) const {
+    return builder_[index].get_cell_infos();
+  }
+
+ public:
+  static const int64_t DISK_NUM = 12;
+  static const int64_t SSTABLE_NUM = DISK_NUM * 2;
+
+ private:
+  SSTableBuilder builder_[SSTABLE_NUM];
+};
+
+class TabletManagerIniter {
+ public:
+  TabletManagerIniter(ObTabletManager& tablet_mgr)
+    : inited_(false), tablet_mgr_(tablet_mgr) {
+
+  }
+
+  ~TabletManagerIniter() {
+
+  }
+
+  int init(bool create = false);
+
+  const MultSSTableBuilder& get_mult_sstable_builder() const {
+    return builder_;
+  }
+
+ private:
+  int create_tablet(const ObRange& range, const ObSSTableId& sst_id, bool serving, const int64_t version = 1);
+  int create_tablets();
+
+ private:
+  bool inited_;
+  ObTabletManager& tablet_mgr_;
+  MultSSTableBuilder builder_;
+};
 
 #endif //__TEST_HELPER_H__
 

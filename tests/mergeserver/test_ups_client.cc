@@ -1,35 +1,32 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: 0.1: test_ups_client.cc,v 0.1 2011/01/07 16:55:10 xielun Exp $
+ * test_ups_client.cc for ...
  *
  * Authors:
- *     - some work details if you want
+ *   xielun <xielun.szd@taobao.com>
  *
  */
-
 #include <getopt.h>
 #include <string>
 #include <unistd.h>
-#include "mock_client.h"
-#include "common/utility.h"
+#include "../updateserver/mock_client.h"
+#include "../updateserver/test_utils.h"
 #include "common/ob_scanner.h"
 #include "common/ob_read_common_data.h"
 #include "common/ob_string.h"
 #include "common/ob_malloc.h"
-#include "../common/test_rowkey_helper.h"
 
 using namespace std;
 using namespace sb;
 using namespace sb::common;
 const int64_t TIMEOUT =  10000000L;
-static CharArena allocator_;
 
 struct CParam {
   char* server_addr_;
@@ -39,7 +36,7 @@ struct CParam {
   int64_t start_key_;
   int64_t end_key_;
   int64_t count_;
-  sb::common::ObSchemaManagerV2* schema_mgr_;
+  sb::common::ObSchemaManager* schema_mgr_;
 };
 
 
@@ -116,7 +113,7 @@ int parse_cmd_args(int argc, char** argv, CParam& param) {
   }
 
   if (OB_SUCCESS == err) {
-    param.schema_mgr_ = new ObSchemaManagerV2;
+    param.schema_mgr_ = new ObSchemaManager;
     if (NULL == param.schema_mgr_) {
       TBSYS_LOG(WARN, "%s", "fail to allocate memory for schema manager");
       err = OB_ALLOCATE_MEMORY_FAILED;
@@ -133,60 +130,66 @@ int parse_cmd_args(int argc, char** argv, CParam& param) {
 int apply(CParam& param, MockClient& client) {
   int err = OB_SUCCESS;
   ObString table_name;
-  table_name.assign(param.table_name_, static_cast<int32_t>(strlen(param.table_name_)));
-  const ObTableSchema* schema = param.schema_mgr_->get_table_schema(table_name);
-  if (NULL == schema) {
-    TBSYS_LOG(ERROR, "fail to find table:name[%s]", param.table_name_);
+  table_name.assign(param.table_name_, strlen(param.table_name_));
+  uint64_t table_id = param.schema_mgr_->get_table_id(table_name);
+  if (table_id == 0) {
+    TBSYS_LOG(ERROR, "fail to find table id:name[%s]", param.table_name_);
     err = OB_ERROR;
   } else {
-    ObRowkey rowkey_str;
-    ObString column_str;
-    ObMutator mutator;
-    ObObj value_obj;
-    int64_t column_id = 0;
-    char buffer[128];
-    int32_t size = 0;
-    const ObColumnSchemaV2* column_info = param.schema_mgr_->get_table_schema(schema->get_table_id(), size);
-    for (int64_t i = param.start_key_; i <= param.end_key_; ++i) {
-      mutator.reset();
-      int64_t pos = 0;
-      serialization::encode_i64(buffer, sizeof(buffer), pos, i);
-      rowkey_str = make_rowkey(buffer, pos, &allocator_);
-      const ObColumnSchemaV2* temp_column = column_info;
-      for (int32_t j = 0; j < size; ++j) {
-        if (NULL == temp_column) {
-          TBSYS_LOG(ERROR, "check column info failed:table[%lu], rowkey[%lu]", schema->get_table_id(), i);
-          err = OB_ERROR;
-          break;
-        }
-        column_id = temp_column->get_id();
-        column_str.assign(const_cast<char*>(temp_column->get_name()), static_cast<int32_t>(strlen(temp_column->get_name())));
-        if (temp_column->get_type() == ObIntType) {
-          //value_obj.set_int(1, true);
-          value_obj.set_int(((i << 24) | (column_id << 16)) | (param.count_ + 1));
-          err = mutator.update(table_name, rowkey_str, column_str, value_obj);
-          if (OB_SUCCESS != err) {
-            TBSYS_LOG(ERROR, "update table:%.*s rowkey:%ld column:%.*s err:%d",
-                      table_name.length(), table_name.ptr(), i,
-                      column_str.length(), column_str.ptr(), err);
+    const ObSchema* schema = param.schema_mgr_->get_table_schema(table_id);
+    if (NULL == schema) {
+      TBSYS_LOG(ERROR, "check schema failed:id[%lu]", table_id);
+      err = OB_ERROR;
+    } else {
+      ObString rowkey_str;
+      ObString column_str;
+      ObMutator mutator;
+      ObObj value_obj;
+      int64_t column_id = 0;
+      char buffer[128];
+      const ObColumnSchema* column_info = NULL;
+      for (int64_t i = param.start_key_; i <= param.end_key_; ++i) {
+        int64_t pos = 0;
+        serialization::encode_i64(buffer, sizeof(buffer), pos, i);
+        rowkey_str.assign(buffer, pos);
+        for (column_info = schema->column_begin(); column_info != schema->column_end(); ++column_info) {
+          mutator.reset();
+          if (NULL == column_info) {
+            TBSYS_LOG(ERROR, "check column info failed:table[%lu], rowkey[%lu]", table_id, i);
+            err = OB_ERROR;
             break;
           }
+          column_id = column_info->get_id();
+          column_str.assign(const_cast<char*>(column_info->get_name()), strlen(column_info->get_name()));
+          if (column_info->get_type() == ObIntType) {
+            //value_obj.set_int(1, true);
+            value_obj.set_int(((i << 24) | (column_id << 16)) | (param.count_ + 1));
+            err = mutator.update(table_name, rowkey_str, column_str, value_obj);
+            if (OB_SUCCESS == err) {
+              err = client.ups_apply(mutator, TIMEOUT);
+              TBSYS_LOG(DEBUG, "update table:%.*s rowkey:%ld column:%.*s err:%d",
+                        table_name.length(), table_name.ptr(), i,
+                        column_str.length(), column_str.ptr(), err);
+            } else {
+              TBSYS_LOG(ERROR, "update table:%.*s rowkey:%ld column:%.*s err:%d",
+                        table_name.length(), table_name.ptr(), i,
+                        column_str.length(), column_str.ptr(), err);
+              break;
+            }
+          }
+          /*
+          else
+          {
+            TBSYS_LOG(WARN, "check column type failed:table:%.*s rowkey:%.*s column:%.*s type:%lu",
+                table_name.length(), table_name.ptr(),
+                rowkey_str.length(), rowkey_str.ptr(), column_str.length(), column_str.ptr(), column_info->get_type());
+          }
+          */
         }
-        ++temp_column;
-      }
-
-      if (OB_SUCCESS == err) {
-        err = client.send_request(OB_WRITE, mutator, TIMEOUT);
+        //
         if (err != OB_SUCCESS) {
-          TBSYS_LOG(ERROR, "update failed:table[%.*s], rowkey[%ld], err[%d]",
-                    table_name.length(), table_name.ptr(), i, err);
-        } else {
-          TBSYS_LOG(INFO, "update succ:table[%.*s], rowkey[%ld]",
-                    table_name.length(), table_name.ptr(), i);
+          break;
         }
-      }
-      if (err != OB_SUCCESS) {
-        break;
       }
     }
   }
@@ -216,4 +219,6 @@ int main(int argc, char** argv) {
   delete param.schema_mgr_;
   return err;
 }
+
+
 

@@ -35,7 +35,6 @@ class DbRecordSet {
  public:
   class Iterator {
    public:
-    explicit Iterator();
     Iterator(DbRecordSet* ds, common::ObScannerIterator cur_pos);
     Iterator& operator++(int);
     bool operator==(const DbRecordSet::Iterator& itr);
@@ -45,14 +44,13 @@ class DbRecordSet {
 
     int get_last_err() { return last_err_; }
    private:
-    int fill_record(common::ObScannerIterator& itr, bool& has_record);
+    void fill_record(common::ObScannerIterator& itr);
 
     int last_err_;
     DbRecord record_;
     common::ObScannerIterator cur_pos_;
     common::ObScannerIterator rec_end_pos_;
     DbRecordSet* ds_;
-    bool res_start_;
   };
 
   Iterator begin();
@@ -60,11 +58,6 @@ class DbRecordSet {
 
   common::ObDataBuffer& get_buffer() { return ob_buffer_; }
   common::ObScanner& get_scanner() { return scanner_; }
-
-  bool has_more_data() const;
-  bool empty() const;
-
-  int get_last_rowkey(common::ObRowkey& last_key);
 
   DbRecordSet(int cap = kDefaultRecordSetSize): cap_(cap), inited_(false) { p_buffer_ = NULL; }
   ~DbRecordSet();

@@ -1,17 +1,16 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: 0.1: ob_ups_rpc_stub.h,v 0.1 2010/09/27 16:59:49 chuanhui Exp $
+ * ob_common_rpc_stub.h for ...
  *
  * Authors:
- *   chuanhui <rizhao.ych@taobao.com>
- *     - some work details if you want
+ *   rizhao <rizhao.ych@taobao.com>
  *
  */
 #ifndef __OCEANBASE_COMMON_OB_COMMON_RPC_STUB_H__
@@ -26,9 +25,7 @@
 #include "ob_packet.h"
 #include "ob_lease_common.h"
 #include "ob_obi_role.h"
-#include "ob_scan_param.h"
-#include "ob_scanner.h"
-#include "ob_mutator.h"
+
 namespace sb {
 namespace common {
 class ObCommonRpcStub {
@@ -37,9 +34,6 @@ class ObCommonRpcStub {
   virtual ~ObCommonRpcStub();
 
   int init(const ObClientManager* client_mgr);
-  const ObClientManager* get_client_mgr() const;
-  //add: master ups report slave failure to rootserver
-  virtual int ups_report_slave_failure(const common::ObServer& slave_add, const int64_t timeout_us);
 
   // send commit log to Slave
   virtual int send_log(const ObServer& ups_slave, ObDataBuffer& log_data,
@@ -57,25 +51,12 @@ class ObCommonRpcStub {
   virtual int slave_quit(const common::ObServer& master, const common::ObServer& slave_addr,
                          const int64_t timeout_us);
 
-  //send keep_alive msg to slave. used by Master
-  virtual int send_keep_alive(const common::ObServer& slave);
-
-  //send grand_lease_response msg to rootserver, used by UPS
-  virtual int renew_lease(const common::ObServer& rootserver);
-
-  virtual int send_obi_role(const common::ObServer& slave, const common::ObiRole obi_role);
-  //send request to rs to get master_ups_addr
-  virtual int get_master_ups_info(const ObServer& rs, ObServer& master_ups, const int64_t timeout_us);
   virtual int get_obi_role(const common::ObServer& rs, common::ObiRole& obi_role, const int64_t timeout_us);
-
-  virtual int scan(const ObServer& ms, const common::ObScanParam& scan_param, common::ObScanner& scanner, const int64_t timeout);
-  virtual int mutate(const ObServer& update_server, const common::ObMutator& mutator, const int64_t timeout);
  private:
-  int get_thread_buffer(ObDataBuffer& data_buff);
+  int get_thread_buffer_(ObDataBuffer& data_buff);
 
  private:
   static const int32_t DEFAULT_VERSION;
-  static const int64_t DEFAULT_RPC_TIMEOUT_US;
 
  private:
   ThreadSpecificBuffer thread_buffer_;
@@ -86,3 +67,4 @@ class ObCommonRpcStub {
 }
 
 #endif // __OCEANBASE_COMMON_OB_COMMON_RPC_STUB_H__
+

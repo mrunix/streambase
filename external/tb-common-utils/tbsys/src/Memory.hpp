@@ -17,53 +17,44 @@
 #define TBSYS_MEMORY_HPP_
 #include <new>
 
-namespace tbsys
-{
+namespace tbsys {
 /**
  * 把new关键字转换成函数
- * @see 
+ * @see
  * @return 新创建的Type类的对象(成功)/NULL(失败)
  */
-template <typename Type> inline Type *gNew()
-{
-    Type *Pointer = NULL;
+template <typename Type> inline Type* gNew() {
+  Type* Pointer = NULL;
 #ifdef _NO_EXCEPTION
-    Pointer = new Type;
+  Pointer = new Type;
 #else
-    try
-    {
-        Pointer = new Type;
-    }
-    catch (...)
-    {
-        Pointer = NULL;
-    }
+  try {
+    Pointer = new Type;
+  } catch (...) {
+    Pointer = NULL;
+  }
 #endif // _NO_EXCEPTION
-    return Pointer;
+  return Pointer;
 }
 
 /**
  * 把new []关键字转换成函数
  * @param uiItemNum(unsigned): 对象数组的大小
- * @see 
+ * @see
  * @return 包含uiItemNum个类对象的对象数组(成功)/NULL(失败)
  */
-template <typename Type> inline Type *gNewA(unsigned uiItemNum)
-{
-    Type *Pointer = NULL;
+template <typename Type> inline Type* gNewA(unsigned uiItemNum) {
+  Type* Pointer = NULL;
 #ifdef _NO_EXCEPTION
-        Pointer = new Type[uiItemNum];
+  Pointer = new Type[uiItemNum];
 #else
-    try
-    {
-        Pointer = new Type[uiItemNum];
-    }
-    catch (...)
-    {
-        Pointer = NULL;
-    }
+  try {
+    Pointer = new Type[uiItemNum];
+  } catch (...) {
+    Pointer = NULL;
+  }
 #endif // _NO_EXCEPTION
-    return Pointer;
+  return Pointer;
 }
 
 // if not use the default construct, please use this macro, but is can't reference
@@ -73,7 +64,7 @@ template <typename Type> inline Type *gNewA(unsigned uiItemNum)
  * @param Pointer: 输出参数，被赋值为新创建的Class类的对象
  * @param Class: 需创建对象的类名
  * @param ...: 构造函数参数列表
- * @see 
+ * @see
  * @return void
  */
 #define ARG_NEW(Pointer, Class, ...) \
@@ -101,25 +92,21 @@ template <typename Type> inline Type *gNewA(unsigned uiItemNum)
 /**
  * 把placement new转换成函数
  * @param p(void *): 构造对象的内存地址
- * @see 
+ * @see
  * @return Type类型对象(成功)/NULL(失败)
  */
-template <typename Type> inline Type *gConstruct(void *p)
-{
-    Type *Pointer = NULL;
+template <typename Type> inline Type* gConstruct(void* p) {
+  Type* Pointer = NULL;
 #ifdef _NO_EXCEPTION
-    Pointer = new (p) Type;
+  Pointer = new(p) Type;
 #else
-    try
-    {
-        Pointer = new (p) Type;
-    }
-    catch (...)
-    {
-        Pointer = NULL;
-    }
+  try {
+    Pointer = new(p) Type;
+  } catch (...) {
+    Pointer = NULL;
+  }
 #endif // _NO_EXCEPTION
-    return Pointer;
+  return Pointer;
 }
 
 /*
@@ -132,8 +119,8 @@ template <typename Type> inline Type *gConstruct(void *p)
  * @param Class: 需创建对象的类名
  * @param Memory: 构造对象的内存地址
  * @param ...: 构造对象的参数列表
- * @see 
- * @return 
+ * @see
+ * @return
  */
 #define CONSTRUCT(Pointer, Class, Memory, ...) \
     do \
@@ -162,8 +149,8 @@ template <typename Type> inline Type *gConstruct(void *p)
  * 调用默认构造函数构造对象，封装异常
  * @param Pointer: 输出参数，被赋值为新创建的Class类的对象
  * @param Class: 需创建对象的类名
- * @see 
- * @return 
+ * @see
+ * @return
  */
 #define FRIEND_NEW(Pointer, Class) \
     do \
@@ -193,7 +180,7 @@ template <typename Type> inline Type *gConstruct(void *p)
  * @param Pointer: 输出参数，被赋值为新创建的Class类的对象数组
  * @param Class: 需创建对象数组的类名
  * @param Num: 需创建对象数组的长度
- * @see 
+ * @see
  * @return void
  */
 #define FRIEND_NEW_A(Pointer, Class, Num) \
@@ -221,101 +208,85 @@ template <typename Type> inline Type *gConstruct(void *p)
 /**
  * 把delete关键字转换成函数，并封装异常
  * @param p(Type *): 要释放的对象地址
- * @see 
+ * @see
  * @return void
  */
-template <typename Type> inline void gDelete(Type *&rp)
-{
-    if (rp != NULL)
-    {
+template <typename Type> inline void gDelete(Type*& rp) {
+  if (rp != NULL) {
 #ifdef _NO_EXCEPTION
-        delete rp;
-        rp = NULL;
+    delete rp;
+    rp = NULL;
 #else
-        try
-        {
-            delete rp;
-            rp = NULL;
-        }
-        catch (...)
-        {
+    try {
+      delete rp;
+      rp = NULL;
+    } catch (...) {
 
-        }
-#endif // _NO_EXCEPTION
-        rp = NULL;
     }
+#endif // _NO_EXCEPTION
+    rp = NULL;
+  }
 }
 
 /**
  * 把delete []关键字转换成函数，并封装异常
  * @param p(Type *): 要释放的对象数组地址
- * @see 
+ * @see
  * @return void
  */
-template <typename Type> inline void gDeleteA(Type *&rp)
-{
-    if (rp != NULL)
-    {
+template <typename Type> inline void gDeleteA(Type*& rp) {
+  if (rp != NULL) {
 #ifdef _NO_EXCEPTION
-        delete [] rp;
-        rp = NULL;
+    delete [] rp;
+    rp = NULL;
 #else
-        try
-        {
-            delete [] rp;
-            rp = NULL;
-        }
-        catch (...)
-        {
+    try {
+      delete [] rp;
+      rp = NULL;
+    } catch (...) {
 
-        }
-#endif // _NO_EXCEPTION
-        rp = NULL;
     }
+#endif // _NO_EXCEPTION
+    rp = NULL;
+  }
 }
 
 /**
  * 把对象的析构函数转换成通用函数并封装异常
  * @param p(Type *): 需要被析构的对象地址
- * @see 
+ * @see
  * @return void
  */
-template <typename Type> inline void gDestruct(Type *p)
-{
+template <typename Type> inline void gDestruct(Type* p) {
 #ifdef _NO_EXCEPTION
-    p->~Type();
+  p->~Type();
 #else
-    try
-    {
-        p->~Type();
-    }
-    catch (...)
-    {
+  try {
+    p->~Type();
+  } catch (...) {
 
-    }
+  }
 #endif // _NO_EXCEPTION
 }
 
 /**
- * 
+ *
  * @param p(Type *): 需要释放的内存块地址
- * @see 
+ * @see
  * @return void
  */
-template <typename Type> inline void gFree(Type *&rp)
-{
-    if (rp != NULL)
-    {
-        free(rp);
-        rp = NULL;
-    }
+template <typename Type> inline void gFree(Type*& rp) {
+  if (rp != NULL) {
+    free(rp);
+    rp = NULL;
+  }
 }
 
 #ifdef _NO_EXCEPTION
 /**
  * 释放对象，封装异常
  * @param Pointer: 需要被释放的对象地址
- * @see 
+ * @see
  * @return void
  */
 #define FRIEND_DEL(Pointer) \
@@ -353,7 +324,7 @@ template <typename Type> inline void gFree(Type *&rp)
 /**
  * 释放对象数组，封装异常
  * @param Pointer: 需要被释放的对象数组地址
- * @see 
+ * @see
  * @return void
  */
 #define FRIEND_DEL_A(Pointer) \

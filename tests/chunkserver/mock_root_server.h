@@ -19,7 +19,6 @@
 #include "tbnet.h"
 #include "tbsys.h"
 
-#include "common/ob_tbnet_callback.h"
 #include "common/ob_packet_factory.h"
 #include "common/ob_base_server.h"
 #include "common/ob_single_server.h"
@@ -28,7 +27,6 @@
 #include "common/ob_client_manager.h"
 #include "common/ob_tablet_info.h"
 #include "chunkserver/ob_chunk_server.h"
-#include "rootserver/ob_root_callback.h"
 
 using namespace sb::common;
 using namespace sb::chunkserver;
@@ -48,18 +46,11 @@ class MockRootServer : public ObSingleServer {
     set_batch_process(false);
     set_listen_port(MOCK_SERVER_LISTEN_PORT);
     set_dev_name("bond0");
+    set_packet_factory(&factory_);
     set_default_queue_size(100);
     set_thread_count(1);
-
-    memset(&server_handler_, 0, sizeof(easy_io_handler_pt));
-    server_handler_.encode = ObTbnetCallback::encode;
-    server_handler_.decode = ObTbnetCallback::decode;
-    server_handler_.process = rootserver::ObRootCallback::process;
-    //server_handler_.batch_process = ObTbnetCallback::batch_process;
-    server_handler_.get_packet_id = ObTbnetCallback::get_packet_id;
-    server_handler_.on_disconnect = ObTbnetCallback::on_disconnect;
-    server_handler_.user_data = this;
-
+    set_packet_factory(&factory_);
+    client_manager_.initialize(get_transport(), get_packet_streamer());
     ObSingleServer::initialize();
 
     return OB_SUCCESS;
@@ -70,7 +61,7 @@ class MockRootServer : public ObSingleServer {
     ObPacket* ob_packet = base_packet;
     int32_t packet_code = ob_packet->get_packet_code();
     int32_t version = ob_packet->get_api_version();
-    int32_t channel_id = ob_packet->get_channel_id();
+    int32_t channel_id = ob_packet->getChannelId();
     ret = ob_packet->deserialize();
 
     TBSYS_LOG(INFO, "recv packet with packet_code[%d] version[%d] channel_id[%d]",
@@ -96,7 +87,6 @@ class MockRootServer : public ObSingleServer {
   }
 
   int handle_heartbeat(ObPacket* packet) {
-    UNUSED(packet);
     return OB_SUCCESS;
   }
 
@@ -130,10 +120,12 @@ class MockRootServer : public ObSingleServer {
         const ObTabletReportInfo* tablets = tablet_list.get_tablet();
         EXPECT_TRUE(NULL != tablets);
         for (int64_t i = 0; i < tablet_list.get_tablet_size(); ++i) {
-          TBSYS_LOG(INFO, "the %ld-th tablet: version=%ld, range=(%s, %s]\n", i,
+          TBSYS_LOG(INFO, "the %ld-th tablet: version=%ld, range=(%.*s, %.*s]\n", i,
                     tablets[i].tablet_location_.tablet_version_,
-                    to_cstring(tablets[i].tablet_info_.range_.start_key_),
-                    to_cstring(tablets[i].tablet_info_.range_.end_key_));
+                    tablets[i].tablet_info_.range_.start_key_.length(),
+                    tablets[i].tablet_info_.range_.start_key_.ptr(),
+                    tablets[i].tablet_info_.range_.end_key_.length(),
+                    tablets[i].tablet_info_.range_.end_key_.ptr());
         }
       }
       if (OB_SUCCESS == ret) {
@@ -145,7 +137,7 @@ class MockRootServer : public ObSingleServer {
         TBSYS_LOG(INFO, "timestamp: %ld", time_stamp);
       }
 
-      easy_request_t* connection = ob_packet->get_request();
+      tbnet::Connection* connection = ob_packet->get_connection();
       ThreadSpecificBuffer::Buffer* thread_buffer =
         response_packet_buffer_.get_buffer();
       if (NULL != thread_buffer) {
@@ -159,7 +151,7 @@ class MockRootServer : public ObSingleServer {
         TBSYS_LOG(DEBUG, "handle tablets report packet");
 
         int32_t version = 1;
-        int32_t channel_id = ob_packet->get_channel_id();
+        int32_t channel_id = ob_packet->getChannelId();
         ret = send_response(OB_REPORT_TABLETS_RESPONSE, version, out_buffer,
                             connection, channel_id);
       } else {
@@ -179,7 +171,7 @@ class MockRootServer : public ObSingleServer {
       TBSYS_LOG(ERROR, "data_buffer is NUll should not reach this");
       ret = OB_ERROR;
     } else {
-      easy_request_t* connection = ob_packet->get_request();
+      tbnet::Connection* connection = ob_packet->get_connection();
       ThreadSpecificBuffer::Buffer* thread_buffer =
         response_packet_buffer_.get_buffer();
       if (NULL != thread_buffer) {
@@ -194,7 +186,7 @@ class MockRootServer : public ObSingleServer {
         TBSYS_LOG(DEBUG, "handle wait job done");
 
         int32_t version = 1;
-        int32_t channel_id = ob_packet->get_channel_id();
+        int32_t channel_id = ob_packet->getChannelId();
         ret = send_response(OB_WAITING_JOB_DONE_RESPONSE, version, out_buffer,
                             connection, channel_id);
         TBSYS_LOG(DEBUG, "handle wait job done");
@@ -208,14 +200,14 @@ class MockRootServer : public ObSingleServer {
   }
 
  private:
+  ObPacketFactory factory_;
+  ObClientManager  client_manager_;
   ThreadSpecificBuffer response_packet_buffer_;
 };
 
 class MockRootServerRunner : public tbsys::Runnable {
  public:
   virtual void run(tbsys::CThread* thread, void* arg) {
-    UNUSED(thread);
-    UNUSED(arg);
     MockRootServer mock_server;
     mock_server.start();
   }

@@ -1,17 +1,16 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- * ob_cache.h is for what ...
+ * Version: $Id$
  *
- * Version: $id: ob_cache.h,v 0.1 8/19/2010 1:42p wushi Exp $
+ * ob_cache.h for ...
  *
  * Authors:
  *   wushi <wushi.ly@taobao.com>
- *     - some work details if you want
  *
  */
 #ifndef OCEANBASE_COMMON_OB_CACHE_H_
@@ -25,8 +24,6 @@
 #include "murmur_hash.h"
 #include "tbtime.h"
 #include "ob_atomic.h"
-#include "ob_range2.h"
-#include "ob_spin_lock.h"
 
 namespace sb {
 namespace common {
@@ -80,7 +77,7 @@ class ObCacheBase {
   /// @fn virtual destructor
   virtual ~ObCacheBase();
 
-  /// @fn int oceanbase/common/ObCacheBase::init(int64_t cache_mem_size, int64_t max_no_active_usec)
+  /// @fn int sb/common/ObCacheBase::init(int64_t cache_mem_size, int64_t max_no_active_usec)
   ///   初始化
   ///
   /// @param cache_mem_size         cache最多可以使用的内存byte
@@ -104,7 +101,7 @@ class ObCacheBase {
   /// @fn 查询cache项
   /// @warning cache_pair持有指向cache内部的指针，此处应该get到const的cache_pair，
   ///          但是，暂时没有想到好的实现方法，因此使用者不能够修改得到的cache_pair
-  virtual int get(const common::ObNewRange& key, ObCachePair& cache_pair) = 0;
+  virtual int get(const ObString& key, ObCachePair& cache_pair) = 0;
 
   /// @fn 归还cache项目；cache_pair可以是通过malloc得到，也可以是通过get得到；
   ///       前一种情况出现在获取内存后产生cache_pair的数据的过程中失败，使用者无需
@@ -112,7 +109,7 @@ class ObCacheBase {
   virtual int revert(ObCachePair& cache_pair) = 0;
 
   /// @fn 删除cache项
-  virtual int remove(const common::ObNewRange& key) = 0;
+  virtual int remove(const ObString& key) = 0;
 
   /// @fn clear all cache item
   virtual int clear() = 0;
@@ -421,28 +418,17 @@ class ObVarCache: public ObCacheBase {
     if (total_ref_num_ != 0) {
       TBSYS_LOG(ERROR, "some cache pairs not reverted");
     }
-    clear();
     total_ref_num_ = 0;
     available_mem_size_ = 0;
     max_no_active_usec_ = 0;
     inited_ = false;
     cur_mem_block_ = NULL;
     cur_mem_block_offset_ = 0;
+    clear();
   }
 
   inline bool is_inited() const {
     return inited_;
-  }
-
-  inline int set_max_mem_size(const int64_t max_mem_size) {
-    int err = OB_SUCCESS;
-    if (max_mem_size <= 0) {
-      err = sb::common::OB_INVALID_ARGUMENT;
-      TBSYS_LOG(WARN, "check max memory size failed:size[%ld]", max_mem_size);
-    } else {
-      available_mem_size_ = max_mem_size;
-    }
-    return err;
   }
 
   virtual int init(const int64_t cache_mem_size, const int64_t max_no_active_usec,
@@ -561,17 +547,14 @@ class ObVarCache: public ObCacheBase {
     return err;
   }
 
-  virtual int get(const common::ObNewRange& key, ObCachePair& cache_pair) {
+  virtual int get(const ObString& key, ObCachePair& cache_pair) {
     int err = OB_SUCCESS;
     CacheItemHead*   item = NULL;
     LRUMemBlockHead* block = NULL;
-    /*
-    if (key.ptr() == NULL || key.length() <= 0)
-    {
-      TBSYS_LOG(WARN, "argument error [key.ptr:%p,key.length:%d]",key.ptr(), key.length());
+    if (key.ptr() == NULL || key.length() <= 0) {
+      TBSYS_LOG(WARN, "argument error [key.ptr:%p,key.length:%d]", key.ptr(), key.length());
       err = sb::common::OB_INVALID_ARGUMENT;
     }
-    */
     /// @warning 这里必须调用revert，否则会发生死锁
     cache_pair.revert();
     if (OB_SUCCESS == err && !inited_) {
@@ -635,7 +618,7 @@ class ObVarCache: public ObCacheBase {
   ///     TBSYS_LOG(WARN, "argument error [key.ptr:%p,key.length:%d]",key.ptr(), key.length());
   ///     err = sb::common::OB_INVALID_ARGUMENT;
   ///   }
-  ///   ObSpinLockGuard guard(lock_);
+  ///   tbsys::CThreadGuard guard(&mutex_);
   ///   if (OB_SUCCESS == err && !inited_)
   ///   {
   ///     TBSYS_LOG(WARN, "cache not initialized yet");
@@ -660,16 +643,13 @@ class ObVarCache: public ObCacheBase {
   ///   return err;
   /// }
 
-  virtual int remove(const ObNewRange& key) {
+  virtual int remove(const ObString& key) {
     int err = OB_SUCCESS;
     CacheItemHead*   item = NULL;
-    /*
-    if (key.ptr() == NULL || key.length() <= 0)
-    {
-      TBSYS_LOG(WARN, "argument error [key.ptr:%p,key.length:%d]",key.ptr(), key.length());
+    if (key.ptr() == NULL || key.length() <= 0) {
+      TBSYS_LOG(WARN, "argument error [key.ptr:%p,key.length:%d]", key.ptr(), key.length());
       err = sb::common::OB_INVALID_ARGUMENT;
     }
-    */
     if (OB_SUCCESS == err && !inited_) {
       TBSYS_LOG(WARN, "cache not initialized yet");
       err = sb::common::OB_NOT_INIT;
@@ -691,6 +671,7 @@ class ObVarCache: public ObCacheBase {
     int err = OB_SUCCESS;
     tbsys::CThreadGuard guard(&mutex_);
     if (OB_SUCCESS == err && !inited_) {
+      TBSYS_LOG(WARN, "cache not initialized yet");
       err = sb::common::OB_NOT_INIT;
     }
     if (OB_SUCCESS == err) {
@@ -766,7 +747,7 @@ class ObVarCache: public ObCacheBase {
   /// @property initialize LRUMemBlockHead
   void init_lru_mem_block_head(LRUMemBlockHead& block_head, int64_t block_size) {
     memset(&block_head, 0x00, sizeof(block_head));
-    sb::common::ObDLink* __attribute__((unused)) link = NULL;
+    sb::common::ObDLink* link = NULL;
     link = new(&block_head.lru_list_link_)sb::common::ObDLink;
     block_head.block_size_ = block_size;
   }
@@ -774,12 +755,12 @@ class ObVarCache: public ObCacheBase {
   /// @fn initialize CacheItemHead
   void init_cache_item_head(CacheItemHead& head, const int32_t key_size,
                             const int32_t value_size, LRUMemBlockHead& mother_block) {
-    sb::common::ObDLink* __attribute__((unused)) link = NULL;
+    sb::common::ObDLink* link = NULL;
     link = new(&head.hash_list_link_)sb::common::ObDLink;
     head.key_size_ = key_size;
     head.magic_ = CACHE_ITEM_MAGIC;
-    head.mother_block_offset_ = static_cast<int32_t>(reinterpret_cast<int64_t>(&mother_block)
-                                                     - reinterpret_cast<int64_t>(&head));
+    head.mother_block_offset_ = reinterpret_cast<int64_t>(&mother_block)
+                                - reinterpret_cast<int64_t>(&head) ;
     head.value_size_ = value_size;
   }
 
@@ -846,7 +827,7 @@ class ObVarCache: public ObCacheBase {
     int err = OB_SUCCESS;
     CacheItemHead* item = NULL;
     LRUMemBlockHead* block = NULL;
-    int32_t item_size = static_cast<int32_t>(sizeof(CacheItemHead) + key_size + value_size);
+    int32_t item_size = sizeof(CacheItemHead) + key_size + value_size;
     int64_t block_size = item_size + sizeof(LRUMemBlockHead);
     /// 进行lru淘汰
     /// block size bigger than CACHE_MEM_BLOCK_SIZE, allocate new one
@@ -873,7 +854,7 @@ class ObVarCache: public ObCacheBase {
         cur_mem_block_ = NULL;
       }
       cur_mem_block_offset_ = 0;
-      cur_mem_block_ = reinterpret_cast<LRUMemBlockHead*>(ob_malloc(block_size, static_cast<int32_t>(cache_mod_id_)));
+      cur_mem_block_ = reinterpret_cast<LRUMemBlockHead*>(ob_malloc(block_size, cache_mod_id_));
       if (NULL == cur_mem_block_) {
         err = sb::common::OB_ALLOCATE_MEMORY_FAILED;
       } else {
@@ -921,3 +902,4 @@ class ObVarCache: public ObCacheBase {
 
 
 #endif /* COMMON_OB_CACHE_H_ */
+

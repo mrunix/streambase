@@ -20,7 +20,6 @@ enum RowKeyType {
   INT32,
   INT64,
   VARCHAR,
-  DATETIME
 };
 
 struct row_key_format {
@@ -101,6 +100,6 @@ struct row_key_format {
 //static const int32_t ITEM_DATA_ENTRIES_NUM = sizeof(ITEM_ENTRY) / sizeof(ITEM_ENTRY[0]);
 
 } /* chunkserver */
-} /* oceanbase */
+} /* sb */
 #endif /*OCEANBASE_CHUNKSERVER_DATA_SYNTAX_H_*/
 

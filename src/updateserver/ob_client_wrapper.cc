@@ -1,27 +1,21 @@
-////===================================================================
-//
-// ob_ups_cache.h / updateserver / Oceanbase
-//
-// Copyright (C) 2010 Taobao.com, Inc.
-//
-// Created on 2011-02-24 by Rongxuan (rongxuan.lc@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_client_wrapper.cc for ...
+ *
+ * Authors:
+ *   rongxuan <rongxuan.lc@taobao.com>
+ *
+ */
 #include "ob_client_wrapper.h"
-#include "common/ob_define.h"
 #include "mergeserver/ob_ms_get_cell_stream.h"
-#include "mergeserver/ob_ms_tablet_location_proxy.h"
-#include "ob_update_server_main.h"
+#include "common/ob_define.h"
 
 namespace sb {
 namespace updateserver {
@@ -30,11 +24,8 @@ using namespace mergeserver;
 ObClientWrapper::ObClientWrapper(const int64_t rpc_retry_times,
                                  const int64_t rpc_timeout,
                                  const ObServer& root_server,
-                                 const ObServer& merge_server,
-                                 ObUpsTableMgr& table_mgr,
-                                 ObUpsCache& ups_cache)
-  : rpc_proxy_(rpc_retry_times, rpc_timeout, root_server, merge_server, table_mgr, ups_cache) {
-  ups_rpc_agent_.init(rpc_proxy_);
+                                 const ObServer& update_server,
+                                 const ObServer& merge_server): rpc_proxy_(rpc_retry_times, rpc_timeout, root_server, update_server, merge_server), ups_rpc_agent_(rpc_proxy_) {
   init_ = false;
 }
 
@@ -49,18 +40,19 @@ ObClientWrapper::~ObClientWrapper() {
 
 int ObClientWrapper::init(ObMergerRpcStub* rpc_stub,
                           ObMergerSchemaManager* schema,
-                          ObMergerLocationCacheProxy* cache) {
+                          ObMergerTabletLocationCache* cache,
+                          ObMergerServiceMonitor* monitor) {
   int ret = OB_SUCCESS;
   if (init_) {
     TBSYS_LOG(WARN, "have already inited");
     ret = OB_ERROR;
   } else {
     if (NULL == rpc_stub || NULL == schema || NULL == cache) {
-      TBSYS_LOG(WARN, "input param error, rpc=%p, schema=%p, cache=%p",
-                rpc_stub, schema, cache);
+      TBSYS_LOG(WARN, "input param error, rpc=%p, schema=%p, cache=%p, monitor=%p",
+                rpc_stub, schema, cache, monitor);
       ret = OB_ERROR;
     } else {
-      if ((OB_SUCCESS == rpc_proxy_.init(rpc_stub, schema, cache))) {
+      if ((OB_SUCCESS == rpc_proxy_.init(rpc_stub, schema, cache, monitor))) {
         ups_stream_ = new(std::nothrow) ObMSGetCellStream(&rpc_proxy_);
         if (NULL == ups_stream_) {
           TBSYS_LOG(WARN, "new ups_stream failed");
@@ -108,7 +100,9 @@ int ObClientWrapper::get(const ObGetParam& get_param, const ObSchemaManagerV2& s
                 get_param.get_cell_size(), cell);
       ret = OB_ERROR;
     } else {
-      ret = ups_rpc_agent_.set_request_param(-1, get_param, *ups_stream_, *ups_join_stream_, schema_mgr, MAX_MEMORY_SIZE);
+      //to modify
+      int64_t max_memory_size = 2 * 1024L * 1024L;
+      ret = ups_rpc_agent_.set_request_param(get_param, *ups_stream_, *ups_join_stream_, schema_mgr, max_memory_size);
       if (OB_SUCCESS != ret) {
         TBSYS_LOG(WARN, "ups rpc agent set request param failed,ret=%d", ret);
       }
@@ -118,3 +112,5 @@ int ObClientWrapper::get(const ObGetParam& get_param, const ObSchemaManagerV2& s
 }
 }//end of namespace updateserver
 }//end of namespace sb
+
+

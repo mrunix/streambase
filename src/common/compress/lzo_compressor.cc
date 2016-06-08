@@ -1,14 +1,16 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * lzo_compressor.cc is for what ...
+ * Version: $Id$
+ *
+ * ./lzo_compressor.cc for ...
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
+ *   qushan <qushan@taobao.com>
  *
  */
 #include <new>
@@ -117,4 +119,5 @@ void destroy(ObCompressor* lzo) {
     lzo = NULL;
   }
 }
+
 

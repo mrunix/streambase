@@ -1,22 +1,18 @@
-////===================================================================
-//
-// ob_list.cc / hash / common / Oceanbase
-//
-// Copyright (C) 2010, 2013 Taobao.com, Inc.
-//
-// Created on 2011-03-16 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_list.h for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #ifndef  OCEANBASE_COMMON_LIST_H_
 #define  OCEANBASE_COMMON_LIST_H_
 #include <stdlib.h>
@@ -236,7 +232,7 @@ class ObList {
  public:
   int push_back(const value_type& value) {
     int ret = 0;
-    node_ptr_t tmp = allocator_.alloc();
+    node_ptr_t tmp = allocator_.allocate();
     if (NULL == tmp) {
       ret = -1;
     } else {
@@ -252,7 +248,7 @@ class ObList {
   };
   int push_front(const value_type& value) {
     int ret = 0;
-    node_ptr_t tmp = allocator_.alloc();
+    node_ptr_t tmp = allocator_.allocate();
     if (NULL == tmp) {
       ret = -1;
     } else {
@@ -279,22 +275,6 @@ class ObList {
     }
     return ret;
   };
-
-  int pop_front(value_type& value) {
-    int ret = 0;
-    if (0 >= size_) {
-      ret = -1;
-    } else {
-      node_ptr_t tmp = root_.next;
-      root_.next = tmp->next;
-      tmp->next->prev = root_;
-      value = tmp->data;
-      allocator_.free(tmp);
-      size_--;
-    }
-    return ret;
-  }
-
   int pop_front() {
     int ret = 0;
     if (0 >= size_) {
@@ -303,14 +283,14 @@ class ObList {
       node_ptr_t tmp = root_.next;
       root_.next = tmp->next;
       tmp->next->prev = root_;
-      allocator_.free(tmp);
+      allocator_.deallocate(tmp);
       size_--;
     }
     return ret;
   };
   int insert(iterator iter, const value_type& value) {
     int ret = 0;
-    node_ptr_t tmp = allocator_.alloc();
+    node_ptr_t tmp = allocator_.allocate();
     if (NULL == tmp) {
       ret = -1;
     } else {
@@ -333,24 +313,11 @@ class ObList {
       node_ptr_t tmp = iter.node_;
       tmp->next->prev = iter.node_->prev;
       tmp->prev->next = iter.node_->next;
-      allocator_.free(tmp);
+      allocator_.deallocate(tmp);
       size_--;
     }
     return ret;
   };
-
-  int erase(const value_type& value) {
-    int ret = -1;
-    iterator it = begin();
-    for (; it != end(); ++it) {
-      if (it.node_->data == value) {
-        ret = erase(it);
-        break;
-      }
-    }
-    return ret;
-  }
-
   iterator begin() {
     return iterator(root_.next);
   };
@@ -367,7 +334,7 @@ class ObList {
     node_ptr_t iter = root_.next;
     while (iter != root_) {
       node_ptr_t tmp = iter->next;
-      allocator_.free(iter);
+      allocator_.deallocate(iter);
       iter = tmp;
     }
     root_.next = root_;
@@ -384,9 +351,6 @@ class ObList {
   int64_t size() const {
     return size_;
   };
-  void reset() {
-    clear();
-  };
 
  private:
   node_holder_t root_;
@@ -397,3 +361,5 @@ class ObList {
 }
 
 #endif //OCEANBASE_COMMON_LIST_H_
+
+

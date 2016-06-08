@@ -1,3 +1,0 @@
-loglevel=DEBUG
-minconn=2
-maxconn=50

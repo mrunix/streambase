@@ -19,35 +19,17 @@
 #define OCEANBASE_TOOLS_CLUSTER_STATS_H
 
 #include "ob_server_stats.h"
-#include "common/ob_server.h"
 
 namespace sb {
 namespace tools {
 
 class ObClusterStats : public ObServerStats {
  public:
-  ObClusterStats(ObClientRpcStub& stub, const common::ObRole server_type)
+  ObClusterStats(ObClientRpcStub& stub, const int64_t server_type)
     : ObServerStats(stub, server_type) { }
   virtual ~ObClusterStats() {}
  protected:
   virtual int32_t refresh() ;
-};
-
-class ObAppStats : public ObServerStats {
- public:
-  ObAppStats(ObClientRpcStub& stub, const common::ObRole server_type, const char* config_file) ;
-  virtual ~ObAppStats() {}
- protected:
-  virtual int32_t refresh() ;
- private:
-  int sum_cluster_stats(const common::ObRole server_type, const common::ObArrayHelper<common::ObServer>& server_array);
-  int sum_cs_cluster_stats(const common::ObServer& rs, const common::ObRole server_type);
-  int sum_ups_cluster_stats(const common::ObServer& rs, const common::ObRole server_type);
- private:
-  static const int64_t MAX_SERVER_NUM = 1024;
-  common::ObServer root_servers_[MAX_SERVER_NUM];
-  common::ObArrayHelper<common::ObServer> root_server_array_;
-  int64_t master_index_;
 };
 
 }

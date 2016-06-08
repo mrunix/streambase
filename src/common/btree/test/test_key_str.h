@@ -1,21 +1,18 @@
-/*
- * =====================================================================================
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- *       Filename:  TestKeyStr.h
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- *    Description:
+ * Version: $Id$
  *
- *        Version:  1.0
- *        Created:  2010年08月09日 14时58分04秒
- *       Revision:  none
- *       Compiler:  gcc
+ * ./test/test_key_str.h for ...
  *
- *         Author:  ZongLuo (), zongluo@taobao.com
- *        Company:  TaoBao Inc.
+ * Authors:
+ *   qushan <qushan@taobao.com>
  *
- * =====================================================================================
  */
-
 #include <limits.h>
 #include <key_btree.h>
 #include <gtest/gtest.h>
@@ -63,3 +60,4 @@ class TestKey {
 };
 }
 }
+

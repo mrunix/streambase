@@ -1,13 +1,18 @@
-/*
- *   (C) 2010-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- *   Version: 0.1 $date
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- *   Authors:
- *      yanran <yanran.hfs@taobao.com>
+ * Version: $Id$
+ *
+ * ob_log_entry.h for ...
+ *
+ * Authors:
+ *   yanran <yanran.hfs@taobao.com>
  *
  */
-
 #ifndef OCEANBASE_COMMON_OB_LOG_ENTRY_H_
 #define OCEANBASE_COMMON_OB_LOG_ENTRY_H_
 
@@ -52,19 +57,6 @@ enum LogCommand {
   OB_RT_SYNC_FROZEN_VERSION = 421,
   OB_RT_SET_UPS_LIST = 422,
   OB_RT_SET_CLIENT_CONFIG = 423,
-  OB_RT_REMOVE_REPLICA = 424,
-  OB_RT_SYNC_FROZEN_VERSION_AND_TIME = 425,
-  OB_RT_REMOVE_TABLE = 426,
-  OB_RT_SYNC_FIRST_META_ROW = 427,
-  OB_RT_BATCH_ADD_NEW_TABLET = 428,
-  OB_RT_GOT_CONFIG_VERSION = 429,
-  OB_RT_CS_DELETE_REPLICAS = 430,
-  OB_RT_SET_BYPASS_VERSION = 431, /*NOTE: not compatible with 0.3.1*/
-  OB_RT_LMS_REGIST = 432,
-  OB_RT_ADD_RANGE_FOR_LOAD_DATA = 433,
-  OB_RT_ADD_LOAD_TABLE = 434,
-  OB_RT_DELETE_LOAD_TABLE = 435,
-  OB_RT_CLEAN_ROOT_TABLE = 436,
   //// ChunkServer ... 600 - 799 ////
 
   //// Base command ... ////
@@ -83,19 +75,11 @@ struct ObLogEntry {
   uint64_t seq_;
   int32_t cmd_;
 
-  static const int16_t MAGIC_NUMER = static_cast<int16_t>(0xAAAAL);
+  static const int16_t MAGIC_NUMER = 0xAAAALL;
   static const int16_t LOG_VERSION = 1;
 
   ObLogEntry() {
     memset(this, 0x00, sizeof(ObLogEntry));
-  }
-
-  int64_t to_string(char* buf, const int64_t buf_len) const {
-    int64_t pos = 0;
-    databuff_printf(buf, buf_len, pos, "[LogEntry] ");
-    pos += header_.to_string(buf + pos, buf_len - pos);
-    databuff_printf(buf, buf_len, pos, " seq=%lu cmd=%d", seq_, cmd_);
-    return pos;
   }
 
   /**
@@ -127,18 +111,18 @@ struct ObLogEntry {
    * After deserialization, this function get the length of log
    */
   int32_t get_log_data_len() const {
-    return static_cast<int32_t>(header_.data_length_ - sizeof(uint64_t) - sizeof(LogCommand));
+    return header_.data_length_ - sizeof(uint64_t) - sizeof(LogCommand);
   }
 
-  int check_header_integrity(const bool dump_content = true) const;
+  int check_header_integrity() const;
 
   /**
    * 调用deserialization之后, 调用该函数检查数据正确性
    * @param [in] log 日志内容缓冲区地址
    */
-  int check_data_integrity(const char* log_data, const bool dump_content = true) const;
+  int check_data_integrity(const char* log_data) const;
 
-  static size_t get_header_size() {return sizeof(ObRecordHeader) + sizeof(uint64_t) + sizeof(LogCommand);}
+  static int get_header_size() {return sizeof(ObRecordHeader) + sizeof(uint64_t) + sizeof(LogCommand);}
 
   NEED_SERIALIZE_AND_DESERIALIZE;
 };
@@ -146,4 +130,5 @@ struct ObLogEntry {
 } // end namespace sb
 
 #endif  //OCEANBASE_COMMON_OB_LOG_ENTRY_H_
+
 

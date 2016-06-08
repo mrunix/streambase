@@ -1,17 +1,18 @@
 /**
- * (C) 2007-2010 Taobao Inc.
+ * (C) 2007-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
  * Version: $Id$
  *
+ * ob_add_runnable.cc for ...
+ *
  * Authors:
  *   yanran <yanran.hfs@taobao.com>
- *     - some work details if you want
+ *
  */
-
 #include "ob_add_runnable.h"
 
 #include "ob_test_bomb.h"
@@ -85,3 +86,4 @@ int ObAddRunnable::init(const ObServer& ms, const ObServer& ups, int write_weigh
   scan_max_line_no_ = scan_max_line_no;
   return 0;
 }
+

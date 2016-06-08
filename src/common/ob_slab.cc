@@ -1,19 +1,18 @@
-/*
- * (C) 2007-2010 TaoBao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- * ob_slab.cc is for what ...
+ * Version: $Id$
  *
- * Version: $id$
+ * ob_slab.cc for ...
  *
  * Authors:
- *   MaoQi maoqi@taobao.com
+ *   maoqi <maoqi@taobao.com>
  *
  */
-
 #include "ob_slab.h"
 #include "ob_malloc.h"
 
@@ -52,7 +51,6 @@ ObSlabCache* ObSlabCacheManager::slab_cache_create(const char* name, int64_t siz
   }
 
   if (OB_SUCCESS == err) {
-    TBSYS_LOG(INFO, "create cache %s,size:%ld,align:%ld", name, size, align);
     char* buf = cache_cache_.slab_cache_alloc();
     if (NULL == buf) {
       TBSYS_LOG(ERROR, "alloc ObSlabCache failed");
@@ -118,7 +116,7 @@ ObSlabCache::ObSlabCache(const char* name, int64_t size, int64_t align) : obj_si
 
   if (OB_SUCCESS == err) {
     snprintf(slab_name_, strlen(name) + 1, "%s", name);
-    obj_size_ = (size + sizeof(ObSlabItem) + align - 1) & (~(align - 1));
+    obj_size_ = (size + align - 1) & (~(align - 1));
     align_ = align;
     obj_per_slab_ = (MAX_SLAB_SIZE - sizeof(ObSlab)) / obj_size_;
     LIST_INIT(&slabs_partial_);
@@ -233,7 +231,7 @@ int ObSlabCache::clear() {
 
 ObSlab* ObSlabCache::alloc_new_slab() {
   int64_t len = obj_per_slab_ * obj_size_ + sizeof(ObSlab);
-  ObSlab* slab = static_cast<ObSlab*>(ob_malloc(len, ObModIds::OB_SLAB));
+  ObSlab* slab = static_cast<ObSlab*>(ob_malloc(len));
   if (NULL != slab) {
     slab->inuse_ = 0;
 #ifdef OB_SLAB_DEBUG
@@ -268,8 +266,6 @@ void ObSlabCache::cache_init_objs(ObSlab* slab) {
       item->slab_ = slab;
 #ifdef OB_SLAB_DEBUG
       item->magic_ = OB_ITEM_MAGIC;
-      //TBSYS_LOG(INFO,"slab:%p,slab->mem_:%p,obj_size_:%ld,item:%p,item->magic_:%lu",
-      //   slab,slab->mem_,obj_size_,item,item->magic_);
 #endif
       item->u_.next_ = reinterpret_cast<ObSlabItem*>(slab->mem_ + (i + 1) * obj_size_);
     }
@@ -278,4 +274,5 @@ void ObSlabCache::cache_init_objs(ObSlab* slab) {
 }
 } /* common */
 
-} /* oceanbase */
+} /* sb */
+

@@ -1,17 +1,20 @@
-/*
- *  (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 2 as
- *  published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- *         ????.cc is for what ...
+ * Version: 5567
  *
- *  Version: $Id: ipvsadm.c,v 1.27 2005/12/10 16:00:07 wensong Exp $
+ * ob_merge_reader.cc
  *
- *  Authors:
- *     Author Name <email address>
- *        - some work details if you want
+ * Authors:
+ *     qushan <qushan@taobao.com>
+ * Changes:
+ *     maoqi <maoqi@taobao.com>
+ *     huating <huating.zmq@taobao.com>
+ *
  */
 
 #include "ob_merge_reader.h"
@@ -38,25 +41,29 @@ ObMergeReader::~ObMergeReader() {
 }
 
 int ObMergeReader::scan(const sb::common::ObScanParam& scan_param) {
-  int ret = OB_SUCCESS;
-
   TBSYS_LOG(DEBUG, "ObMergeReader::scan begin");
-  ret = tablet_image_.acquire_tablet(*scan_param.get_range(),
-                                     ObMultiVersionTabletImage::SCAN_FORWARD,
-                                     scan_param.get_version_range().start_version_, tablet_);
-  TBSYS_LOG(DEBUG, "ObMergeReader::scan acquire_tablet, ret=%d", ret);
-  if (OB_SUCCESS == ret) tablet_->get_range().hex_dump();
+  int ret = scanner_.set_scan_param(scan_param, manager_.get_serving_block_cache(),
+                                    manager_.get_serving_block_index_cache());
+  if (OB_SUCCESS == ret) {
+    ret = tablet_image_.acquire_tablet(*scan_param.get_range(),
+                                       ObMultiVersionTabletImage::SCAN_FORWARD,
+                                       scan_param.get_version_range().start_version_, tablet_);
+    TBSYS_LOG(DEBUG, "ObMergeReader::scan acquire_tablet, ret=%d", ret);
+    if (OB_SUCCESS == ret) tablet_->get_range().hex_dump();
+  }
 
   if (OB_SUCCESS == ret && NULL != tablet_) {
-    ObSSTableReader* sstable_reader = NULL;
-    int32_t size = 1;
-    ret = tablet_->find_sstable(*scan_param.get_range(), &sstable_reader, size);
+    ObSSTableReader* sstable_reader_list[ObTablet::MAX_SSTABLE_PER_TABLET];
+    int32_t size = ObTablet::MAX_SSTABLE_PER_TABLET;
+    ret = tablet_->find_sstable(*scan_param.get_range(), sstable_reader_list, size);
     if (OB_SUCCESS == ret) {
-      ret = scanner_.set_scan_param(scan_param, sstable_reader,
-                                    manager_.get_serving_block_cache(),
-                                    manager_.get_serving_block_index_cache());
-      if (OB_SUCCESS != ret) {
-        TBSYS_LOG(WARN, "sstable scanner set scan parameter error.");
+      for (int32_t i = 0; i < size ; ++i) {
+        ret = scanner_.add_sstable_reader(sstable_reader_list[i]);
+        if (OB_SUCCESS != ret) {
+          TBSYS_LOG(ERROR, "add sstable reader object to seq scanner failed(%d,%p).",
+                    i, sstable_reader_list[i]);
+          break;
+        }
       }
     }
   }

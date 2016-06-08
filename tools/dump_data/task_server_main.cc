@@ -58,9 +58,7 @@ int main(int argc, char** argv) {
   if (ret != OB_SUCCESS) {
     TBSYS_LOG(ERROR, "load conf failed:conf[%s], ret[%d]", conf, ret);
   } else {
-    if (param.get_log_name() != NULL) {
-      TBSYS_LOGGER.setFileName(param.get_log_name());
-    }
+    TBSYS_LOGGER.setFileName(param.get_log_name());
     TBSYS_LOGGER.setLogLevel(param.get_log_level());
     TBSYS_LOGGER.setMaxFileSize(param.get_max_log_size() * 1024L * 1024L);
     signal(SIGPIPE, SIG_IGN);
@@ -77,10 +75,8 @@ int main_routine(const set<string>& tables, const TaskServerParam& param) {
   TaskServer server(param.get_result_file(), param.get_timeout_times(), param.get_max_visit_count(),
                     param.get_network_timeout(), root_server);
   RpcStub rpc(server.get_client(), server.get_buffer());
-  rpc.set_base_server(&server);
+  //
   TaskFactory& task_factory = server.get_task_factory();
-  task_factory.add_table_confs(&param.get_all_conf());
-
   set<string>::const_iterator it;
   for (it = tables.begin(); it != tables.end(); ++it) {
     ret = task_factory.add_table((*it).c_str());
@@ -105,14 +101,17 @@ int main_routine(const set<string>& tables, const TaskServerParam& param) {
   if (OB_SUCCESS == ret) {
     /// sleep for server thread init
     usleep(SLEEP_TIME);
-    server.dump_task_info(param.get_tablet_list_file());
-    if (0 == server.get_task_manager().get_count()) {
-      TBSYS_LOG(INFO, "%s", "check no task for doing");
+    ret = server.init_service();
+    if (ret != OB_SUCCESS) {
+      TBSYS_LOG(ERROR, "check init service failed:ret[%d]", ret);
     } else {
-      server_thread.join();
+      if (0 == server.get_task_manager().get_count()) {
+        TBSYS_LOG(INFO, "%s", "check no task for doing");
+      } else {
+        server_thread.join();
+      }
     }
   }
-
   return ret;
 }
 

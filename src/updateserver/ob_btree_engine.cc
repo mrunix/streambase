@@ -1,22 +1,18 @@
-////===================================================================
-//
-// ob_btree_engine.cc / hash / common / Oceanbase
-//
-// Copyright (C) 2010 Taobao.com, Inc.
-//
-// Created on 2010-09-09 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_btree_engine.cc for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #include "ob_btree_engine.h"
 
 namespace sb {
@@ -94,7 +90,7 @@ int BtreeEngine::set(const TEKey& key, const TEValue& value) {
     *pvalue = value;
     if (ERROR_CODE_OK != (btree_ret = keybtree_.put(key, pvalue, true))) {
       TBSYS_LOG(WARN, "put to keybtree fail btree_ret=%d %s %s", btree_ret, key.log_str(), value.log_str());
-      ret = (ERROR_CODE_ALLOC_FAIL == btree_ret) ? OB_MEM_OVERFLOW : OB_ERROR;
+      ret = OB_ERROR;
     } else {
       // do nothing
     }
@@ -115,7 +111,7 @@ int BtreeEngine::set(BtreeEngineTransHandle& handle,
     ret = OB_ERROR;
   } else if (NULL == (pvalue = (TEValue*)allocer_->indep_alloc(sizeof(value)))) {
     TBSYS_LOG(WARN, "alloc value memory fail");
-    ret = OB_MEM_OVERFLOW;
+    ret = OB_ERROR;
   } else {
     int btree_ret = ERROR_CODE_OK;
     *pvalue = value;
@@ -462,4 +458,6 @@ void BtreeEngineIterator::set_(BtreeEngine::keybtree_t* keybtree, BtreeReadHandl
 }
 }
 }
+
+
 

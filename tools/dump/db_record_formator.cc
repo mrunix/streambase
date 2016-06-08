@@ -17,7 +17,6 @@
  */
 #include "db_record_formator.h"
 #include "db_dumper_config.h"
-#include "db_table_info.h"
 #include "db_utils.h"
 #include <algorithm>
 
@@ -32,43 +31,35 @@ enum RowkeyItemType {
 const char* kNullFiller = "__output_null";
 
 //header: timestamp:seqapp_nametable_nameoprowkey
-int UniqFormatorHeader::append_header(const ObRowkey& rowkey, int op, uint64_t timestamp,
-                                      int64_t seq, const string& app_name,
-                                      const string& table_name, ObDataBuffer& buffer) {
-  static __thread char bin_rowkey_buffer[k2M];
+int UniqFormatorHeader::append_header(const ObString& rowkey, int op, int64_t seq, string& app_name,
+                                      string& table_name, ObDataBuffer& buffer) {
   int len = 0;
   int ret = OB_SUCCESS;
 
-  int cap = static_cast<int32_t>(buffer.get_remain());
+  int cap = buffer.get_remain();
   char* data = buffer.get_data() + buffer.get_position();
 
   char delima = DUMP_CONFIG->get_header_delima();
+  int64_t now = gen_usec();
   const char* op_str = get_op_string(op);
 
   //format : timestamp:seqapp_nametable_nameop
   len = snprintf(data, cap, "%ld:%ld%c%s:%s%c%s%c0:",
-                 timestamp, seq, delima, app_name.c_str(),
+                 now, seq, delima, app_name.c_str(),
                  table_name.c_str(), delima, op_str, delima);
   if (len <= 0) {
-    TBSYS_LOG(ERROR, "buffer size not enough, buff_size=%d", cap);
+    TBSYS_LOG(ERROR, "Buffer size not enough, buff_size=%d", cap);
     ret = OB_ERROR;
   } else {
     buffer.get_position() += len;
   }
 
   //rowkey
-  int64_t bin_rowkey_len = 0;
-  if (ret == OB_SUCCESS) {
-    if ((ret = rowkey.serialize(bin_rowkey_buffer, k2M, bin_rowkey_len)) != OB_SUCCESS) {
-      TBSYS_LOG(WARN, "large rowkey exceed header format buffer[%d]", k2M);
-    }
-  }
-
   if (ret == OB_SUCCESS) {
     data = buffer.get_data() + buffer.get_position();
-    cap = static_cast<int32_t>(buffer.get_remain());
+    cap = buffer.get_remain();
 
-    len = hex_to_str(bin_rowkey_buffer, bin_rowkey_len, data, cap);
+    len = hex_to_str(rowkey.ptr(), rowkey.length(), data, cap);
     if (len == 0) {
       ret = OB_ERROR;
       TBSYS_LOG(ERROR, "no enough memory to append rowkey");
@@ -85,7 +76,7 @@ int append_int64(int64_t value, ObDataBuffer& buffer) {
   int ret = OB_SUCCESS;
 
   char* data = buffer.get_data() + buffer.get_position();
-  int cap = static_cast<int32_t>(buffer.get_remain());
+  int cap = buffer.get_remain();
 
   int len = snprintf(data, cap, "%ld", value);
   if (len > 0) {
@@ -102,7 +93,7 @@ int append_double(double value, ObDataBuffer& buffer) {
   int ret = OB_SUCCESS;
 
   char* data = buffer.get_data() + buffer.get_position();
-  int cap = static_cast<int32_t>(buffer.get_remain());
+  int cap = buffer.get_remain();
 
   int len = snprintf(data, cap, "%f", value);
   if (len > 0) {
@@ -118,7 +109,7 @@ int append_double(double value, ObDataBuffer& buffer) {
 int append_int8(int8_t value, ObDataBuffer& buffer) {
   int ret = OB_SUCCESS;
   char* data = buffer.get_data() + buffer.get_position();
-  int cap = static_cast<int32_t>(buffer.get_remain());
+  int cap = buffer.get_remain();
 
   int len = snprintf(data, cap, "%d", value);
   if (len > 0) {
@@ -130,12 +121,43 @@ int append_int8(int8_t value, ObDataBuffer& buffer) {
   return ret;
 }
 
-int append_rowkey_item(const ObRowkey& key, const DbTableConfig::RowkeyItem& item,
+int append_rowkey_item(const ObString& key, DbTableConfig::RowkeyItem& item,
                        ObDataBuffer& buffer) {
   int ret = OB_SUCCESS;
-  int len = append_obj(key.ptr()[item.info_idx], buffer);
-  if (len < 0) {
-    ret = OB_ERROR;
+  int type = item.type;
+
+  switch (type) {
+  case ITEM_INT64: {
+    int64_t value;
+    if (key.length() < item.end_pos ||
+        item.end_pos - item.start_pos != 8) {
+      TBSYS_LOG(ERROR, "rowkey item config does not fit rowkey");
+      ret = OB_ERROR;
+      break;
+    }
+
+    memcpy(&value, key.ptr() + item.start_pos, item.end_pos - item.start_pos);
+    reverse((char*)&value, (char*)&value + 8);
+
+    ret = append_int64(value, buffer);
+  }
+  break;
+  case ITEM_INT8: {
+    int8_t value;
+    if (key.length() < item.end_pos ||
+        item.end_pos - item.start_pos != 1) {
+      TBSYS_LOG(ERROR, "rowkey item config does not fit rowkey");
+      ret = OB_ERROR;
+      break;
+    }
+
+    value = key.ptr()[item.start_pos];
+    ret = append_int8(value, buffer);
+    break;
+  }
+  default:
+    TBSYS_LOG(ERROR, "no such type [%d]", type);
+    break;
   }
 
   return ret;
@@ -144,7 +166,7 @@ int append_rowkey_item(const ObRowkey& key, const DbTableConfig::RowkeyItem& ite
 //when appending a deleted column, returns OB_ENTRY_NOT_EXIST
 //when appending successfully, returns OB_SUCCESS,
 //else return OB_ERROR
-int append_item(const DbTableConfig* cfg, const string& column, DbRecord* rec, ObDataBuffer& buffer) {
+int append_item(DbTableConfig* cfg, string& column, DbRecord* rec, ObDataBuffer& buffer) {
   int ret;
   ObCellInfo* cell;
 
@@ -180,12 +202,29 @@ int append_item(const DbTableConfig* cfg, const string& column, DbRecord* rec, O
   return ret;
 }
 
-int append(const DbTableConfig* cfg, const string& column, DbRecord* rec,
-           const ObRowkey& rowkey, ObDataBuffer& buffer) {
+int append(DbTableConfig* cfg, string& column, DbRecord* rec,
+           const ObString& rowkey, ObDataBuffer& buffer) {
   bool is_rowkey = false;
-  DbTableConfig::RowkeyItem item(column);
+  DbTableConfig::RowkeyItem item;
   int ret = OB_SUCCESS;
-  is_rowkey = cfg->get_is_rowkey_column(item);
+
+  vector<string>& columns = cfg->get_columns();
+  vector<string>::iterator itr = find(columns.begin(), columns.end(), column);
+
+  if (itr == columns.end()) {
+    item.name = column;
+    vector<DbTableConfig::RowkeyItem>::iterator rowkey_itr =
+      find(cfg->rowkey_columns().begin(), cfg->rowkey_columns().end(), item);
+
+    //if rowkey contains this column
+    if (rowkey_itr == cfg->rowkey_columns().end()) {
+      TBSYS_LOG(ERROR, "no such column %s", column.c_str());
+      ret = OB_ERROR;
+    } else {
+      is_rowkey = true;
+      item = *rowkey_itr;
+    }
+  }
 
   if (ret == OB_SUCCESS && is_rowkey) {
     ret = append_rowkey_item(rowkey, item, buffer);
@@ -203,10 +242,9 @@ int append(const DbTableConfig* cfg, const string& column, DbRecord* rec,
         int len = hex_to_str(rowkey.ptr(), rowkey.length(), buf, 256);
         buf[2 * len] = 0;
         TBSYS_LOG(ERROR, "can't get column:%s, table:%s, rowkey:%s", column.c_str(), cfg->table().c_str(), buf);
-        //        rec->dump();
       }
 #endif
-      //      ret = OB_SUCCESS;
+      ret = OB_SUCCESS;
     }
   }
 
@@ -214,12 +252,12 @@ int append(const DbTableConfig* cfg, const string& column, DbRecord* rec,
 }
 
 int DbRecordFormator::format_record(int64_t table_id, DbRecord* record,
-                                    const ObRowkey& rowkey, ObDataBuffer& buffer) {
-  const DbTableConfig* cfg;
+                                    const ObString& rowkey, ObDataBuffer& buffer) {
+  DbTableConfig* cfg;
 
   int ret = DUMP_CONFIG->get_table_config(table_id, cfg);
   if (ret == OB_SUCCESS) {
-    const vector<string>& output_columns = cfg->output_columns();
+    vector<string>& output_columns = cfg->output_columns();
     for (size_t i = 0; i < output_columns.size(); i++) {
       if (output_columns[i].compare(kNullFiller) == 0) {
         //output null
@@ -245,7 +283,7 @@ int DbRecordFormator::format_record(int64_t table_id, DbRecord* record,
     }
 
   } else {
-    TBSYS_LOG(ERROR, "DbRecordFormator can't find table id [%lu]", table_id);
+    TBSYS_LOG(ERROR, "DbRecordFormator can't find table id [%d]", table_id);
   }
 
   return ret;

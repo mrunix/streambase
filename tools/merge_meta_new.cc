@@ -7,8 +7,6 @@
 #include "chunkserver/ob_tablet.h"
 #include "chunkserver/ob_tablet_image.h"
 
-const char* g_sstable_directory = "./";
-
 namespace sb {
 namespace chunkserver {
 using namespace common;
@@ -83,11 +81,8 @@ int ObMergeMetaNew::read_file_list(const char* file_list) {
 
     if (!just_merge_ && OB_SUCCESS == ret) {
       char idx_path[common::OB_MAX_FILE_NAME_LENGTH];
-      char gsd_str[common::OB_MAX_FILE_NAME_LENGTH];
 
       for (int32_t i = 1; i <= 10; ++i) {
-        snprintf(gsd_str, sizeof(gsd_str), "%s/%d/%s/sstable/", data_dir_, i, app_name_);
-        g_sstable_directory = gsd_str;
         snprintf(idx_path, sizeof(idx_path), "%s/%d/%s/sstable/idx_%d", data_dir_, i, app_name_, i);
         if ((ret = image_final_.write(idx_path, i)) != OB_SUCCESS) {
           TBSYS_LOG(ERROR, "write failed [%d]", ret);
@@ -119,7 +114,7 @@ int ObMergeMetaNew::parse(const char* idx_file) {
 
   // /data/xx/dfa/idx_[0-9]{1,2}.200xxxx
   char dbuf[3] = {'\0', '\0', '\0'};
-  char* p = (char*)strrchr(idx_file, '_');
+  char* p = strrchr(idx_file, '_');
 
   dbuf[0] = *(p + 1);
   dbuf[1] = *(p + 2) == '.' ? '\0' : *(p + 2);
@@ -144,9 +139,9 @@ int ObMergeMetaNew::parse(const char* idx_file) {
           TBSYS_LOG(ERROR, "alloc tablet object failed : [%d]", ret);
         }
 
-        TBSYS_LOG(INFO, "id is %ld", tablet->get_sstable_id_list().at(0).sstable_file_id_);
-        tablet_new->add_sstable_by_id((tablet->get_sstable_id_list().at(0)));
-        tablet_new->set_disk_no(tablet->get_sstable_id_list().at(0).sstable_file_id_ & 0xff);
+        TBSYS_LOG(INFO, "id is %ld", tablet->get_sstable_id_list().at(0)->sstable_file_id_);
+        tablet_new->add_sstable_by_id(*(tablet->get_sstable_id_list().at(0)));
+        tablet_new->set_disk_no(tablet->get_sstable_id_list().at(0)->sstable_file_id_ & 0xff);
 
         tablet_new->set_data_version(tablet->get_data_version());
 
@@ -199,19 +194,19 @@ int ObMergeMetaNew::process_ring_range() {
       }
 
       if (set_this_min) {
-        ObNewRange range = tablet->get_range();
-        range.start_key_.set_min_row();
+        ObRange range = tablet->get_range();
+        range.border_flag_.set_min_value();
         tablet->set_range(range);
       }
 
       if (set_last_max) {
-        ObNewRange range = last_tablet->get_range();
-        range.end_key_.set_max_row();
+        ObRange range = last_tablet->get_range();
+        range.border_flag_.set_max_value();
         last_tablet->set_range(range);
       }
 
       if (set_this_start_key) {
-        ObNewRange range = tablet->get_range();
+        ObRange range = tablet->get_range();
         range.start_key_ = last_tablet->get_range().end_key_;
         tablet->set_range(range);
       }
@@ -230,8 +225,8 @@ int ObMergeMetaNew::process_ring_range() {
     image_.end_scan_tablets();
 
     if (last_tablet != NULL) {
-      ObNewRange range = last_tablet->get_range();
-      range.end_key_.set_max_row();
+      ObRange range = last_tablet->get_range();
+      range.border_flag_.set_max_value();
 
       last_tablet->set_range(range);
     }
@@ -252,8 +247,8 @@ int ObMergeMetaNew::drop_not_exist_file() {
   if (OB_SUCCESS == (ret = image_.begin_scan_tablets())) {
     ret = image_.get_next_tablet(tablet);
     while (OB_SUCCESS == ret && tablet != NULL) {
-      const common::ObArray<ObSSTableId>&  ids = tablet->get_sstable_id_list();
-      int64_t id = ids.at(0).sstable_file_id_;
+      const common::ObArrayHelper<ObSSTableId>&  ids = tablet->get_sstable_id_list();
+      int64_t id = ids.at(0)->sstable_file_id_;
       snprintf(path, sizeof(path), "%s/%d/%s/sstable/%ld", data_dir_, (int)(id & 0xff), app_name_, id);
       if (!is_file_exists(path)) {
         TBSYS_LOG(INFO, "file %s is not exist", path);
@@ -264,9 +259,9 @@ int ObMergeMetaNew::drop_not_exist_file() {
           TBSYS_LOG(ERROR, "alloc tablet object failed : [%d]", ret);
         }
 
-        //TBSYS_LOG(INFO,"id is %ld",tablet->get_sstable_id_list().at(0).sstable_file_id_);
-        tablet_tmp->add_sstable_by_id((tablet->get_sstable_id_list().at(0)));
-        tablet_tmp->set_disk_no(tablet->get_sstable_id_list().at(0).sstable_file_id_ & 0xff);
+        //TBSYS_LOG(INFO,"id is %ld",tablet->get_sstable_id_list().at(0)->sstable_file_id_);
+        tablet_tmp->add_sstable_by_id(*(tablet->get_sstable_id_list().at(0)));
+        tablet_tmp->set_disk_no(tablet->get_sstable_id_list().at(0)->sstable_file_id_ & 0xff);
 
         tablet_tmp->set_data_version(tablet->get_data_version());
 
@@ -301,7 +296,7 @@ bool ObMergeMetaNew::is_file_exists(const char* file) {
 }
 
 } /* chunkserver */
-} /* oceanbase */
+} /* sb */
 
 
 using namespace sb;
@@ -310,7 +305,7 @@ using namespace sb::chunkserver;
 
 int main(int argc, char** argv) {
   int i = 0;
-  int32_t version = 0;
+  int32_t version;
   const char* file_list = NULL;
   const char* data_dir = NULL;
   const char* app_name = NULL;
@@ -355,8 +350,6 @@ int main(int argc, char** argv) {
   }
   ob_init_crc64_table(OB_DEFAULT_CRC64_POLYNOM);
   ob_init_memory_pool();
-
-  TBSYS_LOGGER.setLogLevel("INFO");
 
   ObMergeMetaNew merge(app_name, data_dir, set_ring, drop_file, just_merge, version);
   merge.read_file_list(file_list);

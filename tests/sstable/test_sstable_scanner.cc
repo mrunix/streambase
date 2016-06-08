@@ -1,15 +1,17 @@
-/**
- * (C) 2010-2011 Taobao Inc.
+/*
+ * (C) 2007-2010 Taobao Inc.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
  *
- * test_sstable_scanner.cc for what ...
+ *
+ *
+ * Version: 0.1: test_scan_large_scale.cc,v 0.1 2010/08/27 09:51:44 chuanhui Exp $
  *
  * Authors:
  *   chuanhui <rizhao.ych@taobao.com>
- *   qushan<qushan@taobao.com>
+ *     - some work details if you want
  *
  */
 #include <iostream>
@@ -19,7 +21,6 @@
 #include <gtest/gtest.h>
 #include "common/utility.h"
 #include "common/page_arena.h"
-#include "common/ob_common_param.h"
 #include "chunkserver/ob_fileinfo_cache.h"
 #include "test_helper.h"
 #include "sstable/ob_sstable_reader.h"
@@ -35,389 +36,934 @@ namespace tests {
 namespace sstable {
 
 static const ObString table_name;
-static const int64_t sstable_file_id = 1234;
+static const int64_t sstable_file_id = 1001;
 static const int64_t sstable_file_offset = 0;
 static const ObSSTableId sstable_id(sstable_file_id);
 static ModulePageAllocator mod(0);
 static ModuleArena allocator(ModuleArena::DEFAULT_PAGE_SIZE, mod);
 static ObSSTableReader sstable_reader_(allocator, GFactory::get_instance().get_fi_cache());
-static ObRowkeyInfo rowkey_info_;
+static SSTableBuilder sstable_builder_;
 
 class TestObSSTableScanner : public ::testing::Test {
- public:
-  static const int32_t ROW_NUM = 10000;
-  static const int32_t COL_NUM = 12;
-  static const int32_t COLUMN_GROUP_NUM = 3;
-  static const int32_t ROWKEY_COL_NUM = 3;
-  static const int32_t GROUP1_COL_NUM = 4;
-  static const int32_t GROUP2_COL_NUM = COL_NUM - ROWKEY_COL_NUM - GROUP1_COL_NUM;
-  static const int32_t NONKEY_COL_NUM = COL_NUM - ROWKEY_COL_NUM;
-  static const int64_t block_internal_bufsiz = BUFSIZ;
  public:
   TestObSSTableScanner()
     : scanner_() {
   }
  protected:
-  void create_query_range(ObNewRange& range,
-                          const int64_t start_row, const int64_t end_row,
-                          const ObBorderFlag border_flag) {
-    ::create_new_range(range, COL_NUM, ROWKEY_COL_NUM, start_row, end_row, border_flag);
-  }
-
-  void create_scan_param(
-    ObScanParam& scan_param,
-    const int64_t start_row, const int64_t end_row,
-    const ObBorderFlag border_flag, const ScanFlag::Direction dir,
-    const ScanFlag::SyncMode read_mode,
-    const int32_t query_columns[], const int32_t query_column_count) {
-    ObNewRange range;
-    create_query_range(range, start_row, end_row, border_flag);
-
-    scan_param.set(CellInfoGen::table_id, table_name, range);
-    scan_param.set_scan_direction(dir);
-    scan_param.set_read_mode(read_mode);
-
-    for (int32_t i = 0; i < query_column_count; ++i) {
-      scan_param.add_column(query_columns[i]);
-    }
-
-  }
-
-  int check_binary_rowkey(const ObString& binary_rowkey, const int64_t row, const int64_t col_num) {
-    ObObj obj_array[ROWKEY_COL_NUM];
-    int ret = ObRowkeyHelper::prepare_obj_array(rowkey_info_, obj_array, ROWKEY_COL_NUM);
-    if (ret) return ret;
-    ret = ObRowkeyHelper::get_obj_array(binary_rowkey, obj_array, ROWKEY_COL_NUM);
-    if (ret) return ret;
-    ObRowkey rowkey(obj_array, ROWKEY_COL_NUM);
-    ret = check_rowkey(rowkey, row, col_num);
-    return ret;
-  }
-
-  void generate_query_columns(
-    const int32_t query_start_column,
-    int32_t query_columns[],
-    int32_t query_column_count) {
-    for (int32_t i = 0; i < query_column_count; ++i) {
-      query_columns[i] = i + query_start_column;
-    }
-  }
-
-
-  void query_helper(
-    const int32_t start_row,
-    const int32_t end_row,
+  int test_single_query_helper(const ObRange& range,
+                               const int32_t row_start_index , const int32_t row_expect_count,
+                               const int32_t column_count);
+  int test_single_query_helper(
     const ObBorderFlag& border_flag,
-    const int32_t query_start_column,
-    const int32_t query_column_count,
-    const ScanFlag::Direction dir,
-    const ScanFlag::SyncMode mode
-  ) {
-    int32_t query_columns[query_column_count] ;
-    generate_query_columns(query_start_column, query_columns, query_column_count);
-    query_helper(start_row, end_row, border_flag, query_columns, query_column_count, dir, mode);
-  }
-
-  void query_helper(
-    const int32_t start_row,
-    const int32_t end_row,
-    const ObBorderFlag& border_flag,
-    const int32_t* query_columns,
-    const int32_t query_column_count,
-    const ScanFlag::Direction dir,
-    const ScanFlag::SyncMode mode
-  ) {
-
-    ObScanParam sstable_scan_param;
-    create_scan_param(sstable_scan_param,
-                      start_row, end_row, border_flag, dir, mode, query_columns, query_column_count);
-
-    ObCellInfo* cell_info = 0;
-    int32_t row_count = 0;
-    if (border_flag.is_min_value() && border_flag.is_max_value()) {
-      row_count = ROW_NUM;
-    } else if (border_flag.is_min_value()) {
-      row_count = end_row ;
-      if (border_flag.inclusive_end()) row_count++;
-    } else if (border_flag.is_max_value()) {
-      row_count = ROW_NUM - start_row - 1;
-      if (border_flag.inclusive_start()) row_count++;
-    } else {
-      row_count = end_row - start_row - 1;
-      if (border_flag.inclusive_start()) row_count++;
-      if (border_flag.inclusive_end()) row_count++;
-    }
-
-    if (row_count > ROW_NUM) row_count = ROW_NUM;
-
-    int32_t total_count = 0;
-    int32_t row_index = 0;
-    int32_t col_index = 0;
-
-
-    int32_t expect_start_row = start_row;
-    int32_t expect_end_row = end_row;
-    int32_t expect_row_index = 0;
-    if (border_flag.is_min_value()) {
-      expect_start_row = 0;
-    }
-    if (border_flag.is_max_value()) {
-      expect_end_row = ROW_NUM - 1;
-    }
-
-    bool is_reverse_scan = (dir == ScanFlag::BACKWARD);
-    expect_row_index = is_reverse_scan ? expect_end_row : expect_start_row;
-    if (!is_reverse_scan && !border_flag.is_min_value() && !border_flag.inclusive_start()) expect_row_index++;
-    if (is_reverse_scan && !border_flag.is_max_value() && !border_flag.inclusive_end()) expect_row_index--;
-
-    int ret = scanner_.set_scan_param(sstable_scan_param, &sstable_reader_,
-                                      GFactory::get_instance().get_block_cache(), GFactory::get_instance().get_block_index_cache(), false);
-
-    if (row_count <= 0 || expect_row_index < 0 || expect_row_index >= ROW_NUM) {
-      EXPECT_EQ(OB_ITER_END, ret)
-          << "start row:" << start_row << ",end row:" << end_row;
-    } else if (row_count > 0) {
-      EXPECT_EQ(0, ret)
-          << "start row:" << start_row << ",end row:" << end_row;
-    }
-
-
-    while (scanner_.next_cell() == 0) {
-      bool is_row_changed = false;
-      scanner_.get_cell(&cell_info, &is_row_changed);
-      if (is_row_changed) {
-        EXPECT_EQ(OB_SUCCESS, check_rowkey(cell_info->row_key_, expect_row_index, COL_NUM))
-            << "start row:" << start_row << ",end row:" << end_row
-            << ",row_index:" << row_index << ",col_index:" << col_index;
-        if (col_index != 0) EXPECT_EQ(col_index, query_column_count);
-        col_index = 0;
-        ++row_index;
-        if (is_reverse_scan) --expect_row_index;
-        else ++expect_row_index;
-      }
-
-      if ((int64_t)cell_info->column_id_ <= CellInfoGen::START_ID
-          || (int64_t)cell_info->column_id_ >= COL_NUM + CellInfoGen::START_ID) {
-        EXPECT_EQ(ObNullType, cell_info->value_.get_type());
-      } else {
-        EXPECT_EQ(ObIntType, cell_info->value_.get_type());
-        int64_t val = 0;
-        ASSERT_EQ(0, cell_info->value_.get_int(val));
-        int32_t r = is_reverse_scan ? (expect_row_index + 1) : (expect_row_index - 1);
-        ASSERT_EQ(val, r * COL_NUM + ((int64_t)cell_info->column_id_ - CellInfoGen::START_ID));
-      }
-      ++total_count;
-      ++col_index;
-    }
-
-    EXPECT_EQ(row_index, row_count);
-  }
-
-  void random_query_helper_mix_mode(
-    const ObBorderFlag& border_flag,
-    const int32_t query_start_column,
-    const int32_t query_column_count) {
-    int32_t query_columns[query_column_count];
-    generate_query_columns(query_start_column, query_columns, query_column_count);
-    random_query_helper_mix_mode(border_flag, query_columns, query_column_count);
-  }
-
-  void random_query_helper_mix_mode(
-    const ObBorderFlag& border_flag,
-    const int32_t* query_columns,
-    const int32_t query_column_count) {
-    int32_t start_row = 0;
-    int32_t end_row = 0;
-    int count = 0;
-    const int64_t N = 1;
-    for (; count < N; ++count) {
-      start_row = static_cast<int32_t>(random_number(0, ROW_NUM - 1));
-      end_row = static_cast<int32_t>(random_number(start_row, ROW_NUM - 1));
-      if (count % 50 == 0) fprintf(stderr, "running %d query cases...\n", count);
-      fprintf(stderr, "query forward, syncread mode , row range:(%d,%d)\n", start_row, end_row);
-      query_helper(start_row, end_row, border_flag, query_columns, query_column_count,
-                   ScanFlag::FORWARD, ScanFlag::SYNCREAD);
-      TearDown();
-      SetUp();
-      fprintf(stderr, "query backward, syncread mode , row range:(%d,%d)\n", start_row, end_row);
-      query_helper(start_row, end_row, border_flag, query_columns, query_column_count,
-                   ScanFlag::BACKWARD, ScanFlag::SYNCREAD);
-      TearDown();
-      SetUp();
-      fprintf(stderr, "query forward, preread mode , row range:(%d,%d)\n", start_row, end_row);
-      query_helper(start_row, end_row, border_flag, query_columns, query_column_count,
-                   ScanFlag::FORWARD, ScanFlag::ASYNCREAD);
-      TearDown();
-      SetUp();
-      fprintf(stderr, "query backward, preread mode , row range:(%d,%d)\n", start_row, end_row);
-      query_helper(start_row, end_row, border_flag, query_columns, query_column_count,
-                   ScanFlag::BACKWARD, ScanFlag::ASYNCREAD);
-    }
-  }
+    const int32_t row_start_index , const int32_t row_end_index,
+    const int32_t row_expect_count, const int32_t column_count);
 
  public:
   static void SetUpTestCase() {
-    TBSYS_LOGGER.setLogLevel("ERROR");
-    CellInfoGen::Desc desc[COLUMN_GROUP_NUM] = {
-      {0, 0, ROWKEY_COL_NUM - 1},
-      {1, ROWKEY_COL_NUM, ROWKEY_COL_NUM + GROUP1_COL_NUM - 1},
-      {2, ROWKEY_COL_NUM + GROUP1_COL_NUM, COL_NUM - 1}
-    };
-    int ret = write_sstable(sstable_id, ROW_NUM, COL_NUM, desc, COLUMN_GROUP_NUM);
-    EXPECT_EQ(OB_SUCCESS, ret);
-
-    ObRowkeyColumn split;
-    for (int i = 0; i < ROWKEY_COL_NUM; ++i) {
-      split.length_ = 8;
-      split.column_id_ = i + CellInfoGen::START_ID;
-      split.type_ = ObIntType;
-      rowkey_info_.add_column(split);
-    }
+    //TBSYS_LOGGER.setLogLevel("ERROR");
+    int err = sstable_builder_.generate_sstable_file(write_cg_sstable, sstable_id);
+    EXPECT_EQ(0, err);
   }
 
   static void TearDownTestCase() {
   }
 
   virtual void SetUp() {
-    sb::common::ModuleArena* arena = GET_TSI_MULT(sb::common::ModuleArena, TSI_SSTABLE_MODULE_ARENA_1);
-    arena->set_page_size(1024 * 1024 * 2);
-    arena->reuse();
     sstable_reader_.reset();
-    int err = sstable_reader_.open(sstable_id, 0);
+    int err = sstable_reader_.open(sstable_id);
     EXPECT_EQ(0, err);
     EXPECT_TRUE(sstable_reader_.is_opened());
   }
 
   virtual void TearDown() {
-    sstable_reader_.reset();
+
   }
 
-  sb::sstable::ObSSTableScanner scanner_;
+  ObSSTableScanner scanner_;
 };
 
+int TestObSSTableScanner::test_single_query_helper(const ObRange& range,
+                                                   const int32_t row_start_index , const int32_t row_expect_count,
+                                                   const int32_t column_count) {
+  ObScanParam scan_param;
 
-TEST_F(TestObSSTableScanner, test_query_case_random_column) {
+  scan_param.set(SSTableBuilder::table_id, table_name, range);
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  for (int64_t i = 0; i < column_count; ++i) {
+    scan_param.add_column(cell_infos[0][i].column_id_);
+  }
+
+  int err = scanner_.set_scan_param(scan_param, &sstable_reader_,
+                                    GFactory::get_instance().get_block_cache(),
+                                    GFactory::get_instance().get_block_index_cache()
+                                   );
+  if (err) return err;
+
+
+  // check result
+  int64_t row_index = 0;
+  int64_t col_index = 0;
+  int64_t total = 0;
+  ObCellInfo* cur_cell = NULL;
+  bool is_row_changed = false;
+  bool first_row = true;
+  while (OB_SUCCESS == scanner_.next_cell()) {
+    err = scanner_.get_cell(&cur_cell, &is_row_changed);
+    EXPECT_EQ(0, err);
+    EXPECT_NE((ObCellInfo*) NULL, cur_cell);
+    if (is_row_changed) {
+      if (col_index > 0) EXPECT_EQ(column_count, col_index + 1);
+      // reset column
+      col_index = 0;
+      if (!first_row) ++row_index;
+      if (first_row) first_row = false;
+    } else {
+      ++col_index;
+    }
+    check_cell(cell_infos[row_index + row_start_index][col_index], *cur_cell);
+    ++total;
+  }
+
+  int row_count = 0;
+  if (first_row) row_count = 0;
+  else row_count = row_index + 1;
+
+  EXPECT_EQ(row_count , row_expect_count);
+  EXPECT_EQ(row_count * column_count, total);
+  return 0;
+}
+
+int TestObSSTableScanner::test_single_query_helper(
+  const ObBorderFlag& border_flag,
+  const int32_t row_start_index , const int32_t row_end_index,
+  const int32_t row_expect_count, const int32_t column_count) {
+  int err = OB_SUCCESS;
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  range.start_key_ = cell_infos[row_start_index][0].row_key_;//start key
+  range.end_key_ = cell_infos[row_end_index][0].row_key_; //end key
+  range.border_flag_ = border_flag;
+
+  err = test_single_query_helper(range, row_start_index, row_expect_count, column_count);
+  return err;
+}
+
+TEST_F(TestObSSTableScanner, test_query_case_1) {
+  int err = OB_SUCCESS;
+
   ObBorderFlag border_flag;
   border_flag.set_inclusive_start(); //inclusive end
   border_flag.set_inclusive_end(); //inclusive end
 
-  int32_t query_start_column = static_cast<int32_t>(random_number(ROWKEY_COL_NUM + CellInfoGen::START_ID,
-                                                    COL_NUM + CellInfoGen::START_ID - 1));
-  int32_t query_column_count = 1;
-
-  //query_helper( 1, 2, border_flag, 5, 1, ScanFlag::FORWARD, ScanFlag::SYNCREAD);
-  random_query_helper_mix_mode(border_flag, query_start_column, query_column_count);
+  err = test_single_query_helper(border_flag, 0, 0, 1, 2);
+  EXPECT_EQ(0, err);
 }
 
-TEST_F(TestObSSTableScanner, test_query_case_first_column) {
+TEST_F(TestObSSTableScanner, test_query_case_2) {
+  int err = OB_SUCCESS;
+
+  ObBorderFlag border_flag;
+
+  err = test_single_query_helper(border_flag, 0, 0, 0, 2);
+  EXPECT_EQ(OB_INVALID_ARGUMENT, err);
+}
+
+TEST_F(TestObSSTableScanner, test_query_case_3) {
+  int err = OB_SUCCESS;
+
   ObBorderFlag border_flag;
   border_flag.set_inclusive_start(); //inclusive end
-  border_flag.set_inclusive_end(); //inclusive end
 
-  int32_t query_start_column = ROWKEY_COL_NUM + CellInfoGen::START_ID;
-  int32_t query_column_count = 1;
-
-  random_query_helper_mix_mode(border_flag, query_start_column, query_column_count);
+  err = test_single_query_helper(border_flag, 0, 0, 0, 2);
+  EXPECT_EQ(OB_INVALID_ARGUMENT, err);
 }
 
-TEST_F(TestObSSTableScanner, test_query_case_last_column) {
+TEST_F(TestObSSTableScanner, test_query_case_4) {
+  int err = OB_SUCCESS;
+
+
+  ObBorderFlag border_flag;
+  border_flag.set_inclusive_end(); //inclusive end
+  err = test_single_query_helper(border_flag, 0, 0, 0, 2);
+  EXPECT_EQ(OB_INVALID_ARGUMENT, err);
+}
+
+TEST_F(TestObSSTableScanner, test_query_case_5) {
+  int err = OB_SUCCESS;
+
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
+  ObBorderFlag border_flag;
+  border_flag.set_inclusive_end(); //inclusive end
+  border_flag.set_min_value(); //min
+  range.end_key_ = cell_infos[0][0].row_key_; //end key
+  range.border_flag_ = border_flag;
+
+  //err = test_single_query_helper(range, row_start_index, row_expect_count, column_count);
+  err = test_single_query_helper(range, 0, 1, 3);
+  EXPECT_EQ(0, err);
+}
+
+TEST_F(TestObSSTableScanner, test_query_case_6) {
+  int err = OB_SUCCESS;
+
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
+  ObBorderFlag border_flag;
+  border_flag.set_inclusive_end(); //inclusive end
+  border_flag.set_min_value(); //min
+  range.end_key_ = cell_infos[10][0].row_key_; //end key
+  range.border_flag_ = border_flag;
+
+  //err = test_single_query_helper(range, row_start_index, row_expect_count, column_count);
+  err = test_single_query_helper(range, 0, 11, SSTableBuilder::COL_NUM);
+  EXPECT_EQ(0, err);
+}
+
+TEST_F(TestObSSTableScanner, test_query_case_7) {
+  int err = OB_SUCCESS;
+
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
   ObBorderFlag border_flag;
   border_flag.set_inclusive_start(); //inclusive end
-  border_flag.set_inclusive_end(); //inclusive end
+  border_flag.set_max_value();//max
+  range.start_key_ = cell_infos[10][0].row_key_; //end key
+  range.border_flag_ = border_flag;
 
-  int32_t query_start_column = COL_NUM + CellInfoGen::START_ID - 1;
-  int32_t query_column_count = 1;
-
-  random_query_helper_mix_mode(border_flag, query_start_column, query_column_count);
+  //err = test_single_query_helper(range, row_start_index, row_expect_count, column_count);
+  err = test_single_query_helper(range, 10, SSTableBuilder::ROW_NUM - 10, SSTableBuilder::COL_NUM);
+  EXPECT_EQ(0, err);
 }
 
-TEST_F(TestObSSTableScanner, test_query_case_invalid_column) {
+TEST_F(TestObSSTableScanner, test_query_case_8) {
+  int err = OB_SUCCESS;
+
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
   ObBorderFlag border_flag;
   border_flag.set_inclusive_start(); //inclusive end
-  border_flag.set_inclusive_end(); //inclusive end
+  border_flag.set_max_value();//max
+  range.start_key_ = cell_infos[10][0].row_key_; //end key
+  range.end_key_ = cell_infos[20][0].row_key_; //end key
+  range.border_flag_ = border_flag;
 
-  int32_t query_start_column = COL_NUM + CellInfoGen::START_ID + 10; // invalid columns;
-  int32_t query_column_count = 1;
-
-  random_query_helper_mix_mode(border_flag, query_start_column, query_column_count);
+  //err = test_single_query_helper(range, row_start_index, row_expect_count, column_count);
+  err = test_single_query_helper(range, 10, SSTableBuilder::ROW_NUM - 10, SSTableBuilder::COL_NUM);
+  EXPECT_EQ(0, err);
 }
 
-TEST_F(TestObSSTableScanner, test_query_case_left_open_random_columns) {
+TEST_F(TestObSSTableScanner, test_query_case_9) {
+  int err = OB_SUCCESS;
+
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
   ObBorderFlag border_flag;
-  border_flag.unset_inclusive_start(); //inclusive end
-  border_flag.set_inclusive_end(); //inclusive end
+  border_flag.set_min_value(); //min
+  border_flag.set_max_value();//max
+  range.start_key_ = cell_infos[10][0].row_key_; //end key
+  range.end_key_ = cell_infos[20][0].row_key_; //end key
+  range.border_flag_ = border_flag;
 
-  int32_t query_start_column = static_cast<int32_t>(random_number(ROWKEY_COL_NUM + CellInfoGen::START_ID,
-                                                    COL_NUM + CellInfoGen::START_ID - 1));
-  int32_t query_column_count = static_cast<int32_t>(random_number(1, NONKEY_COL_NUM));
-
-  random_query_helper_mix_mode(border_flag, query_start_column, query_column_count);
+  //err = test_single_query_helper(range, row_start_index, row_expect_count, column_count);
+  err = test_single_query_helper(range, 0, SSTableBuilder::ROW_NUM, SSTableBuilder::COL_NUM);
+  EXPECT_EQ(0, err);
 }
 
-TEST_F(TestObSSTableScanner, test_query_case_right_open_random_columns) {
+TEST_F(TestObSSTableScanner, test_query_case_10) {
+  int err = OB_SUCCESS;
+
   ObBorderFlag border_flag;
   border_flag.set_inclusive_start(); //inclusive end
-  border_flag.unset_inclusive_end(); //inclusive end
+  border_flag.set_inclusive_end(); //not inclusive end
 
-  int32_t query_start_column = static_cast<int32_t>(random_number(ROWKEY_COL_NUM + CellInfoGen::START_ID,
-                                                    COL_NUM + CellInfoGen::START_ID - 1));
-  int32_t query_column_count = static_cast<int32_t>(random_number(1, NONKEY_COL_NUM));
-
-  random_query_helper_mix_mode(border_flag, query_start_column, query_column_count);
+  // start_index = 10
+  // end_index = 20
+  err = test_single_query_helper(border_flag, 10, 20, 11, SSTableBuilder::COL_NUM);
+  EXPECT_EQ(0, err);
 }
 
-TEST_F(TestObSSTableScanner, test_query_case_lr_open_random_columns) {
+TEST_F(TestObSSTableScanner, test_query_case_11) {
+  int err = OB_SUCCESS;
+
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
   ObBorderFlag border_flag;
-  border_flag.unset_inclusive_start(); //inclusive end
-  border_flag.unset_inclusive_end(); //inclusive end
+  border_flag.set_inclusive_end(); //inclusive end
+  range.start_key_ = cell_infos[10][0].row_key_; //end key
+  range.end_key_ = cell_infos[20][0].row_key_; //end key
+  range.border_flag_ = border_flag;
 
-  int32_t query_start_column = static_cast<int32_t>(random_number(ROWKEY_COL_NUM + CellInfoGen::START_ID,
-                                                    COL_NUM + CellInfoGen::START_ID - 1));
-  int32_t query_column_count = static_cast<int32_t>(random_number(1, NONKEY_COL_NUM));
-
-  random_query_helper_mix_mode(border_flag, query_start_column, query_column_count);
+  err = test_single_query_helper(range, 11, 10, SSTableBuilder::COL_NUM);
+  EXPECT_EQ(0, err);
 }
 
-TEST_F(TestObSSTableScanner, test_query_case_min_value_random_columns) {
+TEST_F(TestObSSTableScanner, test_query_case_12) {
+  int err = OB_SUCCESS;
+
   ObBorderFlag border_flag;
+  border_flag.set_inclusive_start(); //inclusive end
+
+  // start_index = 10
+  // end_index = 20
+  err = test_single_query_helper(border_flag, 10, 20, 10, 1);
+  EXPECT_EQ(0, err);
+}
+
+TEST_F(TestObSSTableScanner, test_query_case_13) {
+  int err = OB_SUCCESS;
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
+  ObBorderFlag border_flag;
+  range.start_key_ = cell_infos[10][0].row_key_; //end key
+  range.end_key_ = cell_infos[20][0].row_key_; //end key
+  range.border_flag_ = border_flag;
+
+  //err = test_single_query_helper(range, row_start_index, row_expect_count, column_count);
+  err = test_single_query_helper(range, 11, 9, SSTableBuilder::COL_NUM);
+  EXPECT_EQ(0, err);
+
+}
+
+
+
+TEST_F(TestObSSTableScanner, test_query_case_14) {
+  int err = OB_SUCCESS;
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  int row_start_index = SSTableBuilder::ROW_NUM - 1;
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
+  ObBorderFlag border_flag;
+  border_flag.set_inclusive_start(); //inclusive end
+  border_flag.set_max_value();//max
+  range.start_key_ = cell_infos[row_start_index][0].row_key_; //end key
+  range.border_flag_ = border_flag;
+
+  //err = test_single_query_helper(range, row_start_index, row_expect_count, column_count);
+  err = test_single_query_helper(range, row_start_index, 1, SSTableBuilder::COL_NUM);
+  EXPECT_EQ(0, err);
+
+}
+
+TEST_F(TestObSSTableScanner, test_query_case_15) {
+  int err = OB_SUCCESS;
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
+  ObBorderFlag border_flag;
+  border_flag.set_inclusive_start(); //inclusive end
+  range.start_key_ = cell_infos[10][0].row_key_; //end key
+  range.border_flag_ = border_flag;
+
+  //err = test_single_query_helper(range, row_start_index, row_expect_count, column_count);
+  err = test_single_query_helper(range, 10, 0, SSTableBuilder::COL_NUM);
+  EXPECT_EQ(OB_INVALID_ARGUMENT, err);
+
+}
+
+
+
+TEST_F(TestObSSTableScanner, test_query_case_16) {
+  int err = OB_SUCCESS;
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
+  ObBorderFlag border_flag;
+  range.start_key_ = cell_infos[10][0].row_key_; //end key
+  range.border_flag_ = border_flag;
+
+  //err = test_single_query_helper(range, row_start_index, row_expect_count, column_count);
+  err = test_single_query_helper(range, 10, 0, SSTableBuilder::COL_NUM);
+  EXPECT_EQ(OB_INVALID_ARGUMENT, err);
+
+}
+
+TEST_F(TestObSSTableScanner, test_query_case_17) {
+  int err = OB_SUCCESS;
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
+  ObBorderFlag border_flag;
+  border_flag.set_inclusive_start(); //inclusive end
+  char* start_key = "row_key_0"; // less than start_key in sstable.
+  range.start_key_.assign_ptr(start_key, strlen(start_key));
+  range.end_key_ = cell_infos[20][0].row_key_; //end key
+  range.border_flag_ = border_flag;
+
+  //err = test_single_query_helper(range, row_start_index, row_expect_count, column_count);
+  err = test_single_query_helper(range, 0, 20, SSTableBuilder::COL_NUM);
+  EXPECT_EQ(0, err);
+
+}
+
+TEST_F(TestObSSTableScanner, test_query_case_18) {
+  int err = OB_SUCCESS;
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
+  ObBorderFlag border_flag;
+  range.start_key_ = cell_infos[SSTableBuilder::ROW_NUM - 10][0].row_key_; //end key
+  char* end_key = "row_key_a";
+  range.end_key_.assign_ptr(end_key, strlen(end_key)); //end key
+  range.border_flag_ = border_flag;
+
+  //err = test_single_query_helper(range, row_start_index, row_expect_count, column_count);
+  err = test_single_query_helper(range, SSTableBuilder::ROW_NUM - 9, 9, SSTableBuilder::COL_NUM);
+  EXPECT_EQ(0, err);
+
+}
+
+TEST_F(TestObSSTableScanner, test_query_case_19) {
+  int err = OB_SUCCESS;
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
+  ObBorderFlag border_flag;
+  char* start_key = "row_key_a";
+  border_flag.set_inclusive_start();
+  border_flag.set_inclusive_end();
+  range.start_key_.assign_ptr(start_key, strlen(start_key)); //end key
+  char* end_key = "row_key_a";
+  range.end_key_.assign_ptr(end_key, strlen(end_key)); //end key
+  range.border_flag_ = border_flag;
+
+  //err = test_single_query_helper(range, row_start_index, row_expect_count, column_count);
+  err = test_single_query_helper(range, 0, 0, SSTableBuilder::COL_NUM);
+  EXPECT_EQ(0, err);
+
+}
+
+
+TEST_F(TestObSSTableScanner, test_query_case_20) {
+  int err = OB_SUCCESS;
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
+  ObBorderFlag border_flag;
+  char* start_key = "row_key_0";
+  border_flag.set_inclusive_start();
+  border_flag.set_inclusive_end();
+  range.start_key_.assign_ptr(start_key, strlen(start_key)); //end key
+  char* end_key = "row_key_0";
+  range.end_key_.assign_ptr(end_key, strlen(end_key)); //end key
+  range.border_flag_ = border_flag;
+
+  //err = test_single_query_helper(range, row_start_index, row_expect_count, column_count);
+  err = test_single_query_helper(range, 0, 0, SSTableBuilder::COL_NUM);
+  EXPECT_EQ(0, err);
+
+}
+
+TEST_F(TestObSSTableScanner, test_query_case_21) {
+  int err = OB_SUCCESS;
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
+  ObBorderFlag border_flag;
+  char* start_key = "row_key_0";
+  border_flag.set_inclusive_start();
+  border_flag.set_inclusive_end();
+  range.start_key_.assign_ptr(start_key, strlen(start_key)); //end key
+  char* end_key = "row_key_1";
+  range.end_key_.assign_ptr(end_key, strlen(end_key)); //end key
+  range.border_flag_ = border_flag;
+
+  //err = test_single_query_helper(range, row_start_index, row_expect_count, column_count);
+  err = test_single_query_helper(range, 0, SSTableBuilder::ROW_NUM, SSTableBuilder::COL_NUM);
+  EXPECT_EQ(0, err);
+
+}
+
+
+TEST_F(TestObSSTableScanner, test_query_case_22) {
+  int err = OB_SUCCESS;
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
+  ObBorderFlag border_flag;
+  char* start_key = "row_key_0";
+  border_flag.set_inclusive_start();
+  border_flag.set_inclusive_end();
+  range.start_key_.assign_ptr(start_key, strlen(start_key)); //end key
+  range.end_key_ = cell_infos[10][0].row_key_; //end key
+  range.border_flag_ = border_flag;
+
+
+  ObScanParam scan_param;
+
+  scan_param.set(SSTableBuilder::table_id, table_name, range);
+  scan_param.add_column(0);
+
+  err = scanner_.set_scan_param(scan_param, &sstable_reader_,
+                                GFactory::get_instance().get_block_cache(),
+                                GFactory::get_instance().get_block_index_cache()
+                               );
+  EXPECT_EQ(0, err);
+
+  // check result
+  int64_t row_expect_count = 11;
+  int64_t row_start_index = 0;
+  int64_t row_index = 0;
+  int64_t col_index = 0;
+  int64_t column_count = SSTableBuilder::COL_NUM;
+  int64_t total = 0;
+  ObCellInfo* cur_cell = NULL;
+  bool is_row_changed = false;
+  bool first_row = true;
+  while (OB_SUCCESS == scanner_.next_cell()) {
+    err = scanner_.get_cell(&cur_cell, &is_row_changed);
+    EXPECT_EQ(0, err);
+    EXPECT_NE((ObCellInfo*) NULL, cur_cell);
+    if (is_row_changed) {
+      if (col_index > 0) EXPECT_EQ(column_count, col_index + 1);
+      // reset column
+      col_index = 0;
+      if (!first_row) ++row_index;
+      if (first_row) first_row = false;
+    } else {
+      ++col_index;
+    }
+    check_cell(cell_infos[row_index + row_start_index][col_index], *cur_cell);
+    ++total;
+  }
+
+  int row_count = 0;
+  if (first_row) row_count = 0;
+  else row_count = row_index + 1;
+
+  EXPECT_EQ(row_count , row_expect_count);
+  EXPECT_EQ(row_count * column_count, total);
+}
+
+TEST_F(TestObSSTableScanner, test_query_case_min_to_max) {
+  int err = OB_SUCCESS;
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
+  ObBorderFlag border_flag;
+  //char* start_key = "row_key_0";
   border_flag.set_min_value();
-  border_flag.unset_inclusive_start(); //inclusive end
-  border_flag.unset_inclusive_end(); //inclusive end
-
-  int32_t query_start_column = static_cast<int32_t>(random_number(ROWKEY_COL_NUM + CellInfoGen::START_ID,
-                                                    COL_NUM + CellInfoGen::START_ID - 1));
-  int32_t query_column_count = static_cast<int32_t>(random_number(1, NONKEY_COL_NUM));
-
-  random_query_helper_mix_mode(border_flag, query_start_column, query_column_count);
-}
-
-TEST_F(TestObSSTableScanner, test_query_case_max_value_random_columns) {
-  ObBorderFlag border_flag;
-  border_flag.unset_inclusive_start(); //inclusive end
-  border_flag.unset_inclusive_end(); //inclusive end
   border_flag.set_max_value();
+  //border_flag.set_inclusive_start();
+  //border_flag.set_inclusive_end();
+  //range.start_key_.assign_ptr(start_key, strlen(start_key)); //end key
+  //range.end_key_ = cell_infos[10][0].row_key_; //end key
+  range.border_flag_ = border_flag;
 
-  int32_t query_start_column = static_cast<int32_t>(random_number(ROWKEY_COL_NUM + CellInfoGen::START_ID,
-                                                    COL_NUM + CellInfoGen::START_ID - 1));
-  int32_t query_column_count = static_cast<int32_t>(random_number(1, NONKEY_COL_NUM));
 
-  random_query_helper_mix_mode(border_flag, query_start_column, query_column_count);
+  ObScanParam scan_param;
+
+  scan_param.set(SSTableBuilder::table_id, table_name, range);
+  scan_param.add_column(0);
+
+  err = scanner_.set_scan_param(scan_param, &sstable_reader_,
+                                GFactory::get_instance().get_block_cache(),
+                                GFactory::get_instance().get_block_index_cache()
+                               );
+  EXPECT_EQ(0, err);
+
+  // check result
+  int64_t row_expect_count = SSTableBuilder::ROW_NUM;
+  int64_t row_start_index = 0;
+  int64_t row_index = 0;
+  int64_t col_index = 0;
+  int64_t column_count = SSTableBuilder::COL_NUM;
+  int64_t total = 0;
+  ObCellInfo* cur_cell = NULL;
+  bool is_row_changed = false;
+  bool first_row = true;
+  while (OB_SUCCESS == scanner_.next_cell()) {
+    err = scanner_.get_cell(&cur_cell, &is_row_changed);
+    EXPECT_EQ(0, err);
+    EXPECT_NE((ObCellInfo*) NULL, cur_cell);
+    if (is_row_changed) {
+      if (col_index > 0) EXPECT_EQ(column_count, col_index + 1);
+      // reset column
+      col_index = 0;
+      if (!first_row) ++row_index;
+      if (first_row) first_row = false;
+    } else {
+      ++col_index;
+    }
+    check_cell(cell_infos[row_index + row_start_index][col_index], *cur_cell);
+    ++total;
+  }
+
+  int row_count = 0;
+  if (first_row) row_count = 0;
+  else row_count = row_index + 1;
+
+  EXPECT_EQ(row_count , row_expect_count);
+  EXPECT_EQ(row_count * column_count, total);
 }
 
-TEST_F(TestObSSTableScanner, test_query_case_min_max_value_random_columns) {
+TEST_F(TestObSSTableScanner, test_query_case_with_no_cache) {
+  int err = OB_SUCCESS;
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
   ObBorderFlag border_flag;
-  border_flag.unset_inclusive_start(); //inclusive end
-  border_flag.unset_inclusive_end(); //inclusive end
-  border_flag.set_min_value();
-  border_flag.set_max_value();
+  char* start_key = "row_key_0";
+  border_flag.set_inclusive_start();
+  border_flag.set_inclusive_end();
+  range.start_key_.assign_ptr(start_key, strlen(start_key)); //end key
+  range.end_key_ = cell_infos[10][0].row_key_; //end key
+  range.border_flag_ = border_flag;
 
-  int32_t query_start_column = static_cast<int32_t>(random_number(ROWKEY_COL_NUM + CellInfoGen::START_ID,
-                                                    COL_NUM + CellInfoGen::START_ID - 1));
-  int32_t query_column_count = static_cast<int32_t>(random_number(1, NONKEY_COL_NUM));
 
-  random_query_helper_mix_mode(border_flag, query_start_column, query_column_count);
+  ObScanParam scan_param;
+
+  scan_param.set(SSTableBuilder::table_id, table_name, range);
+  scan_param.set_is_result_cached(false);
+  scan_param.add_column(0);
+
+  err = scanner_.set_scan_param(scan_param, &sstable_reader_,
+                                GFactory::get_instance().get_block_cache(),
+                                GFactory::get_instance().get_block_index_cache()
+                               );
+  EXPECT_EQ(0, err);
+
+  // check result
+  int64_t row_expect_count = 11;
+  int64_t row_start_index = 0;
+  int64_t row_index = 0;
+  int64_t col_index = 0;
+  int64_t column_count = SSTableBuilder::COL_NUM;
+  int64_t total = 0;
+  ObCellInfo* cur_cell = NULL;
+  bool is_row_changed = false;
+  bool first_row = true;
+  while (OB_SUCCESS == scanner_.next_cell()) {
+    err = scanner_.get_cell(&cur_cell, &is_row_changed);
+    EXPECT_EQ(0, err);
+    EXPECT_NE((ObCellInfo*) NULL, cur_cell);
+    if (is_row_changed) {
+      if (col_index > 0) EXPECT_EQ(column_count, col_index + 1);
+      // reset column
+      col_index = 0;
+      if (!first_row) ++row_index;
+      if (first_row) first_row = false;
+    } else {
+      ++col_index;
+    }
+    check_cell(cell_infos[row_index + row_start_index][col_index], *cur_cell);
+    ++total;
+  }
+
+  int row_count = 0;
+  if (first_row) row_count = 0;
+  else row_count = row_index + 1;
+
+  EXPECT_EQ(row_count , row_expect_count);
+  EXPECT_EQ(row_count * column_count, total);
 }
 
+TEST_F(TestObSSTableScanner, test_query_case_sync_read) {
+  int err = OB_SUCCESS;
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
+  ObBorderFlag border_flag;
+  char* start_key = "row_key_0";
+  border_flag.set_inclusive_start();
+  border_flag.set_inclusive_end();
+  range.start_key_.assign_ptr(start_key, strlen(start_key)); //end key
+  range.end_key_ = cell_infos[10][0].row_key_; //end key
+  range.border_flag_ = border_flag;
+
+
+  ObScanParam scan_param;
+
+  scan_param.set(SSTableBuilder::table_id, table_name, range);
+  scan_param.set_is_result_cached(false);
+  scan_param.set_read_mode(ObScanParam::SYNCREAD);
+  scan_param.add_column(0);
+
+  err = scanner_.set_scan_param(scan_param, &sstable_reader_,
+                                GFactory::get_instance().get_block_cache(),
+                                GFactory::get_instance().get_block_index_cache()
+                               );
+  EXPECT_EQ(0, err);
+
+  // check result
+  int64_t row_expect_count = 11;
+  int64_t row_start_index = 0;
+  int64_t row_index = 0;
+  int64_t col_index = 0;
+  int64_t column_count = SSTableBuilder::COL_NUM;
+  int64_t total = 0;
+  ObCellInfo* cur_cell = NULL;
+  bool is_row_changed = false;
+  bool first_row = true;
+  while (OB_SUCCESS == scanner_.next_cell()) {
+    err = scanner_.get_cell(&cur_cell, &is_row_changed);
+    EXPECT_EQ(0, err);
+    EXPECT_NE((ObCellInfo*) NULL, cur_cell);
+    if (is_row_changed) {
+      if (col_index > 0) EXPECT_EQ(column_count, col_index + 1);
+      // reset column
+      col_index = 0;
+      if (!first_row) ++row_index;
+      if (first_row) first_row = false;
+    } else {
+      ++col_index;
+    }
+    check_cell(cell_infos[row_index + row_start_index][col_index], *cur_cell);
+    ++total;
+  }
+
+  int row_count = 0;
+  if (first_row) row_count = 0;
+  else row_count = row_index + 1;
+
+  EXPECT_EQ(row_count , row_expect_count);
+  EXPECT_EQ(row_count * column_count, total);
+}
+
+TEST_F(TestObSSTableScanner, test_query_case_no_exist_column) {
+  int err = OB_SUCCESS;
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
+  ObBorderFlag border_flag;
+  char* start_key = "row_key_0";
+  border_flag.set_inclusive_start();
+  border_flag.set_inclusive_end();
+  range.start_key_.assign_ptr(start_key, strlen(start_key)); //end key
+  range.end_key_ = cell_infos[10][0].row_key_; //end key
+  range.border_flag_ = border_flag;
+
+
+  ObScanParam scan_param;
+
+  scan_param.set(SSTableBuilder::table_id, table_name, range);
+  scan_param.set_is_result_cached(false);
+  scan_param.set_read_mode(ObScanParam::SYNCREAD);
+  scan_param.add_column(50);
+  scan_param.add_column(60);
+
+  err = scanner_.set_scan_param(scan_param, &sstable_reader_,
+                                GFactory::get_instance().get_block_cache(),
+                                GFactory::get_instance().get_block_index_cache()
+                               );
+  EXPECT_EQ(0, err);
+
+  // check result
+  int64_t row_expect_count = 11;
+  int64_t row_start_index = 0;
+  int64_t row_index = 0;
+  int64_t col_index = 0;
+  int64_t column_count = 2;
+  int64_t total = 0;
+  ObCellInfo* cur_cell = NULL;
+  bool is_row_changed = false;
+  bool first_row = true;
+  while (OB_SUCCESS == scanner_.next_cell()) {
+    err = scanner_.get_cell(&cur_cell, &is_row_changed);
+    EXPECT_EQ(0, err);
+    EXPECT_NE((ObCellInfo*) NULL, cur_cell);
+    if (is_row_changed) {
+      if (col_index > 0) EXPECT_EQ(column_count, col_index + 1);
+      // reset column
+      col_index = 0;
+      if (!first_row) ++row_index;
+      if (first_row) first_row = false;
+      EXPECT_EQ(0, cur_cell->row_key_.compare(cell_infos[row_index + row_start_index][0].row_key_));
+    } else {
+      ++col_index;
+    }
+    EXPECT_EQ(cur_cell->value_.get_type(), ObNullType);
+    ++total;
+  }
+
+  int row_count = 0;
+  if (first_row) row_count = 0;
+  else row_count = row_index + 1;
+
+  EXPECT_EQ(row_count , row_expect_count);
+  EXPECT_EQ(row_count * column_count, total);
+}
+
+TEST_F(TestObSSTableScanner, test_query_case_partial_exist_column) {
+  int err = OB_SUCCESS;
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
+  ObBorderFlag border_flag;
+  char* start_key = "row_key_0";
+  border_flag.set_inclusive_start();
+  border_flag.set_inclusive_end();
+  range.start_key_.assign_ptr(start_key, strlen(start_key)); //end key
+  range.end_key_ = cell_infos[10][0].row_key_; //end key
+  range.border_flag_ = border_flag;
+
+
+  ObScanParam scan_param;
+
+  scan_param.set(SSTableBuilder::table_id, table_name, range);
+  scan_param.set_is_result_cached(false);
+  scan_param.set_read_mode(ObScanParam::SYNCREAD);
+  scan_param.add_column(50);
+  scan_param.add_column(3);
+
+  err = scanner_.set_scan_param(scan_param, &sstable_reader_,
+                                GFactory::get_instance().get_block_cache(),
+                                GFactory::get_instance().get_block_index_cache()
+                               );
+  EXPECT_EQ(0, err);
+
+  // check result
+  int64_t row_expect_count = 11;
+  int64_t row_start_index = 0;
+  int64_t row_index = 0;
+  int64_t col_index = 0;
+  int64_t column_count = 2;
+  int64_t total = 0;
+  ObCellInfo* cur_cell = NULL;
+  bool is_row_changed = false;
+  bool first_row = true;
+  while (OB_SUCCESS == scanner_.next_cell()) {
+    err = scanner_.get_cell(&cur_cell, &is_row_changed);
+    EXPECT_EQ(0, err);
+    EXPECT_NE((ObCellInfo*) NULL, cur_cell);
+    if (is_row_changed) {
+      if (col_index > 0) EXPECT_EQ(column_count, col_index + 1);
+      // reset column
+      col_index = 0;
+      if (!first_row) ++row_index;
+      if (first_row) first_row = false;
+      EXPECT_EQ(0, cur_cell->row_key_.compare(cell_infos[row_index + row_start_index][0].row_key_));
+    } else {
+      ++col_index;
+    }
+    /*
+    fprintf(stderr, "row:%ld,col:%ld,id:%ld,type:%d\n",
+        row_index, col_index, cur_cell->column_id_, cur_cell->value_.get_type());
+        */
+    ++total;
+  }
+
+  int row_count = 0;
+  if (first_row) row_count = 0;
+  else row_count = row_index + 1;
+
+  EXPECT_EQ(row_count , row_expect_count);
+  EXPECT_EQ(row_count * column_count, total);
+}
+
+TEST_F(TestObSSTableScanner, test_query_case_no_exist_rows) {
+  int err = OB_SUCCESS;
+  ObCellInfo** const cell_infos = sstable_builder_.get_cell_infos();
+  ObRange range;
+  range.table_id_ = SSTableBuilder::table_id;
+
+  ///range.start_key_ = cell_infos[row_start_index][0].row_key_;//do not set start key
+  ObBorderFlag border_flag;
+  char* start_key = "row_key_000000001";
+  border_flag.set_inclusive_start();
+  border_flag.set_inclusive_end();
+  range.start_key_.assign_ptr(start_key, strlen(start_key)); //end key
+  char* end_key = "row_key_000000001";
+  range.end_key_.assign_ptr(end_key, strlen(end_key)) ;//end key
+  range.border_flag_ = border_flag;
+
+
+  ObScanParam scan_param;
+
+  scan_param.set(SSTableBuilder::table_id, table_name, range);
+  scan_param.set_is_result_cached(false);
+  scan_param.set_read_mode(ObScanParam::SYNCREAD);
+  scan_param.add_column(3);
+
+  err = scanner_.set_scan_param(scan_param, &sstable_reader_,
+                                GFactory::get_instance().get_block_cache(),
+                                GFactory::get_instance().get_block_index_cache()
+                               );
+  EXPECT_EQ(0, err);
+
+  // check result
+  int64_t row_expect_count = 0;
+  int64_t row_start_index = 0;
+  int64_t row_index = 0;
+  int64_t col_index = 0;
+  int64_t column_count = 2;
+  int64_t total = 0;
+  ObCellInfo* cur_cell = NULL;
+  bool is_row_changed = false;
+  bool first_row = true;
+  while (OB_SUCCESS == scanner_.next_cell()) {
+    err = scanner_.get_cell(&cur_cell, &is_row_changed);
+    EXPECT_EQ(0, err);
+    EXPECT_NE((ObCellInfo*) NULL, cur_cell);
+    if (is_row_changed) {
+      if (col_index > 0) EXPECT_EQ(column_count, col_index + 1);
+      // reset column
+      col_index = 0;
+      if (!first_row) ++row_index;
+      if (first_row) first_row = false;
+      EXPECT_EQ(0, cur_cell->row_key_.compare(cell_infos[row_index + row_start_index][0].row_key_));
+    } else {
+      ++col_index;
+    }
+    EXPECT_EQ(cur_cell->value_.get_type(), ObNullType);
+    ++total;
+  }
+
+  int row_count = 0;
+  if (first_row) row_count = 0;
+  else row_count = row_index + 1;
+
+  EXPECT_EQ(row_count , row_expect_count);
+  EXPECT_EQ(row_count * column_count, total);
+}
 
 } // end namespace sstable
 } // end namespace tests

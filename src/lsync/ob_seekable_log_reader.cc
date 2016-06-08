@@ -16,12 +16,8 @@ static int seek_within_one_file_(ObSingleLogReader& reader, uint64_t last_log_se
       break;
     }
   }
-  if (OB_SUCCESS == ret && last_log_seq_id > 0) {
-    if (last_log_seq_id + 1 == seq || (OB_LOG_SWITCH_LOG == cmd && last_log_seq_id == seq)) {
-      ret = OB_NEED_RETRY;
-    } else if (last_log_seq_id != seq) {
-      ret = OB_ERROR_OUT_OF_RANGE;
-    }
+  if (OB_SUCCESS == ret && last_log_seq_id > 0 && seq != last_log_seq_id) {
+    ret = (last_log_seq_id + 1 == seq) ? OB_NEED_RETRY : OB_ERROR_OUT_OF_RANGE;
   }
   return ret;
 }
@@ -139,7 +135,7 @@ int ObSeekableLogReader::get_with_timeout(uint64_t& log_file_id, uint64_t& log_s
 
   while (!stop_) {
     ret = get(log_file_id, log_seq_id, cmd, seq, log_data, data_len);
-    if (OB_READ_NOTHING == ret && (tbutil::Time::now() - now).toMicroSeconds() < timeout) {
+    if (OB_READ_NOTHING == ret && (tbutil::Time::now() - now).toMilliSeconds() < timeout) {
       usleep(10000);
       continue;
     } else {

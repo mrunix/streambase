@@ -69,7 +69,7 @@ inline common::ObServer ObUpsInfo::get_server(const  ObServerType type/*= MERGE_
 }
 
 struct ObUpsList {
-  static const int32_t MAX_UPS_COUNT = 8;
+  static const int32_t MAX_UPS_COUNT = 5;
 
   ObUpsInfo ups_array_[MAX_UPS_COUNT];
   int32_t ups_count_;

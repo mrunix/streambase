@@ -1,19 +1,18 @@
-/*
- *  (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 2 as
- *  published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- *         ????.cc is for what ...
+ * Version: $Id$
  *
- *  Version: $Id: ipvsadm.c,v 1.27 2005/12/10 16:00:07 wensong Exp $
+ * thread_buffer.cc for ...
  *
- *  Authors:
- *     qushan <qushan@taobao.com>
- *        - some work details if you want
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
  */
-
 #include "thread_buffer.h"
 #include <stdint.h>
 #include "tblog.h"
@@ -54,7 +53,7 @@ int ThreadSpecificBuffer::delete_thread_key() {
 }
 
 void ThreadSpecificBuffer::destroy_thread_key(void* ptr) {
-  TBSYS_LOG(INFO, "delete thread specific buffer, ptr=%p", ptr);
+  TBSYS_LOG(DEBUG, "delete thread specific ptr:%p", ptr);
   if (NULL != ptr) ob_free(ptr);
 }
 
@@ -71,7 +70,6 @@ ThreadSpecificBuffer::Buffer* ThreadSpecificBuffer::get_buffer() const {
           ob_free(ptr);
           ptr = NULL;
         } else {
-          TBSYS_LOG(DEBUG, "new thread specific buffer, addr=%p size=%d this=%p", ptr, size_, this);
           buffer = new(ptr) Buffer(static_cast<char*>(ptr) + sizeof(Buffer), size_);
         }
       } else {
@@ -127,3 +125,7 @@ int ThreadSpecificBuffer::Buffer::write(const char* bytes, const int32_t size) {
 
 } // end namespace chunkserver
 } // end namespace sb
+
+
+
+

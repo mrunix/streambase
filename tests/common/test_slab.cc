@@ -112,7 +112,7 @@ TEST(ObSlab, alloc_more) {
   ObSlabCache* slab_cache = slab_manager.slab_cache_create("test", 300, 8);
   ASSERT_TRUE(slab_cache != NULL);
   ASSERT_EQ(slab_manager.get_slab_cache_num(), 1);
-  srand(static_cast<uint32_t>(time(NULL)));
+  srand(time(NULL));
 
   char* obj_list[100000];
 
@@ -128,7 +128,7 @@ TEST(ObSlab, alloc_more) {
 
   int32_t index = 0;
   for (int32_t i = 0; i < 10000; ++i) {
-    index = static_cast<int32_t>(random() % 100000);
+    index = random() % 100000;
     if (obj_list[index] != NULL) {
       slab_cache->slab_cache_free(obj_list[index]);
       obj_list[index] = NULL;

@@ -1,14 +1,18 @@
-/*===============================================================
-*   (C) 2007-2010 Taobao Inc.
-*
-*
-*   Version: 0.1 2010-09-26
-*
-*   Authors:
-*          daoan(daoan@taobao.com)
-*
-*
-================================================================*/
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * limit_array.h for ...
+ *
+ * Authors:
+ *   daoan <daoan@taobao.com>
+ *
+ */
 #ifndef OCEANBASE_COMMON_LIMIT_ARRAY_H_
 #define OCEANBASE_COMMON_LIMIT_ARRAY_H_
 #include <stdint.h>
@@ -72,7 +76,7 @@ class LimitArray {
     if (index_ >= size_) {
       res = false;
     }
-    if (res && (tail_holer_index_ >= N || tail_holer_index_ < 0)) {
+    if (res && tail_holer_index_ >= N || tail_holer_index_ < 0) {
       res = false;
       TBSYS_LOG(ERROR, "this can never be reached, bugs!!!");
     }
@@ -129,3 +133,4 @@ class LimitArray {
 }
 }
 #endif
+

@@ -1,20 +1,18 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: 0.1: ob_simple_condition.cc,v 0.1 2011/03/17 15:39:30 zhidong Exp $
+ * ob_simple_condition.cc for ...
  *
  * Authors:
- *   chuanhui <xielun.szd@taobao.com>
- *     - some work details if you want
+ *   xielun <xielun.szd@taobao.com>
  *
  */
-
 #include "ob_schema.h"
 #include "ob_string_search.h"
 #include "ob_simple_condition.h"
@@ -265,5 +263,6 @@ DEFINE_GET_SERIALIZE_SIZE(ObSimpleCond) {
   total_size += right_operand_.get_serialize_size();
   return total_size;
 }
+
 
 

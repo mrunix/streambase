@@ -16,23 +16,23 @@
 #include "db_thread_mgr.h"
 #include "db_record_formator.h"
 #include "common/ob_action_flag.h"
-#include "updateserver/ob_ups_utils.h"
 #include <sstream>
 
 static int64_t del_lines = 0;
 static int64_t insert_lines = 0;
 
-int DbDumper::process_rowkey(const ObCellInfo& cell, int op, uint64_t timestamp, int64_t seq) {
+int DbDumper::process_rowkey(const ObCellInfo& cell, int op, const char* timestamp) {
   int ret = OB_SUCCESS;
 
-  const DbTableConfig* cfg = NULL;
+  DbTableConfig* cfg = NULL;
 
   ret = DUMP_CONFIG->get_table_config(cell.table_id_, cfg);
   if (ret != OB_SUCCESS) {
-    TBSYS_LOG(DEBUG, "no such table, table_id=%ld", cell.table_id_);
+    TBSYS_LOG(DEBUG, "no such table, table_id=%d", cell.table_id_);
   } else {
-    DbThreadMgr::get_instance()->insert_key(cell.row_key_, cell.table_id_, op, timestamp, seq);
-    __sync_add_and_fetch(&total_keys_, 1);
+    DbThreadMgr::get_instance()->insert_key(cell.row_key_, cell.table_id_, op);
+    CThreadGuard guard(&rowkeys_mutex_);
+    total_keys_++;
   }
 
   return ret;
@@ -55,7 +55,7 @@ void DbDumper::wait_completion(bool rotate_date) {
 int DbDumper::setup_dumpers() {
   int ret = OB_SUCCESS;
   std::vector<DbTableConfig>& cfgs = DUMP_CONFIG->get_configs();
-  const std::string& output = DUMP_CONFIG->get_output_dir();
+  std::string& output = DUMP_CONFIG->get_output_dir();
 
   for (size_t i = 0; i < cfgs.size(); i++) {
     DbTableDumpWriter writer;
@@ -66,7 +66,7 @@ int DbDumper::setup_dumpers() {
     writer.table_id = cfgs[i].table_id();
     writer.dumper = new(std::nothrow) DbDumperWriter(writer.table_id, table_dir);
     if (writer.dumper == NULL) {
-      TBSYS_LOG(ERROR, "Can't create dumper, allocate memory failed");
+      TBSYS_LOG(ERROR, "Can't create dumper");
       ret = OB_ERROR;
       break;
     }
@@ -78,11 +78,15 @@ int DbDumper::setup_dumpers() {
     for (size_t i = 0; i < dump_writers_.size(); i++) {
       ret = dump_writers_[i].dumper->start();
       if (ret != OB_SUCCESS) {
-        TBSYS_LOG(ERROR, "start up dumper error, ret=%d", ret);
+        TBSYS_LOG(ERROR, "start up dumper error");
         break;
       }
     }
+  } else {
+    //dumper_writer will be cleaned, when destructor is called
+    TBSYS_LOG(INFO, "clean dumper writers");
   }
+
   return ret;
 }
 
@@ -123,8 +127,8 @@ DbDumper::~DbDumper() {
   TBSYS_LOG(INFO, "waiting dump writer thread stop");
   destroy_dumpers();
   pthread_spin_destroy(&seq_lock_);
-  TBSYS_LOG(INFO, "Total rowkyes = %ld", total_keys_);
-  TBSYS_LOG(INFO, "del_lines= %ld, insert_lines=%ld", del_lines, insert_lines);
+  TBSYS_LOG(INFO, "Total rowkyes = %d", total_keys_);
+  TBSYS_LOG(INFO, "del_lines= %d, insert_lines=%d", del_lines, insert_lines);
 }
 
 void DbDumper::destroy_dumpers() {
@@ -135,87 +139,34 @@ void DbDumper::destroy_dumpers() {
   dump_writers_.clear();
 }
 
-int64_t DbDumper::merge_get_req(const TableRowkey* rowkeys, const int64_t size, TableRowkey* merged) {
-  memcpy(merged, rowkeys, sizeof(TableRowkey) * size);
-
-  if (size < 2)
-    return size;
-
-  int64_t new_size = 0;
-  merged[new_size++] = rowkeys[size - 1];
-
-  for (int64_t i = size - 2; i >= 0; i--) {
-    if (rowkeys[i].rowkey != rowkeys[i + 1].rowkey ||
-        rowkeys[i].table_id != rowkeys[i + 1].table_id) {
-      merged[new_size++] = rowkeys[i];
-    } else {
-      if (rowkeys[i].timestamp > rowkeys[i + 1].timestamp) {
-        TBSYS_LOG(WARN, "currupted log files, mutations are not in order, time1=%ld, time=%ld",
-                  rowkeys[i].timestamp, rowkeys[i + 1].timestamp);
-      }
-    }
-  }
-
-  return new_size;
-}
-
-int DbDumper::db_dump_rowkey(const TableRowkey* rowkeys, const int64_t size, DbRecordSet& rs) {
+int DbDumper::db_dump_rowkey(DbTableConfig* cfg, const ObString& rowkey, int op, DbRecordSet& rs) {
 
   int ret = OB_SUCCESS;
-  const DbTableConfig* cfg = NULL;
+  std::vector<std::string>& columns = cfg->get_columns();
+  std::string& table = cfg->table();
 
-  std::vector<DbMutiGetRow> rows;
-  TableRowkey merged_keys[kMutiGetKeyNr];
-
-  int64_t new_size = merge_get_req(rowkeys, size, merged_keys);
-  for (int64_t i = 0; i < new_size; i++) {
-    DbMutiGetRow row;
-
-    ret = DUMP_CONFIG->get_table_config(merged_keys[i].table_id, cfg);
-    if (ret != OB_SUCCESS) {
-      TBSYS_LOG(WARN, "no such table");
-      break;
-    }
-
-    row.table = cfg->table();
-    row.rowkey = merged_keys[i].rowkey;
-    row.columns = &(cfg->get_columns());
-
-    rows.push_back(row);
-  }
-
+  ret = db_->get(table, columns, rowkey, rs);
   if (ret == OB_SUCCESS) {
-    ret = db_->get(rows, rs);
-    if (ret == OB_SUCCESS) {
-      //wrap the record, push it in the dumper queue
-      ret = pack_record(merged_keys, new_size, rs);
-      if (ret != OB_SUCCESS) {
-        TBSYS_LOG(ERROR, "pack record error");
-      }
-    } else {
-      TBSYS_LOG(ERROR, "can't get data from database");
+    //wrap the record, push it in the dumper queue
+    ret = pack_record(rs, cfg->table_id(), rowkey, op);
+    if (ret != OB_SUCCESS) {
+      TBSYS_LOG(ERROR, "pack record error");
     }
-  }
-
-  return ret;
-}
-
-int DbDumper::dump_del_key(const TableRowkey& key) {
-  int ret = OB_SUCCESS;
-  const DbTableConfig* cfg = NULL;
-
-  ret = DUMP_CONFIG->get_table_config(key.table_id, cfg);
-  if (ret != OB_SUCCESS) {
-    TBSYS_LOG(ERROR, "no table find, table_id=%lu", key.table_id);
   } else {
-    __sync_add_and_fetch(&del_lines, 1);
-    ret = handle_del_row(cfg, key.rowkey, ObActionFlag::OP_DEL_ROW, key.timestamp, key.seq);
+    ThreadSpecificBuffer::Buffer* buffer = record_buffer_.get_buffer();
+    buffer->reset();
+
+    //hex_to_str will return 0, if buffer size is not enough
+    int len = hex_to_str(rowkey.ptr(), rowkey.length(), buffer->current(), buffer->remain());
+    buffer->current()[len * 2] = '\0';
+
+    TBSYS_LOG(ERROR, "Find ERROR return value is %d, %s, table:%s", ret, buffer->current(), table.c_str());
   }
 
   return ret;
 }
 
-int DbDumper::handle_del_row(const DbTableConfig* cfg, const ObRowkey& rowkey, int op, uint64_t timestamp, int64_t seq) {
+int DbDumper::handle_del_row(DbTableConfig* cfg, const ObString& rowkey, int op) {
   int ret = OB_SUCCESS;
   ThreadSpecificBuffer::Buffer* buffer = record_buffer_.get_buffer();
   buffer->reset();
@@ -223,7 +174,8 @@ int DbDumper::handle_del_row(const DbTableConfig* cfg, const ObRowkey& rowkey, i
 
   //deleted record,just append header
   UniqFormatorHeader header;
-  ret = header.append_header(rowkey, op, timestamp, seq, DUMP_CONFIG->app_name(), cfg->table(), data_buff);
+  ret = header.append_header(rowkey, op, get_next_seq(), DUMP_CONFIG->app_name(),
+                             cfg->table(), data_buff);
   if (ret != OB_SUCCESS) {
     TBSYS_LOG(ERROR, "Unable seiralize header, due to [%d], skip this line", ret);
   }
@@ -241,19 +193,34 @@ int DbDumper::handle_del_row(const DbTableConfig* cfg, const ObRowkey& rowkey, i
     char* data = data_buff.get_data();
     int64_t len = data_buff.get_position();
 
-    ret = push_record(cfg->table_id(), data, static_cast<int32_t>(len));
+    ret = push_record(cfg->table_id(), data, len);
     if (ret != OB_SUCCESS) {
-      TBSYS_LOG(ERROR, "can't push record to dumper writer queue, rec len=%ld", len);
+      TBSYS_LOG(ERROR, "can't push record to dumper writer queue, rec len=%d", len);
     }
   }
 
   return ret;
 }
 
-int DbDumper::do_dump_rowkey(const TableRowkey* rowkeys, const int64_t size, DbRecordSet& rs) {
+int DbDumper::do_dump_rowkey(uint64_t table_id, const ObString& rowkey, int op, DbRecordSet& rs) {
   int ret = OB_SUCCESS;
 
-  ret = db_dump_rowkey(rowkeys, size, rs);
+  DbTableConfig* cfg;
+  ret = DUMP_CONFIG->get_table_config(table_id, cfg);
+  if (ret != OB_SUCCESS) {
+    TBSYS_LOG(ERROR, "no table find, table_id=%d", table_id);
+  } else {
+    if (op == ObActionFlag::OP_DEL_ROW) {       /* DELETE */
+      del_lines++;
+      ret = handle_del_row(cfg, rowkey, op);
+      if (ret != OB_SUCCESS) {
+        TBSYS_LOG(ERROR, "handle del row failed");
+      }
+    } else {                                    /* INSERT, UPDATE */
+      insert_lines++;
+      ret = db_dump_rowkey(cfg, rowkey, op, rs);
+    }
+  }
 
   return ret;
 }
@@ -270,37 +237,18 @@ int DbDumper::push_record(uint64_t table_id, const char* rec, int len) {
   return ret;
 }
 
-#if 1
-void dump_scanner(ObScanner& scanner);
-#endif
-
-int DbDumper::pack_record(const TableRowkey* rowkeys, const int64_t size,
-                          DbRecordSet& rs) {
+int DbDumper::pack_record(DbRecordSet& rs, uint64_t table_id, const ObString& rowkey, int op) {
   int ret = OB_SUCCESS;
-  TableRowkey exist_keys[kMutiGetKeyNr];
-  int64_t exist_key_nr = 0;
+  DbRecordSet::Iterator itr = rs.begin();
 
   ThreadSpecificBuffer::Buffer* buffer = record_buffer_.get_buffer();
   buffer->reset();
   ObDataBuffer data_buff(buffer->current(), buffer->remain());
 
-  const DbTableConfig* cfg = NULL;
-  TableRowkey table_key;
-  ObRowkey rowkey;
+  DbTableConfig* cfg;
+  DUMP_CONFIG->get_table_config(table_id, cfg);
 
-#if 0
-  dump_scanner(rs.get_scanner());
-  TBSYS_LOG(INFO, "DUMP STARTING KEYS");
-  for (int64_t i = 0; i < size; i++) {
-    char buf[128];
-    int len = hex_to_str(rowkeys[i].rowkey.ptr(), rowkeys[i].rowkey.length(), buf, 128);
-    buf[2 * len] = 0;
-    TBSYS_LOG(INFO, "KEY%d:%s", i, buf);
-  }
-#endif
-
-  DbRecordSet::Iterator itr = rs.begin();
-  while (ret == OB_SUCCESS && itr != rs.end()) {
+  while (itr != rs.end()) {
     data_buff.get_position() = 0;
 
     DbRecord* recp;
@@ -311,38 +259,19 @@ int DbDumper::pack_record(const TableRowkey* rowkeys, const int64_t size,
     }
 
     if (recp->empty()) {                      /* a deleted record call handle del */
+      ret = handle_del_row(cfg, rowkey, ObActionFlag::OP_DEL_ROW);
+      if (ret != OB_SUCCESS) {
+        TBSYS_LOG(ERROR, "handle row failed, due to[%d]", ret);
+        break;
+      }
+
       itr++;                                      /* step to next row */
       continue;
     }
 
-    if (recp->get_rowkey(rowkey) != OB_SUCCESS) {
-      TBSYS_LOG(ERROR, "muti thread processing same DbRecordSet?");
-      break;
-    }
-
-#if 0
-    {
-      char buf[128];
-
-      int len = hex_to_str(rowkey.ptr(), rowkey.length(), buf, 128);
-      buf[2 * len] = 0;
-      TBSYS_LOG(INFO, "resp, key=%s", buf);
-    }
-#endif
-
-    ret = find_table_key(rowkeys, size, rowkey, table_key);
-    if (ret != OB_SUCCESS) {
-      TBSYS_LOG(ERROR, "can't find ds rowkey in req rowkeys, currupted memory?");
-      break;
-    }
-
-    assert(exist_key_nr < kMutiGetKeyNr);
-    exist_keys[exist_key_nr++] = table_key;     /* setup exist array */
-
-    ret = DUMP_CONFIG->get_table_config(table_key.table_id, cfg);
     //1.filter useless column
-    if (ret == OB_SUCCESS && cfg->filter()) {
-      bool skip = (*cfg->filter())(recp);
+    if (ret == OB_SUCCESS && cfg->filter_) {
+      bool skip = (*cfg->filter_)(recp);
       if (skip) {
         itr++;                                      /* step to next row */
         continue;
@@ -352,8 +281,7 @@ int DbDumper::pack_record(const TableRowkey* rowkeys, const int64_t size,
     //2.append output header
     if (ret == OB_SUCCESS) {
       UniqFormatorHeader header;
-      ret = header.append_header(table_key.rowkey, table_key.op, table_key.timestamp,
-                                 table_key.seq, DUMP_CONFIG->app_name(),
+      ret = header.append_header(rowkey, op, get_next_seq(), DUMP_CONFIG->app_name(),
                                  cfg->table(), data_buff);
       if (ret != OB_SUCCESS) {
         TBSYS_LOG(ERROR, "Unable seiralize header, due to [%d], skip this line", ret);
@@ -365,28 +293,10 @@ int DbDumper::pack_record(const TableRowkey* rowkeys, const int64_t size,
     //3.append record
     if (ret == OB_SUCCESS) {
       DbRecordFormator formator;
-      ret = formator.format_record(table_key.table_id, recp, table_key.rowkey, data_buff);
+      ret = formator.format_record(table_id, recp, rowkey, data_buff);
       if (ret != OB_SUCCESS) {
         TBSYS_LOG(ERROR, "Unable seiralize record, due to [%d], skip this line", ret);
       }
-#if 1
-      if (ret != OB_SUCCESS) {
-        DbRecordSet::Iterator itr1 = rs.begin();
-        while (itr1 != rs.end()) {
-          TBSYS_LOG(INFO, "New Record Start");
-          DbRecord* rec1;
-          ret = itr1.get_record(&rec1);
-          if (ret != OB_SUCCESS) {
-            TBSYS_LOG(ERROR, "DBG:can't get record");
-          } else {
-            rec1->dump();
-          }
-
-          itr1++;
-        }
-      }
-#endif
-
     }
 
     if (ret == OB_SUCCESS) {
@@ -394,73 +304,24 @@ int DbDumper::pack_record(const TableRowkey* rowkeys, const int64_t size,
       int64_t len = data_buff.get_position();
 
       //4.push to dumper writer queue
-      ret = push_record(table_key.table_id, data, static_cast<int32_t>(len));
+      ret = push_record(table_id, data, len);
       if (ret != OB_SUCCESS) {
-        TBSYS_LOG(ERROR, "can't push record to dumper writer queue, rec len=%ld", len);
+        TBSYS_LOG(ERROR, "can't push record to dumper writer queue, rec len=%d", len);
       }
     }
 
     itr++;                                      /* step to next row */
   }
 
-  if (ret == OB_SUCCESS) {
-    ret = append_del_keys(rowkeys, size, exist_keys, exist_key_nr);
-  }
-
   return ret;
 }
-
-int DbDumper::find_table_key(const TableRowkey* rowkeys, const int64_t size,
-                             const ObRowkey& rowkey, TableRowkey& table_key) {
-  int ret = OB_SUCCESS;
-
-  int64_t i = 0;
-  for (; i < size; i++) {
-    if (rowkeys[i].rowkey == rowkey) {
-      table_key = rowkeys[i];
-      break;
-    }
-  }
-
-  if (i == size) {
-    ret = OB_ERROR;
-  }
-
-  return ret;
-}
-
-int DbDumper::append_del_keys(const TableRowkey* req_keys, const int64_t req_key_size,
-                              const TableRowkey* res_keys, const int64_t res_key_size) {
-  int ret = OB_SUCCESS;
-
-  if (req_key_size == res_key_size)
-    return ret;
-
-  for (int64_t i = 0; i < req_key_size; i++) {
-    int idx = 0;
-    for (; idx < res_key_size && req_keys[i].rowkey != res_keys[idx].rowkey; idx++);
-
-    if (idx == res_key_size) {
-#if 0
-      char buf[128];
-
-      int len = hex_to_str(req_keys[i].rowkey.ptr(), req_keys[i].rowkey.length(), buf, 128);
-      buf[2 * len] = 0;
-      TBSYS_LOG(INFO, "meet deleted key, key=%s", buf);
-#endif
-      ret = dump_del_key(req_keys[i]);
-      if (ret != OB_SUCCESS) {
-        TBSYS_LOG(WARN, "can't dump_del_key");
-        break;
-      }
-    }
-  }
-
-  return ret;
-}
-
 
 int64_t DbDumper::get_next_seq() {
-  __sync_add_and_fetch(&seq_, 1);
-  return seq_;
+  int ret;
+
+  pthread_spin_lock(&seq_lock_);
+  ret = seq_++;
+  pthread_spin_unlock(&seq_lock_);
+
+  return ret;
 }

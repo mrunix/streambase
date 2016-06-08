@@ -1,7 +1,7 @@
 
 #include <gtest/gtest.h>
 
-#include "common/ob_general_rpc_stub.h"
+#include "ob_root_server_rpc.h"
 
 #include "common/ob_client_manager.h"
 #include "common/thread_buffer.h"
@@ -11,13 +11,12 @@
 #include "common/ob_single_server.h"
 #include "common/ob_malloc.h"
 #include "common/ob_result.h"
-#include "common/ob_base_client.h"
 
-#include "rootserver/ob_root_callback.h"
-
+#include "tbnet.h"
 #include "tbsys.h"
 
 using namespace sb::common;
+using namespace sb::chunkserver;
 
 namespace sb {
 namespace tests {
@@ -25,7 +24,6 @@ namespace chunkserver {
 class TestRootServerRpcStub: public ::testing::Test {
  public:
   static const int MOCK_SERVER_LISTEN_PORT = 33248;
-  static const int timeout = 1000000;
  public:
   virtual void SetUp() {
 
@@ -45,18 +43,11 @@ class TestRootServerRpcStub: public ::testing::Test {
       set_batch_process(false);
       set_listen_port(MOCK_SERVER_LISTEN_PORT);
       set_dev_name("bond0");
+      set_packet_factory(&factory_);
       set_default_queue_size(100);
       set_thread_count(1);
-
-      memset(&server_handler_, 0, sizeof(easy_io_handler_pt));
-      server_handler_.encode = ObTbnetCallback::encode;
-      server_handler_.decode = ObTbnetCallback::decode;
-      server_handler_.process = rootserver::ObRootCallback::process;
-      //server_handler_.batch_process = ObTbnetCallback::batch_process;
-      server_handler_.get_packet_id = ObTbnetCallback::get_packet_id;
-      server_handler_.on_disconnect = ObTbnetCallback::on_disconnect;
-      server_handler_.user_data = this;
-
+      set_packet_factory(&factory_);
+      client_manager_.initialize(get_transport(), get_packet_streamer());
       ObSingleServer::initialize();
 
       return OB_SUCCESS;
@@ -67,7 +58,7 @@ class TestRootServerRpcStub: public ::testing::Test {
       ObPacket* ob_packet = base_packet;
       int32_t packet_code = ob_packet->get_packet_code();
       int32_t version = ob_packet->get_api_version();
-      int32_t channel_id = ob_packet->get_channel_id();
+      int32_t channel_id = ob_packet->getChannelId();
       ret = ob_packet->deserialize();
 
       TBSYS_LOG(INFO, "recv packet with packet_code[%d] version[%d] channel_id[%d]",
@@ -91,7 +82,6 @@ class TestRootServerRpcStub: public ::testing::Test {
     }
 
     int handle_heartbeat(ObPacket* packet) {
-      UNUSED(packet);
       return OB_SUCCESS;
     }
 
@@ -128,11 +118,11 @@ class TestRootServerRpcStub: public ::testing::Test {
             TBSYS_LOG(ERROR, "time_stamp.deserialize error");
           }
           TBSYS_LOG(INFO, "timestamp: %ld", time_stamp);
-          EXPECT_LT(labs((int64_t)time(NULL) - time_stamp), 10);
+          EXPECT_LT(abs((int64_t)time(NULL) - time_stamp), 10);
         }
 
 
-        easy_request_t* connection = ob_packet->get_request();
+        tbnet::Connection* connection = ob_packet->get_connection();
         ThreadSpecificBuffer::Buffer* thread_buffer =
           response_packet_buffer_.get_buffer();
         if (NULL != thread_buffer) {
@@ -146,7 +136,7 @@ class TestRootServerRpcStub: public ::testing::Test {
           TBSYS_LOG(DEBUG, "handle tablets report packet");
 
           int32_t version = 1;
-          int32_t channel_id = ob_packet->get_channel_id();
+          int32_t channel_id = ob_packet->getChannelId();
           ret = send_response(OB_REPORT_TABLETS_RESPONSE, version, out_buffer, connection, channel_id);
         } else {
           TBSYS_LOG(ERROR, "get thread buffer error, ignore this packet");
@@ -165,7 +155,7 @@ class TestRootServerRpcStub: public ::testing::Test {
         TBSYS_LOG(ERROR, "data_buffer is NUll should not reach this");
         ret = OB_ERROR;
       } else {
-        easy_request_t* connection = ob_packet->get_request();
+        tbnet::Connection* connection = ob_packet->get_connection();
         ThreadSpecificBuffer::Buffer* thread_buffer =
           response_packet_buffer_.get_buffer();
         if (NULL != thread_buffer) {
@@ -180,7 +170,7 @@ class TestRootServerRpcStub: public ::testing::Test {
           TBSYS_LOG(DEBUG, "handle schema changed");
 
           int32_t version = 1;
-          int32_t channel_id = ob_packet->get_channel_id();
+          int32_t channel_id = ob_packet->getChannelId();
           ret = send_response(OB_WAITING_JOB_DONE_RESPONSE, version, out_buffer, connection, channel_id);
           TBSYS_LOG(DEBUG, "handle schema changed");
         } else {
@@ -193,14 +183,14 @@ class TestRootServerRpcStub: public ::testing::Test {
     }
 
    private:
+    ObPacketFactory factory_;
+    ObClientManager  client_manager_;
     ThreadSpecificBuffer response_packet_buffer_;
   };
 
   class MockServerRunner : public tbsys::Runnable {
    public:
     virtual void run(tbsys::CThread* thread, void* arg) {
-      UNUSED(thread);
-      UNUSED(arg);
       MockServer mock_server;
       mock_server.start();
     }
@@ -215,27 +205,32 @@ TEST_F(TestRootServerRpcStub, test_report_tablets) {
   ObServer dst_host;
   dst_host.set_ipv4_addr(dst_addr, MOCK_SERVER_LISTEN_PORT);
 
-  ObGeneralRpcStub rs_rpc;
-  ThreadSpecificBuffer buffer;
+  ObRootServerRpcStub rs_rpc;
 
-  sb::common::ObBaseClient client;
+  ObClientManager client_manager;
+  ObPacketFactory factory;
+  tbnet::Transport transport;
+  tbnet::DefaultPacketStreamer streamer;
 
   // tablets to be reported
   ObTabletReportInfoList tablets;
   ObTabletReportInfo tablet1;
   EXPECT_EQ(OB_SUCCESS, tablets.add_tablet(tablet1));
 
-  EXPECT_EQ(OB_SUCCESS, client.initialize(dst_host));
-  EXPECT_EQ(OB_SUCCESS, rs_rpc.init(&buffer, &client.get_client_mgr()));
+  streamer.setPacketFactory(&factory);
+  EXPECT_EQ(OB_SUCCESS, client_manager.initialize(&transport, &streamer));
+  transport.start();
+  EXPECT_EQ(OB_SUCCESS, rs_rpc.init(dst_host, &client_manager));
 
   tbsys::CThread test_root_server_thread;
   MockServerRunner test_root_server;
   test_root_server_thread.start(&test_root_server, NULL);
 
   sleep(1);
-  EXPECT_EQ(OB_SUCCESS, rs_rpc.report_tablets(timeout, dst_host, dst_host, tablets, time(0), false));
+  EXPECT_EQ(OB_SUCCESS, rs_rpc.report_tablets(tablets, time(0), false));
 
-  client.destroy();
+  transport.stop();
+  transport.wait();
 }
 
 }

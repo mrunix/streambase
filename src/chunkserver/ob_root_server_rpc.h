@@ -1,10 +1,20 @@
-/*
- *   (C) 2010-2012 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- *   Version: 0.1 $date
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- *   Authors:
- *      xielun.szd <xielun.szd@taobao.com>
+ * Version: 5567
+ *
+ * ob_root_server_rpc.h
+ *
+ * Authors:
+ *     qushan <qushan@taobao.com>
+ * Changes:
+ *     maoqi <maoqi@taobao.com>
+ *     xielun <xielun.szd@taobao.com>
+ *     yanran <yanran.hfs@taobao.com>
  *
  */
 
@@ -12,7 +22,6 @@
 #define OCEANBASE_CHUNKSERVER_ROOT_RPCSTUB_H_
 
 #include "common/ob_schema.h"
-#include "common/ob_range2.h"
 #include "common/ob_server.h"
 #include "common/ob_tablet_info.h"
 #include "common/thread_buffer.h"
@@ -23,7 +32,7 @@
     { \
       ret = (rpc); \
       if (OB_SUCCESS == ret || OB_RESPONSE_TIME_OUT != ret) break; \
-      usleep(static_cast<useconds_t>(THE_CHUNK_SERVER.get_param().get_network_time_out())); \
+      usleep(THE_CHUNK_SERVER.get_param().get_network_time_out()); \
     }
 
 #define rpc_retry_wait(running, retry_times, ret, rpc) \
@@ -31,7 +40,7 @@
     { \
       ret = (rpc); \
       if (OB_SUCCESS == ret || OB_RESPONSE_TIME_OUT != ret) break; \
-      usleep(static_cast<useconds_t>(THE_CHUNK_SERVER.get_config().get_network_timeout())); \
+      usleep(THE_CHUNK_SERVER.get_param().get_network_time_out()); \
     }
 
 
@@ -67,7 +76,20 @@ class ObRootServerRpcStub {
   int report_tablets(const common::ObTabletReportInfoList& tablets,
                      const int64_t time_stamp, bool has_more);
 
-  int delete_tablets(const common::ObTabletReportInfoList& tablets);
+
+  /*
+   * register self to nameserver, so nameserver can send heartbeat
+   * @param [in] server to be register to root.
+   * @param [in] is_merge_server true when server use as merge server.
+   * @param [out]
+   * status =0 represents system in very first startup process,
+   *  chunkserver wait until nameserver send the start_new_schema command.
+   *  no need to report tablets to nameserver,
+   * status =1 means chunkserver restarted, and need report it's tablets.
+   * @return OB_SUCCESS when successful, otherwise failed
+   */
+  int register_server(const common::ObServer& server,
+                      const bool is_merge_server, int32_t& status);
 
   /*
     *  notify dest_server to load tablet
@@ -80,7 +102,7 @@ class ObRootServerRpcStub {
     */
   int dest_load_tablet(
     const common::ObServer& dest_server,
-    const common::ObNewRange& range,
+    const common::ObRange& range,
     const int32_t dest_disk_no,
     const int64_t tablet_version,
     const uint64_t crc_sum,
@@ -89,14 +111,14 @@ class ObRootServerRpcStub {
 
 
   /*
-   * notify rootserver migrate tablet is over.
+   * notify nameserver migrate tablet is over.
    * @param [in] range migrated tablet's range
    * @param [in] src_server migrate source server
    * @param [in] dest_server migrate destination server
    * @param [in] keep_src =true means copy otherwise move
    * @param [in] tablet_version migrated tablet's data version
    */
-  int migrate_over(const common::ObNewRange& range,
+  int migrate_over(const common::ObRange& range,
                    const common::ObServer& src_server,
                    const common::ObServer& dest_server,
                    const bool keep_src,
@@ -111,15 +133,23 @@ class ObRootServerRpcStub {
   int report_capacity_info(const common::ObServer& server,
                            const int64_t capacity, const int64_t used);
 
+
   /**
-   * @brief get merge delay from rootserver
+   * @brief get updater addr from nameserver
+   * @param [out] update_server the add of update_server from root_server
+   * @param for_merge [in] ups use two ports,one service the client,the other used for merge
+   */
+  int get_update_server(common::ObServer& update_server, bool for_merge = false);
+
+  /**
+   * @brief get merge delay from nameserver
    * @param interval [out]
    * @return  OB_SUCCESS on success
    */
   int get_merge_delay_interval(int64_t& interval) const;
 
   /*
-   * @brief asynchronous post heartbeat message to rootserver.
+   * @brief asynchronous post heartbeat message to nameserver.
    * @param [in] client self address.
    */
   int async_heartbeat(const common::ObServer& client);
@@ -137,11 +167,10 @@ class ObRootServerRpcStub {
   int get_last_frozen_memtable_version(int64_t& last_version);
 
   int get_tablet_info(const common::ObSchemaManagerV2& schema,
-                      const uint64_t table_id, const common::ObNewRange& range,
+                      const uint64_t table_id, const common::ObRange& range,
                       common::ObTabletLocation location [], int32_t& size);
 
-  int merge_tablets_over(const common::ObTabletReportInfoList& tablet_list,
-                         const bool is_merge_succ);
+  int get_frozen_time(const int64_t frozen_version, int64_t& forzen_time);
 
  private:
   int scan(const common::ObServer& server, const int64_t timeout,

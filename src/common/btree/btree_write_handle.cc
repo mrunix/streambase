@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./btree_write_handle.cc for ...
+ *
+ * Authors:
+ *   duolong <duolong@taobao.com>
+ *
+ */
 #include "btree_alloc.h"
 #include "btree_base.h"
 #include "btree_node.h"
@@ -301,3 +316,4 @@ void BtreeWriteHandle::add_key_to_list(char* key, int32_t value) {
 
 } // end namespace common
 } // end namespace sb
+

@@ -1,3 +1,21 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: 5567
+ *
+ * ob_file_recycle.cc
+ *
+ * Authors:
+ *     qushan <qushan@taobao.com>
+ * Changes:
+ *     maoqi <maoqi@taobao.com>
+ *     huating <huating.zmq@taobao.com>
+ *
+ */
 #include <sys/types.h>
 
 #include "ob_file_recycle.h"
@@ -24,16 +42,8 @@ int ObRegularRecycler::recycle(const int64_t version) {
   int ret = OB_SUCCESS;
   ret = prepare_recycle(version);
   if (OB_SUCCESS == ret) {
-    ret = recycle_tablet_image(expired_image_, true);
+    ret = check_current_status(true);
   }
-  return ret;
-}
-
-int ObRegularRecycler::recycle(const ObTabletImage& image) {
-  int ret = OB_SUCCESS;
-
-  ret = recycle_tablet_image(image, true, true);
-
   return ret;
 }
 
@@ -48,7 +58,7 @@ int ObRegularRecycler::prepare_recycle(const int64_t version) {
            && OB_SUCCESS != (ret = load_all_tablets(version))) {
     TBSYS_LOG(WARN, "cannot load tablets in image, version=%ld", version);
   } else if (version != expired_image_.get_data_version()) {
-    recycle_tablet_image(expired_image_, false);
+    check_current_status(false);
     // destroy old image;
     ret = expired_image_.destroy();
     if (OB_SUCCESS != ret) {
@@ -61,42 +71,36 @@ int ObRegularRecycler::prepare_recycle(const int64_t version) {
   return ret;
 }
 
-int ObRegularRecycler::recycle_tablet_image(const ObTabletImage& image,
-                                            const bool do_recycle, const bool only_recycle_removed) {
+int ObRegularRecycler::check_current_status(const bool do_recycle) {
   ObTablet* tablet = NULL;
   int ret = OB_SUCCESS;
-  ObTabletImage& tablet_image = const_cast<ObTabletImage&>(image);
 
-  ret = tablet_image.begin_scan_tablets();
+  ret = expired_image_.begin_scan_tablets();
   if (OB_ITER_END == ret) {
-    TBSYS_LOG(INFO, "tablet image has no tablets.");
+    TBSYS_LOG(INFO, "expired_image_ has no tablets.");
   } else if (OB_SUCCESS != ret) {
     TBSYS_LOG(WARN, "begin_scan_tablets error, ret = %d", ret);
   } else {
-    while (OB_SUCCESS == (ret = tablet_image.get_next_tablet(tablet))) {
+    while (OB_SUCCESS == (ret = expired_image_.get_next_tablet(tablet))) {
       if (NULL != tablet && tablet->get_merge_count() == 0) {
+        TBSYS_LOG(WARN, "tablet not recycle..");
         if (do_recycle) {
-          if ((only_recycle_removed && tablet->is_removed())
-              || !only_recycle_removed) {
-            do_recycle_tablet(tablet_image, tablet->get_range());
-          }
-        } else {
-          TBSYS_LOG(WARN, "tablet not recycle..");
+          do_recycle_tablet(tablet->get_range());
         }
       }
 
       if (NULL != tablet) {
-        tablet_image.release_tablet(tablet);
+        expired_image_.release_tablet(tablet);
       }
     }
   }
 
-  tablet_image.end_scan_tablets();
+  expired_image_.end_scan_tablets();
 
   return ret;
 }
 
-int ObRegularRecycler::recycle_tablet(const common::ObNewRange& range, const int64_t version) {
+int ObRegularRecycler::recycle_tablet(const common::ObRange& range, const int64_t version) {
   int ret = OB_SUCCESS;
 
   if (0 >= version) {
@@ -106,22 +110,58 @@ int ObRegularRecycler::recycle_tablet(const common::ObNewRange& range, const int
   // still not initialized
   else if (OB_SUCCESS != (ret = prepare_recycle(version))) {
     TBSYS_LOG(WARN, "cannot prepare recycle tablet, version=%ld", version);
-  } else if (OB_SUCCESS != (ret = do_recycle_tablet(expired_image_, range))) {
+  } else if (OB_SUCCESS != (ret = do_recycle_tablet(range))) {
     TBSYS_LOG(WARN, "do recycle tablet error.");
   }
 
   return ret;
 }
 
-int ObRegularRecycler::do_recycle_tablet(const ObTabletImage& image, const common::ObNewRange& range) {
+int ObRegularRecycler::do_recycle_tablet(const common::ObRange& range) {
   int ret = OB_SUCCESS;
   ObTablet* tablet = NULL;
+  ObSSTableId sstable_id(0);
+  char sstable_file_path[OB_MAX_FILE_NAME_LENGTH];
+  char range_buf[OB_RANGE_STR_BUFSIZ];
 
-  if (OB_SUCCESS != (ret = image.acquire_tablet(range,
-                                                ObMultiVersionTabletImage::SCAN_FORWARD, tablet))) {
-    TBSYS_LOG(WARN, "cannot acuqire tablet range = %s", to_cstring(range));
+  common::IFileInfoMgr& serving_fileinfo_cache =
+    manager_.get_serving_tablet_image().get_fileinfo_cache();
+
+  if (OB_SUCCESS != (ret = expired_image_.acquire_tablet(range,
+                                                         ObMultiVersionTabletImage::SCAN_FORWARD, tablet))) {
+    range.to_string(range_buf, OB_RANGE_STR_BUFSIZ);
+    TBSYS_LOG(WARN, "cannot acuqire tablet range = %s", range_buf);
   } else {
-    ret = image.remove_sstable(tablet);
+    const common::ObArrayHelper<sstable::ObSSTableId>&
+    sstable_id_list = tablet->get_sstable_id_list();
+    for (int64_t i = 0; i < sstable_id_list.get_array_index(); ++i) {
+      sstable_id = *sstable_id_list.at(i);
+
+      // destroy file info cache if exist.
+      const IFileInfo* ifileinfo =
+        serving_fileinfo_cache.get_fileinfo(sstable_id.sstable_file_id_);
+      FileInfo* fileinfo = const_cast<FileInfo*>(dynamic_cast<const FileInfo*>(ifileinfo));
+      if (NULL != fileinfo) {
+        fileinfo->destroy();
+        serving_fileinfo_cache.revert_fileinfo(fileinfo);
+      }
+
+      ret = get_sstable_path(sstable_id, sstable_file_path, OB_MAX_FILE_NAME_LENGTH);
+      if (OB_SUCCESS != ret) {
+        TBSYS_LOG(WARN, "get sstable file path error, id = %ld",
+                  sstable_id.sstable_file_id_);
+        break;
+      } else if (!FileDirectoryUtils::exists(sstable_file_path)) {
+        TBSYS_LOG(INFO, "sstable file = %s not exist.", sstable_file_path);
+      } else if (0 != ::unlink(sstable_file_path)) {
+        TBSYS_LOG(WARN, "recycle sstable file = %s failed, error=%d",
+                  sstable_file_path, errno);
+        ret = OB_IO_ERROR;
+      } else {
+        TBSYS_LOG(INFO, "recycle sstable file = %s", sstable_file_path);
+      }
+    }
+
     if (OB_SUCCESS == ret) {
       // use merge count represents if recycled tablet.
       tablet->inc_merge_count();
@@ -129,7 +169,7 @@ int ObRegularRecycler::do_recycle_tablet(const ObTabletImage& image, const commo
   }
 
   if (NULL != tablet && OB_SUCCESS != (ret =
-                                         image.release_tablet(tablet))) {
+                                         expired_image_.release_tablet(tablet))) {
     TBSYS_LOG(ERROR, "release tablet error.");
   }
 
@@ -142,9 +182,6 @@ int ObRegularRecycler::load_all_tablets(const int64_t version) {
   int32_t disk_no_size = OB_MAX_DISK_NUMBER;
   const int32_t* disk_no_array =
     manager_.get_disk_manager().get_disk_no_array(disk_no_size);
-
-  expired_image_.set_fileinfo_cache(manager_.get_fileinfo_cache());
-  expired_image_.set_disk_manger(&manager_.get_disk_manager());
 
   for (int32_t i = 0; i < disk_no_size && OB_SUCCESS == ret; ++i) {
     int32_t disk_no = disk_no_array[i];
@@ -311,23 +348,12 @@ bool ObScanRecycler::check_if_expired_sstable(
   int64_t sstable_file_id = ::strtoll(filename, NULL, 10);
   ObSSTableId id(sstable_file_id);
 
-  if (OB_SUCCESS != manager_.get_serving_tablet_image().include_sstable(id)
-      && get_mtime(filename) + SCAN_RECYCLE_SSTABLE_TIME_BEFORE < tbsys::CTimeUtil::getTime()) {
+  if (OB_SUCCESS != manager_.get_serving_tablet_image().include_sstable(id)) {
     is_expired_sstable = true;
   }
 
 
   return is_expired_sstable;
-}
-
-int64_t ObScanRecycler::get_mtime(const char* filename) {
-  int64_t ret = 0;
-  struct stat st;
-  if (NULL != filename
-      && 0 == stat(filename, &st)) {
-    ret = st.st_mtime * 1000000L;
-  }
-  return ret;
 }
 
 int ObScanRecycler::do_recycle_file(
@@ -339,12 +365,12 @@ int ObScanRecycler::do_recycle_file(
   char dest_path[OB_MAX_FILE_NAME_LENGTH];
   get_recycle_directory(disk_no, dest_path, OB_MAX_FILE_NAME_LENGTH);
 
-  int32_t length = static_cast<int32_t>(strlen(dest_path));
+  int32_t length = strlen(dest_path);
   snprintf(dest_path + length, OB_MAX_FILE_NAME_LENGTH, "/%s", filename);
 
   TBSYS_LOG(INFO, "rename file = %s to %s.", file_path, dest_path);
   if (0 != ::rename(file_path, dest_path)) {
-    TBSYS_LOG(WARN, "rename file error %d, %s ", errno, strerror(errno));
+    TBSYS_LOG(ERROR, "rename file error %d, %s ", errno, strerror(errno));
     ret = OB_IO_ERROR;
   }
   return ret;
@@ -411,7 +437,7 @@ int ObExpiredSSTablePool::init() {
   if (!inited_) {
     CThreadGuard guard(&lock_);
     if (!inited_) {
-      files_list_ = static_cast<FileList*>(ob_malloc(OB_MAX_DISK_NUMBER * sizeof(*files_list_), ObModIds::OB_CS_FILE_RECYCLE));
+      files_list_ = static_cast<FileList*>(ob_malloc(OB_MAX_DISK_NUMBER * sizeof(*files_list_)));
       if (NULL == files_list_) {
         ret = OB_ERROR;
       } else {
@@ -463,7 +489,7 @@ int ObExpiredSSTablePool::scan_disk(int32_t disk_no) {
     list->files_num = 0;
     list->current_idx = 0;
 
-    const char* data_dir = ObChunkServerMain::get_instance()->get_chunk_server().get_config().datadir;
+    const char* data_dir = ObChunkServerMain::get_instance()->get_chunk_server().get_param().get_datadir_path();
     char path[OB_MAX_FILE_NAME_LENGTH];
     snprintf(path, sizeof(path), "%s/%d/%s", data_dir, disk_no, "Recycle");
 
@@ -497,4 +523,4 @@ int ObExpiredSSTablePool::scan_disk(int32_t disk_no) {
   return ret;
 }
 } /* chunkserver */
-} /* oceanbase */
+} /* sb */

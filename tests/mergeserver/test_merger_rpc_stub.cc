@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * test_merger_rpc_stub.cc for ...
+ *
+ * Authors:
+ *   xielun <xielun.szd@taobao.com>
+ *
+ */
 #include <iostream>
 #include <sstream>
 #include <algorithm>
@@ -7,11 +22,7 @@
 #include "common/ob_schema.h"
 #include "common/ob_malloc.h"
 #include "common/ob_scanner.h"
-#include "common/ob_mutator.h"
-#include "common/ob_ups_info.h"
 #include "common/ob_tablet_info.h"
-#include "common/ob_read_common_data.h"
-
 #include "ob_ms_rpc_stub.h"
 #include "ob_ms_tablet_location_item.h"
 #include "mock_server.h"
@@ -24,7 +35,7 @@ using namespace sb::common;
 using namespace sb::mergeserver;
 using namespace sb::mergeserver::test;
 
-const int64_t timeout = 1000000;
+const uint64_t timeout = 100000;
 const char* addr = "localhost";
 
 int main(int argc, char** argv) {
@@ -53,85 +64,6 @@ TEST_F(TestRpcStub, test_init) {
   EXPECT_TRUE(OB_SUCCESS != stub.init(&buffer, &client_manager));
 }
 
-TEST_F(TestRpcStub, test_heartbeat) {
-  // client thread one
-  ObMergerRpcStub stub;
-  ThreadSpecificBuffer buffer;
-  ObPacketFactory factory;
-  tbnet::Transport transport;
-  tbnet::DefaultPacketStreamer streamer;
-  streamer.setPacketFactory(&factory);
-  transport.start();
-  ObClientManager client_manager;
-  EXPECT_TRUE(OB_SUCCESS == client_manager.initialize(&transport, &streamer));
-  EXPECT_TRUE(OB_SUCCESS == stub.init(&buffer, &client_manager));
-
-  ObServer root_server;
-  root_server.set_ipv4_addr("OceanBase131012.cm4", MockRootServer::ROOT_SERVER_PORT);
-  // server thread
-  MockRootServer server;
-  MockServerRunner test_root_server(server);
-  tbsys::CThread root_server_thread;
-  root_server_thread.start(&test_root_server, NULL);
-  sleep(2);
-
-  ObRole role = OB_MERGESERVER;
-  ObServer merge_server;
-  EXPECT_TRUE(OB_SUCCESS == stub.heartbeat_server(timeout, root_server, merge_server, role));
-  sleep(10);
-  const static int64_t MAX_COUNT = 20;
-  for (int64_t i = 0; i < MAX_COUNT; ++i) {
-    if (OB_SUCCESS != stub.heartbeat_server(1000000, root_server, merge_server, role)) {
-      TBSYS_LOG(ERROR, "return failed:i[%ld]", i);
-      break;
-    }
-  }
-  sleep(10);
-  transport.stop();
-  server.stop();
-  sleep(10);
-}
-
-TEST_F(TestRpcStub, test_fetch_schema) {
-  ObMergerRpcStub stub;
-  ThreadSpecificBuffer buffer;
-  ObPacketFactory factory;
-  tbnet::Transport transport;
-  tbnet::DefaultPacketStreamer streamer;
-  streamer.setPacketFactory(&factory);
-  transport.start();
-  ObClientManager client_manager;
-
-  EXPECT_TRUE(OB_SUCCESS == client_manager.initialize(&transport, &streamer));
-  EXPECT_TRUE(OB_SUCCESS == stub.init(&buffer, &client_manager));
-
-  // self server
-  ObServer root_server;
-  root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
-
-  // start root server
-  MockRootServer server;
-  MockServerRunner test_root_server(server);
-  tbsys::CThread root_server_thread;
-  root_server_thread.start(&test_root_server, NULL);
-  sleep(2);
-
-  ObSchemaManagerV2 manager;
-  // wrong version
-  int64_t timestamp = 1023;
-  EXPECT_TRUE(OB_SUCCESS != stub.fetch_schema(timeout, root_server, false, timestamp, manager));
-
-  timestamp = 1024;
-  EXPECT_TRUE(OB_SUCCESS == stub.fetch_schema(timeout, root_server, false, timestamp, manager));
-  EXPECT_TRUE(manager.get_version() == 1025);
-
-  transport.stop();
-  server.stop();
-  sleep(10);
-}
-
-#if trufalsee
-
 TEST_F(TestRpcStub, test_find_server) {
   // client thread one
   ObMergerRpcStub stub;
@@ -140,6 +72,7 @@ TEST_F(TestRpcStub, test_find_server) {
   tbnet::Transport transport;
   tbnet::DefaultPacketStreamer streamer;
   streamer.setPacketFactory(&factory);
+  // 2 & 3 (io transport thread)
   transport.start();
   ObClientManager client_manager;
   EXPECT_TRUE(OB_SUCCESS == client_manager.initialize(&transport, &streamer));
@@ -148,6 +81,7 @@ TEST_F(TestRpcStub, test_find_server) {
   ObServer root_server;
   root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
 
+  // register error
   ObServer update_server;
   EXPECT_TRUE(OB_SUCCESS != stub.find_server(timeout, root_server, update_server));
 
@@ -155,6 +89,7 @@ TEST_F(TestRpcStub, test_find_server) {
   MockRootServer server;
   MockServerRunner test_root_server(server);
   tbsys::CThread root_server_thread;
+  // 4(queue) & 5 & 6(io transport) & 7(main)
   root_server_thread.start(&test_root_server, NULL);
   sleep(2);
 
@@ -163,40 +98,6 @@ TEST_F(TestRpcStub, test_find_server) {
 
   EXPECT_TRUE(OB_SUCCESS == stub.find_server(timeout, root_server, update_server));
   EXPECT_TRUE(MockUpdateServer::UPDATE_SERVER_PORT == update_server.get_port());
-
-  transport.stop();
-  server.stop();
-  sleep(10);
-}
-
-TEST_F(TestRpcStub, test_fetch_ups_list) {
-  // client thread one
-  ObMergerRpcStub stub;
-  ThreadSpecificBuffer buffer;
-  ObPacketFactory factory;
-  tbnet::Transport transport;
-  tbnet::DefaultPacketStreamer streamer;
-  streamer.setPacketFactory(&factory);
-  transport.start();
-  ObClientManager client_manager;
-  EXPECT_TRUE(OB_SUCCESS == client_manager.initialize(&transport, &streamer));
-  EXPECT_TRUE(OB_SUCCESS == stub.init(&buffer, &client_manager));
-
-  ObServer root_server;
-  root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
-
-  ObUpsList server_list;
-  EXPECT_TRUE(OB_SUCCESS != stub.fetch_server_list(timeout, root_server, server_list));
-
-  // server thread
-  MockRootServer server;
-  MockServerRunner test_root_server(server);
-  tbsys::CThread root_server_thread;
-  root_server_thread.start(&test_root_server, NULL);
-  sleep(2);
-
-  EXPECT_TRUE(OB_SUCCESS == stub.fetch_server_list(timeout, root_server, server_list));
-  EXPECT_TRUE(OB_SUCCESS == stub.fetch_server_list(timeout, root_server, server_list));
 
   transport.stop();
   server.stop();
@@ -211,6 +112,7 @@ TEST_F(TestRpcStub, test_register_server) {
   tbnet::Transport transport;
   tbnet::DefaultPacketStreamer streamer;
   streamer.setPacketFactory(&factory);
+  // 2 & 3 (io transport thread)
   transport.start();
   ObClientManager client_manager;
   EXPECT_TRUE(OB_SUCCESS == client_manager.initialize(&transport, &streamer));
@@ -230,6 +132,7 @@ TEST_F(TestRpcStub, test_register_server) {
   MockRootServer server;
   MockServerRunner test_root_server(server);
   tbsys::CThread root_server_thread;
+  // 4(queue) & 5 & 6(io transport) & 7(main)
   root_server_thread.start(&test_root_server, NULL);
   sleep(2);
 
@@ -283,6 +186,44 @@ TEST_F(TestRpcStub, test_scan_root_table) {
   sleep(10);
 }
 
+TEST_F(TestRpcStub, test_fetch_schema) {
+  ObMergerRpcStub stub;
+  ThreadSpecificBuffer buffer;
+  ObPacketFactory factory;
+  tbnet::Transport transport;
+  tbnet::DefaultPacketStreamer streamer;
+  streamer.setPacketFactory(&factory);
+  transport.start();
+  ObClientManager client_manager;
+
+  EXPECT_TRUE(OB_SUCCESS == client_manager.initialize(&transport, &streamer));
+  EXPECT_TRUE(OB_SUCCESS == stub.init(&buffer, &client_manager));
+
+  // self server
+  ObServer root_server;
+  root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
+
+  // start root server
+  MockRootServer server;
+  MockServerRunner test_root_server(server);
+  tbsys::CThread root_server_thread;
+  root_server_thread.start(&test_root_server, NULL);
+  sleep(2);
+
+  ObSchemaManagerV2 manager;
+  // wrong version
+  int64_t timestamp = 1023;
+  EXPECT_TRUE(OB_SUCCESS != stub.fetch_schema(timeout, root_server, timestamp, manager));
+
+  timestamp = 1024;
+  EXPECT_TRUE(OB_SUCCESS == stub.fetch_schema(timeout, root_server, timestamp, manager));
+  EXPECT_TRUE(manager.get_version() == 1025);
+
+  transport.stop();
+  server.stop();
+  sleep(10);
+}
+
 TEST_F(TestRpcStub, test_get_servers) {
   ObMergerRpcStub stub;
   ThreadSpecificBuffer buffer;
@@ -300,7 +241,7 @@ TEST_F(TestRpcStub, test_get_servers) {
   ObServer chunk_server;
   chunk_server.set_ipv4_addr(addr, MockChunkServer::CHUNK_SERVER_PORT);
 
-  ObTabletLocationList list;
+  ObMergerTabletLocationList list;
   ObTabletLocation addr;
   //addr.tablet_id_ = 100;
   addr.chunkserver_ = chunk_server;
@@ -365,7 +306,7 @@ TEST_F(TestRpcStub, test_scan_servers) {
   EXPECT_TRUE(OB_SUCCESS == client_manager.initialize(&transport, &streamer));
   EXPECT_TRUE(OB_SUCCESS == stub.init(&buffer, &client_manager));
 
-  ObTabletLocationList list;
+  ObMergerTabletLocationList list;
 
   ObServer chunk_server;
   chunk_server.set_ipv4_addr(addr, MockChunkServer::CHUNK_SERVER_PORT);
@@ -420,62 +361,5 @@ TEST_F(TestRpcStub, test_scan_servers) {
   sleep(10);
 }
 
-TEST_F(TestRpcStub, test_mutate_servers) {
-  ObMergerRpcStub stub;
-  ThreadSpecificBuffer buffer;
-  ObPacketFactory factory;
-  tbnet::Transport transport;
-  tbnet::DefaultPacketStreamer streamer;
-  streamer.setPacketFactory(&factory);
-  transport.start();
-  ObClientManager client_manager;
 
-  EXPECT_TRUE(OB_SUCCESS == client_manager.initialize(&transport, &streamer));
-  EXPECT_TRUE(OB_SUCCESS == stub.init(&buffer, &client_manager));
 
-  MockUpdateServer server;
-  MockServerRunner test_update_server(server);
-  tbsys::CThread update_server_thread;
-  update_server_thread.start(&test_update_server, NULL);
-  sleep(2);
-
-  ObServer update_server;
-  update_server.set_ipv4_addr(addr, MockUpdateServer::UPDATE_SERVER_PORT);
-
-  ObMutator param;
-  char* table = (char*)"test_table";
-  ObString table_name;
-  table_name.assign(table, static_cast<int32_t>(strlen(table)));
-  char* rowkey = (char*)"test_rowkey";
-  ObString row_key;
-  row_key.assign(rowkey, static_cast<int32_t>(strlen(rowkey)));
-  char* column = (char*)"test_column";
-  ObString column_name;
-  column_name.assign(column, static_cast<int32_t>(strlen(column)));
-  param.add(table_name, row_key, column_name, (int64_t)20, ObMutator::RETURN_NO_RESULT);
-  param.add(table_name, row_key, column_name, (int64_t)10, ObMutator::RETURN_UPDATE_RESULT);
-
-  ObScanner scanner;
-  EXPECT_TRUE(OB_SUCCESS == stub.mutate(timeout, update_server, param, true, scanner));
-  EXPECT_TRUE(!scanner.is_empty());
-
-  uint64_t count = 0;
-  ObCellInfo cell;
-  ObScannerIterator iter;
-  for (iter = scanner.begin(); iter != scanner.end(); ++iter) {
-    EXPECT_TRUE(OB_SUCCESS == iter.get_cell(cell));
-    printf("ups:%.*s\n", cell.row_key_.length(), cell.row_key_.ptr());
-    ++count;
-  }
-
-  // no return data
-  scanner.clear();
-  EXPECT_TRUE(OB_SUCCESS == stub.mutate(timeout, update_server, param, false, scanner));
-  EXPECT_TRUE(scanner.is_empty());
-
-  transport.stop();
-  server.stop();
-  sleep(10);
-}
-
-#endif

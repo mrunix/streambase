@@ -1,17 +1,16 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: 0.1: test_get.cc,v 0.1 2010/09/28 17:25:07 chuanhui Exp $
+ * test_get.cc for ...
  *
  * Authors:
- *   chuanhui <rizhao.ych@taobao.com>
- *     - some work details if you want
+ *   rizhao <rizhao.ych@taobao.com>
  *
  */
 #include <iostream>
@@ -20,18 +19,15 @@
 #include <gtest/gtest.h>
 #include "tblog.h"
 #include "test_helper.h"
-#include "test_utils.h"
 #include "test_init.h"
 #include "updateserver/ob_ups_table_mgr.h"
 #include "updateserver/ob_update_server_main.h"
 #include "test_ups_table_mgr_helper.h"
-#include "../common/test_rowkey_helper.h"
 
 using namespace std;
 using namespace sb::common;
 using namespace sb::updateserver;
 
-static CharArena allocator_;
 
 namespace sb {
 namespace tests {
@@ -73,7 +69,6 @@ TEST_F(TestGet, test_get_one_row) {
   static const int64_t COL_NUM = 10;
 
   ObCellInfo cell_infos[ROW_NUM][COL_NUM];
-  std::bitset<COL_NUM> check_flags[ROW_NUM];
   char row_key_strs[ROW_NUM][50];
   uint64_t table_id = 10;
   // init cell infos
@@ -81,9 +76,9 @@ TEST_F(TestGet, test_get_one_row) {
     sprintf(row_key_strs[i], "row_key_%08ld", i);
     for (int64_t j = 0; j < COL_NUM; ++j) {
       cell_infos[i][j].table_id_ = table_id;
-      cell_infos[i][j].row_key_ = make_rowkey(row_key_strs[i], &allocator_);
+      cell_infos[i][j].row_key_.assign(row_key_strs[i], strlen(row_key_strs[i]));
 
-      cell_infos[i][j].column_id_ = j + 10;
+      cell_infos[i][j].column_id_ = j + 1;
 
       cell_infos[i][j].value_.set_int(1000 + i * COL_NUM + j);
     }
@@ -101,19 +96,15 @@ TEST_F(TestGet, test_get_one_row) {
       EXPECT_EQ(0, err);
     }
   }
-  prepare_mutator(mutator);
 
   // write row to active memtable
-  uint64_t trans_descriptor = 0;
-  err = active_memtable.start_transaction(WRITE_TRANSACTION, trans_descriptor);
+  MemTableTransHandle write_handle;
+  err = active_memtable.start_transaction(WRITE_TRANSACTION, write_handle);
   ASSERT_EQ(0, err);
-  err = active_memtable.start_mutation(trans_descriptor);
-  ASSERT_EQ(0, err);
-  err = active_memtable.set(trans_descriptor, ups_mutator);
+  ups_mutator.set_mutate_timestamp(0);
+  err = active_memtable.set(write_handle, ups_mutator);
   EXPECT_EQ(0, err);
-  err = active_memtable.end_mutation(trans_descriptor, false);
-  ASSERT_EQ(0, err);
-  err = active_memtable.end_transaction(trans_descriptor, false);
+  err = active_memtable.end_transaction(write_handle);
   ASSERT_EQ(0, err);
   /*
   ObString text;
@@ -129,10 +120,9 @@ TEST_F(TestGet, test_get_one_row) {
     //version_range.start_version_ = version;
     //version_range.end_version_ = version;
     version_range.start_version_ = 2;
-    //version_range.end_version_ = 2;
+    version_range.end_version_ = 2;
     version_range.border_flag_.set_inclusive_start();
-    //version_range.border_flag_.set_inclusive_end();
-    version_range.border_flag_.set_max_value();
+    version_range.border_flag_.set_inclusive_end();
     get_param.set_version_range(version_range);
     for (int64_t j = 0; j < COL_NUM; ++j) {
       get_param.add_cell(cell_infos[i][j]);
@@ -148,15 +138,11 @@ TEST_F(TestGet, test_get_one_row) {
       ObCellInfo* p_cell = NULL;
       scanner.get_cell(&p_cell);
       ASSERT_TRUE(p_cell != NULL);
-      ObCellInfo expected = cell_infos[count / COL_NUM + i][p_cell->column_id_ - 10];
+      ObCellInfo expected = cell_infos[count / COL_NUM + i][count % COL_NUM];
       check_cell(expected, *p_cell);
-      check_flags[count / COL_NUM].set(p_cell->column_id_ - 10);
       ++count;
     }
     EXPECT_EQ(COL_NUM, count);
-    for (int64_t i = 0; i < ROW_NUM; i++) {
-      EXPECT_EQ(COL_NUM, (int64_t)check_flags[i].size());
-    }
   }
 }
 
@@ -172,4 +158,6 @@ int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+
+
 

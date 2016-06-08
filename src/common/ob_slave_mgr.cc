@@ -1,22 +1,22 @@
 /**
- * (C) 2007-2010 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
  * Version: $Id$
  *
+ * ob_slave_mgr.cc for ...
+ *
  * Authors:
  *   yanran <yanran.hfs@taobao.com>
- *     - some work details if you want
+ *
  */
-
 #include "ob_slave_mgr.h"
 
 #include "ob_malloc.h"
 #include "ob_result.h"
-#include "utility.h"
 
 using namespace sb::common;
 
@@ -45,8 +45,7 @@ ObSlaveMgr::~ObSlaveMgr() {
   }
 }
 
-int ObSlaveMgr::init(ObRoleMgr* role_mgr,
-                     const uint32_t vip,
+int ObSlaveMgr::init(const uint32_t vip,
                      ObCommonRpcStub* rpc_stub,
                      int64_t log_sync_timeout,
                      int64_t lease_interval,
@@ -58,15 +57,13 @@ int ObSlaveMgr::init(ObRoleMgr* role_mgr,
   if (is_initialized_) {
     ret = OB_INIT_TWICE;
   } else {
-    if (NULL == role_mgr || NULL == rpc_stub) {
-      TBSYS_LOG(ERROR, "Parameters is invlid[role_mgr=%p rpc_stub=%p]",
-                role_mgr, rpc_stub);
+    if (NULL == rpc_stub) {
+      TBSYS_LOG(ERROR, "Parameters is invlid[rpc_stub=%p]", rpc_stub);
       ret = OB_INVALID_ARGUMENT;
     }
   }
 
   if (OB_SUCCESS == ret) {
-    role_mgr_ = role_mgr;
     vip_ = vip;
     rpc_stub_ = rpc_stub;
     log_sync_timeout_ = log_sync_timeout;
@@ -80,33 +77,19 @@ int ObSlaveMgr::init(ObRoleMgr* role_mgr,
   return ret;
 }
 
-int ObSlaveMgr::set_send_log_point(const ObServer& server, const uint64_t send_log_point) {
-  int ret = OB_SUCCESS;
-  ServerNode* node = find_server_(server);
-  if (NULL != node) {
-    node->send_log_point = send_log_point;
-  } else {
-    ret = OB_ERROR;
-    TBSYS_LOG(WARN, "server not exist");
-  }
-  return ret;
-}
-
-int ObSlaveMgr::set_log_sync_timeout_us(const int64_t timeout) {
-  int err = OB_SUCCESS;
-  log_sync_timeout_ = timeout;
-  return err;
-}
-
 int ObSlaveMgr::add_server(const ObServer& server) {
   int ret = OB_SUCCESS;
 
   slave_info_mutex_.lock();
   ServerNode* node = find_server_(server);
   if (NULL != node) {
-    TBSYS_LOG(INFO, "slave[%s] is already existed", to_cstring(server));
+    char addr_buf[BUFSIZ];
+    if (!server.to_string(addr_buf, BUFSIZ)) {
+      strcpy(addr_buf, "Get Server IP failed");
+    }
+    TBSYS_LOG(INFO, "slave[%s] is already existed", addr_buf);
   } else {
-    ServerNode* item = (ServerNode*)ob_malloc(sizeof(ServerNode), ObModIds::OB_SLAVE_MGR);
+    ServerNode* item = (ServerNode*)ob_malloc(sizeof(ServerNode));
     if (NULL == item) {
       TBSYS_LOG(ERROR, "slave_list_(ObVector) push_back error[%d]", ret);
       ret = OB_ERROR;
@@ -119,7 +102,11 @@ int ObSlaveMgr::add_server(const ObServer& server) {
 
       slave_num_ ++;
 
-      TBSYS_LOG(INFO, "add a slave[%s], remaining slave number[%d]", to_cstring(server), slave_num_);
+      char addr_buf[BUFSIZ];
+      if (!server.to_string(addr_buf, BUFSIZ)) {
+        strcpy(addr_buf, "Get Server IP failed");
+      }
+      TBSYS_LOG(INFO, "add a slave[%s], remaining slave number[%d]", addr_buf, slave_num_);
     }
   }
   slave_info_mutex_.unlock();
@@ -133,60 +120,23 @@ int ObSlaveMgr::delete_server(const ObServer& server) {
   slave_info_mutex_.lock();
   ServerNode* node = find_server_(server);
 
+  char addr_buf[BUFSIZ];
+  if (!server.to_string(addr_buf, BUFSIZ)) {
+    strcpy(addr_buf, "Get Server IP failed");
+  }
+
   if (NULL == node) {
-    TBSYS_LOG(WARN, "Server[%s] is not found", to_cstring(server));
+    TBSYS_LOG(WARN, "Server[%s] is not found", addr_buf);
     ret = OB_ERROR;
   } else {
     node->server_list_link.remove();
     ob_free(node);
     slave_num_ --;
 
-    TBSYS_LOG(INFO, "delete server[%s], remaining slave number[%d]",  to_cstring(server), slave_num_);
+    TBSYS_LOG(INFO, "delete server[%s], remaining slave number[%d]", addr_buf, slave_num_);
   }
   slave_info_mutex_.unlock();
 
-  return ret;
-}
-
-int ObSlaveMgr::set_obi_role(ObiRole obi_role) {
-  int ret = check_inner_stat();
-  slave_info_mutex_.lock();
-  if (OB_SUCCESS == ret) {
-    ServerNode* slave_node = NULL;
-    ObDLink* p = slave_head_.server_list_link.next();
-    while (p != NULL && p != &slave_head_.server_list_link) {
-      slave_node = (ServerNode*)(p);
-      int err = 0;
-      for (int64_t i = 0; i < send_retry_times_; i++) {
-        err = rpc_stub_->send_obi_role(slave_node->server, obi_role);
-        if (OB_SUCCESS == err) {
-          break;
-        }
-      }
-      if (OB_SUCCESS != err) {
-        ret = err;
-        if (!tbsys::CNetUtil::isLocalAddr(vip_)) {
-          TBSYS_LOG(ERROR, "VIP has gone");
-          ret = OB_ERROR;
-          p = p->next();
-        } else {
-          TBSYS_LOG(ERROR, "send obi_role to slave[%s] fail. err=%d, delete it", slave_node->server.to_cstring(), err);
-          ObDLink* to_del = p;
-          p = p->next();
-          to_del->remove();
-          slave_num_ --;
-          ob_free(slave_node);
-        }
-      } else {
-        p = p->next();
-      }
-    }
-    if (NULL == p) {
-      TBSYS_LOG(ERROR, "Server list encounter NULL pointer, this should not be reached");
-      ret = OB_ERROR;
-    }
-  }
-  slave_info_mutex_.unlock();
   return ret;
 }
 
@@ -222,7 +172,7 @@ int ObSlaveMgr::send_data(const char* data, int64_t length) {
         } else if (i + 1 < send_retry_times_) {
           int64_t send_elsp_time = tbsys::CTimeUtil::getMonotonicTime() - send_beg_time;
           if (send_elsp_time < log_sync_timeout_) {
-            usleep(static_cast<useconds_t>(log_sync_timeout_ - send_elsp_time));
+            usleep(log_sync_timeout_ - send_elsp_time);
           }
         }
       }
@@ -233,7 +183,11 @@ int ObSlaveMgr::send_data(const char* data, int64_t length) {
           ret = OB_ERROR;
           p = p->next();
         } else {
-          TBSYS_LOG(WARN, "send_data to slave[%s] error[err=%d]",  to_cstring(slave_node->server), err);
+          char addr_buf[BUFSIZ];
+          if (!slave_node->server.to_string(addr_buf, BUFSIZ)) {
+            strcpy(addr_buf, "Get Server IP failed");
+          }
+          TBSYS_LOG(WARN, "send_data to slave[%s] error[err=%d]", addr_buf, err);
 
           ObDLink* to_del = p;
           p = p->next();
@@ -258,31 +212,30 @@ int ObSlaveMgr::send_data(const char* data, int64_t length) {
   if (OB_SUCCESS == ret) {
     ServerNode* slave_node = NULL;
     ObDLink* p = failed_head.server_list_link.next();
-    while (OB_SUCCESS == ret && p != NULL && p != &failed_head.server_list_link) {
+    while (p != NULL && p != &failed_head.server_list_link) {
       slave_node = (ServerNode*)(p);
       if (slave_fail_wait_lease_on_) {
         // wait slave lease timeout when switch is on
-        while (ObRoleMgr::ACTIVE == role_mgr_->get_state()
-               && slave_node->is_lease_valid(MASTER_LEASE_CHECK_REDUNDANCE)) {
+        while (slave_node->is_lease_valid(MASTER_LEASE_CHECK_REDUNDANCE)) {
           usleep(CHECK_LEASE_VALID_INTERVAL);
         }
       }
 
-      if (ObRoleMgr::ACTIVE != role_mgr_->get_state()) {
-        TBSYS_LOG(ERROR, "ERROR state found when waiting for lease expiring");
-        ret = OB_ERROR;
-      } else {
-        if (slave_fail_wait_lease_on_) {
-          TBSYS_LOG(WARN, "Slave[%s]'s lease is expired and has been removed",  to_cstring(slave_node->server));
-        } else {
-          TBSYS_LOG(WARN, "Slave[%s] has been removed without "
-                    "waiting lease timeout", to_cstring(slave_node->server));
-        }
-
-        p = p->next();
-        p->prev()->remove();
-        ob_free(slave_node);
+      char addr_buf[BUFSIZ];
+      if (!slave_node->server.to_string(addr_buf, BUFSIZ)) {
+        strcpy(addr_buf, "Get Server IP failed");
       }
+      if (slave_fail_wait_lease_on_) {
+        TBSYS_LOG(WARN, "Slave[%s]'s lease is expired and has been removed", addr_buf);
+      } else {
+        TBSYS_LOG(WARN, "Slave[%s] has been removed without "
+                  "waiting lease timeout", addr_buf);
+      }
+
+      p = p->next();
+      p->prev()->remove();
+      ob_free(slave_node);
+      ret = OB_PARTIAL_FAILED;
     }
     if (NULL == p) {
       TBSYS_LOG(ERROR, "Server list encounter NULL pointer, this should not be reached");
@@ -291,23 +244,6 @@ int ObSlaveMgr::send_data(const char* data, int64_t length) {
   }
 
   return ret;
-}
-
-
-int ObSlaveMgr::post_log_to_slave(const ObLogCursor& start_cursor, const ObLogCursor& end_cursor, const char* data, const int64_t length) {
-  int err = OB_SUCCESS;
-  UNUSED(start_cursor);
-  UNUSED(end_cursor);
-  UNUSED(data);
-  UNUSED(length);
-  return err;
-}
-
-int ObSlaveMgr::wait_post_log_to_slave(const char* data, const int64_t length, int64_t& delay_us) {
-  int64_t start_time_us = tbsys::CTimeUtil::getTime();
-  int err = send_data(data, length);
-  delay_us = tbsys::CTimeUtil::getTime() - start_time_us;
-  return err;
 }
 
 int ObSlaveMgr::extend_lease(const ObServer& server, ObLease& lease) {
@@ -319,7 +255,11 @@ int ObSlaveMgr::extend_lease(const ObServer& server, ObLease& lease) {
   if (NULL == node) {
     slave_info_mutex_.unlock();
 
-    TBSYS_LOG(WARN, "Server[%s] is not found", to_cstring(server));
+    char addr_buf[BUFSIZ];
+    if (!server.to_string(addr_buf, BUFSIZ)) {
+      strcpy(addr_buf, "Get Server IP failed");
+    }
+    TBSYS_LOG(WARN, "Server[%s] is not found", addr_buf);
     ret = OB_ERROR;
   } else {
     node->lease.lease_time = tbsys::CTimeUtil::getTime();
@@ -333,8 +273,12 @@ int ObSlaveMgr::extend_lease(const ObServer& server, ObLease& lease) {
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(WARN, "grant_lease error, ret=%d", ret);
     } else {
+      char addr_buf[BUFSIZ];
+      if (!server.to_string(addr_buf, BUFSIZ)) {
+        strcpy(addr_buf, "Get Server IP failed");
+      }
       TBSYS_LOG(DEBUG, "grant lease to Slave[%s], lease_time=%ld lease_internval=%ld renew_interval=%ld",
-                to_cstring(server), lease.lease_time, lease.lease_interval, lease.renew_interval);
+                addr_buf, lease.lease_time, lease.lease_interval, lease.renew_interval);
     }
   }
 
@@ -349,7 +293,11 @@ int ObSlaveMgr::check_lease_expiration() {
 
 bool ObSlaveMgr::is_lease_valid(const ObServer& server) const {
   //TODO: lease机制实现, yanran
-  TBSYS_LOG(DEBUG, "TODO: is_lease_valid of Slave[%s]", to_cstring(server));
+  char addr_buf[BUFSIZ];
+  if (!server.to_string(addr_buf, BUFSIZ)) {
+    strcpy(addr_buf, "Get Server IP failed");
+  }
+  TBSYS_LOG(DEBUG, "TODO: is_lease_valid of Slave[%s]", addr_buf);
   return false;
 }
 
@@ -371,36 +319,3 @@ ObSlaveMgr::ServerNode* ObSlaveMgr::find_server_(const ObServer& server) {
   return res;
 }
 
-int ObSlaveMgr::reset_slave_list() {
-  int err = OB_SUCCESS;
-  ServerNode* res = NULL;
-  ObDLink* p = slave_head_.server_list_link.next();
-  while (OB_SUCCESS == err && p != NULL && p != &slave_head_.server_list_link && 0 < slave_num_) {
-    TBSYS_LOG(INFO, "slave num =%d", slave_num_);
-    res = (ServerNode*)(p);
-    err = delete_server(res->server);
-    if (OB_SUCCESS != err) {
-      TBSYS_LOG(ERROR, "fail to delete server. err=%d", err);
-    }
-    p = slave_head_.server_list_link.next();
-  }
-  return err;
-}
-
-void ObSlaveMgr::print(char* buf, const int64_t buf_len, int64_t& pos) {
-  char server_str[OB_IP_STR_BUFF];
-  databuff_printf(buf, buf_len, pos, "slaves: ");
-
-  slave_info_mutex_.lock();
-
-  ServerNode* node = NULL;
-  ObDLink* p = slave_head_.server_list_link.next();
-  while (p != &slave_head_.server_list_link) {
-    node = (ServerNode*)p;
-    node->server.to_string(server_str, OB_IP_STR_BUFF);
-    databuff_printf(buf, buf_len, pos, "%s ", server_str);
-    p = p->next();
-  }
-
-  slave_info_mutex_.unlock();
-}

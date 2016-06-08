@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_string.h for ...
+ *
+ * Authors:
+ *   maoqi <maoqi@taobao.com>
+ *
+ */
 #ifndef OCEANBASE_COMMON_OB_STRING_H_
 #define OCEANBASE_COMMON_OB_STRING_H_
 
@@ -6,7 +21,7 @@
 #include "data_buffer.h"
 #include "murmur_hash.h"
 #include <algorithm>
-#include <iostream>
+
 namespace sb {
 namespace common {
 /**
@@ -45,15 +60,6 @@ class ObString {
       data_length_ = 0;
     }
   }
-
-  ObString(const obstr_size_t size, const obstr_size_t length, const char* ptr)
-    : buffer_size_(size), data_length_(length), ptr_(const_cast<char*>(ptr)) {
-    if (ptr_ == NULL) {
-      buffer_size_ = 0;
-      data_length_ = 0;
-    }
-  }
-
   /*
    * attache myself to buf, and then copy rv's data to myself.
    * 把rv中的obstring拷贝到buf中, 并且把自己和该buf建立联系
@@ -62,7 +68,7 @@ class ObString {
 
   inline int clone(const ObString& rv, ObDataBuffer& buf) {
     int ret = OB_ERROR;
-    assign_buffer(buf.get_data(), static_cast<obstr_size_t>(buf.get_remain()));
+    assign_buffer(buf.get_data(), buf.get_remain());
     obstr_size_t writed_length = write(rv.ptr(), rv.length());
     if (writed_length == rv.length()) {
       ret = OB_SUCCESS;
@@ -71,37 +77,10 @@ class ObString {
     return ret;
   }
 
-  inline int clone(const ObString& src) {
-    int ret = OB_BUF_NOT_ENOUGH;
-    obstr_size_t writed_length = write(src.ptr(), src.length());
-    if (writed_length == src.length()) {
-      ret = OB_SUCCESS;
-    }
-    return ret;
-  }
-
-  inline const char* find(const char c) {
-    const char* ret = NULL;
-    if (NULL != ptr_) {
-      for (obstr_size_t i = 0; i < data_length_; ++i) {
-        if (ptr_[i] == c) {
-          ret = &ptr_[i];
-          break;
-        }
-      }
-    }
-    return ret;
-  }
-
   // not virtual, i'm not a base class.
   ~ObString() {
   }
-  // reset
-  void reset() {
-    buffer_size_ = 0;
-    data_length_ = 0;
-    ptr_ = NULL;
-  }
+
   // ObString 's copy constructor && assignment, use default, copy every member.
   // ObString(const ObString & obstr);
   // ObString & operator=(const ObString& obstr);
@@ -213,7 +192,7 @@ class ObString {
   inline int32_t compare(const char* str) const {
     int32_t len = 0;
     if (str != NULL) {
-      len = static_cast<int32_t>(strlen(str));
+      len = strlen(str);
     }
     char* p = (char*)str;
     ObString rv(0, len, p);
@@ -248,50 +227,10 @@ class ObString {
   inline bool operator==(const ObString& obstr) const {
     return compare(obstr) == 0;
   }
-
   inline bool operator!=(const ObString& obstr) const {
     return compare(obstr) != 0;
   }
 
-  inline bool operator<(const char* str) const {
-    return compare(str) < 0;
-  }
-
-  inline bool operator<=(const char* str) const {
-    return compare(str) <= 0;
-  }
-
-  inline bool operator>(const char* str) const {
-    return compare(str) > 0;
-  }
-
-  inline bool operator>=(const char* str) const {
-    return compare(str) >= 0;
-  }
-
-  inline bool operator==(const char* str) const {
-    return compare(str) == 0;
-  }
-
-  inline bool operator!=(const char* str) const {
-    return compare(str) != 0;
-  }
-
-  static ObString make_string(const char* cstr) {
-    ObString ret(0, static_cast<obstr_size_t>(strlen(cstr)), const_cast<char*>(cstr));
-    return ret;
-  }
-
-  int64_t to_string(char* buff, const int64_t len) const {
-    int64_t pos = 0;
-    pos = snprintf(buff, len, "%.*s", length(), ptr());
-    if (pos < 0) {
-      pos = 0;
-    }
-    return pos;
-  }
-
-  friend std::ostream& operator<<(std::ostream& os, const ObString& str);  // for google test
  private:
   obstr_size_t buffer_size_;
   obstr_size_t data_length_;
@@ -333,7 +272,7 @@ DEFINE_DESERIALIZE(ObString) {
         res = OB_ERROR;
       }
     }
-    data_length_ = static_cast<obstr_size_t>(len);
+    data_length_ = len;
   }
   return res;
 }
@@ -341,27 +280,7 @@ DEFINE_DESERIALIZE(ObString) {
 DEFINE_GET_SERIALIZE_SIZE(ObString) {
   return serialization::encoded_length_vstr(data_length_);
 }
-
-inline std::ostream& operator<<(std::ostream& os, const ObString& str) { // for google test
-  os << "size=" << str.buffer_size_ << " len=" << str.data_length_;
-  return os;
-}
-
-template <typename AllocatorT>
-int ob_write_string(AllocatorT& allocator, const ObString& src, ObString& dst) {
-  int ret = OB_SUCCESS;
-  int32_t src_len = src.length();
-  void* ptr = NULL;
-  if (OB_UNLIKELY(NULL == src.ptr() || 0 >= src_len)) {
-    dst.assign(NULL, 0);
-  } else if (NULL == (ptr = allocator.alloc(src_len))) {
-    ret = OB_ALLOCATE_MEMORY_FAILED;
-  } else {
-    memcpy(ptr, src.ptr(), src_len);
-    dst.assign_ptr(reinterpret_cast<char*>(ptr), src_len);
-  }
-  return ret;
-}
 }
 }
 #endif
+

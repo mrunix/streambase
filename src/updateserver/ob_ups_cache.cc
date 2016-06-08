@@ -1,26 +1,21 @@
-///===================================================================
-//
-// ob_ups_cache.h / updateserver / Oceanbase
-//
-// Copyright (C) 2010 Taobao.com, Inc.
-//
-// Created on 2011-02-24 by Rongxuan (rongxuan.lc@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_ups_cache.cc for ...
+ *
+ * Authors:
+ *   rongxuan <rongxuan.lc@taobao.com>
+ *
+ */
 #include "common/ob_define.h"
 #include "ob_ups_cache.h"
 #include "common/ob_action_flag.h"
-#include "ob_ups_utils.h"
 
 namespace sb {
 namespace updateserver {
@@ -32,19 +27,21 @@ ObUpsCache::ObUpsCache(): inited_(false) {
 ObUpsCache::~ObUpsCache() {
 }
 
-int ObUpsCache::init(const int64_t cache_size) {
+int ObUpsCache::init(const int64_t cache_size, const int64_t max_cache_size_limit) {
   int ret = OB_SUCCESS;
   if (inited_) {
     TBSYS_LOG(WARN, "have inited");
     ret = OB_INIT_TWICE;
   } else {
+    set_cache_size_limit(max_cache_size_limit);
     set_cache_size(cache_size);
+    int64_t cache_size_limit = get_cache_size_limit();
     int64_t cache_size = get_cache_size();
     if (OB_SUCCESS != kv_cache_.init(cache_size)) {
       TBSYS_LOG(WARN, "init kv_cache_ failed");
       ret = OB_ERROR;
     } else {
-      TBSYS_LOG(INFO, "cache_size=%ldB", cache_size);
+      TBSYS_LOG(INFO, "cache_size=%ldB,cache_size_limit=%ldB", cache_size, cache_size_limit);
       inited_ = true;
     }
   }
@@ -82,7 +79,7 @@ int ObUpsCache::clear() {
 }
 
 int ObUpsCache::get(const uint64_t table_id,
-                    const ObRowkey& row_key, ObBufferHandle& buffer_handle,
+                    const ObString& row_key, ObBufferHandle& buffer_handle,
                     const uint64_t column_id, ObUpsCacheValue& value) {
 
   int ret = OB_SUCCESS;
@@ -92,25 +89,21 @@ int ObUpsCache::get(const uint64_t table_id,
   } else {
     if (OB_INVALID_ID == table_id || OB_INVALID_ID == column_id
         || NULL == row_key.ptr() || row_key.length() <= 0) {
-      TBSYS_LOG(WARN, "invalid param table_id=%lu,column_id=%lu,row_key_ptr=%p,row_key_length=%ld",
-                table_id, column_id, row_key.ptr(), row_key.length());
+      TBSYS_LOG(WARN, "invalid param table_id=%lu,column_id=%lu,row_key_ptr=%p,row_key_length=%lu", table_id, column_id, row_key.ptr(), row_key.length());
       ret = OB_ERROR;
     } else {
       ObUpsCacheKey date_key;
-      date_key.table_id = static_cast<uint16_t>(table_id);
-      date_key.row_key = row_key;
-      date_key.column_id = static_cast<uint16_t>(column_id);
+      date_key.table_id = table_id;
+      date_key.nbyte = row_key.length();
+      date_key.column_id = column_id;
+      date_key.buffer = const_cast<char*>(row_key.ptr());
       //如果是查询行是否存在于缓存中
       if (0 == column_id) {
         TBSYS_LOG(WARN, "use func is_row_exist to check if the row exist");
         ret = OB_ERROR;
       } else { //在缓存中查询列的值
         ret = kv_cache_.get(date_key, value, buffer_handle.handle_);
-        TBSYS_LOG(DEBUG, "get from kv cache, table_id=%lu column_id=%lu, row_key=%s ret=%d version=%ld value=[%s]",
-                  table_id, column_id, to_cstring(row_key), ret, value.version, print_obj(value.value));
-        if (OB_ENTRY_NOT_EXIST != ret && OB_SUCCESS != ret) {
-          TBSYS_LOG(WARN, "get kv_cache_ failed,ret=%d", ret);
-        } else if (OB_SUCCESS == ret) {
+        if (OB_SUCCESS == ret) {
           buffer_handle.ups_cache_ = this;
           if (common::ObVarcharType == value.value.get_type()) {
             ObString str_value;
@@ -120,6 +113,9 @@ int ObUpsCache::get(const uint64_t table_id,
             buffer_handle.buffer_ = NULL;
           }
           ret = OB_SUCCESS;
+        } else {
+          //若不存在，则调用方需要去cs上取数据，然后put进缓存
+          TBSYS_LOG(ERROR, "get kv_cache_ failed,ret=%d", ret);
         }
       }
     }
@@ -130,7 +126,7 @@ int ObUpsCache::get(const uint64_t table_id,
 
 // 加入缓存项
 int ObUpsCache::put(const uint64_t table_id,
-                    const ObRowkey& row_key,
+                    const ObString& row_key,
                     const uint64_t column_id,
                     const ObUpsCacheValue& value) {
   int ret = OB_SUCCESS;
@@ -140,32 +136,45 @@ int ObUpsCache::put(const uint64_t table_id,
   } else {
     if (OB_INVALID_ID == table_id || OB_INVALID_ID == column_id
         || NULL == row_key.ptr() || row_key.length() <= 0) {
-      TBSYS_LOG(ERROR, "invalid param table_id=%lu,column_id=%lu,row_key_ptr=%p,row_key_length=%ld", table_id, column_id, row_key.ptr(), row_key.length());
+      TBSYS_LOG(ERROR, "invalid param table_id=%lu,column_id=%lu,row_key_ptr=%p,row_key_length=%lu", table_id, column_id, row_key.ptr(), row_key.length());
       ret = OB_ERROR;
+    } else {
+      ObString temp_string;
+      if (ObNullType == value.value.get_type()) {
+        TBSYS_LOG(WARN, "invalid value,value_type=%d", value.value.get_type());
+        ret = OB_ERROR;
+      }
+      value.value.get_varchar(temp_string);
+      if (OB_SUCCESS == ret
+          && ObVarcharType == value.value.get_type()
+          && NULL == temp_string.ptr()) {
+        TBSYS_LOG(ERROR, "invalid value,value_varchar_type=%d,value_varchar_ptr=%p",
+                  value.value.get_type(), temp_string.ptr());
+        ret = OB_ERROR;
+      } else {
+        //do nothing
+      }
     }
   }
 
   if (OB_SUCCESS == ret) {
     //参数验证正确以后，将参数形成key和value 插入到缓存中
     ObUpsCacheKey cache_key;
-    cache_key.table_id = static_cast<uint16_t>(table_id);
-    cache_key.column_id = static_cast<uint16_t>(column_id);
-    cache_key.row_key = row_key;
+    cache_key.table_id = table_id;
+    cache_key.column_id = column_id;
+    cache_key.nbyte = row_key.length();
+    cache_key.buffer = const_cast<char*>(row_key.ptr());
     ret = kv_cache_.put(cache_key, value);
-    TBSYS_LOG(DEBUG, "put to kv cache, table_id=%lu column_id=%lu row_key=%s ret=%d",
-              table_id, column_id, to_cstring(row_key), ret);
-    if (OB_SUCCESS != ret) {
-      TBSYS_LOG(WARN, "failed to add cache pair to kv cache, ret=%d", ret);
-    }
+  } else {
+    //do nothing
   }
-
   return ret;
 }
 
 // 查询行是否存在
 // 如果缓存项存在，返回OB_SUCCESS; 如果缓存项不存在，返回OB_NOT_EXIST；否则，返回OB_ERROR；
 int ObUpsCache::is_row_exist(const uint64_t table_id,
-                             const ObRowkey& row_key,
+                             const ObString& row_key,
                              bool& is_exist,
                              ObBufferHandle& buffer_handle) {
   int ret = OB_SUCCESS;
@@ -174,14 +183,15 @@ int ObUpsCache::is_row_exist(const uint64_t table_id,
     ret = OB_ERROR;
   } else {
     if (OB_INVALID_ID == table_id || NULL == row_key.ptr() || row_key.length() <= 0) {
-      TBSYS_LOG(WARN, "invalid param table_id=%lu,row_ke=%s", table_id, to_cstring(row_key));
+      TBSYS_LOG(WARN, "invalid param table_id=%lu,row_key_ptr=%p,row_key_length=%lu", table_id, row_key.ptr(), row_key.length());
       ret = OB_ERROR;
     } else {
       ObUpsCacheKey cache_key;
       ObUpsCacheValue cache_value;
-      cache_key.table_id = static_cast<uint16_t>(table_id);
+      cache_key.table_id = table_id;
       cache_key.column_id = 0;
-      cache_key.row_key = row_key;
+      cache_key.nbyte = row_key.length();
+      cache_key.buffer = const_cast<char*>(row_key.ptr());
       if (OB_SUCCESS == kv_cache_.get(cache_key, cache_value, buffer_handle.handle_)) {
         buffer_handle.ups_cache_ = this;
         buffer_handle.buffer_ = NULL;
@@ -209,7 +219,7 @@ int ObUpsCache::is_row_exist(const uint64_t table_id,
 }
 
 // 设置行是否存在标志，行不存在也需要记录到缓存中
-int ObUpsCache::set_row_exist(const uint64_t table_id, const ObRowkey& row_key, const bool is_exist) {
+int ObUpsCache::set_row_exist(const uint64_t table_id, const ObString& row_key, const bool is_exist) {
   int ret = OB_SUCCESS;
   if (!inited_) {
     TBSYS_LOG(WARN, "have not inited");
@@ -218,14 +228,15 @@ int ObUpsCache::set_row_exist(const uint64_t table_id, const ObRowkey& row_key, 
     if (OB_INVALID_ID == table_id
         || NULL == row_key.ptr()
         || row_key.length() <= 0) {
-      TBSYS_LOG(WARN, "invalid param,table_id=%lu,row_key_ptr=%p,row_key_length=%ld",
+      TBSYS_LOG(WARN, "invalid param,table_id=%lu,row_key_ptr=%p,row_key_length=%lu",
                 table_id, row_key.ptr(), row_key.length());
       ret = OB_ERROR;
     } else {
       ObUpsCacheKey cache_key;
       ObUpsCacheValue cache_value;
-      cache_key.table_id = static_cast<uint16_t>(table_id);
-      cache_key.row_key = row_key;
+      cache_key.table_id = table_id;
+      cache_key.nbyte = row_key.length();
+      cache_key.buffer = const_cast<char*>(row_key.ptr());
       cache_key.column_id = 0;
 
       if (is_exist) {
@@ -233,7 +244,7 @@ int ObUpsCache::set_row_exist(const uint64_t table_id, const ObRowkey& row_key, 
       } else {
         cache_value.value.set_ext(ObActionFlag::OP_ROW_DOES_NOT_EXIST);
       }
-      ret = kv_cache_.put(cache_key, cache_value, true);
+      ret = kv_cache_.put(cache_key, cache_value);
       if (OB_SUCCESS != ret) {
         TBSYS_LOG(WARN, "set_row_exist failed,ret=%d", ret);
       }
@@ -242,10 +253,27 @@ int ObUpsCache::set_row_exist(const uint64_t table_id, const ObRowkey& row_key, 
   return ret;
 }
 
+// 设置缓存大小限制，单位为KB
+void ObUpsCache::set_cache_size_limit(const int64_t cache_size) {
+  if (cache_size < MIN_KVCACHE_SIZE) {
+    TBSYS_LOG(WARN, "cache size should not less than 1 m");
+    max_cache_size_limit_ = MIN_KVCACHE_SIZE;
+  } else {
+    max_cache_size_limit_ = cache_size;
+  }
+}
+
+// 获取缓存大小限制，单位为B
+int64_t ObUpsCache::get_cache_size_limit(void) {
+  return max_cache_size_limit_;
+}
 // 设置缓存大小，单位为B
 void ObUpsCache::set_cache_size(const int64_t cache_size) {
-  if (cache_size  < MIN_KVCACHE_SIZE) {
-    TBSYS_LOG(INFO, "set to min cache size, min_cache_size=%ldB", MIN_KVCACHE_SIZE);
+  if (cache_size > max_cache_size_limit_) {
+    TBSYS_LOG(ERROR, "invalid cache size,max_cache_size=%luB", max_cache_size_limit_);
+    cache_size_ = max_cache_size_limit_;
+  } else if (cache_size  < MIN_KVCACHE_SIZE) {
+    TBSYS_LOG(ERROR, "invalid cache size, min_cache_size=%luB", MIN_KVCACHE_SIZE);
     cache_size_ = MIN_KVCACHE_SIZE;
   } else {
     cache_size_ = cache_size ;
@@ -257,4 +285,6 @@ int64_t ObUpsCache::get_cache_size(void) {
 }
 
 }//end of updateserver
-} //end of  oceanbase
+} //end of  sb
+
+

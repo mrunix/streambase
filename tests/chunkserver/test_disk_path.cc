@@ -13,10 +13,10 @@
  *     qushan < qushan@taobao.com >
  *        - some work details if you want
  */
-#include <tbsys.h>
+
 #include "common/ob_define.h"
-#include "common/ob_common_stat.h"
 #include "sstable/ob_disk_path.h"
+#include "sstable/ob_sstable_stat.h"
 
 using namespace sb::common;
 
@@ -51,7 +51,6 @@ int get_sstable_path(const ObSSTableId& sstable_id, char* path, const int64_t pa
 
 int get_meta_path(const int32_t disk_no, const bool current, char* path, const int32_t path_len) {
   int ret = OB_SUCCESS;
-  UNUSED(current);
   if (disk_no <= 0 || NULL == path ||  path_len <= 0) {
     ret = OB_INVALID_ARGUMENT;
   }
@@ -64,7 +63,6 @@ int get_meta_path(const int32_t disk_no, const bool current, char* path, const i
 int get_meta_path(const int64_t version, const int32_t disk_no,
                   const bool current, char* path, const int32_t path_len) {
   int ret = OB_SUCCESS;
-  UNUSED(current);
   if (disk_no <= 0 || NULL == path ||  path_len <= 0) {
     ret = OB_INVALID_ARGUMENT;
   }
@@ -104,106 +102,6 @@ int get_recycle_directory(const int32_t disk_no, char* path, const int64_t path_
 
 
   return ret;
-}
-
-int get_recycle_path(const ObSSTableId& sstable_id, char* path, const int64_t path_len) {
-  int ret = OB_SUCCESS;
-  if (sstable_id.sstable_file_offset_ < 0 || NULL == path || path_len < 0) {
-    TBSYS_LOG(WARN, "get_recycle_path invalid arguments, "
-              "offset=%ld, path=%p,path_len=%ld",
-              sstable_id.sstable_file_offset_, path, path_len);
-    ret = OB_INVALID_ARGUMENT;
-  } else {
-    // read from configure file
-    const char* data_dir = "data";
-    if (OB_SUCCESS == ret) {
-      int32_t disk_no = (sstable_id.sstable_file_id_ & DISK_NO_MASK);
-      if (disk_no < 0) {
-        TBSYS_LOG(WARN, "get_recycle_path, sstable file id = %ld invalid",
-                  sstable_id.sstable_file_id_);
-        ret = OB_ERROR;
-      } else {
-        int bufsiz = snprintf(path, path_len, "%s/%d/Recycle/%ld",
-                              data_dir, disk_no, sstable_id.sstable_file_id_);
-        if (bufsiz + 1 > path_len) {
-          TBSYS_LOG(WARN, "get_recycle_path, path_len=%ld <= bufsiz=%d",
-                    path_len, bufsiz);
-          ret = OB_SIZE_OVERFLOW;
-        }
-      }
-    }
-  }
-
-  return ret;
-}
-int get_tmp_meta_path(const int32_t disk_no, char* path, const int32_t path_len) {
-  int ret = OB_SUCCESS;
-  if (disk_no <= 0 || NULL == path ||  path_len <= 0) {
-    ret = OB_INVALID_ARGUMENT;
-  }
-
-  if (OB_SUCCESS == ret) {
-    int64_t current_time = tbsys::CTimeUtil::getTime();
-    int bufsiz = snprintf(path, path_len, "./tmp/tmp_idx_%d_%ld", disk_no, current_time);
-
-    if (bufsiz + 1 > path_len) {
-      ret = OB_SIZE_OVERFLOW;
-    }
-  }
-
-  return ret;
-}
-
-static int get_sstable_directory_helper(const int32_t disk_no, char* path,
-                                        const int64_t path_len, const char* import_dir_name) {
-  int ret = OB_SUCCESS;
-  if (disk_no < 0 || NULL == path || path_len < 0 || NULL == import_dir_name) {
-    TBSYS_LOG(WARN, "get_sstable_directory_helper invalid arguments, "
-              "disk_no=%d, path=%p, path_len=%ld, import_dir_name=%p", disk_no, path, path_len, import_dir_name);
-    ret = OB_INVALID_ARGUMENT;
-  } else {
-    int bufsiz = snprintf(path, path_len, "./tmp/%d/%s", disk_no, import_dir_name);
-    if (bufsiz + 1 > path_len) {
-      TBSYS_LOG(WARN, "get_sstable_directory_helper, path_len=%ld <= bufsiz=%d, "
-                "import_dir_name=%s", path_len, bufsiz, import_dir_name);
-      ret = OB_SIZE_OVERFLOW;
-    }
-  }
-
-  return ret;
-}
-
-static int get_sstable_path_helper(const int32_t disk_no,
-                                   const char* sstable_name, char* path, const int64_t path_len,
-                                   const char* import_dir_name) {
-  int ret = OB_SUCCESS;
-  if (disk_no < 0 || NULL == sstable_name || NULL == path || path_len < 0 || NULL == import_dir_name) {
-    TBSYS_LOG(WARN, "get_import_sstable_path invalid arguments, "
-              "disk_no=%d, sstable_name=%p, path=%p, path_len=%ld, import_dir_name=%p",
-              disk_no, sstable_name, path, path_len, import_dir_name);
-    ret = OB_INVALID_ARGUMENT;
-  } else {
-    int bufsiz = snprintf(path, path_len, "./tmp/%d/%s/%s",
-                          disk_no, import_dir_name, sstable_name);
-    if (bufsiz + 1 > path_len) {
-      TBSYS_LOG(WARN, "get_import_sstable_path, path_len=%ld <= bufsiz=%d, "
-                "import_dir_name=%s",
-                path_len, bufsiz, import_dir_name);
-      ret = OB_SIZE_OVERFLOW;
-    }
-  }
-
-  return ret;
-}
-
-int get_bypass_sstable_directory(const int32_t disk_no, char* path,
-                                 const int64_t path_len) {
-  return get_sstable_directory_helper(disk_no, path, path_len, "bypass");
-}
-
-int get_bypass_sstable_path(const int32_t disk_no,
-                            const char* sstable_name, char* path, const int64_t path_len) {
-  return get_sstable_path_helper(disk_no, sstable_name, path, path_len, "bypass");
 }
 }
 }

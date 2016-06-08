@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./test/keytree_getnext_test.cc for ...
+ *
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
+ */
 #include <limits.h>
 #include <key_btree.h>
 #include <gtest/gtest.h>
@@ -842,4 +857,5 @@ TEST(KeyBtree_GetNext_Char_Test, getnext_16_exclude_oneminkey_exclude_onemaxkey_
   btree.clear();
 }
 }//end of common
-}//end of oceanbase
+}//end of sb
+

@@ -19,13 +19,9 @@
 #include "db_record_filter.h"
 #include "common/utility.h"
 #include "common/ob_string.h"
-#include "oceanbase_db.h"
 #include <map>
-#include <vector>
-#include <algorithm>
 
 using namespace sb::common;
-using namespace sb::api;
 
 const char* kConfigObLog = "ob_log_dir";
 const char* kConfigColumn = "column_info";
@@ -49,8 +45,6 @@ const char* kSysMaxFileSize = "max_file_size";
 const char* kSysRotateFileTime = "rotate_file_interval";
 const char* kConfigTableId = "table_id";
 const char* kConfigReviseColumn = "revise_column";
-const char* kSysConsistency = "consistency";
-const char* kSysMutiGetNr = "muti_get_nr";
 
 //columns should be dumped in rowkey
 //rowkey_column=name,start_pos,end_pos,type,endian
@@ -67,10 +61,9 @@ const char* kSysHeaderDelima = "header_delima";
 const char* kSysBodyDelima = "body_delima";
 const char* kSysPidFile = "obdump.pid";
 const char* kSysMaxNologInvertal = "max_nolog_interval";
-const char* kSysInitDate = "init_date";
 
 
-bool DbTableConfig::is_revise_column(const std::string& column) const {
+bool DbTableConfig::is_revise_column(std::string& column) {
   bool ret = false;
 
   for (size_t i = 0; i < revise_columns_.size(); i++) {
@@ -83,25 +76,51 @@ bool DbTableConfig::is_revise_column(const std::string& column) const {
   return ret;
 }
 
-void DbTableConfig::parse_rowkey_item() {
-  assert(schema_mgr_ != NULL);
+void DbTableConfig::parse_rowkey_item(std::vector<const char*>& vec) {
+  for (size_t i = 0; i < vec.size(); i++) {
+    RowkeyItem item;
 
-  table_id_ = schema_mgr_->get_table_schema(table_.c_str())->get_table_id();
-  const ObRowkeyInfo& rowkey_info = schema_mgr_->get_table_schema(table_.c_str())->get_rowkey_info();
+    //parse name
+    const char* str = vec[i];
+    const char* p = strchr(str, ',');
+    if (p == NULL) {
+      TBSYS_LOG(ERROR, "can't parse name");
+      continue;
+    }
+    item.name = std::string(str, p - str);
 
-  for (int64_t i = 0; i < rowkey_info.get_size(); i++) {
-    ObRowkeyColumn rowkey_column;
-    rowkey_info.get_column(i, rowkey_column);
-    int32_t idx = 0;
-    const ObColumnSchemaV2* col_schema = schema_mgr_->get_column_schema(table_id_, rowkey_column.column_id_, &idx);
+    //parse start_pos
+    str = p + 1;
+    p = strchr(str, ',');
+    if (p == NULL) {
+      TBSYS_LOG(ERROR, "can't parse start_pos");
+      continue;
+    }
+    item.start_pos = atol((std::string(str, p - str)).c_str());
 
-    RowkeyItem item(col_schema->get_name(), i);
+    //parse end_pos
+    str = p + 1;
+    p = strchr(str, ',');
+    if (p == NULL) {
+      TBSYS_LOG(ERROR, "can't parse start_pos");
+      continue;
+    }
+    item.end_pos = atol((std::string(str, p - str)).c_str());
+
+    //parse type
+    str = p + 1;
+    p = strchr(str, ',');
+    if (p == NULL) {
+      TBSYS_LOG(ERROR, "can't parse start_pos");
+      continue;
+    }
+    item.type = (ObObjType)atol((std::string(str, p - str)).c_str());
+
     rowkey_columns_.push_back(item);
-    TBSYS_LOG(INFO, "table rowkey item%ld: %s", i, item.key_name.c_str());
   }
 }
 
-void DbTableConfig::parse_output_columns(const std::string& out_columns) {
+void DbTableConfig::parse_output_columns(std::string out_columns) {
   std::string::size_type delima_pos;
   std::string::size_type base_pos = 0;
   std::string column;
@@ -118,33 +137,6 @@ void DbTableConfig::parse_output_columns(const std::string& out_columns) {
   TBSYS_LOG(DEBUG, "COLUMN: %s", column.c_str());
 }
 
-bool DbTableConfig::get_is_rowkey_column(RowkeyItem& item) const {
-  std::vector<RowkeyItem>::const_iterator rowkey_itr =
-    find(rowkey_columns_.begin(), rowkey_columns_.end(), item);
-
-  //if rowkey contains this column
-  bool is_rowkey = false;
-  if (rowkey_itr != rowkey_columns_.end()) {
-    is_rowkey = true;
-    item = *rowkey_itr;
-  }
-  return is_rowkey;
-}
-
-bool DbTableConfig::check_valid() const {
-  bool valid = true;
-  const char* table_name = table_.c_str();
-  for (size_t i = 0; i < output_columns_.size(); i++) {
-    if (schema_mgr_->get_column_schema(table_name, output_columns_[i].c_str()) == NULL) {
-      TBSYS_LOG(ERROR, "schema does not contain such column[%s]", output_columns_[i].c_str());
-      valid = false;
-      break;
-    }
-  }
-
-  return valid;
-}
-
 DbDumpConfigMgr* DbDumpConfigMgr::instance_ = NULL;
 
 DbDumpConfigMgr* DbDumpConfigMgr::get_instance() {
@@ -158,83 +150,6 @@ DbDumpConfigMgr* DbDumpConfigMgr::get_instance() {
   return instance_;
 }
 
-void DbDumpConfigMgr::add_table_config(const std::string& table_name) {
-  //table config
-  std::vector<const char*> columns;
-  columns = TBSYS_CONFIG.getStringList(table_name.c_str(), kConfigColumn);
-  DbTableConfig config(table_name, columns, &schema_mgr_);
-
-  //parse rowkey item
-  config.parse_rowkey_item();
-
-  //set revise column
-  std::vector<const char*> revise_column = TBSYS_CONFIG.getStringList(table_name.c_str(), kConfigReviseColumn);
-  config.set_revise_columns(revise_column);
-  TBSYS_LOG(INFO, "revise column size=%zu", config.get_revise_columns().size());
-
-  const char* output_format_str = TBSYS_CONFIG.getString(table_name.c_str(), std::string(kOutputFormat));
-  if (output_format_str != NULL) {
-    std::string str = output_format_str;
-    config.parse_output_columns(str);
-  }
-
-  const char* filter_str = TBSYS_CONFIG.getString(table_name.c_str(), std::string(kConfigColumnFilter));
-  if (filter_str) {
-    std::string str = filter_str;
-    DbRowFilter* filter = create_filter_from_str(str.substr(str.find('=')));
-    config.set_filter(filter);
-    filter_set_.push_back(filter);
-  }
-
-  //add table
-  if (config.check_valid() == true) {
-    configs_.push_back(config);
-  } else {
-    TBSYS_LOG(ERROR, "check config valid failed, table[%s]", table_name.c_str());
-  }
-}
-
-int DbDumpConfigMgr::load_sys_param() {
-  parser_thread_nr_ = TBSYS_CONFIG.getInt(kConfigSys, std::string(kSysParserNr), 1);
-  output_dir_ = TBSYS_CONFIG.getString(kConfigSys, std::string(kOutputDir), "data");
-  worker_thread_nr_ = TBSYS_CONFIG.getInt(kConfigSys, std::string(kSysWorkerThreadNr), 6);
-  if (worker_thread_nr_ <= 0) {
-    TBSYS_LOG(WARN, "[%ld] is not a valid worker thread number, use 6 instead", worker_thread_nr_);
-    worker_thread_nr_ = 6;
-  }
-
-  log_dir_ = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysLogDir), "obdump.log");
-  log_level_ = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysLogLevel), "DEBUG");
-  ob_log_dir_ = TBSYS_CONFIG.getString(kConfigSys, std::string(kConfigObLog));
-  if (ob_log_dir_.empty()) {
-    TBSYS_LOG(ERROR, "please specify path of commlitlog");
-    return OB_ERROR;
-  }
-
-  host_ = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysHost));
-  port_ = TBSYS_CONFIG.getInt(kConfigSys, std::string(kSysPort), 2500);
-  if (host_.empty() || port_ <= 0) {
-    TBSYS_LOG(ERROR, "oceabase %s:%d config error", host_.c_str(), port_);
-    return OB_ERROR;
-  }
-
-  consistency_ = (bool)TBSYS_CONFIG.getInt(kConfigSys, std::string(kSysConsistency), 1);
-  network_timeout_ = TBSYS_CONFIG.getInt(kConfigSys, std::string(kSysNetworkTimeout), 8 * kDefaultTimeout);
-  max_file_size_ = TBSYS_CONFIG.getInt(kConfigSys, std::string(kSysMaxFileSize), 50 * 1024 * 1024);
-  rotate_file_interval_ = TBSYS_CONFIG.getInt(kConfigSys, std::string(kSysRotateFileTime), 60);
-  monitor_interval_ = TBSYS_CONFIG.getInt(kConfigSys, std::string(kSysMonitorInterval), 10);
-  tmp_log_path_ = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysTmpLogDir), "tmp_log");
-  init_log_id_ = TBSYS_CONFIG.getInt(kConfigSys, std::string(kSysInitLogId), 0);
-  header_delima_ = TBSYS_CONFIG.getInt(kConfigSys, std::string(kSysHeaderDelima), 2);
-  body_delima_ = TBSYS_CONFIG.getInt(kConfigSys, std::string(kSysBodyDelima), 1);
-  app_name_ = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysAppName), "obdump");
-  pid_file_ = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysPidFile), "obdump.pid");
-  max_nolog_interval_ = TBSYS_CONFIG.getInt(kConfigSys, std::string(kSysMaxNologInvertal), 3600);
-  init_date_ = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysInitDate));
-  muti_get_nr_ = TBSYS_CONFIG.getInt(kConfigSys, std::string(kSysMutiGetNr), 0);
-  return OB_SUCCESS;
-}
-
 int DbDumpConfigMgr::load(const char* path) {
   int ret = TBSYS_CONFIG.load(path);
   if (ret != OB_SUCCESS) {
@@ -242,43 +157,155 @@ int DbDumpConfigMgr::load(const char* path) {
     return ret;
   }
 
-  if ((ret = load_sys_param()) != OB_SUCCESS) {
-    TBSYS_LOG(ERROR, "load sys param failed, quiting");
-    return ret;
-  }
-
-  OceanbaseDb db(host_.c_str(), port_);
-  if ((ret = db.init()) != OB_SUCCESS) {
-    TBSYS_LOG(ERROR, "connect to %s:%d failed", host_.c_str(), port_);
-    return ret;
-  }
-
-  RPC_WITH_RETIRES(db.fetch_schema(schema_mgr_), 5, ret);
-  if (ret != OB_SUCCESS) {
-    TBSYS_LOG(ERROR, "dumper config fetch_schema failed, ret = %d", ret);
-    return ret;
-  }
-
   std::vector<std::string> sections;
   TBSYS_CONFIG.getSectionName(sections);
+
   std::vector<std::string>::iterator itr = sections.begin();
   while (itr != sections.end()) {
     if (itr->compare(kConfigSys)) {
-      add_table_config(*itr);
+      //table config
+      std::vector<const char*> columns;
+      columns = TBSYS_CONFIG.getStringList(itr->c_str(), kConfigColumn);
+      DbTableConfig config(*itr, columns);
+
+      std::vector<const char*> rowkey_columns;
+      rowkey_columns = TBSYS_CONFIG.getStringList(itr->c_str(), kConfigRowkeyColumn);
+      config.parse_rowkey_item(rowkey_columns);
+
+      std::vector<const char*> revise_column = TBSYS_CONFIG.getStringList(itr->c_str(), kConfigReviseColumn);
+      config.set_revise_columns(revise_column);
+
+      TBSYS_LOG(INFO, "revise column size=%d", config.get_revise_columns().size());
+
+      const char* output_format_str = TBSYS_CONFIG.getString(itr->c_str(), std::string(kOutputFormat));
+      if (output_format_str != NULL) {
+        std::string str = output_format_str;
+        config.parse_output_columns(str);
+      }
+
+      const char* filter_str = TBSYS_CONFIG.getString(itr->c_str(), std::string(kConfigColumnFilter));
+      if (filter_str) {
+        std::string str = filter_str;
+        DbRowFilter* filter = create_filter_from_str(str.substr(str.find('=')));
+        config.filter_ = filter;
+        filter_set_.push_back(filter);
+      }
+
+      const char* table_id_str = TBSYS_CONFIG.getString(itr->c_str(), std::string(kConfigTableId));
+      if (table_id_str) {
+        config.table_id_ = atol(table_id_str);
+
+        //add table
+        configs_.push_back(config);
+      } else {
+        TBSYS_LOG(ERROR, "table id must specified, table will be skiped");
+      }
+    } else {                                    /* system parameters */
+      const char* parser_thread_nr = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysParserNr));
+      if (parser_thread_nr)
+        parser_thread_nr_ = atoi(parser_thread_nr);
+
+      const char* dir = TBSYS_CONFIG.getString(kConfigSys, std::string(kOutputDir));
+      if (dir) {
+        output_dir_ = dir;
+      }
+
+      const char* worker_thread_nr = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysWorkerThreadNr));
+      if (worker_thread_nr) {
+        worker_thread_nr_ = atol(worker_thread_nr);
+      }
+
+      const char* log_dir = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysLogDir));
+      if (log_dir)
+        log_dir_ = log_dir;
+      else
+        log_dir = "db_dump.log";
+
+      const char* log_level = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysLogLevel));
+      if (log_level)
+        log_level_ = log_level;
+      else
+        log_level_ = "debug";
+
+      const char* ob_log_dir = TBSYS_CONFIG.getString(kConfigSys, std::string(kConfigObLog));
+      if (log_dir)
+        ob_log_dir_ = ob_log_dir;
+
+      const char* host = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysHost));
+      if (host) {
+        host_ = host;
+      }
+
+      const char* port_str = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysPort));
+      if (port_str != NULL) {
+        port_ = atoi(port_str);
+      }
+
+      const char* network_timeout = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysNetworkTimeout));
+      if (network_timeout != NULL) {
+        network_timeout_ = atoi(network_timeout);
+      }
+
+      const char* max_file_size = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysMaxFileSize));
+      if (max_file_size) {
+        max_file_size_ = atol(max_file_size);
+      }
+
+      const char* rotate_file_interval = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysRotateFileTime));
+      if (rotate_file_interval)
+        rotate_file_interval_ = atol(rotate_file_interval);
+
+
+      const char* monitor_interval_str = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysMonitorInterval));
+      if (monitor_interval_str)
+        nas_check_interval_ = atol(monitor_interval_str);
+
+      const char* tmp_log_path_str = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysTmpLogDir));
+      if (tmp_log_path_str)
+        tmp_log_path_ = tmp_log_path_str;
+
+      const char* init_log_id_str = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysInitLogId));
+      if (init_log_id_str) {
+        init_log_id_ = atol(init_log_id_str);
+      } else
+        init_log_id_ = 0;
+
+      const char* header_delima_str = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysHeaderDelima));
+      if (header_delima_str) {
+        header_delima_ = (char)atoi(header_delima_str);
+      }
+
+      const char* body_delima_str = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysBodyDelima));
+      if (body_delima_str) {
+        body_delima_ = (char)atoi(body_delima_str);
+      }
+
+      const char* app_name_str = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysAppName));
+      if (app_name_str) {
+        app_name_ = app_name_str;
+      }
+
+      const char* pid_file_str = TBSYS_CONFIG.getString(kConfigSys, std::string(kSysPidFile));
+      if (pid_file_str) {
+        pid_file_ = pid_file_str;
+      }
+
+      const char* max_nolog_interval_str =
+        TBSYS_CONFIG.getString(kConfigSys, std::string(kSysMaxNologInvertal));
+      if (max_nolog_interval_str) {
+        max_nolog_interval_ = atol(max_nolog_interval_str);
+      }
     }
     itr++;
   }
 
   ret = gen_table_id_map();
-  if (ret != OB_SUCCESS) {
-    TBSYS_LOG(ERROR, "gen table id map failed");
-  }
 
   return ret;
 }
 
 
-int DbDumpConfigMgr::get_table_config(const std::string& table, const DbTableConfig*& cfg) {
+int DbDumpConfigMgr::get_table_config(std::string table, DbTableConfig*& cfg) {
   std::vector<DbTableConfig>::iterator itr = configs_.begin();
   while (itr != configs_.end()) {
     if (table == itr->table()) {
@@ -307,7 +334,7 @@ int DbDumpConfigMgr::gen_table_id_map() {
   return ret;
 }
 
-int DbDumpConfigMgr::get_table_config(uint64_t table_id, const DbTableConfig*& cfg) {
+int DbDumpConfigMgr::get_table_config(uint64_t table_id, DbTableConfig*& cfg) {
   int ret = OB_SUCCESS;
 
   std::map<uint64_t, DbTableConfig>::iterator itr =

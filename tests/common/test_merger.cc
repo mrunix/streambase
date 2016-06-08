@@ -24,12 +24,9 @@
 #include "ob_malloc.h"
 #include "ob_action_flag.h"
 #include "mock_mem_iterator.h"
-#include "test_rowkey_helper.h"
 
 using namespace std;
 using namespace sb::common;
-
-static CharArena  allocator_;
 
 void check_cell_with_op(const ObCellInfo& ori_cell_info, const ObCellInfo& new_cell_info,
                         const int64_t op_type) {
@@ -74,7 +71,8 @@ TEST_F(TestObMerger, test_one_iterator) {
 
   static const int64_t COL_NUM = 10;
   uint64_t table_id = 10;
-  ObRowkey row_key = make_rowkey("row_key", &allocator_);
+  ObString row_key;
+  row_key.assign("row_key", strlen("row_key"));
 
   int err = OB_SUCCESS;
   ObCellInfo cell_infos[COL_NUM];
@@ -138,7 +136,7 @@ TEST_F(TestObMerger, test_two_iterator) {
     for (int64_t j = 0; j < COL_NUM; ++j) {
       cell_infos[i][j].column_id_ = j + 1;
       cell_infos[i][j].table_id_ = table_id;
-      cell_infos[i][j].row_key_ = make_rowkey(row_key_buf[i], &allocator_);
+      cell_infos[i][j].row_key_.assign(row_key_buf[i], strlen(row_key_buf[i]));
       cell_infos[i][j].value_.set_int(1000 + i * COL_NUM + j);
     }
   }
@@ -190,7 +188,7 @@ TEST_F(TestObMerger, test_three_iterator) {
     for (int64_t j = 0; j < COL_NUM; ++j) {
       cell_infos[i][j].column_id_ = j + 1;
       cell_infos[i][j].table_id_ = table_id;
-      cell_infos[i][j].row_key_ = make_rowkey(row_key_buf[i], &allocator_);
+      cell_infos[i][j].row_key_.assign(row_key_buf[i], strlen(row_key_buf[i]));
       cell_infos[i][j].value_.set_int(1000 + i * COL_NUM + j);
     }
   }
@@ -256,7 +254,7 @@ TEST_F(TestObMerger, test_del_row) {
     for (int64_t j = 0; j < COL_NUM; ++j) {
       cell_infos[i][j].column_id_ = j + 1;
       cell_infos[i][j].table_id_ = table_id;
-      cell_infos[i][j].row_key_ = make_rowkey(row_key_buf[i], &allocator_);
+      cell_infos[i][j].row_key_.assign(row_key_buf[i], strlen(row_key_buf[i]));
       cell_infos[i][j].value_.set_int(1000 + i * COL_NUM + j);
     }
   }
@@ -357,9 +355,9 @@ TEST_F(TestObMerger, test_all_op) {
     for (int64_t j = 0; j < COL_NUM; ++j) {
       cell_infos[i][j].column_id_ = j + 1;
       cell_infos[i][j].table_id_ = table_id;
-      cell_infos[i][j].row_key_ = make_rowkey(row_key_buf[i], &allocator_);
+      cell_infos[i][j].row_key_.assign(row_key_buf[i], strlen(row_key_buf[i]));
       //cell_infos[i][j].value_.set_int(1000 + i * COL_NUM + j);
-      int op_type = static_cast<int32_t>(j % 3);
+      int op_type = j % 3;
       if (0 == op_type) {
         // update op
         cell_infos[i][j].value_.set_int(1000 + i * COL_NUM + j);
@@ -455,7 +453,8 @@ TEST_F(TestObMerger, test_empty_iterator) {
 
   static const int64_t COL_NUM = 10;
   uint64_t table_id = 10;
-  ObRowkey row_key = make_rowkey("row_key", &allocator_);
+  ObString row_key;
+  row_key.assign("row_key", strlen("row_key"));
 
   int err = OB_SUCCESS;
   ObCellInfo cell_infos[COL_NUM];
@@ -543,7 +542,7 @@ TEST_F(TestObMerger, test_empty_row) {
     for (int64_t j = 0; j < COL_NUM; ++j) {
       cell_infos[i][j].column_id_ = j + 1;
       cell_infos[i][j].table_id_ = table_id;
-      cell_infos[i][j].row_key_ = make_rowkey(row_key_buf[i], &allocator_);
+      cell_infos[i][j].row_key_.assign(row_key_buf[i], strlen(row_key_buf[i]));
       cell_infos[i][j].value_.set_int(1000 + i * COL_NUM + j);
     }
   }
@@ -623,7 +622,7 @@ TEST_F(TestObMerger, test_two_iterator_with_error) {
     for (int64_t j = 0; j < COL_NUM; ++j) {
       cell_infos[i][j].column_id_ = j + 1;
       cell_infos[i][j].table_id_ = table_id;
-      cell_infos[i][j].row_key_ = make_rowkey(row_key_buf[i], &allocator_);
+      cell_infos[i][j].row_key_.assign(row_key_buf[i], strlen(row_key_buf[i]));
       cell_infos[i][j].value_.set_int(1000 + i * COL_NUM + j);
     }
   }
@@ -683,7 +682,7 @@ TEST_F(TestObMerger, test_three_iterator_unordered) {
     for (int64_t j = 0; j < COL_NUM; ++j) {
       cell_infos[i][j].column_id_ = j + 1;
       cell_infos[i][j].table_id_ = table_id;
-      cell_infos[i][j].row_key_ = make_rowkey(row_key_buf[i], &allocator_);
+      cell_infos[i][j].row_key_.assign(row_key_buf[i], strlen(row_key_buf[i]));
       cell_infos[i][j].value_.set_int(1000 + i * COL_NUM + j);
     }
   }
@@ -745,7 +744,7 @@ TEST_F(TestObMerger, test_empty_row_unordered) {
     for (int64_t j = 0; j < COL_NUM; ++j) {
       cell_infos[i][j].column_id_ = j + 1;
       cell_infos[i][j].table_id_ = table_id;
-      cell_infos[i][j].row_key_ = make_rowkey(row_key_buf[i], &allocator_);
+      cell_infos[i][j].row_key_.assign(row_key_buf[i], strlen(row_key_buf[i]));
       cell_infos[i][j].value_.set_int(1000 + i * COL_NUM + j);
     }
   }

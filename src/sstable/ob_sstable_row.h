@@ -1,15 +1,16 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_sstable_row.h for persistent ssatable single row.
+ * Version: 5567
+ *
+ * ob_sstable_row.h
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
- *   fangji  <fangji.hcm@taobao.com>
+ *     huating <huating.zmq@taobao.com>
  *
  */
 #ifndef OCEANBASE_SSTABLE_OB_SSTABLE_ROW_H_
@@ -20,14 +21,9 @@
 #include "common/ob_object.h"
 #include "common/ob_malloc.h"
 #include "common/ob_string_buf.h"
-#include "common/ob_rowkey_helper.h"
-#include "common/ob_schema.h"
 #include "ob_sstable_schema.h"
 
 namespace sb {
-namespace common {
-class ObRowkey;
-}
 namespace sstable {
 /**
  * this class is used to serialize or deserialize one row.
@@ -38,16 +34,13 @@ namespace sstable {
  */
 class ObSSTableRow {
   static const int64_t DEFAULT_KEY_BUF_SIZE = 64;
-  static const int64_t DEFAULT_MAX_COLUMN_NUMBER =
-    common::OB_MAX_COLUMN_NUMBER * 2;
+  static const int64_t OBJ_SIZE = sizeof(common::ObObj);
+  static const int64_t DEFAULT_OBJS_BUF_SIZE
+    = OBJ_SIZE * common::OB_MAX_COLUMN_NUMBER;
 
  public:
   ObSSTableRow();
-  ObSSTableRow(const common::ObRowkeyInfo* rowkey_info);
   ~ObSSTableRow();
-
-
-  inline bool is_binary_rowkey() const { return NULL != binary_rowkey_info_; }
 
   /**
    * return how many objects(columns) in the row, maximum count is
@@ -55,9 +48,7 @@ class ObSSTableRow {
    *
    * @return int64_t object count
    */
-  inline const int64_t get_obj_count() const {
-    return obj_count_;
-  }
+  const int64_t get_obj_count() const;
 
   /**
    * If user uses this class to deserialize one row, first you
@@ -73,29 +64,12 @@ class ObSSTableRow {
   int set_obj_count(const int64_t obj_count,
                     const bool sparse_format = false);
 
-
-  /**
-   * return ObRowkeyInfo
-   *
-   * @return Pointer of ObRowkeyInfo
-   */
-  const common::ObRowkeyInfo* get_rowkey_info() const;
-
-  /**
-   * set ObRowkeyInfo
-   *
-   * @return int  if success return OB_SUCCESS, else return OB_ERROR
-   */
-  int set_rowkey_info(const common::ObRowkeyInfo* rowkey_info);
-
   /**
    * return table id of this row
    *
    * @return uint64_t table id of this row
    */
-  inline const uint64_t get_table_id() const {
-    return table_id_;
-  }
+  const uint64_t get_table_id() const;
 
   /**
    * set table id of this row
@@ -109,9 +83,7 @@ class ObSSTableRow {
    *
    * @return uint64_t column group id of this row
    */
-  inline const uint64_t get_column_group_id() const {
-    return column_group_id_;
-  }
+  const uint64_t get_column_group_id() const;
 
   /**
    * set column group id of this row
@@ -121,24 +93,11 @@ class ObSSTableRow {
   int set_column_group_id(const uint64_t column_group_id);
 
   /**
+   * get row key, if the row key isn't set, return a null row key.
    *
+   * @return const common::ObString&
    */
-  inline int get_rowkey(common::ObRowkey& rowkey) const {
-    int ret = common::OB_SUCCESS;
-
-    int64_t rowkey_obj_cnt = rowkey.get_obj_cnt();
-
-    if (rowkey_obj_cnt > obj_count_ || rowkey_obj_cnt != rowkey_obj_count_) {
-      TBSYS_LOG(ERROR, "invalid argument, rowkey_obj_count_ = %ld, obj_count_ =%d, "
-                "expected_rowkey_obj_cnt= %ld",
-                rowkey_obj_count_, obj_count_, rowkey_obj_cnt);
-      ret = common::OB_INVALID_ARGUMENT;
-    } else {
-      rowkey.assign(const_cast<common::ObObj*>(objs_), rowkey_obj_cnt);
-    }
-
-    return ret;
-  }
+  const common::ObString get_row_key() const;
 
   /**
    * get one object by index
@@ -150,15 +109,6 @@ class ObSSTableRow {
    *         NULL.
    */
   const common::ObObj* get_obj(const int32_t index) const;
-
-  /**
-   * get objs array of row
-   *
-   * @param obj_count obj count in row
-   *
-   * @return const common::ObObj* obj array in row
-   */
-  const common::ObObj* get_row_objs(int64_t& obj_count);
 
   /**
    * clear all the members
@@ -176,78 +126,22 @@ class ObSSTableRow {
    * @return int if success,return OB_SUCCESS, else return
    *         OB_ERROR
    */
-  int set_rowkey(const common::ObRowkey& rowkey);
-
-  inline const int64_t get_rowkey_obj_count() const {
-    return rowkey_obj_count_;
-  }
-
-  //only used by updateserver to fill rowkey obj into
-  //sstable row with shallow copy
-  inline int set_internal_rowkey(const uint64_t table_id,
-                                 const common::ObRowkey& rowkey) {
-    int ret = common::OB_SUCCESS;
-    int64_t length = rowkey.get_obj_cnt();
-    const common::ObObj* ptr = rowkey.get_obj_ptr();
-
-    if (common::OB_INVALID_ID == table_id
-        || length <= 0 || NULL == ptr
-        || 0 != obj_count_
-        || obj_count_ >= DEFAULT_MAX_COLUMN_NUMBER - 1) {
-      TBSYS_LOG(WARN, "invalid argument, table_id=%lu, "
-                "rowkey_length=%ld, rowkey_ptr=%p, obj_count=%d",
-                table_id, length, ptr, obj_count_);
-      ret = common::OB_ERROR;
-    } else {
-      table_id_ = table_id;
-      column_group_id_ = common::OB_DEFAULT_COLUMN_GROUP_ID;
-      memcpy(&objs_[obj_count_], ptr, length * sizeof(common::ObObj));
-      rowkey_obj_count_ = length;
-      obj_count_ += static_cast<int32_t>(length);
-    }
-
-    return ret;
-  }
-
-  /**
-   * for Compatible with binary rowkey.
-   * parse binary rowkey into ObObj array,
-   * then copy into row objs_ array.
-   * @return int if success, return OB_SUCCESS, else return
-   *         OB_ERROR
-   */
-  int set_binary_rowkey(const common::ObString& binary_rowkey);
-
-  int get_binary_rowkey(common::ObString& binary_rowkey) const;
+  int set_row_key(const common::ObString& key);
 
   /**
    * add one object into the row, increase the object count. user
-   * must add the objects as the order of columns in schema. it
-   * will deep copy obj.
+   * must add the objects as the order of columns in schema
    *
    * @param obj the object to add
    *
    * @return int if success,return OB_SUCCESS, else return
    *         OB_ERROR
    */
-  inline int add_obj(const common::ObObj& obj) {
-    int ret = common::OB_SUCCESS;
-
-    if (obj_count_ < common::OB_MAX_COLUMN_NUMBER) {
-      ret = string_buf_.write_obj(obj, &objs_[obj_count_++]);
-    } else {
-      TBSYS_LOG(WARN, "can't add obj anymore, max_count=%ld, obj_count=%d",
-                common::OB_MAX_COLUMN_NUMBER, obj_count_);
-      ret = common::OB_ERROR;
-    }
-
-    return ret;
-  }
+  int add_obj(const common::ObObj& obj);
 
   /**
    * add one object into the row, increase the object count, it is
-   * used for sstable writer to store sparse format with shadow
-   * copy
+   * used for sstable writer to store sparse format
    *
    * @param obj the object to add
    * @param column_id column id of this obj
@@ -255,22 +149,7 @@ class ObSSTableRow {
    * @return int if success,return OB_SUCCESS, else return
    *         OB_ERROR
    */
-  inline int shallow_add_obj(const common::ObObj& obj, const uint64_t column_id) {
-    int ret = common::OB_SUCCESS;
-
-    if (column_id == common::OB_INVALID_ID
-        || obj_count_ >= DEFAULT_MAX_COLUMN_NUMBER - 1) {
-      TBSYS_LOG(WARN, "invalid column id or obj array full, "
-                "column_id=%lu, max_count=%ld, obj_count=%d",
-                column_id, DEFAULT_MAX_COLUMN_NUMBER, obj_count_);
-      ret = common::OB_ERROR;
-    } else {
-      objs_[obj_count_++].set_int(column_id);
-      objs_[obj_count_++] = obj;
-    }
-
-    return ret;
-  }
+  int add_obj(const common::ObObj& obj, const uint64_t column_id);
 
   /**
    * check if the order and type of object are consistent with
@@ -286,9 +165,6 @@ class ObSSTableRow {
 
   NEED_SERIALIZE_AND_DESERIALIZE;
 
-  int serialize(char* buf, const int64_t buf_len, int64_t& pos,
-                const int64_t row_serialize_size) const;
-
  private:
   /**
    * allocate memory and ensure the space is enough to store the
@@ -301,22 +177,31 @@ class ObSSTableRow {
    */
   int ensure_key_buf_space(const int64_t size);
 
+  /**
+   * allocate memory and ensure the space is enough to store the
+   * objs
+   *
+   * @param size the obj size to need
+   *
+   * @return int if success,return OB_SUCCESS, else return
+   *         OB_ERROR
+   */
+  int ensure_objs_buf_space(const int64_t size);
+
  private:
   DISALLOW_COPY_AND_ASSIGN(ObSSTableRow);
 
   uint64_t table_id_;         //table id of this row
   uint64_t column_group_id_;  //group id of this row
-  int64_t rowkey_obj_count_;  //how many obj count of rowkey
   char* row_key_buf_;         //buffer to store row key char stream
+  int32_t row_key_len_;       //length of row key
   int32_t row_key_buf_size_;  //size of row key buffer
 
   /* the order of object must be the same as schema */
+  common::ObObj* objs_;
+  int32_t objs_buf_size_;     //objs buffer size
   int32_t obj_count_;         //count of objects in the objs array
-  common::ObObj objs_[DEFAULT_MAX_COLUMN_NUMBER];
   common::ObStringBuf string_buf_;  //store the varchar of ObObj
-
-  /* Parse Rowkey split */
-  const common::ObRowkeyInfo* binary_rowkey_info_;
 };
 } // namespace sb::sstable
 } // namespace Oceanbase

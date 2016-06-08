@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,14 +52,11 @@ const char* OP_TYPE_STR[] = {
   "OP_MIX",
   "OP_GET",
   "OP_SCAN",
-  "OP_SQL_GET",
-  "OP_SQL_SCAN",
   "OP_MAX"
 };
 
 const char* OP_GEN_MODE_STR[] = {
   "GEN_NULL",
-  "GEN_RANDOM",
   "GEN_RANDOM",
   "GEN_SEQ",
   "GEN_COMBO_RANDOM",
@@ -67,8 +64,7 @@ const char* OP_GEN_MODE_STR[] = {
   "GEN_NEW_KEY",
   "GEN_VALID_WRITE",
   "GEN_INVALID_WRITE",
-  "GEN_VALID_ADD",
-  "GEN_FROM_CONFIG"
+  "GEN_VALID_ADD"
 };
 
 const char* OBJ_TYPE_STR[] = {
@@ -195,11 +191,10 @@ void ObOpCellParam::display() const {
   fprintf(stderr, "      op_type_: %s \n"
           "      gen_cell_: %s \n"
           "      column_name_: %.*s \n"
-          "      column_id_: %ld \n"
           "      cell_type_: %s \n"
           "      key_prefix_: %ld \n",
           OP_TYPE_STR[op_type_], OP_GEN_MODE_STR[gen_cell_],
-          column_name_.length(), column_name_.ptr(), column_id_,
+          column_name_.length(), column_name_.ptr(),
           OBJ_TYPE_STR[cell_type_], key_prefix_);
   switch (cell_type_) {
   case common::ObFloatType:
@@ -431,13 +426,12 @@ void ObOpParam::display() const {
           "  is_wide_table_: %s \n"
           "  op_type_: %s \n"
           "  table_name_: %.*s \n"
-          "  table_id_: %ld \n"
           "  row_count_: %ld \n",
           invalid_op_ ? "true" : "false",
           is_read_ ? "true" : "false",
           is_wide_table_ ? "true" : "false",
           OP_TYPE_STR[op_type_], table_name_.length(),
-          table_name_.ptr(), table_id_, row_count_);
+          table_name_.ptr(), row_count_);
   param_gen_.display();
   for (int64_t i = 0; i < row_count_; ++i) {
     fprintf(stderr, "  row_[%ld]: \n", i);
@@ -460,7 +454,7 @@ int ObOpParam::ensure_space(const int64_t size) {
     ret = OB_ERROR;
   } else if (NULL == data_buf_
              || (NULL != data_buf_ && size > data_buf_size_)) {
-    new_buf = static_cast<char*>(ob_malloc(data_len, ObModIds::TEST));
+    new_buf = static_cast<char*>(ob_malloc(data_len));
     if (NULL == new_buf) {
       TBSYS_LOG(WARN, "Problem allocating memory for data buffer");
       ret = OB_ERROR;
@@ -469,7 +463,7 @@ int ObOpParam::ensure_space(const int64_t size) {
         ob_free(data_buf_);
         data_buf_ = NULL;
       }
-      data_buf_size_ = static_cast<int32_t>(data_len);
+      data_buf_size_ = data_len;
       data_buf_ = new_buf;
     }
   }
@@ -503,7 +497,7 @@ int ObOpParam::write_param_to_file(const char* file_name) {
     serialize_size = get_serialize_size();
     if (OB_SUCCESS == ret && serialize_size > 0
         && (OB_SUCCESS == (ret = ensure_space(serialize_size)))) {
-      data_len_ = static_cast<int32_t>(serialize_size);
+      data_len_ = serialize_size;
       ret = serialize(data_buf_, data_len_, pos);
       if (OB_SUCCESS != ret) {
         TBSYS_LOG(WARN, "failed to serialize param, file=%s", file_name);
@@ -512,7 +506,7 @@ int ObOpParam::write_param_to_file(const char* file_name) {
   }
 
   if (OB_SUCCESS == ret) {
-    wrote_len = static_cast<int32_t>(file_util.write(data_buf_, data_len_));
+    wrote_len = file_util.write(data_buf_, data_len_);
     if (wrote_len != data_len_) {
       TBSYS_LOG(ERROR, "failed to write file=%s, wrote_len=%d, "
                 "data_len=%d", file_name, wrote_len, data_len_);
@@ -552,7 +546,7 @@ int ObOpParam::load_param_from_file(const char* file_name) {
 
   if (OB_SUCCESS == ret
       && (OB_SUCCESS == (ret = ensure_space(file_len)))) {
-    read_len = static_cast<int32_t>(file_util.read(data_buf_, file_len));
+    read_len = file_util.read(data_buf_, file_len);
     if (read_len != file_len) {
       TBSYS_LOG(ERROR, "failed to read file=%s, read_len=%d, "
                 "file_len=%ld", file_name, read_len, file_len);
@@ -709,7 +703,7 @@ int ObSyscheckerRule::init_random_block() {
     }
 
     if (OB_SUCCESS == ret) {
-      random_block_ = reinterpret_cast<char*>(ob_malloc(random_block_size_, ObModIds::TEST));
+      random_block_ = reinterpret_cast<char*>(ob_malloc(random_block_size_));
       if (NULL == random_block_) {
         TBSYS_LOG(WARN, "failed to allocate memory for random char block");
         ret = OB_ERROR;
@@ -726,12 +720,20 @@ int ObSyscheckerRule::init_random_block() {
   return ret;
 }
 
-int ObSyscheckerRule::init(const ObSyscheckerParam& param) {
+int ObSyscheckerRule::init(const int64_t syschecker_count,
+                           const bool is_specified,
+                           const bool is_full_row) {
   int ret = OB_SUCCESS;
   ObOpParamGen write_param_gen;
   ObOpRule write_rule;
   ObOpParamGen read_param_gen;
   ObOpRule read_rule;
+
+  if (syschecker_count <= 0) {
+    TBSYS_LOG(WARN, "invalid param, syschecker_count=%ld",
+              syschecker_count);
+    ret = OB_ERROR;
+  }
 
   if (OB_SUCCESS == ret && (cur_max_prefix_ <= 0 || cur_max_suffix_ <= 0)) {
     TBSYS_LOG(WARN, "invalid row key range, cur_max_prefix_=%lu, "
@@ -741,16 +743,9 @@ int ObSyscheckerRule::init(const ObSyscheckerParam& param) {
   }
 
   if (OB_SUCCESS == ret) {
-    is_specified_read_param_ = param.is_specified_read_param();
-    syschecker_count_ = param.get_syschecker_count();
-    operate_full_row_ = param.is_operate_full_row();
-    perf_test_ = param.is_perf_test();
-    is_sql_read_ = param.is_sql_read();
-    read_table_type_ = static_cast<int32_t>(param.get_read_table_type());
-    write_table_type_ = static_cast<int32_t>(param.get_write_table_type());
-    get_row_cnt_ = param.get_get_row_cnt();
-    scan_row_cnt_ = param.get_scan_row_cnt();
-    update_row_cnt_  = param.get_update_row_cnt();
+    is_specified_read_param_ = is_specified;
+    syschecker_count_ = syschecker_count;
+    operate_full_row_ = is_full_row;
     ret = init_random_block();
   }
 
@@ -761,12 +756,6 @@ int ObSyscheckerRule::init(const ObSyscheckerParam& param) {
      */
     write_param_gen.gen_cell_ = GEN_VALID_WRITE;
     write_param_gen.gen_cell_count_ = GEN_VALID_WRITE;
-    if (perf_test_) {
-      write_param_gen.gen_op_ = GEN_FROM_CONFIG;
-      write_param_gen.gen_table_name_ = GEN_FROM_CONFIG;
-      write_param_gen.gen_row_count_ = GEN_FROM_CONFIG;
-      write_param_gen.gen_row_key_ = GEN_FROM_CONFIG;
-    }
     strcpy(write_rule.rule_name_, "write_rule");
     write_rule.param_gen_ = write_param_gen;
     write_rule.invalid_op_ = false;
@@ -778,35 +767,25 @@ int ObSyscheckerRule::init(const ObSyscheckerParam& param) {
       }
     }
     write_rule_count_ = MAX_WRITE_RULE_NUM;
-    if (!perf_test_) {
-      write_rule_[0].invalid_op_ = true;  //the first rule is invalid rule
-      write_rule_[0].param_gen_.gen_cell_count_ = GEN_INVALID_WRITE;
-      write_rule_[0].param_gen_.gen_cell_ = GEN_INVALID_WRITE;
-      write_rule_[1].invalid_op_ = true;  //the second rule is random rule
-      write_rule_[1].param_gen_.gen_cell_count_ = GEN_RANDOM;
-      write_rule_[1].param_gen_.gen_cell_ = GEN_RANDOM;
-    }
+    write_rule_[0].invalid_op_ = true;  //the first rule is invalid rule
+    write_rule_[0].param_gen_.gen_cell_count_ = GEN_INVALID_WRITE;
+    write_rule_[0].param_gen_.gen_cell_ = GEN_INVALID_WRITE;
+    write_rule_[1].invalid_op_ = true;  //the second rule is random rule
+    write_rule_[1].param_gen_.gen_cell_count_ = GEN_RANDOM;
+    write_rule_[1].param_gen_.gen_cell_ = GEN_RANDOM;
 
-    if (perf_test_) {
-      read_param_gen.gen_op_ = GEN_FROM_CONFIG;
-      read_param_gen.gen_row_count_ = GEN_FROM_CONFIG;
-      read_param_gen.gen_table_name_ = GEN_FROM_CONFIG;
-      read_param_gen.gen_row_key_ = GEN_FROM_CONFIG;
-    }
     strcpy(read_rule.rule_name_, "read_rule");
     read_rule.param_gen_ = read_param_gen;
     read_rule.invalid_op_ = false;
     for (int64_t i = 0; i < MAX_READ_RULE_NUM; ++i) {
       read_rule_[i] = read_rule;
-      if (!perf_test_ && i > MAX_READ_RULE_NUM / 2) {
+      if (i > MAX_READ_RULE_NUM / 2) {
         //get or scan sequence
         read_rule_[i].param_gen_.gen_row_key_ = GEN_SEQ;
       }
     }
     read_rule_count_ = MAX_READ_RULE_NUM;
-    if (!perf_test_) {
-      read_rule_[0].param_gen_.gen_row_key_ = GEN_NEW_KEY;
-    }
+    read_rule_[0].param_gen_.gen_row_key_ = GEN_NEW_KEY;
     inited_ = true;
   }
 
@@ -814,21 +793,7 @@ int ObSyscheckerRule::init(const ObSyscheckerParam& param) {
 }
 
 ObOpType ObSyscheckerRule::get_random_read_op(const uint64_t random_num) {
-  if (random_num % READ_OP_COUNT == 0) {
-    return is_sql_read_ ? OP_SQL_GET : OP_GET;
-  } else {
-    return is_sql_read_ ? OP_SQL_SCAN : OP_SCAN;
-  }
-}
-
-ObOpType ObSyscheckerRule::get_config_read_op(const uint64_t random_num) {
-  if (get_row_cnt_ > 0 && scan_row_cnt_ == 0) {
-    return is_sql_read_ ? OP_SQL_GET : OP_GET;
-  } else if (get_row_cnt_ == 0 && scan_row_cnt_ > 0) {
-    return is_sql_read_ ? OP_SQL_SCAN : OP_SCAN;
-  } else {
-    return (random_num % READ_OP_COUNT == 0 ? OP_GET : OP_SCAN);
-  }
+  return (random_num % READ_OP_COUNT == 0 ? OP_GET : OP_SCAN);
 }
 
 ObOpType ObSyscheckerRule::get_random_write_op(const uint64_t random_num) {
@@ -850,13 +815,8 @@ int ObSyscheckerRule::set_op_type(ObOpParam& op_param,
 
   switch (op_param.param_gen_.gen_op_) {
   case GEN_RANDOM:
-  case GEN_FROM_CONFIG:
     if (op_param.is_read_) {
-      if (!perf_test_) {
-        op_param.op_type_ = get_random_read_op(random_num);
-      } else {
-        op_param.op_type_ = get_config_read_op(random_num);
-      }
+      op_param.op_type_ = get_random_read_op(random_num);
     } else {
       op_param.op_type_ = get_random_write_op(random_num);
     }
@@ -896,27 +856,12 @@ int ObSyscheckerRule::set_table_name(ObOpParam& op_param,
 
   switch (op_param.param_gen_.gen_table_name_) {
   case GEN_RANDOM:
-  case GEN_FROM_CONFIG:
-    if (perf_test_ && read_table_type_ != ALL_TABLE) {
-      if (read_table_type_ == WIDE_TABLE) {
-        op_param.table_name_ = syschecker_schema_.get_wt_name();
-        op_param.table_id_ = syschecker_schema_.get_wt_schema()->get_table_id();
-        op_param.is_wide_table_ = true;
-      } else if (read_table_type_ == JOIN_TABLE) {
-        op_param.table_name_ = syschecker_schema_.get_jt_name();
-        op_param.table_id_ = syschecker_schema_.get_jt_schema()->get_table_id();
-        op_param.is_wide_table_ = false;
-      }
+    if (random_num % ObSyscheckerSchema::TABLE_COUNT == 0) {
+      op_param.table_name_ = syschecker_schema_.get_wt_name();
+      op_param.is_wide_table_ = true;
     } else {
-      if (random_num % ObSyscheckerSchema::TABLE_COUNT == 0) {
-        op_param.table_name_ = syschecker_schema_.get_wt_name();
-        op_param.table_id_ = syschecker_schema_.get_wt_schema()->get_table_id();
-        op_param.is_wide_table_ = true;
-      } else {
-        op_param.table_name_ = syschecker_schema_.get_jt_name();
-        op_param.table_id_ = syschecker_schema_.get_jt_schema()->get_table_id();
-        op_param.is_wide_table_ = false;
-      }
+      op_param.table_name_ = syschecker_schema_.get_jt_name();
+      op_param.is_wide_table_ = false;
     }
   //no break, go through
 
@@ -953,28 +898,19 @@ int ObSyscheckerRule::set_row_count(ObOpParam& op_param,
 
   switch (op_param.param_gen_.gen_row_count_) {
   case GEN_RANDOM:
-  case GEN_FROM_CONFIG:
     if (op_param.is_read_) {
-      if (OP_GET == op_param.op_type_ || OP_SQL_GET == op_param.op_type_) {
+      if (OP_GET == op_param.op_type_) {
         if (!op_param.invalid_op_) {
-          if (!perf_test_) {
-            op_param.row_count_ = random_num % (MAX_GET_ROW_COUNT - 1) + 1;
-          } else {
-            op_param.row_count_ = get_row_cnt_;
-          }
+          op_param.row_count_ = random_num % (MAX_GET_ROW_COUNT - 1) + 1;
         } else {
           op_param.row_count_ = random_num % (MAX_INVALID_ROW_COUNT - 1) + 1;
         }
-      } else if (OP_SCAN == op_param.op_type_ || OP_SQL_SCAN == op_param.op_type_) {
+      } else if (OP_SCAN == op_param.op_type_) {
         op_param.row_count_ = SCAN_PARAM_ROW_COUNT;
       }
     } else {
       if (!op_param.invalid_op_) {
-        if (!perf_test_) {
-          op_param.row_count_ = random_num % (MAX_WRITE_ROW_COUNT - 1) + 1;
-        } else {
-          op_param.row_count_ = update_row_cnt_;
-        }
+        op_param.row_count_ = random_num % (MAX_WRITE_ROW_COUNT - 1) + 1;
       } else {
         op_param.row_count_ = random_num % (MAX_INVALID_ROW_COUNT - 1) + 1;
       }
@@ -1037,18 +973,20 @@ int ObSyscheckerRule::encode_row_key(const ObOpParam& op_param,
                                      const int64_t prefix,
                                      const int64_t suffix) {
   int ret     = OB_SUCCESS;
+  int64_t pos = 0;
 
   if (op_param.is_wide_table_) {
-    row_param.rowkey_len_ = MAX_SYSCHECKER_ROWKEY_COLUMN_COUNT;
-    row_param.rowkey_[0].set_int(prefix);
-    if (suffix < 0) {
-      row_param.rowkey_[1].set_max_value();
-    } else {
-      row_param.rowkey_[1].set_int(suffix);
+    row_param.rowkey_len_ = MAX_SYSCHECKER_ROWKEY_LEN;
+    ret = encode_i64(row_param.rowkey_, row_param.rowkey_len_,
+                     pos, prefix);
+    if (OB_SUCCESS == ret) {
+      ret = encode_i64(row_param.rowkey_, row_param.rowkey_len_,
+                       pos, suffix);
     }
   } else {
-    row_param.rowkey_len_ = MAX_SYSCHECKER_ROWKEY_COLUMN_COUNT / 2;
-    row_param.rowkey_[0].set_int(suffix);
+    row_param.rowkey_len_ = ROWKEY_SUFFIX_SIZE;
+    ret = encode_i64(row_param.rowkey_, row_param.rowkey_len_,
+                     pos, suffix);
   }
 
   return ret;
@@ -1065,29 +1003,16 @@ int ObSyscheckerRule::set_row_key(const ObOpParam& op_param,
 
   switch (op_param.param_gen_.gen_row_key_) {
   case GEN_RANDOM:
-  case GEN_FROM_CONFIG:
     //skip key with prefix 0
     prefix = random_num % (cur_max_prefix_ - 1) + 1;
     suffix = random_num % cur_max_suffix_;
-    if (OP_SCAN == op_param.op_type_ || OP_SQL_SCAN == op_param.op_type_) {
+    if (OP_SCAN == op_param.op_type_) {
       if (op_param.is_wide_table_ && prefix_back > 0) {
-        if (!perf_test_) {
-          prefix = prefix_back + random_num % MAX_SCAN_ROW_COUNT;
-          suffix = suffix_back;
-        } else {
-          prefix = prefix_back + scan_row_cnt_ - 1;
-          suffix = -1;  //for performance test, the end key with FF suffix
-        }
-      } else if (op_param.is_wide_table_ && prefix_back == 0 && perf_test_) {
-        suffix = 0; //for performance test, the start key with 00 suffix
+        prefix = prefix_back + random_num % MAX_SCAN_ROW_COUNT;
       } else if (!op_param.is_wide_table_ && suffix_back > 0) {
-        if (!perf_test_) {
-          suffix = suffix_back + random_num % MAX_SCAN_ROW_COUNT;
-        } else {
-          suffix = suffix_back + scan_row_cnt_;
-        }
+        suffix = suffix_back + random_num % MAX_SCAN_ROW_COUNT;
       }
-    } else if (OP_GET == op_param.op_type_ || OP_SQL_GET == op_param.op_type_) {
+    } else if (OP_GET == op_param.op_type_) {
       //avoid adjacent rowkey is the same
       if (op_param.is_wide_table_ && prefix_back == prefix
           && suffix_back == suffix) {
@@ -1207,7 +1132,7 @@ int ObSyscheckerRule::set_cell_count_per_row(const ObOpParam& op_param,
         cell_count = (random_num % jt_size) * MIN_OP_CELL_COUNT;
       }
     }
-    row_param.cell_count_ = static_cast<int32_t>((0 == cell_count) ? MIN_OP_CELL_COUNT : cell_count);
+    row_param.cell_count_ = (0 == cell_count) ? MIN_OP_CELL_COUNT : cell_count;
     break;
 
   case GEN_VALID_WRITE:
@@ -1244,7 +1169,7 @@ int ObSyscheckerRule::set_cell_count_per_row(const ObOpParam& op_param,
           cell_count = (random_num % jwt_size) * MIN_OP_CELL_COUNT;
         }
       }
-      row_param.cell_count_ = static_cast<int32_t>((0 == cell_count) ? MIN_OP_CELL_COUNT : cell_count);
+      row_param.cell_count_ = (0 == cell_count) ? MIN_OP_CELL_COUNT : cell_count;
     } else {
       TBSYS_LOG(WARN, "read operation specify GEN_VALID_WRITE");
       ret = OB_ERROR;
@@ -1285,7 +1210,7 @@ int ObSyscheckerRule::set_cell_count_per_row(const ObOpParam& op_param,
           cell_count = (random_num % jut_size) * MIN_OP_CELL_COUNT;
         }
       }
-      row_param.cell_count_ = static_cast<int32_t>((0 == cell_count) ? MIN_OP_CELL_COUNT : cell_count);
+      row_param.cell_count_ = (0 == cell_count) ? MIN_OP_CELL_COUNT : cell_count;
     } else {
       TBSYS_LOG(WARN, "read operation specify GEN_INVALID_WRITE");
       ret = OB_ERROR;
@@ -1326,7 +1251,7 @@ int ObSyscheckerRule::set_cell_count_per_row(const ObOpParam& op_param,
           cell_count = (random_num % jat_size) * MIN_OP_CELL_COUNT;
         }
       }
-      row_param.cell_count_ = static_cast<int32_t>((0 == cell_count) ? MIN_OP_CELL_COUNT : cell_count);
+      row_param.cell_count_ = (0 == cell_count) ? MIN_OP_CELL_COUNT : cell_count;
     } else {
       TBSYS_LOG(WARN, "read operation specify GEN_VALID_ADD");
       ret = OB_ERROR;
@@ -1345,7 +1270,6 @@ int ObSyscheckerRule::set_cell_count_per_row(const ObOpParam& op_param,
 
   case GEN_SEQ:
   case GEN_COMBO_RANDOM:
-  case GEN_FROM_CONFIG:
     TBSYS_LOG(WARN, "not implement type(%s) for generating row cell count",
               OP_GEN_MODE_STR[op_param.param_gen_.gen_cell_count_]);
     ret = OB_ERROR;
@@ -1373,16 +1297,13 @@ int ObSyscheckerRule::set_column_name(const ObColumnPair& column_pair,
   } else {
     org_cell.column_name_ =
       syschecker_schema_.get_column_name(*column_pair.org_);
-    org_cell.column_id_ = column_pair.org_->get_id();
     if (NULL != column_pair.aux_) {
       aux_cell.column_name_ =
         syschecker_schema_.get_column_name(*column_pair.aux_);
-      aux_cell.column_id_ = column_pair.aux_->get_id();
     } else {
       //no auxiliary column, set original column twice
       aux_cell.column_name_ =
         syschecker_schema_.get_column_name(*column_pair.org_);
-      aux_cell.column_id_ = column_pair.org_->get_id();
     }
   }
 
@@ -1511,10 +1432,10 @@ int ObSyscheckerRule::set_cell_varchar(const ObColumnPair& column_pair,
       max_len = column_pair.org_->get_size();
       length = random_num % max_len;
       length = (length < MIN_TEST_VARCHAR_LEN) ? MIN_TEST_VARCHAR_LEN : length;
-      org_cell.varchar_len_ = static_cast<int32_t>(length);
+      org_cell.varchar_len_ = length;
       org_cell.value_.varchar_val_ =
         random_block_ + random_num % (random_block_size_ - max_len);
-      varchar_hash = hash(org_cell.value_.varchar_val_, static_cast<int32_t>(length));
+      varchar_hash = hash(org_cell.value_.varchar_val_, length);
       aux_cell.value_.int_val_ = 0 - varchar_hash;
     }
   }
@@ -1554,8 +1475,8 @@ int ObSyscheckerRule::set_new_cell_value(const ObColumnPair& column_pair,
      * for double type, the auxiliary column store the same value
      * with original column
      */
-    org_cell.value_.double_val_ = (double)random_num;
-    aux_cell.value_.double_val_ = (double)random_num;
+    org_cell.value_.double_val_ = random_num;
+    aux_cell.value_.double_val_ = random_num;
     break;
   case ObDateTimeType:
     org_cell.value_.time_val_ = random_num;
@@ -2131,7 +2052,6 @@ int ObSyscheckerRule::set_cell_pair(const ObOpParam& op_param,
                                     const uint64_t random_num,
                                     const int64_t column_idx) {
   int ret = OB_SUCCESS;
-  UNUSED(row_param);
 
   //change GEN_VALID_WRITE to GEN_VALID_ADD for add operation
   if (OP_ADD == org_cell.op_type_ && OP_ADD == aux_cell.op_type_

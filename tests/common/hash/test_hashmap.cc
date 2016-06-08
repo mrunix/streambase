@@ -244,49 +244,6 @@ TEST(TestObHashMap, atomic) {
   EXPECT_EQ(value_update, value_tmp);
 }
 
-struct GAllocator {
-  void* alloc(const int64_t sz) {
-    fprintf(stdout, "::malloc\n");
-    return ::malloc(sz);
-  }
-  void free(void* p) {
-    fprintf(stdout, "::free\n");
-    ::free(p);
-  }
-};
-
-template <class T>
-class GAllocBigArray : public BigArrayTemp<T, GAllocator> {
-};
-
-TEST(TestObHashMap, use_gallocator) {
-  ObHashMap<HashKey,
-            HashValue,
-            ReadWriteDefendMode,
-            hash_func<HashKey>,
-            equal_to<HashKey>,
-            SimpleAllocer<HashMapTypes<HashKey, HashValue>::AllocType, 1024, SpinMutexDefendMode, GAllocator>,
-            GAllocBigArray> hm;
-
-  uint64_t key[4] = {1, 2, 1, 1 + cal_next_prime(gHashItemNum)};
-  uint64_t value[4] = {100, 200, 300, 301};
-
-  // 没有create
-  EXPECT_EQ(-1, hm.set(key[0], value[0], 0));
-
-  hm.create(cal_next_prime(gHashItemNum));
-  // 正常插入
-  EXPECT_EQ(HASH_INSERT_SUCC, hm.set(key[0], value[0], 0));
-  // 正常插入不同bucket的key
-  EXPECT_EQ(HASH_INSERT_SUCC, hm.set(key[1], value[1], 0));
-  // 正常插入相同bucket的key
-  EXPECT_EQ(HASH_INSERT_SUCC, hm.set(key[3], value[3], 0));
-  // key存在但不覆盖
-  EXPECT_EQ(HASH_EXIST, hm.set(key[2], value[2], 0));
-  // key存在覆盖
-  EXPECT_EQ(HASH_OVERWRITE_SUCC, hm.set(key[2], value[2], 1));
-}
-
 int main(int argc, char** argv) {
   ob_init_memory_pool();
   testing::InitGoogleTest(&argc, argv);

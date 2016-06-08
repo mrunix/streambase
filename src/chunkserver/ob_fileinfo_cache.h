@@ -1,14 +1,20 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_fileinfo_cache.h for file info cache.
+ * Version: 5567
+ *
+ * ob_fileinfo_cache.h
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
+ *     yubai <yubai.lk@taobao.com>
+ * Changes:
+ *     huating <huating.zmq@taobao.com>
+ *     qushan <qushan@taobao.com>
+ *     maoqi <maoqi@taobao.com>
  *
  */
 #ifndef  OCEANBASE_CHUNKSERVER_FILECACHE_H_
@@ -43,11 +49,9 @@ class FileInfoCache : public common::IFileInfoMgr {
 
  public:
   int init(const int64_t max_cache_num);
-  int enlarg_cache_num(const int64_t max_cache_num);
   int destroy();
 
  public:
-  const FileInfo* get_cache_fileinfo(const uint64_t sstable_id);
   virtual const common::IFileInfo* get_fileinfo(const uint64_t sstable_id);
   virtual int revert_fileinfo(const common::IFileInfo* file_info);
   int clear();
@@ -103,7 +107,7 @@ inline chunkserver::FileInfo** do_copy(chunkserver::FileInfo* const& other,
 
 inline int32_t do_size(chunkserver::FileInfo* const& data,
                        CSFileInfoPointerDeepCopyTag) {
-  return (int32_t)(sizeof(data) + sizeof(chunkserver::FileInfo));
+  return (sizeof(data) + sizeof(chunkserver::FileInfo));
 }
 
 inline void do_destroy(chunkserver::FileInfo** data,

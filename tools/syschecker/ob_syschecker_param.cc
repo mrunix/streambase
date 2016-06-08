@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,8 +27,8 @@ static const char* OBUPS_IP = "vip";
 static const char* OBUPS_PORT = "port";
 
 static const char* OBMS_SECTION  = "merge_server";
+static const char* OBMS_MERGE_SERVER_COUNT = "merge_server_count";
 static const char* OBMS_MERGE_SERVER_STR = "merge_server_str";
-static const char* OBMS_CHUNK_SERVER_STR = "chunk_server_str";
 
 static const char* OBSC_SECTION = "syschecker";
 static const char* OBSC_WRITE_THREAD_COUNT = "write_thread_count";
@@ -39,14 +39,6 @@ static const char* OBSC_SYSCHECKER_NO = "syschecker_no";
 static const char* OBSC_SPECIFIED_READ_PARAM = "specified_read_param";
 static const char* OBSC_OPERATE_FULL_ROW = "operate_full_row";
 static const char* OBSC_STAT_DUMP_INTERVAL = "stat_dump_interval";
-static const char* OBSC_PERF_TEST = "perf_test";
-static const char* OBSC_SQL_READ = "sql_read";
-static const char* OBSC_CHECK_RESULT = "check_result";
-static const char* OBSC_READ_TABLE_TYPE = "read_table_type";
-static const char* OBSC_WRITE_TABLE_TYPE = "write_table_type";
-static const char* OBSC_GET_ROW_CNT = "get_row_cnt";
-static const char* OBSC_SCAN_ROW_CNT = "scan_row_cnt";
-static const char* OBSC_UPDATE_ROW_CNT = "update_row_cnt";
 }
 
 namespace sb {
@@ -54,24 +46,14 @@ namespace syschecker {
 using namespace common;
 
 ObSyscheckerParam::ObSyscheckerParam() {
-  network_time_out_ = 0;
-  write_thread_count_ = 0;
-  read_thread_count_ = 0;
-  syschecker_count_ = 0;
-  syschecker_no_ = 0;
-  specified_read_param_ = 0;
-  operate_full_row_ = 0;
-  stat_dump_interval_ = 0;
-  perf_test_ = 0;
-  check_result_ = 0;
-  read_table_type_ = 0;
-  write_table_type_ = 0;
-  get_row_cnt_ = 0;
-  scan_row_cnt_ = 0;
-  update_row_cnt_ = 0;
+  memset(this, 0, sizeof(ObSyscheckerParam));
 }
 
 ObSyscheckerParam::~ObSyscheckerParam() {
+  if (NULL != merge_server_) {
+    ob_free(merge_server_);
+    merge_server_ = NULL;
+  }
 }
 
 int ObSyscheckerParam::load_string(char* dest, const int64_t size,
@@ -106,7 +88,7 @@ int ObSyscheckerParam::load_string(char* dest, const int64_t size,
   return ret;
 }
 
-int ObSyscheckerParam::parse_server(char* str, common::ObArray<common::ObServer>& servers) {
+int ObSyscheckerParam::parse_merge_server(char* str) {
   int ret           = OB_SUCCESS;
   char* str_ptr     = NULL;
   int32_t port      = 0;
@@ -114,7 +96,7 @@ int ObSyscheckerParam::parse_server(char* str, common::ObArray<common::ObServer>
   char* end_ptr     = str + strlen(str);
   char* ptr         = NULL;
   int64_t length    = 0;
-  ObServer server;
+  int64_t cur_index = 0;
   char buffer[OB_MAX_IP_SIZE];
 
   if (NULL == str) {
@@ -145,13 +127,22 @@ int ObSyscheckerParam::parse_server(char* str, common::ObArray<common::ObServer>
     if (NULL != ptr) {
       ptr[0] = '\0';
       ptr++;
-      port = static_cast<int32_t>(strtol(ptr, (char**)NULL, 10));
+      port = strtol(ptr, (char**)NULL, 10);
     }
 
-    server.set_ipv4_addr(buffer, port);
-    ret = servers.push_back(server);
-    if (OB_SUCCESS != ret) {
-      TBSYS_LOG(WARN, "invalid merge server ip=%s, port=%d.", buffer, port);
+    if (NULL != merge_server_ && cur_index < merge_server_count_) {
+      bool res = merge_server_[cur_index++].set_ipv4_addr(buffer, port);
+      if (!res) {
+        TBSYS_LOG(WARN, "invalid merge server index=%ld, ip=%s, port=%d.",
+                  cur_index, buffer, port);
+        ret = OB_ERROR;
+        break;
+      }
+    } else {
+      TBSYS_LOG(WARN, "no space to store merge server, merge_server_=%p, "
+                "merge_server_count_=%ld, cur_index=%ld",
+                merge_server_, merge_server_count_, cur_index);
+      ret = OB_ERROR;
       break;
     }
 
@@ -163,20 +154,41 @@ int ObSyscheckerParam::parse_server(char* str, common::ObArray<common::ObServer>
   return ret;
 }
 
-int ObSyscheckerParam::load_server() {
+int ObSyscheckerParam::load_merge_server() {
   int ret = OB_SUCCESS;
-  char server_str[OB_MAX_MERGE_SERVER_STR_SIZE];
+  char merge_server_str[OB_MAX_MERGE_SERVER_STR_SIZE];
 
-  if (OB_SUCCESS != (ret = load_string(server_str, OB_MAX_MERGE_SERVER_STR_SIZE,
-                                       OBMS_SECTION, OBMS_MERGE_SERVER_STR, false))) {
-  } else if (server_str[0] != 0 && OB_SUCCESS != (ret = parse_server(server_str, merge_servers_))) {
-    TBSYS_LOG(WARN, "failed to parse merge server string");
+  if (OB_SUCCESS == ret) {
+    merge_server_count_ = TBSYS_CONFIG.getInt(OBMS_SECTION,
+                                              OBMS_MERGE_SERVER_COUNT, 0);
+    if (merge_server_count_ <= 0) {
+      TBSYS_LOG(WARN, "syschecker merge server count=%ld can't <= 0." ,
+                merge_server_count_);
+      ret = OB_INVALID_ARGUMENT;
+    }
   }
 
-  if (OB_SUCCESS != (ret = load_string(server_str, OB_MAX_MERGE_SERVER_STR_SIZE,
-                                       OBMS_SECTION, OBMS_CHUNK_SERVER_STR, false))) {
-  } else if (server_str[0] != 0 && OB_SUCCESS != (ret = parse_server(server_str, chunk_servers_))) {
-    TBSYS_LOG(WARN, "failed to parse merge server string");
+  if (OB_SUCCESS == ret) {
+    merge_server_ = reinterpret_cast<ObServer*>
+                    (ob_malloc(merge_server_count_ * sizeof(ObServer)));
+    if (NULL == merge_server_) {
+      TBSYS_LOG(ERROR, "failed allocate for merge servers array.");
+      ret = OB_ERROR;
+    } else {
+      memset(merge_server_, 0, merge_server_count_ * sizeof(ObServer));
+    }
+  }
+
+  if (OB_SUCCESS == ret) {
+    ret = load_string(merge_server_str, OB_MAX_MERGE_SERVER_STR_SIZE,
+                      OBMS_SECTION, OBMS_MERGE_SERVER_STR, true);
+  }
+
+  if (OB_SUCCESS == ret) {
+    ret = parse_merge_server(merge_server_str);
+    if (OB_SUCCESS != ret) {
+      TBSYS_LOG(WARN, "failed to parse merge server string");
+    }
   }
 
   return ret;
@@ -239,7 +251,7 @@ int ObSyscheckerParam::load_from_config() {
 
   // load merge server
   if (OB_SUCCESS == ret) {
-    ret = load_server();
+    ret = load_merge_server();
   }
 
   if (OB_SUCCESS == ret) {
@@ -333,109 +345,30 @@ int ObSyscheckerParam::load_from_config() {
     }
   }
 
-  if (OB_SUCCESS == ret) {
-    perf_test_ = TBSYS_CONFIG.getInt(OBSC_SECTION, OBSC_PERF_TEST,
-                                     DEFAULT_PERF_TEST);
-    if (perf_test_ < 0) {
-      TBSYS_LOG(WARN, "syschecker perf_test_=%ld can't < 0." ,
-                perf_test_);
-      ret = OB_INVALID_ARGUMENT;
-    }
-  }
-
-  if (OB_SUCCESS == ret) {
-    is_sql_read_ = TBSYS_CONFIG.getInt(OBSC_SECTION, OBSC_SQL_READ,
-                                       DEFAULT_SQL_READ);
-    if (is_sql_read_ < 0) {
-      TBSYS_LOG(WARN, "syschecker is_sql_read_=%ld can't < 0." ,
-                is_sql_read_);
-      ret = OB_INVALID_ARGUMENT;
-    }
-  }
-
-  if (OB_SUCCESS == ret) {
-    check_result_ = TBSYS_CONFIG.getInt(OBSC_SECTION, OBSC_CHECK_RESULT,
-                                        DEFAULT_CHECK_RESULT);
-    if (check_result_ < 0) {
-      TBSYS_LOG(WARN, "syschecker check_result_=%ld can't < 0." ,
-                check_result_);
-      ret = OB_INVALID_ARGUMENT;
-    }
-  }
-
-  if (OB_SUCCESS == ret) {
-    read_table_type_ = TBSYS_CONFIG.getInt(OBSC_SECTION, OBSC_READ_TABLE_TYPE,
-                                           DEFAULT_READ_TABLE_TYPE);
-    if (read_table_type_ < 0 || read_table_type_ > 2) {
-      TBSYS_LOG(WARN, "syschecker read_table_type_=%ld can't < 0 or > 2, "
-                "0:all_table, 1:wide_table, 2: join_table" ,
-                read_table_type_);
-      ret = OB_INVALID_ARGUMENT;
-    }
-  }
-
-  if (OB_SUCCESS == ret) {
-    write_table_type_ = TBSYS_CONFIG.getInt(OBSC_SECTION, OBSC_WRITE_TABLE_TYPE,
-                                            DEFAULT_WRITE_TABLE_TYPE);
-    if (write_table_type_ < 0 || write_table_type_ > 2) {
-      TBSYS_LOG(WARN, "syschecker write_table_type_=%ld can't < 0 or > 2, "
-                "0:all_table, 1:wide_table, 2: join_table" ,
-                write_table_type_);
-      ret = OB_INVALID_ARGUMENT;
-    }
-  }
-
-  if (OB_SUCCESS == ret) {
-    get_row_cnt_ = TBSYS_CONFIG.getInt(OBSC_SECTION, OBSC_GET_ROW_CNT,
-                                       DEFAULT_GET_ROW_CNT);
-    if (get_row_cnt_ < 0) {
-      TBSYS_LOG(WARN, "syschecker get_row_cnt_=%ld can't < 0." ,
-                get_row_cnt_);
-      ret = OB_INVALID_ARGUMENT;
-    }
-  }
-
-  if (OB_SUCCESS == ret) {
-    scan_row_cnt_ = TBSYS_CONFIG.getInt(OBSC_SECTION, OBSC_SCAN_ROW_CNT,
-                                        DEFAULT_SCAN_ROW_CNT);
-    if (scan_row_cnt_ < 0) {
-      TBSYS_LOG(WARN, "syschecker scan_row_cnt_=%ld can't < 0." ,
-                scan_row_cnt_);
-      ret = OB_INVALID_ARGUMENT;
-    }
-  }
-
-  if (OB_SUCCESS == ret) {
-    update_row_cnt_ = TBSYS_CONFIG.getInt(OBSC_SECTION, OBSC_UPDATE_ROW_CNT,
-                                          DEFAULT_UPDATE_ROW_CNT);
-    if (update_row_cnt_ < 0) {
-      TBSYS_LOG(WARN, "syschecker update_row_cnt_=%ld can't < 0." ,
-                update_row_cnt_);
-      ret = OB_INVALID_ARGUMENT;
-    }
-  }
-
-  if (OB_SUCCESS == ret && perf_test_ > 0 && 0 == get_row_cnt_
-      && 0 == scan_row_cnt_ && 0 == update_row_cnt_) {
-    TBSYS_LOG(WARN, "specify perf_test_ is true, but not specify op cnt, "
-              "perf_test_=%ld, get_row_cnt_=%ld, scan_row_cnt_=%ld, udpate_row_cnt_=%ld",
-              perf_test_, get_row_cnt_, scan_row_cnt_, update_row_cnt_);
-    ret = OB_INVALID_ARGUMENT;
-  }
-
   return ret;
 }
 
 void ObSyscheckerParam::dump_param() {
+  char server_str[OB_MAX_IP_SIZE];
 
-  fprintf(stderr, "root_server: %s\n", to_cstring(root_server_));
-  fprintf(stderr, "update_server:%s\n", to_cstring(update_server_));
+  root_server_.to_string(server_str, OB_MAX_IP_SIZE);
+  fprintf(stderr, "root_server: \n"
+          "    vip: %s \n"
+          "    port: %d \n",
+          server_str, root_server_.get_port());
 
-  for (int64_t i = 0; i < merge_servers_.count(); ++i) {
-    fprintf(stderr, "merge_server[%ld]: addr:%s\n", i, to_cstring(merge_servers_.at(i)));
-  }
-  for (int64_t i = 0; i < chunk_servers_.count(); ++i) {
-    fprintf(stderr, "chunk_server[%ld]: addr:%s\n", i, to_cstring(chunk_servers_.at(i)));
+  update_server_.to_string(server_str, OB_MAX_IP_SIZE);
+  fprintf(stderr, "update_server: \n"
+          "    vip: %s \n"
+          "    port: %d \n",
+          server_str, update_server_.get_port());
+
+  for (int64_t i = 0; i < merge_server_count_; ++i) {
+    merge_server_[i].to_string(server_str, OB_MAX_IP_SIZE);
+    fprintf(stderr, "merge_server[%ld]: \n"
+            "    vip: %s \n"
+            "    port: %d \n",
+            i, server_str, merge_server_[i].get_port());
   }
 
   fprintf(stderr, "    network_time_out: %ld \n"
@@ -445,19 +378,10 @@ void ObSyscheckerParam::dump_param() {
           "    syschecker_no: %ld \n"
           "    specified_read_param: %ld \n"
           "    operate_full_row: %ld \n"
-          "    stat_dump_interval: %ld \n"
-          "    perf_test_:%ld \n"
-          "    check_result_:%ld \n"
-          "    read_table_type_:%ld \n"
-          "    write_table_type_:%ld \n"
-          "    get_row_cnt_:%ld \n"
-          "    scan_row_cnt_:%ld \n"
-          "    update_row_cnt_:%ld \n",
+          "    stat_dump_interval: %ld \n",
           network_time_out_, write_thread_count_, read_thread_count_,
           syschecker_count_, syschecker_no_, specified_read_param_,
-          operate_full_row_, stat_dump_interval_, perf_test_,
-          check_result_, read_table_type_, write_table_type_,
-          get_row_cnt_, scan_row_cnt_, update_row_cnt_);
+          operate_full_row_, stat_dump_interval_);
 }
 } // end namespace syschecker
 } // end namespace sb

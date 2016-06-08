@@ -1,21 +1,18 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: $Id: file_directory_utils.h,v 0.1 2010/07/22 16:57:07 duanfei Exp $
+ * file_directory_utils.h for ...
  *
  * Authors:
- *   duanfei <duanfei@taobao.com>
- *     - some work details if you want
- *   Author Name ...
+ *   yanran <yanran.hfs@taobao.com>
  *
  */
-
 #ifndef OCEANBASE_COMMON_FILE_DIRECTORY_UTILS_H_
 #define OCEANBASE_COMMON_FILE_DIRECTORY_UTILS_H_
 
@@ -53,3 +50,4 @@ typedef FileDirectoryUtils FSU;
 }				//end namespace common
 }				//end namespace sb
 #endif
+

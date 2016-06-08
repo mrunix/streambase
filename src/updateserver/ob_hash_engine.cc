@@ -1,26 +1,22 @@
-////===================================================================
-//
-// ob_hash_engine.cc / hash / common / Oceanbase
-//
-// Copyright (C) 2010 Taobao.com, Inc.
-//
-// Created on 2010-09-09 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_hash_engine.cc for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #include "common/hash/ob_hashutils.h"
 #include "common/ob_malloc.h"
-#include "common/ob_atomic.h"
 #include "ob_hash_engine.h"
+#include "ob_atomic.h"
 #include "ob_ups_utils.h"
 
 namespace sb {
@@ -895,4 +891,6 @@ void HashEngineIterator::reset() {
 }
 }
 }
+
+
 

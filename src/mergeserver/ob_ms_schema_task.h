@@ -1,20 +1,18 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: 0.1: ob_ms_timer_task.h,v 0.1 2010/10/29 10:25:10 zhidong Exp $
+ * ob_ms_schema_task.h for ...
  *
  * Authors:
- *   zhidong <xielun.szd@taobao.com>
- *     - some work details if you want
+ *   xielun <xielun.szd@taobao.com>
  *
  */
-
 #ifndef OB_MERGER_SCHEMA_TIMER_TASK_H_
 #define OB_MERGER_SCHEMA_TIMER_TASK_H_
 
@@ -22,11 +20,10 @@
 #include "common/ob_timer.h"
 
 namespace sb {
-namespace common {
-class ObMergerSchemaManager;
-}
 namespace mergeserver {
-class ObMergerSchemaProxy;
+class ObMergerRpcProxy;
+class ObMergerSchemaManager;
+
 /// @brief check and fetch new schema timer task
 class ObMergerSchemaTask : public common::ObTimerTask {
  public:
@@ -35,7 +32,7 @@ class ObMergerSchemaTask : public common::ObTimerTask {
 
  public:
   /// init set rpc and schema manager
-  void init(ObMergerSchemaProxy* rpc, common::ObMergerSchemaManager* schema);
+  void init(ObMergerRpcProxy* rpc, ObMergerSchemaManager* schema);
 
   /// set fetch new version
   void set_version(const int64_t local, const int64_t remote);
@@ -49,14 +46,14 @@ class ObMergerSchemaTask : public common::ObTimerTask {
  public:
   volatile int64_t local_version_;
   volatile int64_t remote_version_;
-  ObMergerSchemaProxy* schema_proxy_;
-  common::ObMergerSchemaManager* schema_;
+  ObMergerRpcProxy* rpc_proxy_;
+  ObMergerSchemaManager* schema_;
 };
 
-inline void ObMergerSchemaTask::init(ObMergerSchemaProxy* proxy, common::ObMergerSchemaManager* schema) {
+inline void ObMergerSchemaTask::init(ObMergerRpcProxy* rpc, ObMergerSchemaManager* schema) {
   local_version_ = 0;
   remote_version_ = 0;
-  schema_proxy_ = proxy;
+  rpc_proxy_ = rpc;
   schema_ = schema;
 }
 
@@ -66,7 +63,7 @@ inline void ObMergerSchemaTask::set_version(const int64_t local, const int64_t s
 }
 
 inline bool ObMergerSchemaTask::check_inner_stat(void) const {
-  return ((NULL != schema_proxy_) && (NULL != schema_));
+  return ((NULL != rpc_proxy_) && (NULL != schema_));
 }
 }
 }
@@ -74,4 +71,6 @@ inline bool ObMergerSchemaTask::check_inner_stat(void) const {
 
 
 #endif //OB_MERGER_SCHEMA_TIMER_TASK_H_
+
+
 

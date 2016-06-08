@@ -29,7 +29,7 @@ TEST(serialization, int8) {
   int64_t pos = 0;
 
   for (int i = 0; i < BUF_SIZE; ++i) {
-    ASSERT_EQ(serialization::encode_i8(buf, BUF_SIZE, pos, static_cast<int8_t>(i)), OB_SUCCESS);
+    ASSERT_EQ(serialization::encode_i8(buf, BUF_SIZE, pos, i), OB_SUCCESS);
   }
   write_buf_to_file("serialization_int8", buf, BUF_SIZE);
   ASSERT_EQ(pos, BUF_SIZE);

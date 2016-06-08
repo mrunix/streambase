@@ -1,10 +1,20 @@
-/*
- *   (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- *   Version: 0.1 $date
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- *   Authors:
- *      qushan <qushan@taobao.com>
+ * Version: 5567
+ *
+ * ob_chunk_server.h
+ *
+ * Authors:
+ *     qushan <qushan@taobao.com>
+ * Changes:
+ *     maoqi <maoqi@taobao.com>
+ *     ruohai <ruohai@taobao.com>
+ *     huating <huating.zmq@taobao.com>
  *
  */
 #ifndef OCEANBASE_CHUNKSERVER_CHUNKSERVER_H_
@@ -15,31 +25,20 @@
 #include "common/ob_packet_factory.h"
 #include "common/thread_buffer.h"
 #include "common/ob_client_manager.h"
-#include "common/ob_file_service.h"
-#include "common/ob_file_client.h"
-#include "common/ob_general_rpc_stub.h"
-#include "common/ob_statistics.h"
 #include "ob_chunk_service.h"
+#include "ob_chunk_server_param.h"
 #include "ob_tablet_manager.h"
+#include "ob_root_server_rpc.h"
 #include "ob_chunk_server_stat.h"
-#include "ob_rpc_proxy.h"
-#include "ob_chunk_server_config.h"
-#include "common/ob_common_stat.h"
-
 
 namespace sb {
-namespace common {
-class ObConfigManager;
-}
-using sb::common::ObConfigManager;
 namespace chunkserver {
 class ObChunkServer : public common::ObSingleServer {
  public:
   static const int32_t RESPONSE_PACKET_BUFFER_SIZE = 1024 * 1024 * 2; //2MB
   static const int32_t RPC_BUFFER_SIZE = 1024 * 1024 * 2; //2MB
-  static const int64_t RETRY_INTERVAL_TIME = 1000 * 1000; // usleep 1 s
  public:
-  ObChunkServer(ObChunkServerConfig& config, ObConfigManager& config_mgr);
+  ObChunkServer();
   ~ObChunkServer();
  public:
   /** called before start server */
@@ -48,6 +47,9 @@ class ObChunkServer : public common::ObSingleServer {
   virtual int start_service();
   virtual void wait_for_queue();
   virtual void destroy();
+
+  virtual tbnet::IPacketHandler::HPRetCode handlePacket(
+    tbnet::Connection* connection, tbnet::Packet* packet);
 
   virtual int do_request(common::ObPacket* base_packet);
  public:
@@ -58,57 +60,29 @@ class ObChunkServer : public common::ObSingleServer {
 
   const common::ObClientManager& get_client_manager() const;
   const common::ObServer& get_self() const;
-  const common::ObServer get_root_server() const;
+  const common::ObServer& get_root_server() const;
 
-
-  const ObChunkServerConfig& get_config() const;
-  ObConfigManager& get_config_mgr();
-  ObChunkServerConfig& get_config() ;
-
-  int reload_config();
-
+  const ObChunkServerParam& get_param() const ;
+  ObChunkServerParam& get_param() ;
   ObChunkServerStatManager& get_stat_manager();
   const ObTabletManager& get_tablet_manager() const ;
   ObTabletManager& get_tablet_manager() ;
-  //ObRootServerRpcStub & get_rs_rpc_stub();
-  common::ObGeneralRpcStub& get_rpc_stub();
-  ObMergerRpcProxy* get_rpc_proxy();
-  common::ObFileClient& get_file_client();
-  common::ObFileService& get_file_service();
-  common::ObMergerSchemaManager* get_schema_manager();
-  int init_merge_join_rpc();
-
-  int schedule_report_tablet() { return service_.schedule_report_tablet(); }
+  ObRootServerRpcStub& get_rs_rpc_stub();
 
  private:
   DISALLOW_COPY_AND_ASSIGN(ObChunkServer);
   int set_self(const char* dev_name, const int32_t port);
-  int64_t get_process_timeout_time(const int64_t receive_time,
-                                   const int64_t network_timeout);
-  int init_file_service(const int32_t queue_size,
-                        const int32_t thread_cout, const int32_t band_limit);
  private:
   // request service handler
   ObChunkService service_;
   ObTabletManager tablet_manager_;
-  ObChunkServerConfig& config_;
-  ObConfigManager& config_mgr_;
+  ObChunkServerParam param_;
   ObChunkServerStatManager stat_;
 
-  // ob file service
-  common::ObFileService file_service_;
-  // ob file client
-  common::ObFileClient file_client_;
-  common::ThreadSpecificBuffer file_client_rpc_buffer_;
-
   // network objects.
+  common::ObPacketFactory packet_factory_;
   common::ObClientManager  client_manager_;
-  //ObRootServerRpcStub rs_rpc_stub_;
-
-  common::ObGeneralRpcStub rpc_stub_;
-  ObSqlRpcStub sql_rpc_stub_;
-  ObMergerRpcProxy* rpc_proxy_;
-  common::ObMergerSchemaManager* schema_mgr_;
+  ObRootServerRpcStub rs_rpc_stub_;
 
   // thread specific buffers
   common::ThreadSpecificBuffer response_buffer_;
@@ -118,35 +92,12 @@ class ObChunkServer : public common::ObSingleServer {
   common::ObServer self_;
 };
 
-#ifndef CS_RPC_CALL
-#define CS_RPC_CALL(func, server, args...)                              \
-    THE_CHUNK_SERVER.get_rpc_stub().func(                               \
-      THE_CHUNK_SERVER.get_config().network_timeout, server, args)
+#ifndef NO_STAT
+#define OB_CHUNK_STAT(op,args...) \
+    ObChunkServerMain::get_instance()->get_chunk_server().get_stat_manager().op(args)
+#else
+#define OB_CHUNK_STAT(op,args...)
 #endif
-
-#ifndef CS_RPC_CALL_RS
-#define CS_RPC_CALL_RS(func, args...)                          \
-    THE_CHUNK_SERVER.get_rpc_stub().func(                      \
-      THE_CHUNK_SERVER.get_config().network_timeout,           \
-      THE_CHUNK_SERVER.get_root_server() , args)
-#endif
-
-#define RPC_BUSY_WAIT(running, ret, rpc)                                \
-    while (running)                                                     \
-    {                                                                   \
-      ret = (rpc);                                                      \
-      if (OB_SUCCESS == ret || OB_RESPONSE_TIME_OUT != ret) break;      \
-      usleep(static_cast<useconds_t>(THE_CHUNK_SERVER.get_config().network_timeout)); \
-    }
-
-#define RPC_RETRY_WAIT(running, retry_times, ret, rpc)                  \
-    while (running && retry_times-- > 0)                                \
-    {                                                                   \
-      ret = (rpc);                                                      \
-      if (OB_SUCCESS == ret || OB_RESPONSE_TIME_OUT != ret) break;      \
-      usleep(static_cast<useconds_t>(THE_CHUNK_SERVER.get_config().network_timeout)); \
-    }
-
 
 } // end namespace chunkserver
 } // end namespace sb

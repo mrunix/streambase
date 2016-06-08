@@ -1,8 +1,25 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: 5567
+ *
+ * ob_file_recycle.h
+ *
+ * Authors:
+ *     maoqi <maoqi@taobao.com>
+ * Changes:
+ *     qushan <qushan@taobao.com>
+ *     huating <huating.zmq@taobao.com>
+ *
+ */
 #ifndef OCEANBASE_CHUNKSERVER_OB_FILE_RECYCLE_H_
 #define OCEANBASE_CHUNKSERVER_OB_FILE_RECYCLE_H_
 #include <dirent.h>
 #include "common/ob_define.h"
-#include "common/ob_range2.h"
 #include "ob_tablet.h"
 #include "chunkserver/ob_tablet_image.h"
 
@@ -37,17 +54,12 @@ class ObRegularRecycler {
   int recycle(const int64_t version);
 
   /**
-   *  recycle removed tablet in specified tablet image
-   */
-  int recycle(const ObTabletImage& image);
-
-  /**
    * recycle specific tablet of %range
    *
    * @param range of tablet
    * @param version must equal to version of prepare_recycle
    */
-  int recycle_tablet(const common::ObNewRange& range, const int64_t version);
+  int recycle_tablet(const common::ObRange& range, const int64_t version);
 
   /**
    * backup all meta files with version in disks.
@@ -57,9 +69,8 @@ class ObRegularRecycler {
  private:
   int load_all_tablets(const int64_t version);
   int load_tablet(const int64_t version, const int32_t disk_no);
-  int recycle_tablet_image(const ObTabletImage& image, const bool do_recycle,
-                           const bool only_recycle_removed = false);
-  int do_recycle_tablet(const ObTabletImage& image, const common::ObNewRange& range);
+  int check_current_status(const bool do_recycle);
+  int do_recycle_tablet(const common::ObRange& range);
 
  private:
   ObTabletImage expired_image_;
@@ -91,7 +102,6 @@ class ObScanRecycler {
     int32_t disk_no, const char* dir, const char* filename);
   bool check_if_expired_sstable(
     int32_t disk_no, const char* dir, const char* filename);
-  int64_t get_mtime(const char* filename);
 
   static int do_recycle_file(
     int32_t disk_no, const char* dir, const char* filename);
@@ -101,8 +111,6 @@ class ObScanRecycler {
 
   int do_scan(int32_t disk_no, Filter filter, Predicate pred, Operate op);
  private:
-  static const int64_t SCAN_RECYCLE_SSTABLE_TIME_BEFORE = 10L * 60L * 1000000L; //10 minutes
-
   ObTabletManager& manager_;
 };
 
@@ -128,5 +136,5 @@ class ObExpiredSSTablePool {
 };
 
 } /* chunkserver */
-} /* oceanbase */
+} /* sb */
 #endif

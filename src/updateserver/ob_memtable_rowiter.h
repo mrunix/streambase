@@ -1,22 +1,18 @@
-////===================================================================
-//
-// ob_memtable_rowiter.h updateserver / Oceanbase
-//
-// Copyright (C) 2010, 2013 Taobao.com, Inc.
-//
-// Created on 2011-03-23 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_memtable_rowiter.h for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #ifndef  OCEANBASE_UPDATESERVER_MEMTABLE_ROWITER_H_
 #define  OCEANBASE_UPDATESERVER_MEMTABLE_ROWITER_H_
 #include <sys/types.h>
@@ -29,7 +25,7 @@
 #include <pthread.h>
 #include <new>
 #include <algorithm>
-#include "common/ob_atomic.h"
+#include "ob_atomic.h"
 #include "common/ob_define.h"
 #include "common/ob_vector.h"
 #include "common/page_arena.h"
@@ -38,13 +34,12 @@
 #include "common/ob_regex.h"
 #include "common/ob_fileinfo_manager.h"
 #include "common/ob_tsi_factory.h"
-#include "common/ob_row_compaction.h"
 #include "sstable/ob_sstable_row.h"
 #include "sstable/ob_sstable_block_builder.h"
 #include "sstable/ob_sstable_trailer.h"
 #include "ob_ups_utils.h"
 #include "ob_sstable_mgr.h"
-#include "common/ob_column_filter.h"
+#include "ob_column_filter.h"
 #include "ob_memtable.h"
 #include "ob_schema_mgrv2.h"
 
@@ -52,6 +47,8 @@
 
 namespace sb {
 namespace updateserver {
+typedef MemTableTransHandle TableTransHandle;
+
 class CellInfoAllocator {
   typedef common::ObList<ObCellInfoNode*> ClearList;
   typedef common::hash::SimpleAllocer<ObCellInfoNode> Allocator;
@@ -59,7 +56,7 @@ class CellInfoAllocator {
   ObCellInfoNode* alloc(const int32_t nbyte) {
     ObCellInfoNode* ret = NULL;
     if (nbyte >= (int32_t)sizeof(ObCellInfoNode)) {
-      if (NULL != (ret = allocator_.alloc())) {
+      if (NULL != (ret = allocator_.allocate())) {
         clear_list_.push_back(ret);
       }
     }
@@ -68,7 +65,7 @@ class CellInfoAllocator {
   void reset() {
     ClearList::iterator iter;
     for (iter = clear_list_.begin(); iter != clear_list_.end(); iter++) {
-      allocator_.free(*iter);
+      allocator_.deallocate(*iter);
     }
     clear_list_.clear();
   };
@@ -82,7 +79,7 @@ class CellInfoAllocator {
   Allocator allocator_;
 };
 
-class MemTableRowIterator : public IRowIterator, public RowkeyInfoCache {
+class MemTableRowIterator : public IRowIterator {
  public:
   MemTableRowIterator();
   virtual ~MemTableRowIterator();
@@ -98,7 +95,6 @@ class MemTableRowIterator : public IRowIterator, public RowkeyInfoCache {
   virtual int reset_iter();
   virtual bool get_compressor_name(common::ObString& compressor_str);
   virtual bool get_sstable_schema(sstable::ObSSTableSchema& sstable_schema);
-  virtual const common::ObRowkeyInfo* get_rowkey_info(const uint64_t table_id) const;
   virtual bool get_store_type(int& store_type);
   virtual bool get_block_size(int64_t& block_size);
  private:
@@ -106,16 +102,20 @@ class MemTableRowIterator : public IRowIterator, public RowkeyInfoCache {
   void revert_schema_handle_();
   bool get_schema_handle_();
  private:
+  bool first_next_;
   MemTable* memtable_;
   TableEngineIterator memtable_iter_;
-  MemTableGetIter get_iter_;
-  common::ObRowCompaction rc_iter_;
+  TableEngineTransHandle memtable_trans_handle_;
   UpsSchemaMgr::SchemaHandle schema_handle_;
   int64_t block_size_;
   int store_type_;
   char compressor_name_[common::OB_MAX_COMPRESSOR_NAME_LENGTH];
+  CellInfoAllocator allocator_;
 };
 }
 }
 
 #endif //OCEANBASE_UPDATESERVER_MEMTABLE_ROWITER_H_
+
+
+

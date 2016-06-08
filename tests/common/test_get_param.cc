@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,7 +17,6 @@
 #include "ob_action_flag.h"
 #include "ob_malloc.h"
 #include "ob_get_param.h"
-#include "test_rowkey_helper.h"
 
 using namespace std;
 using namespace sb::common;
@@ -26,28 +25,17 @@ namespace sb {
 namespace tests {
 namespace common {
 static const int64_t table_id = 100;
-static const int64_t DISK_NUM = 6;
+static const int64_t DISK_NUM = 12;
 static const int64_t SSTABLE_NUM = DISK_NUM * 2;
 static const int64_t SSTABLE_ROW_NUM = 100;
 static const int64_t ROW_NUM = SSTABLE_NUM * SSTABLE_ROW_NUM;
 static const int64_t COL_NUM = 5;
 static const int64_t OB_MAX_GET_COLUMN_NUMBER = 128;
-static const ObString table_name(strlen("sstable") + 1, strlen("sstable") + 1, (char*)"sstable");
+static const ObString table_name(strlen("sstable") + 1, strlen("sstable") + 1, "sstable");
 static ObCellInfo** cell_infos;
 static char* row_key_strs[ROW_NUM][COL_NUM];
 static const int64_t SERIALIZE_BUF_SIZE = 2048 * 1024;
 static char* serialize_buf = NULL;
-static CharArena  allocator_;
-
-/// bool operator==(const ObCellInfo &a, const ObCellInfo &b)
-/// {
-///   return ((a.column_id_ == b.column_id_)
-///     && (a.column_name_ == b.column_name_)
-///     && (a.row_key_ == b.row_key_)
-///     && (a.table_id_ == b.table_id_)
-///     && (a.table_name_ == b.table_name_)
-///     && (a.value_ == b.value_));
-/// }
 
 class TestObGetParam : public ::testing::Test {
  public:
@@ -76,7 +64,7 @@ class TestObGetParam : public ::testing::Test {
       for (int64_t j = 0; j < COL_NUM; ++j) {
         cell_infos[i][j].table_id_ = table_id;
         sprintf(row_key_strs[i][j], "row_key_%08ld", i);
-        cell_infos[i][j].row_key_ = make_rowkey(row_key_strs[i][j], &allocator_);
+        cell_infos[i][j].row_key_.assign(row_key_strs[i][j], strlen(row_key_strs[i][j]));
         cell_infos[i][j].column_id_ = j + 2;
         cell_infos[i][j].value_.set_int(1000 + i * COL_NUM + j);
       }
@@ -380,8 +368,8 @@ TEST_F(TestObGetParam, test_simple_serialize) {
   ret = des_get_param.deserialize(serialize_buf, SERIALIZE_BUF_SIZE, pos);
   EXPECT_EQ(OB_SUCCESS, ret);
   EXPECT_EQ(pos, des_get_param.get_serialize_size());
-  EXPECT_FALSE(des_get_param.get_is_result_cached());
-  EXPECT_FALSE(des_get_param.get_is_read_consistency());
+  EXPECT_EQ(false, des_get_param.get_is_result_cached());
+  EXPECT_EQ(false, des_get_param.get_is_read_consistency());
 
   EXPECT_EQ(50, des_get_param.get_cell_size());
   EXPECT_EQ(10, des_get_param.get_row_size());
@@ -444,8 +432,8 @@ TEST_F(TestObGetParam, test_serialize_deserialize_maxcol) {
   ret = des_get_param.deserialize(serialize_buf, SERIALIZE_BUF_SIZE, pos);
   EXPECT_EQ(OB_SUCCESS, ret);
   EXPECT_EQ(pos, des_get_param.get_serialize_size());
-  EXPECT_FALSE(des_get_param.get_is_result_cached());
-  EXPECT_TRUE(des_get_param.get_is_read_consistency());
+  EXPECT_EQ(false, des_get_param.get_is_result_cached());
+  EXPECT_EQ(true, des_get_param.get_is_read_consistency());
 
   EXPECT_EQ(ROW_NUM * COL_NUM, des_get_param.get_cell_size());
   EXPECT_EQ(ROW_NUM, des_get_param.get_row_size());
@@ -520,52 +508,6 @@ TEST_F(TestObGetParam, test_serialize_deserialize_two_table) {
       EXPECT_EQ(0, ver_range.end_version_);
     }
   }
-}
-
-TEST_F(TestObGetParam, deep_copy_args) {
-  const char* c_str = NULL;
-  ObString val;
-  ObString str;
-  ObStringBuf buffer;
-  ObCellInfo cell;
-  ObGetParam get_param(true);
-  c_str = "table_name";
-  str.assign((char*)c_str, static_cast<int32_t>(strlen(c_str)));
-  EXPECT_EQ(OB_SUCCESS, buffer.write_string(str, &(cell.table_name_)));
-
-  c_str = "column_name";
-  str.assign((char*)c_str, static_cast<int32_t>(strlen(c_str)));
-  EXPECT_EQ(OB_SUCCESS, buffer.write_string(str, &(cell.column_name_)));
-
-  c_str = "rowkey";
-  str.assign((char*)c_str, static_cast<int32_t>(strlen(c_str)));
-  EXPECT_EQ(OB_SUCCESS, buffer.write_string(TestRowkeyHelper(str, &allocator_), &(cell.row_key_)));
-
-  c_str = "varchar";
-  str.assign((char*)c_str, static_cast<int32_t>(strlen(c_str)));
-  EXPECT_EQ(OB_SUCCESS, buffer.write_string(str, &(val)));
-  cell.value_.set_varchar(val);
-
-  EXPECT_EQ(get_param.add_cell(cell), OB_SUCCESS);
-
-  EXPECT_TRUE((*get_param[0]) == cell);
-  EXPECT_NE(get_param[0]->table_name_.ptr() , cell.table_name_.ptr());
-  EXPECT_NE(get_param[0]->column_name_.ptr() , cell.column_name_.ptr());
-  EXPECT_NE(get_param[0]->row_key_.ptr() , cell.row_key_.ptr());
-
-  get_param.reset(true);
-  EXPECT_EQ(get_param.add_only_one_cell(cell), OB_SUCCESS);
-  EXPECT_TRUE((*get_param[0]) == cell);
-  EXPECT_NE(get_param[0]->table_name_.ptr() , cell.table_name_.ptr());
-  EXPECT_NE(get_param[0]->column_name_.ptr() , cell.column_name_.ptr());
-  EXPECT_NE(get_param[0]->row_key_.ptr() , cell.row_key_.ptr());
-
-  get_param.reset(false);
-  EXPECT_EQ(get_param.add_cell(cell), OB_SUCCESS);
-  EXPECT_TRUE((*get_param[0]) == cell);
-  EXPECT_EQ(get_param[0]->table_name_.ptr() , cell.table_name_.ptr());
-  EXPECT_EQ(get_param[0]->column_name_.ptr() , cell.column_name_.ptr());
-  EXPECT_EQ(get_param[0]->row_key_.ptr() , cell.row_key_.ptr());
 }
 }//end namespace common
 }//end namespace tests

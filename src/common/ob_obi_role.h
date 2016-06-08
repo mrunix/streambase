@@ -5,7 +5,7 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * The role of an oceanbase instance.
+ * The role of an sb instance.
  *
  * Version: $Id$
  *
@@ -68,7 +68,7 @@ inline const char* ObiRole::get_role_str() const {
   }
 }
 
-} // end namespace rootserver
+} // end namespace nameserver
 } // end namespace sb
 
 #endif /* _OB_OBI_ROLE_H */

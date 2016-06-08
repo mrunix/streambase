@@ -1,22 +1,22 @@
 /**
- * (C) 2007-2010 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
  * Version: $Id$
  *
+ * ob_role_mgr.h for ...
+ *
  * Authors:
  *   yanran <yanran.hfs@taobao.com>
- *     - some work details if you want
+ *
  */
-
 #ifndef OCEANBASE_COMMON_OB_ROLE_MGR_H_
 #define OCEANBASE_COMMON_OB_ROLE_MGR_H_
 
 #include "ob_atomic.h"
-#include <tbsys.h>
 
 namespace sb {
 namespace common {
@@ -40,11 +40,10 @@ class ObRoleMgr {
   enum State {
     ERROR = 1,
     INIT = 2,
-    NOTSYNC = 3,
-    ACTIVE = 4,
-    SWITCHING = 5,
-    STOP = 6,
-    HOLD = 7,
+    ACTIVE = 3,
+    SWITCHING = 4,
+    STOP = 5,
+    HOLD = 6,
   };
 
  public:
@@ -60,9 +59,8 @@ class ObRoleMgr {
 
   /// @brief 修改Role
   inline void set_role(const Role role) {
-    TBSYS_LOG(INFO, "before set_role=%s state=%s", get_role_str(), get_state_str());
     atomic_exchange(reinterpret_cast<uint32_t*>(&role_), role);
-    TBSYS_LOG(INFO, "after set_role=%s state=%s", get_role_str(), get_state_str());
+    TBSYS_LOG(INFO, "set_role=%d state=%d", role_, state_);
   }
 
   /// 获取State
@@ -70,9 +68,8 @@ class ObRoleMgr {
 
   /// 修改State
   inline void set_state(const State state) {
-    TBSYS_LOG(INFO, "before set_state=%s role=%s", get_state_str(), get_role_str());
     atomic_exchange(reinterpret_cast<uint32_t*>(&state_), state);
-    TBSYS_LOG(INFO, "after set_state=%s role=%s", get_state_str(), get_role_str());
+    TBSYS_LOG(INFO, "set_state=%d role=%d", state_, role_);
   }
 
   inline const char* get_role_str() const {
@@ -107,9 +104,6 @@ class ObRoleMgr {
     }
   }
 
-  inline bool is_master() const {
-    return (role_ == ObRoleMgr::MASTER) && (state_ == ObRoleMgr::ACTIVE);
-  }
  private:
   Role role_;
   State state_;
@@ -118,3 +112,4 @@ class ObRoleMgr {
 } // end namespace sb
 
 #endif // OCEANBASE_COMMON_OB_ROLE_MGR_H_
+

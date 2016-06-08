@@ -1,14 +1,16 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_sstable_block_index_buffer.h is for what ...
+ * Version: 5567
+ *
+ * ob_sstable_block_index_buffer.h
  *
  * Authors:
- *   Author fangji.hcm <fangji.hcm@taobao.com>
+ *     huating <huating.zmq@taobao.com>
  *
  */
 
@@ -19,12 +21,11 @@
 #include "common/ob_define.h"
 #include "common/ob_string.h"
 #include "common/ob_malloc.h"
-#include "common/ob_rowkey.h"
 
 namespace sb {
 namespace sstable {
 struct ObSSTableBlockIndexItem {
-  int16_t  rowkey_column_count_; //rowkey column count with table, used by v0.2.1
+  int16_t  reserved16_;          //must be 0 V0.2.0
   uint16_t column_group_id_;     //column group id
   uint32_t table_id_;            //table id
   int32_t  block_record_size_;   //block record size includes record header
@@ -61,7 +62,6 @@ class ObSSTableBlockIndexBuffer {
    *
    * @return int if success, return OB_SUCCESS, else return OB_ERROR
    */
-  int add_key(const common::ObRowkey& key);
   int add_key(const common::ObString& key);
 
   /**

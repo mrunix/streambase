@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./test/btree_read_handle_test.cc for ...
+ *
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
+ */
 #include <limits.h>
 #include <btree_read_handle_new.h>
 #include <btree_base.h>
@@ -20,3 +35,4 @@ TEST(BtreeReadHandleTest, construct) {
 }
 } // end namespace common
 } // end namespace sb
+

@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,7 +12,6 @@
  *
  */
 #include "common/ob_malloc.h"
-#include "common/ob_mutator.h"
 #include "ob_write_worker.h"
 
 namespace sb {
@@ -35,7 +34,7 @@ int ObWriteWorker::init(ObOpParam** write_param) {
   int ret = OB_SUCCESS;
 
   if (NULL != write_param && NULL == *write_param) {
-    *write_param = reinterpret_cast<ObOpParam*>(ob_malloc(sizeof(ObOpParam), ObModIds::TEST));
+    *write_param = reinterpret_cast<ObOpParam*>(ob_malloc(sizeof(ObOpParam)));
     if (NULL == *write_param) {
       TBSYS_LOG(ERROR, "failed to allocate memory for write param");
       ret = OB_ERROR;
@@ -91,7 +90,7 @@ void ObWriteWorker::set_obj(const ObOpCellParam& cell_param, ObObj& obj) {
 int ObWriteWorker::set_mutator_add(const ObOpParam& write_param,
                                    ObMutator& mutator,
                                    const ObOpCellParam& cell_param,
-                                   const ObRowkey& row_key) {
+                                   const ObString& row_key) {
   int ret = OB_SUCCESS;
 
   switch (cell_param.cell_type_) {
@@ -167,9 +166,7 @@ int ObWriteWorker::run_mix_op(const ObOpParam& write_param,
   int64_t insert_cell_count = 0;
   const ObOpRowParam* row_param   = NULL;
   const ObOpCellParam* cell_param = NULL;
-  int64_t start_time = 0;
-  int64_t consume_time = 0;
-  ObRowkey row_key;
+  ObString row_key;
   ObObj obj;
 
   mutator.reset();
@@ -177,7 +174,8 @@ int ObWriteWorker::run_mix_op(const ObOpParam& write_param,
   //build mutator
   for (int64_t i = 0; i < write_param.row_count_ && OB_SUCCESS == ret; ++i) {
     row_param = &write_param.row_[i];
-    row_key.assign(const_cast<ObObj*>(row_param->rowkey_), row_param->rowkey_len_);
+    row_key.assign(const_cast<char*>(row_param->rowkey_),
+                   row_param->rowkey_len_);
     if (OP_DELETE == row_param->op_type_) {
       delete_row_count++;
       ret = mutator.del_row(write_param.table_name_, row_key);
@@ -205,10 +203,7 @@ int ObWriteWorker::run_mix_op(const ObOpParam& write_param,
   }
 
   if (OB_SUCCESS == ret) {
-    start_time = tbsys::CTimeUtil::getTime();
     ret = client_.ups_apply(mutator);
-    consume_time = tbsys::CTimeUtil::getTime() - start_time;
-    stat_.record_resp_event(CMD_UPDATE, consume_time, (OB_SUCCESS != ret));
   }
 
   //update stat
@@ -280,8 +275,6 @@ void ObWriteWorker::run(CThread* thread, void* arg) {
   int err                 = OB_SUCCESS;
   ObOpParam* write_param  = NULL;
   ObMutator mutator;
-  UNUSED(thread);
-  UNUSED(arg);
 
   if (OB_SUCCESS == init(&write_param) && NULL != write_param) {
     while (!_stop) {

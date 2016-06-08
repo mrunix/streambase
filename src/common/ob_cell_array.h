@@ -1,20 +1,18 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- * ob_cell_array.h is for what ...
+ * Version: $Id$
  *
- * Version: $id: ob_cell_array.h,v 0.1 9/16/2010 2:51p wushi Exp $
+ * ob_cell_array.h for ...
  *
  * Authors:
  *   wushi <wushi.ly@taobao.com>
- *     - some work details if you want
  *
  */
-
 #ifndef OB_CELL_ARRAY_H_
 #define OB_CELL_ARRAY_H_
 
@@ -24,13 +22,23 @@
 #include "ob_iterator.h"
 #include "ob_vector.h"
 #include "ob_string.h"
-#include "ob_rowkey.h"
 
 namespace sb {
 namespace common {
+template <>
+struct ob_vector_traits<int64_t> {
+ public:
+  typedef int64_t& pointee_type;
+  typedef int64_t value_type;
+  typedef const int64_t const_value_type;
+  typedef value_type* iterator;
+  typedef const value_type* const_iterator;
+  typedef int32_t difference_type;
+};
+
 /// @class  ObCellInfo vector, can access by offset
 /// @author wushi(wushi.ly@taobao.com)  (9/16/2010)
-class ObCellArray: public ObInnerIterator {
+class ObCellArray : public ObIterator {
  public:
   friend class iterator;
   /// @fn constructor
@@ -38,29 +46,26 @@ class ObCellArray: public ObInnerIterator {
   /// @fn destructor
   virtual ~ObCellArray();
   /// @fn append a cell into the array, the whole cell whill be copied
-  int append(const ObCellInfo& cell, ObInnerCellInfo*& cell_out);
-  int append(const ObCellInfo& cell, ObInnerCellInfo*& cell_out,
-             const ObRowkey& row_key, const bool is_first_cell_of_row = false);
-  int batch_append(ObCellInfo** cells_in, ObInnerCellInfo** cells_out, const int64_t cell_size);
+  int append(const ObCellInfo& cell, ObCellInfo*& cell_out);
+  /// @fn expand the array
+  int expand(int32_t expanding_size);
   /// @fn apply changes to a given cell
-  int apply(const ObCellInfo& cell, const int64_t offset, ObInnerCellInfo*& cell_out);
-  int apply(const ObCellInfo& src_cell, ObInnerCellInfo*& affected_cell);
+  int apply(const ObCellInfo& cell, const int64_t offset, ObCellInfo*& cell_out);
+  int apply(const ObCellInfo& src_cell, ObCellInfo*& affected_cell,
+            const int64_t pre_cell_offset = -1);
+
   /// @fn get a specific cell in this array, there will be no reference number
-  int get_cell(const int64_t offset, ObInnerCellInfo*& cell) const;
+  int get_cell(const int64_t offset, ObCellInfo*& cell) const;
   /// @fn get cell according to operator []
-  ObInnerCellInfo& operator[](int64_t offset);
-  const ObCellInfo& operator[](int64_t offset) const;
+  ObCellInfo& operator[](int64_t offset);
+  const ObCellInfo& operator[](int64_t offset)const;
   /// @fn get number of cell in the array
-  inline int64_t get_cell_size()const {
-    return cell_num_;
-  }
-  inline int64_t get_real_memory_used()const {
-    return (allocated_memory_size_ + static_cast<int64_t>(cell_num_ * sizeof(ObInnerCellInfo)));
-  }
+  int64_t get_cell_size()const;
+  /// @fn clear all infomation and cell stored in the cell
+  void clear();
+  void reset();
   /// @fn get memory size used by this array
-  inline int64_t get_memory_size_used()const {
-    return (page_arena_.total() + static_cast<int64_t>(cell_num_ * sizeof(ObInnerCellInfo)));
-  }
+  int64_t get_memory_size_used();
 
  public:
   class iterator {
@@ -71,15 +76,15 @@ class ObCellArray: public ObInnerIterator {
     iterator& operator ++();
     iterator operator ++(int);
     iterator operator +(int64_t inc_num);
-    ObInnerCellInfo& operator*();
-    ObInnerCellInfo* operator->();
+    ObCellInfo& operator*();
+    ObCellInfo* operator->();
     bool operator !=(const ObCellArray::iterator& other);
    private:
     friend class ObCellArray;
     void set_args(ObCellArray& cell_array, int64_t offset);
     ObCellArray* array_;
     int64_t cur_offset_;
-    ObInnerCellInfo cell_ugly_used_for_empty_iterator_;
+    ObCellInfo cell_ugly_used_for_empty_iterator_;
   };
   iterator begin();
   iterator end();
@@ -94,9 +99,6 @@ class ObCellArray: public ObInnerIterator {
   /// @note only affect output of member functions of ObIterator
   /// orderby and reverse_rows should be only called once
   int orderby(int64_t row_width, OrderDesc* order_desc, int64_t desc_size);
-  int topk(const int64_t row_width, OrderDesc* order_desc,
-           const int64_t desc_size, const int64_t sharding_row_cnt = 0);
-  void get_topk_heap(int64_t*& heap, int64_t& heap_size) const;
   /// reverse rows, meanse orderby rowkey in "desc order"
   int reverse_rows(const int64_t row_width_in);
   /// @fn limit the output
@@ -106,16 +108,12 @@ class ObCellArray: public ObInnerIterator {
   ///   must be consistent, this class's implementation will not check these rules
   /// @note only affect output of member functions of ObIterator
   int limit(int64_t offset, int64_t count, int32_t row_width);
-  // overide the base class interface
- public:
-  virtual int next_cell();
-  virtual int get_cell(ObInnerCellInfo** cell);
-  virtual int get_cell(ObInnerCellInfo** cell, bool* is_row_changed);
-  virtual void clear();
-  virtual void reset();
+
  public:
   void reset_iterator();
-  int next_cell(int64_t& cur_cell_offset);
+  virtual int next_cell();
+  virtual int get_cell(ObCellInfo** cell);
+  virtual int get_cell(ObCellInfo** cell, bool* is_row_changed);
   void consume_all_cell();
   int  unget_cell();
   inline int64_t get_consumed_cell_num()const {
@@ -139,14 +137,10 @@ class ObCellArray: public ObInnerIterator {
   /// @fn copy a obj
   int copy_obj_(ObObj& dst, const ObObj& src);
   /// @fn copy a cell
-  int copy_cell_(ObInnerCellInfo& dst, const ObCellInfo& src, const int64_t prev_cell_idx);
-  int copy_cell_fast(ObInnerCellInfo& dst, const ObCellInfo& src,
-                     const ObRowkey& row_key, const bool is_first_cell_of_row = false);
-  int ensure_current_block_space();
+  int copy_cell_(ObCellInfo& dst, const ObCellInfo& src,
+                 const int64_t prev_cell_idx);
   /// @fn initialize all properties
   void initialize_();
-  /// use heap sort to find the topn elements
-  int heap_topk(const int64_t sharding_row_cnt);
   /// @property ObVarMemPool block size;
   static const int64_t VAR_MEMPOOL_BLOCK_SIZE = 64 * 1024;
   /// @property allocate CELL_BLOCK_CAPACITY
@@ -154,14 +148,13 @@ class ObCellArray: public ObInnerIterator {
   static const int64_t CELL_BLOCK_SHIF_BITS = 10;
   static const int64_t CELL_IN_BLOCK_OFFSET_AND_VAL = 1023;
   /// @property cell block array size
-  static const int64_t CELL_BLOCK_ARRAY_SIZE = 16 * 1024;
+  static const int64_t CELL_BLOCK_ARRAY_SIZE = 1025;
   /// @property number of cell can be accessed in O(1)
   static const int64_t O1_ACCESS_CELL_NUM = CELL_BLOCK_CAPACITY * CELL_BLOCK_ARRAY_SIZE;
-  static const int64_t DEFAULT_HEAP_BUF_SIZE = 64 * 1024;
   /// @struct  every time ObCellArray allocated a CellBlock from memory pool
   struct CellBlock {
     ObDLink      cell_block_link_;
-    ObInnerCellInfo   cell_array_[CELL_BLOCK_CAPACITY];
+    ObCellInfo   cell_array_[CELL_BLOCK_CAPACITY];
   };
   /// @property we first put CellBlock into this array, only when this array is full,
   ///   we use CellBlock::cell_block_link_
@@ -182,9 +175,8 @@ class ObCellArray: public ObInnerIterator {
   /// @property the number of cell consumed by iterator
   int64_t     consumed_row_num_;
   int32_t     cur_row_consumed_cell_num_;
-  ObRowkey    prev_key_;
+  ObString prev_key_;
   uint64_t    prev_tableid_;
-  ObRowkey    last_append_rowkey_;
   bool cur_cell_row_changed_;
 
   /// order by and limit
@@ -194,10 +186,6 @@ class ObCellArray: public ObInnerIterator {
   OrderDesc orderby_columns_[OB_MAX_COLUMN_NUMBER];
   /// @property begin offsets of each row
   ObVector<int64_t> sorted_row_offsets_;
-  /// use for topk
-  int64_t* heap_;
-  int64_t heap_size_;
-  ObMemBuf heap_buf_;
   /// @property number of row
   int64_t row_num_;
   /// @property width of each row
@@ -205,8 +193,8 @@ class ObCellArray: public ObInnerIterator {
   /// @property limited cell number
   int64_t limit_cell_num_;
   /// @property ugly usage, because no exception can be used
+  ObCellInfo cell_ugly_used_for_array_random_access_;
   ObCellInfo empty_cell_;
-  ObInnerCellInfo empty_inner_cell_;
   /// @property memory size allocated
   int64_t allocated_memory_size_;
 };
@@ -214,4 +202,5 @@ class ObCellArray: public ObInnerIterator {
 }
 
 #endif /* OB_CELL_ARRAY_H_ */
+
 

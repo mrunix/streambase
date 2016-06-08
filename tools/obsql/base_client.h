@@ -5,7 +5,7 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_base_client.h for define base oceanbase client.
+ * ob_base_client.h for define base sb client.
  *
  * Authors:
  *   huating <huating.zmq@taobao.com>

@@ -99,6 +99,7 @@ int TaskInfo::set_param(const ObScanParam& param) {
       TBSYS_LOG(ERROR, "serailize param failed:ret[%d]", ret);
     } else {
       pos = 0;
+      // TODO modify rewrite scan param
       ret = scan_param_.deserialize(param_buffer_->buffer_, size, pos);
       if (ret != OB_SUCCESS) {
         TBSYS_LOG(ERROR, "deserialize scan param failed:ret[%d]", ret);
@@ -140,20 +141,6 @@ DEFINE_SERIALIZE(TaskInfo) {
     ret = serialization::encode_vi64(buf, buf_len, pos, first_index_);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "serialize server index failed:index[%lu], ret[%d]", first_index_, ret);
-    }
-  }
-
-  if (OB_SUCCESS == ret) {
-    ret = serialization::encode_vi64(buf, buf_len, pos, table_id_);
-    if (ret != OB_SUCCESS) {
-      TBSYS_LOG(ERROR, "serialize table_id failed:table_id[%lu], ret[%d]", table_id_, ret);
-    }
-  }
-
-  if (OB_SUCCESS == ret) {
-    ret = serialization::encode_vstr(buf, buf_len, pos, table_name_.ptr(), table_name_.length());
-    if (ret != OB_SUCCESS) {
-      TBSYS_LOG(ERROR, "serialize table name failed:ret[%d]", ret);
     }
   }
 
@@ -209,23 +196,6 @@ DEFINE_DESERIALIZE(TaskInfo) {
   }
 
   if (OB_SUCCESS == ret) {
-    ret = serialization::decode_vi64(buf, data_len, pos, &table_id_);
-    if (ret != OB_SUCCESS) {
-      TBSYS_LOG(ERROR, "deserialize table_id failed:task[%lu], ret[%d]", task_id_, ret);
-    }
-  }
-
-  if (OB_SUCCESS == ret) {
-    int64_t len = 0;
-    const char* str = serialization::decode_vstr(buf, data_len, pos, &len);
-    if (ret != OB_SUCCESS) {
-      TBSYS_LOG(ERROR, "deserializ table name failed");
-    } else {
-      table_name_.assign_ptr(const_cast<char*>(str), int32_t(len));
-    }
-  }
-
-  if (OB_SUCCESS == ret) {
     ret = servers_.deserialize(buf, data_len, pos);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "deserialize location failed:task[%lu], ret[%d]", task_id_, ret);
@@ -249,7 +219,6 @@ DEFINE_GET_SERIALIZE_SIZE(TaskInfo) {
   total_size += serialization::encoded_length_vi64(task_id_);
   total_size += serialization::encoded_length_vi64(task_limit_);
   total_size += serialization::encoded_length_vi64(first_index_);
-  total_size += serialization::encoded_length_vi64(table_id_);
   total_size += servers_.get_serialize_size();
   total_size += scan_param_.get_serialize_size();
   return total_size;

@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,12 +21,11 @@
 #include "ob_syschecker_stat.h"
 #include "ob_syschecker_schema.h"
 #include "ob_syschecker_rule.h"
-class TestSysChecker;
+
 namespace sb {
 namespace syschecker {
 class ObSyschecker {
  public:
-  friend class TestSysChecker;
   ObSyschecker();
   ~ObSyschecker();
 
@@ -34,13 +33,7 @@ class ObSyschecker {
   int start();
   int stop();
   int wait();
-  inline ObSyscheckerSchema* get_syschecker_schema() {
-    return &syschecker_schema_;
-  }
 
- public:
-  int translate_user_schema(const common::ObSchemaManagerV2& ori_schema_mgr,
-                            common::ObSchemaManagerV2& user_schema_mgr);
  private:
   int init_servers_manager();
   int init_rowkey_range();

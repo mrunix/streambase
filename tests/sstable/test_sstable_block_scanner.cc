@@ -1,23 +1,23 @@
-/**
- *  (C) 2010-2011 Taobao Inc.
+/*
+ *  (C) 2007-2010 Taobao Inc.
  *
- *  This program is free software; you can redistribute it
- *  and/or modify it under the terms of the GNU General Public
- *  License version 2 as published by the Free Software
- *  Foundation.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License version 2 as
+ *  published by the Free Software Foundation.
  *
- *  test_sstable_block_scanner.cc is for what ...
+ *         ????.cc is for what ...
+ *
+ *  Version: $Id: ipvsadm.c,v 1.27 2005/12/10 16:00:07 wensong Exp $
  *
  *  Authors:
- *     qushan<qushan@taobao.com>
- *
+ *     Author Name <email address>
+ *        - some work details if you want
  */
 
 #include <gtest/gtest.h>
 #include "common/ob_malloc.h"
 #include "common/ob_object.h"
 #include "common/ob_define.h"
-#include "common/ob_range2.h"
 #include "common/page_arena.h"
 #include "sstable/ob_sstable_block_reader.h"
 #include "sstable/ob_sstable_block_scanner.h"
@@ -26,425 +26,1106 @@
 #include "sstable/ob_sstable_row.h"
 #include "sstable/ob_sstable_block_builder.h"
 #include "sstable/ob_sstable_trailer.h"
-#include "test_helper.h"
-
 using namespace sb;
 using namespace sb::common;
 using namespace sb::sstable;
 
-class TestObSSTableBlockScanner : public ::testing::Test {
- public:
-  static const int64_t ROW_NUM = 1000;
-  static const int64_t COL_NUM = 10;
-  static const int64_t COLUMN_GROUP_NUM = 2;
-  static const int64_t ROWKEY_COL_NUM = 3;
-  static const int64_t NONKEY_COL_NUM = COL_NUM - ROWKEY_COL_NUM;
-  static const int64_t block_internal_bufsiz = BUFSIZ;
+const int64_t TABLE_ID = 1;
+static char* g_key[] = { "aoo", "boo", "coo", "doo", "foo", "koo" };
+const int64_t block_internal_bufsiz = 1024;
+static char block_internal_buffer[block_internal_bufsiz];
 
- public:
-  TestObSSTableBlockScanner() : scanner_(indexes_) { }
 
- protected:
-  void create_query_start_columns(const int32_t* column_ids, const int32_t  column_count) {
-    ObScanColumnIndexes::ColumnType type = ObScanColumnIndexes::Normal;
-    for (int32_t i = 0; i < column_count; ++i) {
-      int64_t offset = cgen_.schema.find_offset_column_group_schema(
-                         CellInfoGen::table_id, 0, column_ids[i]);
-      if (offset < 0) {
-        type = ObScanColumnIndexes::NotExist;
-        offset = 0;
-      }
-      indexes_.add_column_id(type, static_cast<int32_t>(offset), column_ids[i]);
-    }
-  }
+void create_row_key(
+  CharArena& allocator,
+  ObString& rowkey,
+  const char* sk) {
+  int64_t sz = strlen(sk);
+  char* msk = allocator.alloc(sz);
+  memcpy(msk, sk, sz);
+  rowkey.assign_ptr(msk, sz);
+}
 
-  void create_query_range(ObNewRange& range,
-                          const int64_t start_row, const int64_t end_row,
-                          const ObBorderFlag border_flag) {
-    ::create_new_range(range, COL_NUM, ROWKEY_COL_NUM, start_row, end_row, border_flag);
-  }
+void create_row(
+  CharArena& allocator,
+  ObSSTableRow& row,
+  const char* key,
+  int64_t f1,
+  double f2,
+  char* f3
+) {
+  ObString row_key;
+  create_row_key(allocator, row_key, key);
+  row.set_row_key(row_key);
+  ObObj obj1;
+  obj1.set_int(f1);
+  ObObj obj2;
+  obj2.set_double(f2);
+  ObObj obj3;
+  ObString temp;
+  temp.assign_ptr(f3, strlen(f3));
+  obj3.set_varchar(temp);
 
-  int check_binary_rowkey(const ObString& binary_rowkey, const int64_t row, const int64_t col_num) {
-    ObObj obj_array[ROWKEY_COL_NUM];
-    int ret = ObRowkeyHelper::prepare_obj_array(rowkey_info_, obj_array, ROWKEY_COL_NUM);
+  row.add_obj(obj1);
+  row.add_obj(obj2);
+  row.add_obj(obj3);
+  row.set_table_id(TABLE_ID);
+  row.set_column_group_id(0);
+}
+
+int create_block(CharArena& allocator, ObSSTableBlockBuilder& builder, const int32_t row_count) {
+  int ret = builder.init();
+  if (ret) return ret;
+
+  for (int i = 0; i < row_count; ++i) {
+    ObSSTableRow row;
+    create_row(allocator, row, g_key[i], i, i, g_key[i]);
+    ret = builder.add_row(row);
     if (ret) return ret;
-    ret = ObRowkeyHelper::get_obj_array(binary_rowkey, obj_array, ROWKEY_COL_NUM);
-    if (ret) return ret;
-    ObRowkey rowkey(obj_array, ROWKEY_COL_NUM);
-    ret = check_rowkey(rowkey, row, col_num);
-    return ret;
   }
 
-  void generate_query_columns(
-    const int32_t query_start_column,
-    int32_t query_columns[],
-    int32_t query_column_count) {
-    for (int32_t i = 0; i < query_column_count; ++i) {
-      query_columns[i] = i + query_start_column;
+  ret = builder.build_block();
+  return ret;
+}
+
+void create_schema(ObSSTableSchema& schema) {
+  ObSSTableSchemaColumnDef def1, def2, def3;
+  def1.table_id_ = TABLE_ID;
+  def1.column_group_id_ = 0;
+  def1.column_name_id_ = 5;
+  def1.column_value_type_ = ObIntType;
+
+  def2.table_id_ = TABLE_ID;
+  def2.column_group_id_ = 0;
+  def2.column_name_id_ = 6;
+  def2.column_value_type_ = ObDoubleType;
+
+  def3.table_id_ = TABLE_ID;
+  def3.column_group_id_ = 0;
+  def3.column_name_id_ = 7;
+  def3.column_value_type_ = ObVarcharType;
+
+  schema.add_column_def(def1);
+  schema.add_column_def(def2);
+  schema.add_column_def(def3);
+}
+
+void create_query_columns(
+  ObScanColumnIndexes& indexes,
+  const ObSSTableSchema& schema,
+  const int32_t* column_ids,
+  const int32_t  column_count
+) {
+  for (int32_t i = 0; i < column_count; ++i) {
+    int64_t offset = schema.find_offset_column_group_schema(TABLE_ID, 0, column_ids[i]);
+    if (offset < 0) offset = ObScanColumnIndexes::NOT_EXIST_COLUMN;
+    indexes.add_column_id(offset, column_ids[i]);
+  }
+}
+
+void create_scan_param(ObRange& range, const char* start_key, const char* end_key,
+                       bool inclusive_start = true, bool inclusive_end = true,
+                       bool is_min_value = false, bool is_max_value = false) {
+  char* table_name = "nothing";
+  ObString ob_table_name(0, strlen(table_name), (char*)table_name);
+  //ObRange range;
+  range.table_id_ = TABLE_ID;
+  ObString ob_start_key(0, strlen(start_key), (char*)start_key);
+  ObString ob_end_key(0, strlen(end_key), (char*)end_key);
+  range.start_key_ = ob_start_key;
+  range.end_key_ = ob_end_key;
+  if (inclusive_start) range.border_flag_.set_inclusive_start();
+  if (inclusive_end) range.border_flag_.set_inclusive_end();
+  if (is_min_value) range.border_flag_.set_min_value();
+  if (is_max_value) range.border_flag_.set_max_value();
+
+  //scan_param.set(TABLE_ID, ob_table_name, range);
+  /*
+  scan_param.add_column(5);
+  scan_param.add_column(6);
+  scan_param.add_column(7);
+  scan_param.add_column(10);
+  */
+  //scan_param.set_scan_size(2000);
+}
+
+
+
+TEST(ObTestObSSTableBlockScanner, query_one_valid_column) {
+
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
+
+  const int32_t row_count = 6;
+  create_block(allocator, builder, row_count);
+  create_scan_param(scan_param, g_key[0], g_key[row_count - 1]);
+  create_schema(schema);
+  const int32_t query_columns[] = {5};
+  create_query_columns(indexes, schema, query_columns, 1);
+
+  ObSSTableBlockScanner scanner(indexes);
+
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = false;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(0, ret);
+
+  ObCellInfo* cell_info = 0;
+  int count = 0;
+  int query_row_count = 0;
+  while (scanner.next_cell() == 0) {
+    bool is_row_changed = false;
+    scanner.get_cell(&cell_info, &is_row_changed);
+    ++count;
+    if (is_row_changed) {
+      ++query_row_count;
+      int cmp = strncmp(g_key[query_row_count - 1],
+                        cell_info->row_key_.ptr(), cell_info->row_key_.length());
+      EXPECT_EQ(0, cmp);
+    }
+    /*
+    printf("new row:%d, cell.table_id:%ld, cell.rowkey:%.*s\n",
+        is_row_changed, cell_info->table_id_,
+        cell_info->row_key_.length(), cell_info->row_key_.ptr());
+    printf("cell val type:%d\n", cell_info->value_.get_type());
+    */
+    EXPECT_EQ(ObIntType, cell_info->value_.get_type());
+    int64_t val = 0;
+    EXPECT_EQ(0, cell_info->value_.get_int(val));
+    EXPECT_EQ(query_row_count - 1, val);
+  }
+
+  EXPECT_EQ(row_count, count);
+
+}
+
+TEST(ObTestObSSTableBlockScanner, query_all_valid_column) {
+
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
+
+  const int32_t row_count = 6;
+  create_block(allocator, builder, row_count);
+  create_scan_param(scan_param, g_key[0], g_key[5]);
+  create_schema(schema);
+  const int32_t query_columns[] = {5, 6, 7};
+  const int32_t column_count = 3;
+  create_query_columns(indexes, schema, query_columns, column_count);
+
+  ObSSTableBlockScanner scanner(indexes);
+
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = false;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(0, ret);
+
+  ObCellInfo* cell_info = 0;
+  int count = 0;
+  int query_row_count = 0;
+  while (scanner.next_cell() == 0) {
+    bool is_row_changed = false;
+    scanner.get_cell(&cell_info, &is_row_changed);
+    ++count;
+    if (is_row_changed) {
+      ++query_row_count;
+      int cmp = strncmp(g_key[query_row_count - 1],
+                        cell_info->row_key_.ptr(), cell_info->row_key_.length());
+      EXPECT_EQ(0, cmp);
+    }
+    if ((count - 1) % column_count == 0) {
+      EXPECT_EQ(ObIntType, cell_info->value_.get_type());
+      int64_t val = 0;
+      EXPECT_EQ(0, cell_info->value_.get_int(val));
+      EXPECT_EQ(query_row_count - 1, val);
+    } else if ((count - 1) % column_count == 1) {
+      EXPECT_EQ(ObDoubleType, cell_info->value_.get_type());
+      double val = 0;
+      EXPECT_EQ(0, cell_info->value_.get_double(val));
+      EXPECT_EQ(query_row_count - 1, val);
+    } else if ((count - 1) % column_count == 2) {
+      EXPECT_EQ(ObVarcharType, cell_info->value_.get_type());
+      ObString val;
+      EXPECT_EQ(0, cell_info->value_.get_varchar(val));
+      EXPECT_EQ(0, strncmp(val.ptr(), g_key[query_row_count - 1], val.length()));
     }
   }
 
+  EXPECT_EQ(column_count * row_count, count);
 
-  void query_helper(
-    const int32_t start_row,
-    const int32_t end_row,
-    const ObBorderFlag& border_flag,
-    const int32_t query_start_column,
-    const int32_t query_column_count,
-    const bool is_reverse_scan) {
-    int32_t query_columns[query_column_count] ;
-    generate_query_columns(query_start_column, query_columns, query_column_count);
-    query_helper(start_row, end_row, border_flag, query_columns, query_column_count, is_reverse_scan);
-  }
+}
 
-  void query_helper(
-    const int32_t start_row,
-    const int32_t end_row,
-    const ObBorderFlag& border_flag,
-    const int32_t* query_columns,
-    const int32_t query_column_count,
-    const bool is_reverse_scan
-  ) {
+TEST(ObTestObSSTableBlockScanner, query_random_valid_column) {
 
-    ObNewRange query_range;
-    create_query_range(query_range, start_row, end_row, border_flag);
-    create_query_start_columns(query_columns, query_column_count);
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
 
-    ObCellInfo* cell_info = 0;
-    int64_t row_count = 0;
-    if (border_flag.is_min_value() && border_flag.is_max_value()) {
-      row_count = ROW_NUM;
-    } else if (border_flag.is_min_value()) {
-      row_count = end_row ;
-      if (border_flag.inclusive_end()) row_count++;
-    } else if (border_flag.is_max_value()) {
-      row_count = ROW_NUM - start_row - 1;
-      if (border_flag.inclusive_start()) row_count++;
-    } else {
-      row_count = end_row - start_row - 1;
-      if (border_flag.inclusive_start()) row_count++;
-      if (border_flag.inclusive_end()) row_count++;
+  const int32_t row_count = 6;
+  create_block(allocator, builder, row_count);
+  create_scan_param(scan_param, g_key[0], g_key[5]);
+  create_schema(schema);
+  const int32_t query_columns[] = {5, 7};
+  const int32_t column_count = 2;
+  create_query_columns(indexes, schema, query_columns, column_count);
+
+  ObSSTableBlockScanner scanner(indexes);
+
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = false;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(0, ret);
+
+  ObCellInfo* cell_info = 0;
+  int count = 0;
+  int query_row_count = 0;
+  while (scanner.next_cell() == 0) {
+    bool is_row_changed = false;
+    scanner.get_cell(&cell_info, &is_row_changed);
+    ++count;
+    if (is_row_changed) {
+      ++query_row_count;
+      int cmp = strncmp(g_key[query_row_count - 1],
+                        cell_info->row_key_.ptr(), cell_info->row_key_.length());
+      EXPECT_EQ(0, cmp);
     }
-
-    if (row_count > ROW_NUM) row_count = ROW_NUM;
-
-    int32_t total_count = 0;
-    int32_t row_index = 0;
-    int32_t col_index = 0;
-
-    int32_t expect_start_row = start_row;
-    int32_t expect_end_row = end_row;
-    int32_t expect_row_index = 0;
-    if (border_flag.is_min_value()) {
-      expect_start_row = 0;
-    }
-    if (border_flag.is_max_value()) {
-      expect_end_row = ROW_NUM - 1;
-    }
-
-    expect_row_index = is_reverse_scan ? expect_end_row : expect_start_row;
-    if (!is_reverse_scan && !border_flag.is_min_value() && !border_flag.inclusive_start()) expect_row_index++;
-    if (is_reverse_scan && !border_flag.is_max_value() && !border_flag.inclusive_end()) expect_row_index--;
-
-    bool need_looking_forward = false;
-    int ret = scanner_.set_scan_param(query_range,  is_reverse_scan, block_desc_, block_data_, need_looking_forward);
-
-    if (row_count <= 0 || expect_row_index < 0 || expect_row_index >= ROW_NUM) {
-      EXPECT_EQ(OB_BEYOND_THE_RANGE, ret)
-          << "start row:" << start_row << ",end row:" << end_row;
-    } else if (row_count > 0) {
-      EXPECT_EQ(0, ret)
-          << "start row:" << start_row << ",end row:" << end_row;
-    }
-
-
-    ObScanColumnIndexes::Column column;
-    while (scanner_.next_cell() == 0) {
-      bool is_row_changed = false;
-      scanner_.get_cell(&cell_info, &is_row_changed);
-      if (is_row_changed) {
-        EXPECT_EQ(OB_SUCCESS, check_rowkey(cell_info->row_key_, expect_row_index, COL_NUM))
-            << "start row:" << start_row << ",end row:" << end_row
-            << ",row_index:" << row_index << ",col_index:" << col_index;
-        if (col_index != 0) EXPECT_EQ(col_index, query_column_count);
-        col_index = 0;
-        ++row_index;
-        if (is_reverse_scan) --expect_row_index;
-        else ++expect_row_index;
-      }
-
-      indexes_.get_column(col_index, column);
-      if (column.type_ == ObScanColumnIndexes::NotExist) {
-        EXPECT_EQ(ObNullType, cell_info->value_.get_type());
-      } else {
-        EXPECT_EQ(ObIntType, cell_info->value_.get_type());
-        int64_t val = 0;
-        EXPECT_EQ(0, cell_info->value_.get_int(val));
-        int32_t r = is_reverse_scan ? (expect_row_index + 1) : (expect_row_index - 1);
-        EXPECT_EQ(val, r * COL_NUM + (query_columns[col_index] - CellInfoGen::START_ID));
-      }
-      ++total_count;
-      ++col_index;
-    }
-
-    EXPECT_EQ(row_index, row_count);
-  }
-
-  void random_query_helper_mix_mode(
-    const ObBorderFlag& border_flag,
-    const int32_t query_start_column,
-    const int32_t query_column_count) {
-    int32_t query_columns[query_column_count];
-    generate_query_columns(query_start_column, query_columns, query_column_count);
-    random_query_helper_mix_mode(border_flag, query_columns, query_column_count);
-  }
-
-  void random_query_helper_mix_mode(
-    const ObBorderFlag& border_flag,
-    const int32_t* query_columns,
-    const int32_t query_column_count) {
-    int32_t start_row = 0;
-    int32_t end_row = 0;
-    int count = 0;
-    for (; count < 10; ++count) {
-      start_row = static_cast<int32_t>(random_number(0, ROW_NUM - 1));
-      end_row = static_cast<int32_t>(random_number(start_row, ROW_NUM - 1));
-      fprintf(stderr, "query mix mode , row range:(%d,%d)\n", start_row, end_row);
-      if (count % 50 == 0) fprintf(stderr, "running %d query cases...\n", count);
-      query_helper(start_row, end_row, border_flag, query_columns, query_column_count, false);
-      TearDown();
-      query_helper(start_row, end_row, border_flag, query_columns, query_column_count, true);
-      TearDown();
+    if ((count - 1) % column_count == 0) {
+      EXPECT_EQ(ObIntType, cell_info->value_.get_type());
+      int64_t val = 0;
+      EXPECT_EQ(0, cell_info->value_.get_int(val));
+      EXPECT_EQ(query_row_count - 1, val);
+    } else if ((count - 1) % column_count == 1) {
+      EXPECT_EQ(ObVarcharType, cell_info->value_.get_type());
+      ObString val;
+      EXPECT_EQ(0, cell_info->value_.get_varchar(val));
+      EXPECT_EQ(0, strncmp(val.ptr(), g_key[query_row_count - 1], val.length()));
     }
   }
 
- public:
-  static void SetUpTestCase() {
-    TBSYS_LOGGER.setLogLevel("ERROR");
-    CellInfoGen::Desc desc[COLUMN_GROUP_NUM] = {
-      {0, 0, ROWKEY_COL_NUM - 1},
-      {0, ROWKEY_COL_NUM, ROWKEY_COL_NUM + NONKEY_COL_NUM - 1}
-    };
-    int ret = cgen_.gen(desc, COLUMN_GROUP_NUM);
-    EXPECT_EQ(OB_SUCCESS, ret);
-    ret = write_block(builder_, cgen_, desc, COLUMN_GROUP_NUM);
-    EXPECT_EQ(OB_SUCCESS, ret);
+  EXPECT_EQ(column_count * row_count, count);
 
-    ObRowkeyColumn split;
-    for (int i = 0; i < ROWKEY_COL_NUM; ++i) {
-      split.length_ = 8;
-      split.column_id_ = i + CellInfoGen::START_ID;
-      split.type_ = ObIntType;
-      rowkey_info_.add_column(split);
+}
+
+TEST(ObTestObSSTableBlockScanner, query_one_invalid_column) {
+
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
+
+  const int32_t row_count = 6;
+  create_block(allocator, builder, row_count);
+  create_scan_param(scan_param, g_key[0], g_key[5]);
+  create_schema(schema);
+  const int32_t query_columns[] = {15};
+  const int32_t column_count = 1;
+  create_query_columns(indexes, schema, query_columns, column_count);
+
+  ObSSTableBlockScanner scanner(indexes);
+
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = false;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(0, ret);
+
+  ObCellInfo* cell_info = 0;
+  int count = 0;
+  int query_row_count = 0;
+  while (scanner.next_cell() == 0) {
+    bool is_row_changed = false;
+    scanner.get_cell(&cell_info, &is_row_changed);
+    ++count;
+    if (is_row_changed) {
+      ++query_row_count;
+      int cmp = strncmp(g_key[query_row_count - 1],
+                        cell_info->row_key_.ptr(), cell_info->row_key_.length());
+      EXPECT_EQ(0, cmp);
+    }
+    if ((count - 1) % column_count == 0) {
+      EXPECT_EQ(ObNullType, cell_info->value_.get_type());
     }
   }
 
-  static void TearDownTestCase() {
+  EXPECT_EQ(column_count * row_count, count);
+
+}
+
+TEST(ObTestObSSTableBlockScanner, query_some_invalid_column) {
+
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
+
+  const int32_t row_count = 6;
+  create_block(allocator, builder, row_count);
+  create_scan_param(scan_param, g_key[0], g_key[5]);
+  create_schema(schema);
+  const int32_t query_columns[] = {15, 24, 22};
+  const int32_t column_count = 3;
+  create_query_columns(indexes, schema, query_columns, column_count);
+
+  ObSSTableBlockScanner scanner(indexes);
+
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = false;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(0, ret);
+
+  ObCellInfo* cell_info = 0;
+  int count = 0;
+  int query_row_count = 0;
+  while (scanner.next_cell() == 0) {
+    bool is_row_changed = false;
+    scanner.get_cell(&cell_info, &is_row_changed);
+    ++count;
+    if (is_row_changed) {
+      ++query_row_count;
+      int cmp = strncmp(g_key[query_row_count - 1],
+                        cell_info->row_key_.ptr(), cell_info->row_key_.length());
+      EXPECT_EQ(0, cmp);
+    }
+    if ((count - 1) % column_count == 0) {
+      EXPECT_EQ(ObNullType, cell_info->value_.get_type());
+    } else if ((count - 1) % column_count == 1) {
+      EXPECT_EQ(ObNullType, cell_info->value_.get_type());
+    } else if ((count - 1) % column_count == 2) {
+      EXPECT_EQ(ObNullType, cell_info->value_.get_type());
+    }
   }
 
-  virtual void SetUp() {
-    block_desc_.rowkey_info_ = &rowkey_info_;
-    block_desc_.rowkey_column_count_ = ROWKEY_COL_NUM;
-    block_desc_.store_style_ = OB_SSTABLE_STORE_DENSE;
+  EXPECT_EQ(column_count * row_count, count);
 
-    block_data_.internal_buffer_ = block_internal_buffer;
-    block_data_.internal_bufsiz_ = block_internal_bufsiz;
-    block_data_.data_buffer_ = builder_.block_buf();
-    block_data_.data_bufsiz_ = builder_.get_block_data_size();
+}
+
+TEST(ObTestObSSTableBlockScanner, query_mix_columns) {
+
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
+
+  const int32_t row_count = 6;
+  create_block(allocator, builder, row_count);
+  create_scan_param(scan_param, g_key[0], g_key[5]);
+  create_schema(schema);
+  const int32_t query_columns[] = {5, 17, 6, 7};
+  const int32_t column_count = 4;
+  create_query_columns(indexes, schema, query_columns, column_count);
+
+  ObSSTableBlockScanner scanner(indexes);
+
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = false;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(0, ret);
+
+  ObCellInfo* cell_info = 0;
+  int count = 0;
+  int query_row_count = 0;
+  while (scanner.next_cell() == 0) {
+    bool is_row_changed = false;
+    scanner.get_cell(&cell_info, &is_row_changed);
+    ++count;
+    if (is_row_changed) {
+      ++query_row_count;
+      int cmp = strncmp(g_key[query_row_count - 1],
+                        cell_info->row_key_.ptr(), cell_info->row_key_.length());
+      EXPECT_EQ(0, cmp);
+    }
+    if ((count - 1) % column_count == 0) {
+      EXPECT_EQ(ObIntType, cell_info->value_.get_type());
+      int64_t val = 0;
+      EXPECT_EQ(0, cell_info->value_.get_int(val));
+      EXPECT_EQ(query_row_count - 1, val);
+    } else if ((count - 1) % column_count == 1) {
+      EXPECT_EQ(ObNullType, cell_info->value_.get_type());
+    } else if ((count - 1) % column_count == 2) {
+      EXPECT_EQ(ObDoubleType, cell_info->value_.get_type());
+      double val = 0;
+      EXPECT_EQ(0, cell_info->value_.get_double(val));
+      EXPECT_EQ(query_row_count - 1, val);
+    } else if ((count - 1) % column_count == 3) {
+      EXPECT_EQ(ObVarcharType, cell_info->value_.get_type());
+      ObString val;
+      EXPECT_EQ(0, cell_info->value_.get_varchar(val));
+      EXPECT_EQ(0, strncmp(val.ptr(), g_key[query_row_count - 1], val.length()));
+    }
   }
 
-  virtual void TearDown() {
-    indexes_.reset();
-    memset(block_internal_buffer, 0, block_internal_bufsiz);
+  EXPECT_EQ(column_count * row_count, count);
+
+}
+
+
+TEST(ObTestObSSTableBlockScanner, query_one_single_row_block) {
+
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
+
+  const int32_t row_count = 1;
+  create_block(allocator, builder, row_count);
+  create_scan_param(scan_param, g_key[0], g_key[0]);
+  create_schema(schema);
+  const int32_t query_columns[] = {5};
+  const int32_t column_count = 1;
+  create_query_columns(indexes, schema, query_columns, column_count);
+
+  ObSSTableBlockScanner scanner(indexes);
+
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = false;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(0, ret);
+
+  ObCellInfo* cell_info = 0;
+  int all_query_count = 0;
+  int query_row_count = 0;
+  while (scanner.next_cell() == 0) {
+    bool is_row_changed = false;
+    scanner.get_cell(&cell_info, &is_row_changed);
+    ++all_query_count;
+    if (is_row_changed) {
+      ++query_row_count;
+      int cmp = strncmp(g_key[query_row_count - 1],
+                        cell_info->row_key_.ptr(), cell_info->row_key_.length());
+      EXPECT_EQ(0, cmp);
+    }
+    if ((all_query_count - 1) % column_count == 0) {
+      EXPECT_EQ(ObIntType, cell_info->value_.get_type());
+      int64_t val = 0;
+      EXPECT_EQ(0, cell_info->value_.get_int(val));
+      EXPECT_EQ(all_query_count - 1, val);
+    }
   }
 
-
-  ObNewRange query_range_;
-  ObScanColumnIndexes indexes_;
-
-  sstable::ObSSTableBlockScanner scanner_;
-
-  char block_internal_buffer[block_internal_bufsiz];
-  ObSSTableBlockReader::BlockDataDesc block_desc_;
-  ObSSTableBlockReader::BlockData block_data_;
-
-  static CellInfoGen cgen_;
-  static ObSSTableBlockBuilder builder_;
-  static ObRowkeyInfo rowkey_info_;
-
-};
-
-CellInfoGen TestObSSTableBlockScanner::cgen_(TestObSSTableBlockScanner::ROW_NUM, TestObSSTableBlockScanner::COL_NUM);
-ObSSTableBlockBuilder TestObSSTableBlockScanner::builder_;
-ObRowkeyInfo TestObSSTableBlockScanner::rowkey_info_;
-
-
-
-TEST_F(TestObSSTableBlockScanner, query_one_row_with_one_valid_column) {
-
-  int32_t query_start_column = static_cast<int32_t>(random_number(ROWKEY_COL_NUM + CellInfoGen::START_ID, COL_NUM + CellInfoGen::START_ID));
-  ObBorderFlag border_flag;
-  border_flag.set_data(3);
-
-
-  query_helper(0, 1, border_flag, query_start_column, 1, false);
+  EXPECT_EQ(column_count * row_count, all_query_count);
 
 }
 
+TEST(ObTestObSSTableBlockScanner, query_not_in_blocks) {
 
-TEST_F(TestObSSTableBlockScanner, query_one_valid_column) {
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
 
-  int32_t query_start_column = static_cast<int32_t>(random_number(ROWKEY_COL_NUM + CellInfoGen::START_ID, COL_NUM + CellInfoGen::START_ID));
-  ObBorderFlag border_flag;
-  border_flag.set_data(3);
+  const int32_t row_count = 1;
+  create_block(allocator, builder, row_count);
+  create_scan_param(scan_param, "ao", "ao");
+  create_schema(schema);
+  const int32_t query_columns[] = {5};
+  const int32_t column_count = 1;
+  create_query_columns(indexes, schema, query_columns, column_count);
 
+  ObSSTableBlockScanner scanner(indexes);
 
-  random_query_helper_mix_mode(border_flag, query_start_column, 1);
-
-}
-
-TEST_F(TestObSSTableBlockScanner, query_all_valid_column) {
-  const int32_t query_start_column = ROWKEY_COL_NUM + CellInfoGen::START_ID;
-  const int32_t query_column_count = NONKEY_COL_NUM;
-  ObBorderFlag border_flag;
-  border_flag.set_data(3);
-
-  random_query_helper_mix_mode(border_flag, query_start_column, query_column_count);
-}
-
-TEST_F(TestObSSTableBlockScanner, query_random_valid_column) {
-
-  const int32_t query_column_count = 4;
-  const int32_t query_columns[query_column_count] = {5, 7, 8, 9};
-  ObBorderFlag border_flag;
-  border_flag.set_data(3);
-
-  random_query_helper_mix_mode(border_flag, query_columns, query_column_count);
-}
-
-TEST_F(TestObSSTableBlockScanner, query_one_invalid_column) {
-  const int32_t query_start_column = ROWKEY_COL_NUM + CellInfoGen::START_ID + NONKEY_COL_NUM + 5;
-  const int32_t query_column_count = 1;
-  ObBorderFlag border_flag;
-  border_flag.set_data(3);
-
-  random_query_helper_mix_mode(border_flag, query_start_column, query_column_count);
-}
-
-TEST_F(TestObSSTableBlockScanner, query_some_invalid_column) {
-  const int32_t query_start_column = ROWKEY_COL_NUM + CellInfoGen::START_ID + NONKEY_COL_NUM + 5;
-  const int32_t query_column_count = 4;
-  ObBorderFlag border_flag;
-  border_flag.set_data(3);
-
-  random_query_helper_mix_mode(border_flag, query_start_column, query_column_count);
-}
-
-TEST_F(TestObSSTableBlockScanner, query_mix_columns) {
-  const int32_t query_column_count = 4;
-  const int32_t query_columns[query_column_count] = {5, 27, 8, 39};
-  ObBorderFlag border_flag;
-  border_flag.set_data(3);
-
-  random_query_helper_mix_mode(border_flag, query_columns, query_column_count);
-}
-
-TEST_F(TestObSSTableBlockScanner, query_one_single_row_block) {
-  const int32_t query_column_count = 4;
-  const int32_t query_columns[query_column_count] = {5, 27, 8, 39};
-
-  int32_t start_row = static_cast<int32_t>(random_number(0, ROW_NUM - 1));
-  ObBorderFlag border_flag;
-  border_flag.set_data(3);
-
-  query_helper(start_row, start_row + 1, border_flag, query_columns, query_column_count, false);
-  TearDown();
-  query_helper(start_row, start_row + 1, border_flag, query_columns, query_column_count, true);
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = false;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(OB_BEYOND_THE_RANGE, ret);
+  EXPECT_EQ(false, need_looking_forward);
 
 }
 
-TEST_F(TestObSSTableBlockScanner, query_not_in_blocks) {
-  //ObNewRange query_range;
-  const int32_t query_column_count = 4;
-  const int32_t query_columns[query_column_count] = {5, 27, 8, 39};
-  ObBorderFlag border_flag;
-  border_flag.set_data(3);
+TEST(ObTestObSSTableBlockScanner, query_not_inclsive_start) {
 
-  random_query_helper_mix_mode(border_flag, query_columns, query_column_count);
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
+
+  const int32_t row_count = 6;
+  create_block(allocator, builder, row_count);
+  create_scan_param(scan_param, g_key[0], g_key[5], false, true);
+  create_schema(schema);
+  const int32_t query_columns[] = {5, 6, 7};
+  const int32_t column_count = 3;
+  create_query_columns(indexes, schema, query_columns, column_count);
+
+  ObSSTableBlockScanner scanner(indexes);
+
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = false;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(0, ret);
+
+  ObCellInfo* cell_info = 0;
+  int count = 0;
+  int query_row_count = 0;
+  while (scanner.next_cell() == 0) {
+    bool is_row_changed = false;
+    scanner.get_cell(&cell_info, &is_row_changed);
+    ++count;
+    if (is_row_changed) {
+      ++query_row_count;
+      int cmp = strncmp(g_key[query_row_count],
+                        cell_info->row_key_.ptr(), cell_info->row_key_.length());
+      EXPECT_EQ(0, cmp);
+    }
+    if ((count - 1) % column_count == 0) {
+      EXPECT_EQ(ObIntType, cell_info->value_.get_type());
+      int64_t val = 0;
+      EXPECT_EQ(0, cell_info->value_.get_int(val));
+      // start from row 2.
+      // query_row_count - 1 + 1 == query_row_count
+      EXPECT_EQ(query_row_count, val);
+    } else if ((count - 1) % column_count == 1) {
+      EXPECT_EQ(ObDoubleType, cell_info->value_.get_type());
+      double val = 0;
+      EXPECT_EQ(0, cell_info->value_.get_double(val));
+      EXPECT_EQ(query_row_count, val);
+    } else if ((count - 1) % column_count == 2) {
+      EXPECT_EQ(ObVarcharType, cell_info->value_.get_type());
+      ObString val;
+      EXPECT_EQ(0, cell_info->value_.get_varchar(val));
+      EXPECT_EQ(0, strncmp(val.ptr(), g_key[query_row_count], val.length()));
+    }
+  }
+
+  EXPECT_EQ(column_count * (row_count - 1), count);
+
 }
 
-TEST_F(TestObSSTableBlockScanner, query_not_inclsive_start) {
-  ObNewRange query_range;
-  const int32_t query_column_count = 4;
-  const int32_t query_columns[query_column_count] = {5, 27, 8, 39};
-  ObBorderFlag border_flag;
-  border_flag.unset_inclusive_start();
-  border_flag.set_inclusive_end();
-  random_query_helper_mix_mode(border_flag, query_columns, query_column_count);
+TEST(ObTestObSSTableBlockScanner, query_not_inclsive_end) {
+
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
+
+  const int32_t row_count = 6;
+  create_block(allocator, builder, row_count);
+  create_scan_param(scan_param, g_key[0], g_key[5], true, false);
+  create_schema(schema);
+  const int32_t query_columns[] = {5, 6, 7};
+  const int32_t column_count = 3;
+  create_query_columns(indexes, schema, query_columns, column_count);
+
+  ObSSTableBlockScanner scanner(indexes);
+
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = false;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(0, ret);
+
+  ObCellInfo* cell_info = 0;
+  int count = 0;
+  int query_row_count = 0;
+  while (scanner.next_cell() == 0) {
+    bool is_row_changed = false;
+    scanner.get_cell(&cell_info, &is_row_changed);
+    ++count;
+    if (is_row_changed) {
+      ++query_row_count;
+      int cmp = strncmp(g_key[query_row_count - 1],
+                        cell_info->row_key_.ptr(), cell_info->row_key_.length());
+      EXPECT_EQ(0, cmp);
+    }
+    if ((count - 1) % column_count == 0) {
+      EXPECT_EQ(ObIntType, cell_info->value_.get_type());
+      int64_t val = 0;
+      EXPECT_EQ(0, cell_info->value_.get_int(val));
+      EXPECT_EQ(query_row_count - 1, val);
+    } else if ((count - 1) % column_count == 1) {
+      EXPECT_EQ(ObDoubleType, cell_info->value_.get_type());
+      double val = 0;
+      EXPECT_EQ(0, cell_info->value_.get_double(val));
+      EXPECT_EQ(query_row_count - 1, val);
+    } else if ((count - 1) % column_count == 2) {
+      EXPECT_EQ(ObVarcharType, cell_info->value_.get_type());
+      ObString val;
+      EXPECT_EQ(0, cell_info->value_.get_varchar(val));
+      EXPECT_EQ(0, strncmp(val.ptr(), g_key[query_row_count - 1], val.length()));
+    }
+  }
+
+  EXPECT_EQ(column_count * (row_count - 1), count);
 
 }
 
-TEST_F(TestObSSTableBlockScanner, query_not_inclsive_end) {
-  ObNewRange query_range;
-  const int32_t query_column_count = 4;
-  const int32_t query_columns[query_column_count] = {5, 27, 8, 39};
-  ObBorderFlag border_flag;
-  border_flag.set_inclusive_start();
-  border_flag.unset_inclusive_end();
-  random_query_helper_mix_mode(border_flag, query_columns, query_column_count);
+TEST(ObTestObSSTableBlockScanner, query_not_inclsive_start_end) {
+
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
+
+  const int32_t row_count = 6;
+  create_block(allocator, builder, row_count);
+  create_scan_param(scan_param, g_key[0], g_key[5], false, false);
+  create_schema(schema);
+  const int32_t query_columns[] = {5, 6, 7};
+  const int32_t column_count = 3;
+  create_query_columns(indexes, schema, query_columns, column_count);
+
+  ObSSTableBlockScanner scanner(indexes);
+
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = false;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(0, ret);
+
+  ObCellInfo* cell_info = 0;
+  int count = 0;
+  int query_row_count = 0;
+  while (scanner.next_cell() == 0) {
+    bool is_row_changed = false;
+    scanner.get_cell(&cell_info, &is_row_changed);
+    ++count;
+    if (is_row_changed) {
+      ++query_row_count;
+      int cmp = strncmp(g_key[query_row_count],
+                        cell_info->row_key_.ptr(), cell_info->row_key_.length());
+      EXPECT_EQ(0, cmp);
+    }
+    if ((count - 1) % column_count == 0) {
+      EXPECT_EQ(ObIntType, cell_info->value_.get_type());
+      int64_t val = 0;
+      EXPECT_EQ(0, cell_info->value_.get_int(val));
+      // start from row 2.
+      // query_row_count - 1 + 1 == query_row_count
+      EXPECT_EQ(query_row_count, val);
+    } else if ((count - 1) % column_count == 1) {
+      EXPECT_EQ(ObDoubleType, cell_info->value_.get_type());
+      double val = 0;
+      EXPECT_EQ(0, cell_info->value_.get_double(val));
+      EXPECT_EQ(query_row_count, val);
+    } else if ((count - 1) % column_count == 2) {
+      EXPECT_EQ(ObVarcharType, cell_info->value_.get_type());
+      ObString val;
+      EXPECT_EQ(0, cell_info->value_.get_varchar(val));
+      EXPECT_EQ(0, strncmp(val.ptr(), g_key[query_row_count], val.length()));
+    }
+  }
+
+  EXPECT_EQ(column_count * (row_count - 2), count);
+
 }
 
-TEST_F(TestObSSTableBlockScanner, query_not_inclsive_start_end) {
-  ObNewRange query_range;
-  const int32_t query_column_count = 4;
-  const int32_t query_columns[query_column_count] = {5, 27, 8, 39};
-  ObBorderFlag border_flag;
-  border_flag.unset_inclusive_start();
-  border_flag.unset_inclusive_end();
-  random_query_helper_mix_mode(border_flag, query_columns, query_column_count);
+TEST(ObTestObSSTableBlockScanner, query_header_part) {
+
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
+
+  const int32_t row_count = 6;
+  create_block(allocator, builder, row_count);
+  create_scan_param(scan_param, "ac", g_key[2], true, true);
+  create_schema(schema);
+  const int32_t query_columns[] = {5, 6, 7};
+  const int32_t column_count = 3;
+  create_query_columns(indexes, schema, query_columns, column_count);
+
+  ObSSTableBlockScanner scanner(indexes);
+
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = false;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(0, ret);
+
+  ObCellInfo* cell_info = 0;
+  int count = 0;
+  int query_row_count = 0;
+  while (scanner.next_cell() == 0) {
+    bool is_row_changed = false;
+    scanner.get_cell(&cell_info, &is_row_changed);
+    ++count;
+    if (is_row_changed) {
+      ++query_row_count;
+      int cmp = strncmp(g_key[query_row_count - 1],
+                        cell_info->row_key_.ptr(), cell_info->row_key_.length());
+      EXPECT_EQ(0, cmp);
+    }
+    if ((count - 1) % column_count == 0) {
+      EXPECT_EQ(ObIntType, cell_info->value_.get_type());
+      int64_t val = 0;
+      EXPECT_EQ(0, cell_info->value_.get_int(val));
+      EXPECT_EQ(query_row_count - 1, val);
+    } else if ((count - 1) % column_count == 1) {
+      EXPECT_EQ(ObDoubleType, cell_info->value_.get_type());
+      double val = 0;
+      EXPECT_EQ(0, cell_info->value_.get_double(val));
+      EXPECT_EQ(query_row_count - 1, val);
+    } else if ((count - 1) % column_count == 2) {
+      EXPECT_EQ(ObVarcharType, cell_info->value_.get_type());
+      ObString val;
+      EXPECT_EQ(0, cell_info->value_.get_varchar(val));
+      EXPECT_EQ(0, strncmp(val.ptr(), g_key[query_row_count - 1], val.length()));
+    }
+  }
+
+  EXPECT_EQ(column_count * 3, count);
+
 }
 
-TEST_F(TestObSSTableBlockScanner, query_with_min_value) {
-  ObNewRange query_range;
-  const int32_t query_column_count = 4;
-  const int32_t query_columns[query_column_count] = {5, 27, 8, 39};
-  ObBorderFlag border_flag;
-  border_flag.set_min_value();
-  border_flag.unset_inclusive_end();
-  random_query_helper_mix_mode(border_flag, query_columns, query_column_count);
+TEST(ObTestObSSTableBlockScanner, query_tailer_part) {
 
-  TearDown();
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
 
-  border_flag.set_min_value();
-  border_flag.set_inclusive_end();
-  random_query_helper_mix_mode(border_flag, query_columns, query_column_count);
+  const int32_t row_count = 6;
+  create_block(allocator, builder, row_count);
+  create_scan_param(scan_param, g_key[3], "zoo", true, true);
+  create_schema(schema);
+  const int32_t query_columns[] = {5, 6, 7};
+  const int32_t column_count = 3;
+  create_query_columns(indexes, schema, query_columns, column_count);
+
+  ObSSTableBlockScanner scanner(indexes);
+
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = false;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(0, ret);
+
+  ObCellInfo* cell_info = 0;
+  int count = 0;
+  int query_row_count = 0;
+  while (scanner.next_cell() == 0) {
+    bool is_row_changed = false;
+    scanner.get_cell(&cell_info, &is_row_changed);
+    ++count;
+    if (is_row_changed) {
+      ++query_row_count;
+      int cmp = strncmp(g_key[query_row_count + 2],
+                        cell_info->row_key_.ptr(), cell_info->row_key_.length());
+      EXPECT_EQ(0, cmp);
+    }
+    if ((count - 1) % column_count == 0) {
+      EXPECT_EQ(ObIntType, cell_info->value_.get_type());
+      int64_t val = 0;
+      EXPECT_EQ(0, cell_info->value_.get_int(val));
+      EXPECT_EQ(query_row_count + 2, val);
+    } else if ((count - 1) % column_count == 1) {
+      EXPECT_EQ(ObDoubleType, cell_info->value_.get_type());
+      double val = 0;
+      EXPECT_EQ(0, cell_info->value_.get_double(val));
+      EXPECT_EQ(query_row_count + 2, val);
+    } else if ((count - 1) % column_count == 2) {
+      EXPECT_EQ(ObVarcharType, cell_info->value_.get_type());
+      ObString val;
+      EXPECT_EQ(0, cell_info->value_.get_varchar(val));
+      EXPECT_EQ(0, strncmp(val.ptr(), g_key[query_row_count + 2], val.length()));
+    }
+  }
+
+  EXPECT_EQ(column_count * 3, count);
 
 }
 
-TEST_F(TestObSSTableBlockScanner, query_with_max_value) {
-  ObNewRange query_range;
-  const int32_t query_column_count = 4;
-  const int32_t query_columns[query_column_count] = {5, 27, 8, 39};
-  ObBorderFlag border_flag;
-  border_flag.unset_inclusive_start();
-  border_flag.set_max_value();
-  random_query_helper_mix_mode(border_flag, query_columns, query_column_count);
+TEST(ObTestObSSTableBlockScanner, query_with_part_key) {
 
-  border_flag.set_inclusive_start();
-  border_flag.set_max_value();
-  random_query_helper_mix_mode(border_flag, query_columns, query_column_count);
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
+
+  const int32_t row_count = 4;
+  create_block(allocator, builder, row_count);
+  create_scan_param(scan_param, "ao", "ko", true, true);
+  create_schema(schema);
+  const int32_t query_columns[] = {5};
+  create_query_columns(indexes, schema, query_columns, 1);
+
+  ObSSTableBlockScanner scanner(indexes);
+
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = false;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(0, ret);
+
+  ObCellInfo* cell_info = 0;
+  int count = 0;
+  int query_row_count = 0;
+  while (scanner.next_cell() == 0) {
+    bool is_row_changed = false;
+    scanner.get_cell(&cell_info, &is_row_changed);
+    ++count;
+    if (is_row_changed) {
+      ++query_row_count;
+      int cmp = strncmp(g_key[query_row_count - 1],
+                        cell_info->row_key_.ptr(), cell_info->row_key_.length());
+      EXPECT_EQ(0, cmp);
+    }
+    /*
+    printf("new row:%d, cell.table_id:%ld, cell.rowkey:%.*s\n",
+        is_row_changed, cell_info->table_id_,
+        cell_info->row_key_.length(), cell_info->row_key_.ptr());
+    printf("cell val type:%d\n", cell_info->value_.get_type());
+    */
+    EXPECT_EQ(ObIntType, cell_info->value_.get_type());
+    int64_t val = 0;
+    EXPECT_EQ(0, cell_info->value_.get_int(val));
+    EXPECT_EQ(query_row_count - 1, val);
+  }
+
+  EXPECT_EQ(row_count, count);
+
 }
 
-TEST_F(TestObSSTableBlockScanner, query_with_min_max_value) {
-  ObNewRange query_range;
-  const int32_t query_column_count = 4;
-  const int32_t query_columns[query_column_count] = {5, 27, 8, 39};
-  ObBorderFlag border_flag;
-  border_flag.set_min_value();
-  border_flag.set_max_value();
-  query_helper(-1, 0, border_flag, query_columns, query_column_count, false);
-  TearDown();
-  query_helper(-1, 0, border_flag, query_columns, query_column_count, true);
+TEST(ObTestObSSTableBlockScanner, query_with_part_key_reverse_scan) {
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
+
+  const int32_t row_count = 4;
+  create_block(allocator, builder, row_count);
+  create_scan_param(scan_param, "ao", "ko", true, true);
+  create_schema(schema);
+  const int32_t query_columns[] = {5};
+  create_query_columns(indexes, schema, query_columns, 1);
+
+  ObSSTableBlockScanner scanner(indexes);
+
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = true;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(0, ret);
+
+  ObCellInfo* cell_info = 0;
+  int count = 0;
+  int query_row_count = 0;
+  while (scanner.next_cell() == 0) {
+    bool is_row_changed = false;
+    scanner.get_cell(&cell_info, &is_row_changed);
+    ++count;
+    if (is_row_changed) {
+      ++query_row_count;
+      int cmp = strncmp(g_key[4 - query_row_count],
+                        cell_info->row_key_.ptr(), cell_info->row_key_.length());
+      EXPECT_EQ(0, cmp);
+    }
+    /*
+    printf("query_row_count:%d,new row:%d, cell.table_id:%ld, cell.rowkey:%.*s\n",
+        query_row_count, is_row_changed, cell_info->table_id_,
+        cell_info->row_key_.length(), cell_info->row_key_.ptr());
+    printf("cell val type:%d\n", cell_info->value_.get_type());
+    */
+    EXPECT_EQ(ObIntType, cell_info->value_.get_type());
+    int64_t val = 0;
+    EXPECT_EQ(0, cell_info->value_.get_int(val));
+    EXPECT_EQ(4 - query_row_count, val);
+  }
+
+  EXPECT_EQ(row_count, count);
+
+}
+
+TEST(ObTestObSSTableBlockScanner, query_one_valid_column_with_min_value) {
+
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
+
+  const int32_t row_count = 6;
+  create_block(allocator, builder, row_count);
+  create_scan_param(scan_param, "null", g_key[row_count - 1], false, true, true, false);
+  create_schema(schema);
+  const int32_t query_columns[] = {5};
+  create_query_columns(indexes, schema, query_columns, 1);
+
+  ObSSTableBlockScanner scanner(indexes);
+
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = false;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(0, ret);
+
+  ObCellInfo* cell_info = 0;
+  int count = 0;
+  int query_row_count = 0;
+  while (scanner.next_cell() == 0) {
+    bool is_row_changed = false;
+    scanner.get_cell(&cell_info, &is_row_changed);
+    ++count;
+    if (is_row_changed) {
+      ++query_row_count;
+      int cmp = strncmp(g_key[query_row_count - 1],
+                        cell_info->row_key_.ptr(), cell_info->row_key_.length());
+      EXPECT_EQ(0, cmp);
+    }
+    EXPECT_EQ(ObIntType, cell_info->value_.get_type());
+    int64_t val = 0;
+    EXPECT_EQ(0, cell_info->value_.get_int(val));
+    EXPECT_EQ(query_row_count - 1, val);
+  }
+
+  EXPECT_EQ(row_count, count);
+
+}
+
+TEST(ObTestObSSTableBlockScanner, query_one_valid_column_with_max_value) {
+
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
+
+  const int32_t row_count = 6;
+  create_block(allocator, builder, row_count);
+  // not include start key "aoo"
+  create_scan_param(scan_param, g_key[0], "null",  false, true, false, true);
+  create_schema(schema);
+  const int32_t query_columns[] = {5};
+  create_query_columns(indexes, schema, query_columns, 1);
+
+  ObSSTableBlockScanner scanner(indexes);
+
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = false;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(0, ret);
+
+  ObCellInfo* cell_info = 0;
+  int count = 0;
+  int query_row_count = 0;
+  while (scanner.next_cell() == 0) {
+    bool is_row_changed = false;
+    scanner.get_cell(&cell_info, &is_row_changed);
+    ++count;
+    if (is_row_changed) {
+      ++query_row_count;
+      int cmp = strncmp(g_key[query_row_count],
+                        cell_info->row_key_.ptr(), cell_info->row_key_.length());
+      EXPECT_EQ(0, cmp);
+    }
+    EXPECT_EQ(ObIntType, cell_info->value_.get_type());
+    int64_t val = 0;
+    EXPECT_EQ(0, cell_info->value_.get_int(val));
+    EXPECT_EQ(query_row_count, val);
+  }
+
+  EXPECT_EQ(row_count - 1, count);
+
+}
+
+TEST(ObTestObSSTableBlockScanner, query_one_valid_column_with_min_max_value) {
+
+  CharArena allocator;
+  ObSSTableBlockBuilder builder;
+  ObRange scan_param;
+  ObSSTableSchema schema;
+  ObScanColumnIndexes indexes;
+
+  const int32_t row_count = 6;
+  create_block(allocator, builder, row_count);
+  // not include start key "aoo"
+  create_scan_param(scan_param, "null", "null",  false, false, true, true);
+  create_schema(schema);
+  const int32_t query_columns[] = {5};
+  create_query_columns(indexes, schema, query_columns, 1);
+
+  ObSSTableBlockScanner scanner(indexes);
+
+  bool need_looking_forward = false;
+  int format = OB_SSTABLE_STORE_DENSE;
+  bool is_reverse_scan = false;
+  ObSSTableBlockScanner::BlockData block_data(block_internal_buffer, block_internal_bufsiz,
+                                              builder.block_buf(), builder.get_block_data_size(), format);
+  int ret = scanner.set_scan_param(scan_param,  is_reverse_scan, block_data, need_looking_forward);
+  EXPECT_EQ(0, ret);
+
+  ObCellInfo* cell_info = 0;
+  int count = 0;
+  int query_row_count = 0;
+  while (scanner.next_cell() == 0) {
+    bool is_row_changed = false;
+    scanner.get_cell(&cell_info, &is_row_changed);
+    ++count;
+    if (is_row_changed) {
+      ++query_row_count;
+      int cmp = strncmp(g_key[query_row_count - 1],
+                        cell_info->row_key_.ptr(), cell_info->row_key_.length());
+      EXPECT_EQ(0, cmp);
+    }
+    EXPECT_EQ(ObIntType, cell_info->value_.get_type());
+    int64_t val = 0;
+    EXPECT_EQ(0, cell_info->value_.get_int(val));
+    EXPECT_EQ(query_row_count - 1, val);
+  }
+
+  EXPECT_EQ(row_count, count);
+
 }
 
 int main(int argc, char** argv) {

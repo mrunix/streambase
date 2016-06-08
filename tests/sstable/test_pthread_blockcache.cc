@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -33,9 +33,6 @@ uint32_t g_file_num = 128;
 uint32_t g_file_block_num = 128;
 uint32_t g_thread_num = 10;
 uint32_t g_times_per_thread = 1024;
-static const int64_t block_cache_size = 64 * 1024 * 256;
-static const int64_t block_index_cache_size = 32 * 1024 * 1024;
-static const int64_t ficache_max_num = 1024;
 static FileInfoCache fic;
 static ObBlockCache bc(fic);
 
@@ -74,7 +71,6 @@ void* thread_func(void* data) {
   BlockData* bd = NULL;
   int32_t ret = 0;
   pid = pthread_self();
-  UNUSED(data);
 
   for (uint32_t i = 0; i < g_times_per_thread; i++) {
     file_num = rand() % g_file_num;
@@ -125,11 +121,14 @@ int main(int argc, char** argv) {
       fprintf(stderr, "thread num and times per thread must be set\n");
       exit(-1);
     }
-    fic.init(ficache_max_num);
-    bc.init(block_cache_size);
+    ObBlockCacheConf conf;
+    conf.block_cache_memsize_mb = 1024;
+    conf.ficache_max_num = 1024;
+    fic.init(conf.ficache_max_num);
+    bc.init(conf);
     g_thread_num = atoi(argv[2]);
     g_times_per_thread = atoi(argv[3]);
-    srand(static_cast<int32_t>(time(NULL)));
+    srand(time(NULL));
     thread_test();
     bc.destroy();
   } else {

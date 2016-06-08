@@ -1,17 +1,18 @@
 /**
- * (C) 2007-2010 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
  * Version: $Id$
  *
+ * ob_ups_fetch_runnable.cc for ...
+ *
  * Authors:
  *   yanran <yanran.hfs@taobao.com>
- *     - some work details if you want
+ *
  */
-
 #include "ob_ups_fetch_runnable.h"
 
 #include "common/file_directory_utils.h"
@@ -199,7 +200,7 @@ int ObUpsFetchRunnable::remote_cp_sst_(const char* name, const char* src_path, c
   int ret = OB_SUCCESS;
   char* cmd = NULL;
 
-  cmd = static_cast<char*>(ob_malloc(OB_MAX_FETCH_CMD_LENGTH, ObModIds::OB_UPS_COMMON));
+  cmd = static_cast<char*>(ob_malloc(OB_MAX_FETCH_CMD_LENGTH));
   if (NULL == cmd) {
     TBSYS_LOG(WARN, "ob_malloc error, OB_MAX_FETCH_CMD_LENGTH=%ld", OB_MAX_FETCH_CMD_LENGTH);
     ret = OB_ERROR;
@@ -287,3 +288,6 @@ int ObUpsFetchRunnable::get_sstable_() {
 
   return ret;
 }
+
+
+

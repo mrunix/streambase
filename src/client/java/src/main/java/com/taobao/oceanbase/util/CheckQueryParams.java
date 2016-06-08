@@ -1,7 +1,6 @@
 package com.taobao.oceanbase.util;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import com.taobao.oceanbase.vo.QueryInfo;
@@ -29,10 +28,7 @@ public class CheckQueryParams {
 		});
 		validations.add(new Validation() {
 			public void check(QueryInfo query) {
-				for (String e : query.getColumns()) {
-					if (e == null)
-						throw new IllegalArgumentException("columns are null");
-				}
+				CheckParameter.checkCollection("columns are null", query.getColumns());
 			}
 		});
 		validations.add(new Validation() {

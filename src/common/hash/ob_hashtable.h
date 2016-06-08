@@ -1,22 +1,18 @@
-////===================================================================
-//
-// ob_hashtable.cc / hash / common / Oceanbase
-//
-// Copyright (C) 2010, 2013 Taobao.com, Inc.
-//
-// Created on 2010-07-23 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./ob_hashtable.h for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #ifndef  OCEANBASE_COMMON_HASH_HASHTABLE_H_
 #define  OCEANBASE_COMMON_HASH_HASHTABLE_H_
 #include <stdlib.h>
@@ -26,19 +22,18 @@
 #include <new>
 #include "ob_hashutils.h"
 #include "ob_serialization.h"
-#include "common/ob_atomic.h"
-#include "common/ob_allocator.h"
+
 namespace sb {
 namespace common {
 namespace hash {
 template <class _key_type, class _value_type, class _hashfunc, class _equal, class _getkey, class _allocer, class _defendmode,
-          template <class> class _bucket_array, class _bucket_allocer>
+          template <class> class _bucket_array>
 class ObHashTable;
 template <class _key_type, class _value_type, class _hashfunc, class _equal, class _getkey, class _allocer, class _defendmode,
-          template <class> class _bucket_array, class _bucket_allocer>
+          template <class> class _bucket_array>
 class ObHashTableIterator;
 template <class _key_type, class _value_type, class _hashfunc, class _equal, class _getkey, class _allocer, class _defendmode,
-          template <class> class _bucket_array, class _bucket_allocer>
+          template <class> class _bucket_array>
 class ObHashTableConstIterator;
 
 template <class _value_type>
@@ -62,17 +57,16 @@ template <class _key_type,
           class _getkey,
           class _allocer,
           class _defendmode,
-          template <class> class _bucket_array,
-          class _bucket_allocer>
+          template <class> class _bucket_array>
 class ObHashTableIterator {
  private:
   typedef ObHashTableNode<_value_type> hashnode;
-  typedef ObHashTable<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array, _bucket_allocer> hashtable;
-  typedef ObHashTableIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array, _bucket_allocer> iterator;
-  typedef ObHashTableConstIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array, _bucket_allocer> const_iterator;
+  typedef ObHashTable<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array> hashtable;
+  typedef ObHashTableIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array> iterator;
+  typedef ObHashTableConstIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array> const_iterator;
   typedef _value_type& reference;
   typedef _value_type* pointer;
-  friend class ObHashTableConstIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array, _bucket_allocer>;
+  friend class ObHashTableConstIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array>;
  public:
   ObHashTableIterator() : ht_(NULL), bucket_pos_(0), node_(0) {
   };
@@ -127,17 +121,16 @@ template <class _key_type,
           class _getkey,
           class _allocer,
           class _defendmode,
-          template <class> class _bucket_array,
-          class _bucket_allocer>
+          template <class> class _bucket_array>
 class ObHashTableConstIterator {
  private:
   typedef ObHashTableNode<_value_type> hashnode;
-  typedef ObHashTable<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array, _bucket_allocer> hashtable;
-  typedef ObHashTableIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array, _bucket_allocer> iterator;
-  typedef ObHashTableConstIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array, _bucket_allocer> const_iterator;
+  typedef ObHashTable<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array> hashtable;
+  typedef ObHashTableIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array> iterator;
+  typedef ObHashTableConstIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array> const_iterator;
   typedef const _value_type& const_reference;
   typedef const _value_type* const_pointer;
-  friend class ObHashTableIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array, _bucket_allocer>;
+  friend class ObHashTableIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array>;
  public:
   ObHashTableConstIterator() : ht_(NULL), bucket_pos_(0), node_(0) {
   };
@@ -199,12 +192,11 @@ template <class _key_type,  // key类型
           class _getkey,     // 根据value获取key的函数
           class _allocer,    // 内存分配器
           class _defendmode, // 多线程保护模式
-          template <class> class _bucket_array,
-          class _bucket_allocer = sb::common::ObMalloc >
+          template <class> class _bucket_array>
 class ObHashTable {
  public:
-  typedef ObHashTableIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array, _bucket_allocer> iterator;
-  typedef ObHashTableConstIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array, _bucket_allocer> const_iterator;
+  typedef ObHashTableIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array> iterator;
+  typedef ObHashTableConstIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array> const_iterator;
   typedef ObHashTableNode<_value_type> hashnode;
  private:
   static const int64_t ARRAY_SIZE = 1024 * 16;  // 乘以hashbucket的大小约1M 必须是2的整数次方
@@ -214,18 +206,18 @@ class ObHashTable {
   typedef typename _defendmode::cond_type cond_type;
   typedef typename _defendmode::cond_waiter cond_waiter;
   typedef typename _defendmode::cond_broadcaster cond_broadcaster;
-  typedef ObHashTable<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array, _bucket_allocer> hashtable;
+  typedef ObHashTable<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array> hashtable;
   typedef ObHashTableBucket<_value_type, lock_type, cond_type> hashbucket;
   typedef pre_proc<_value_type> preproc;
   typedef typename _bucket_array<hashbucket>::array_type bucket_array;
-  friend class ObHashTableIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array, _bucket_allocer>;
-  friend class ObHashTableConstIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array, _bucket_allocer>;
+  friend class ObHashTableIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array>;
+  friend class ObHashTableConstIterator<_key_type, _value_type, _hashfunc, _equal, _getkey, _allocer, _defendmode, _bucket_array>;
  private:
   ObHashTable(const hashtable&);
   hashtable operator= (const hashtable&);
  public:
   //ObHashTable() : allocer_(NULL), buckets_(NULL), bucket_num_(0), size_(0)
-  ObHashTable() : allocer_(NULL), bucket_allocer_(&default_bucket_allocer_), bucket_num_(0), size_(0) {
+  ObHashTable() : allocer_(NULL), bucket_num_(0), size_(0) {
     construct(buckets_);
   };
   ~ObHashTable() {
@@ -235,20 +227,21 @@ class ObHashTable {
     }
   };
  public:
-  inline bool created() {
-    return inited(buckets_);
-  }
   // 注意 向上取质数自己调用ob_hashutils.h中的cal_next_prime去算，这里不管
-  int create(int64_t bucket_num, _allocer* allocer, _bucket_allocer* bucket_allocer) {
+  int create(int64_t bucket_num, _allocer* allocer) {
     int ret = 0;
     if (0 >= bucket_num || NULL == allocer) {
       HASH_WRITE_LOG(HASH_WARNING, "invalid param bucket_num=%ld allocer=%p", bucket_num, allocer);
       ret = -1;
-    } else if (inited(buckets_)) {
+    }
+    //else if (NULL != buckets_)
+    else if (inited(buckets_)) {
       HASH_WRITE_LOG(HASH_WARNING, "hashtable has already been created allocer=%p bucket_num=%ld",
                      allocer_, bucket_num_);
       ret = -1;
-    } else if (0 != hash::create(buckets_, bucket_num, ARRAY_SIZE, sizeof(hashbucket), *bucket_allocer)) {
+    }
+    //else if (NULL == (buckets_ = new(std::nothrow) hashbucket[bucket_num]))
+    else if (0 != hash::create(buckets_, bucket_num, ARRAY_SIZE, sizeof(hashbucket))) {
       HASH_WRITE_LOG(HASH_WARNING, "create buckets fail");
       ret = -1;
     } else {
@@ -256,7 +249,6 @@ class ObHashTable {
       bucket_num_ = bucket_num;
       allocer_ = allocer;
       allocer_->inc_ref();
-      bucket_allocer_ = bucket_allocer;
     }
     return ret;
   };
@@ -264,14 +256,14 @@ class ObHashTable {
     int ret = 0;
     //if (NULL == buckets_ || NULL == allocer_)
     if (!inited(buckets_) || NULL == allocer_) {
-      HASH_WRITE_LOG(HASH_DEBUG, "hashtable is empty");
+      HASH_WRITE_LOG(HASH_WARNING, "hashtable is empty");
     } else {
       for (int64_t i = 0; i < bucket_num_; i++) {
         hashnode* cur_node = NULL;
         if (NULL != (cur_node = buckets_[i].node)) {
           while (NULL != cur_node) {
             hashnode* tmp_node = cur_node->next;
-            allocer_->free(cur_node);
+            allocer_->deallocate(cur_node);
             cur_node = tmp_node;
           }
           buckets_[i].node = NULL;
@@ -281,7 +273,7 @@ class ObHashTable {
       allocer_ = NULL;
       //delete[] buckets_;
       //buckets_ = NULL;
-      hash::destroy(buckets_, *bucket_allocer_);
+      hash::destroy(buckets_);
       bucket_num_ = 0;
       size_ = 0;
     }
@@ -291,15 +283,15 @@ class ObHashTable {
     int ret = 0;
     //if (NULL == buckets_ || NULL == allocer_)
     if (!inited(buckets_) || NULL == allocer_) {
+      HASH_WRITE_LOG(HASH_WARNING, "hashtable is empty");
       ret = -1;
     } else {
       for (int64_t i = 0; i < bucket_num_; i++) {
-        writelocker locker(buckets_[i].lock);
         hashnode* cur_node = NULL;
         if (NULL != (cur_node = buckets_[i].node)) {
           while (NULL != cur_node) {
             hashnode* tmp_node = cur_node->next;
-            allocer_->free(cur_node);
+            allocer_->deallocate(cur_node);
             cur_node = tmp_node;
           }
         }
@@ -348,8 +340,8 @@ class ObHashTable {
     return const_iterator(this, bucket_num_, NULL);
   };
  private:
-  inline int internal_get(const hashbucket& bucket, const _key_type& key,
-                          _value_type& value, bool& is_fake) const {
+  int internal_get(const hashbucket& bucket, const _key_type& key,
+                   _value_type& value, bool& is_fake) const {
     int ret = HASH_NOT_EXIST;
     hashnode* node = bucket.node;
     is_fake = false;
@@ -367,30 +359,11 @@ class ObHashTable {
 
     return ret;
   }
-  inline int internal_get(const hashbucket& bucket, const _key_type& key,
-                          const _value_type*& value, bool& is_fake) const {
-    int ret = HASH_NOT_EXIST;
-    hashnode* node = bucket.node;
-    is_fake = false;
-
-    while (NULL != node) {
-      if (equal_(getkey_(node->data), key)) {
-        value = &(node->data);
-        is_fake = node->is_fake;
-        ret = HASH_EXIST;
-        break;
-      } else {
-        node = node->next;
-      }
-    }
-
-    return ret;
-  }
-  inline int internal_set(hashbucket& bucket, const _value_type& value, const bool is_fake) {
+  int internal_set(hashbucket& bucket, const _value_type& value, const bool is_fake) {
     int ret = HASH_INSERT_SUCC;
     hashnode* node = NULL;
 
-    node = (hashnode*)(allocer_->alloc());
+    node = (hashnode*)(allocer_->allocate());
     if (NULL == node) {
       ret = -1;
     } else {
@@ -398,7 +371,7 @@ class ObHashTable {
       node->is_fake = is_fake;
       node->next = bucket.node;
       bucket.node = node;
-      atomic_inc((uint64_t*)&size_);
+      ++ size_;
     }
 
     return ret;
@@ -427,19 +400,15 @@ class ObHashTable {
       if (timeout_us > 0) {
         if (HASH_EXIST == ret && is_fake) {
           struct timespec ts;
-          int64_t abs_timeout_us = get_cur_microseconds_time() + timeout_us;
-          ts = microseconds_to_ts(abs_timeout_us);
+          ts = microseconds_to_ts(get_cur_microseconds_time() + timeout_us);
           do {
-            if (get_cur_microseconds_time() > abs_timeout_us
-                || ETIMEDOUT == cond_waiter()(bucket.cond, bucket.lock, ts)) {
+            if (ETIMEDOUT == cond_waiter()(bucket.cond, bucket.lock, ts)) {
               HASH_WRITE_LOG(HASH_WARNING, "wait fake node become normal node timeout");
               ret = HASH_GET_TIMEOUT;
               break;
             }
             ret = internal_get(bucket, key, value, is_fake);
             if (HASH_NOT_EXIST == ret) {
-              HASH_WRITE_LOG(HASH_WARNING, "after wake up, fake node is non-existent or deleted");
-              ret = OB_ERROR;
               break;
             }
           } while (HASH_EXIST == ret && is_fake);
@@ -458,61 +427,12 @@ class ObHashTable {
     }
     return ret;
   };
-  int get(const _key_type& key, const _value_type*& value, const int64_t timeout_us = 0) {
-    int ret = 0;
-    //if (NULL == buckets_ || NULL == allocer_)
-    if (!inited(buckets_) || NULL == allocer_) {
-      HASH_WRITE_LOG(HASH_WARNING, "hashtable is empty");
-      ret = -1;
-    } else {
-      uint64_t hash_value = hashfunc_(key);
-      int64_t bucket_pos = hash_value % bucket_num_;
-      hashbucket& bucket = buckets_[bucket_pos];
-      bool is_fake = false;
-      readlocker locker(bucket.lock);
-      ret = internal_get(bucket, key, value, is_fake);
-
-      if (timeout_us > 0) {
-        if (HASH_EXIST == ret && is_fake) {
-          struct timespec ts;
-          int64_t abs_timeout_us = get_cur_microseconds_time() + timeout_us;
-          ts = microseconds_to_ts(abs_timeout_us);
-          do {
-            if (get_cur_microseconds_time() > abs_timeout_us
-                || ETIMEDOUT == cond_waiter()(bucket.cond, bucket.lock, ts)) {
-              HASH_WRITE_LOG(HASH_WARNING, "wait fake node become normal node timeout");
-              ret = HASH_GET_TIMEOUT;
-              break;
-            }
-            ret = internal_get(bucket, key, value, is_fake);
-            if (HASH_NOT_EXIST == ret) {
-              HASH_WRITE_LOG(HASH_WARNING, "after wake up, fake node is non-existent or deleted");
-              ret = OB_ERROR;
-              break;
-            }
-          } while (HASH_EXIST == ret && is_fake);
-        }
-        if (HASH_NOT_EXIST == ret) {
-          //add a fake value
-          if (HASH_INSERT_SUCC != internal_set(bucket, _value_type(), true)) {
-            ret = -1;
-          }
-        }
-      } else {
-        if (HASH_EXIST == ret && is_fake) {
-          ret = HASH_NOT_EXIST;
-        }
-      }
-    }
-    return ret;
-  };
   // 返回  -1  表示set调用出错, (无法分配新结点等)
   // 其他均表示插入成功：插入成功分下面三个状态
-  // 返回  HASH_OVERWRITE_SUCC  表示覆盖旧结点成功(在flag非0的时候返回）
+  // 返回  HASH_OVERWRITE  表示覆盖旧结点成功(在flag非0的时候返回）
   // 返回  HASH_INSERT_SEC 表示插入新结点成功
   // 返回  HASH_EXIST  表示hash表结点存在（在flag为0的时候返回)
-  int set(const _key_type& key, const _value_type& value, int flag = 0,
-          int broadcast = 0, int overwrite_key = 0) {
+  int set(const _key_type& key, const _value_type& value, int flag = 0, int broadcast = 0) {
     int ret = 0;
     //if (NULL == buckets_ || NULL == allocer_)
     if (!inited(buckets_) || NULL == allocer_) {
@@ -529,11 +449,7 @@ class ObHashTable {
           if (0 == flag) {
             ret = HASH_EXIST;
           } else {
-            if (overwrite_key) {
-              hash::copy(node->data, value, hash::NormalPairTag());
-            } else {
-              hash::copy(node->data, value);
-            }
+            hash::copy(node->data, value);
             node->is_fake = false;
             if (broadcast) {
               cond_broadcaster()(bucket.cond);
@@ -576,7 +492,7 @@ class ObHashTable {
       hashnode* prev = NULL;
       ret = HASH_NOT_EXIST;
       while (NULL != node) {
-        if (equal_(getkey_(node->data), key)) {
+        if (equal_(getkey_(node->data), key) && !node->is_fake) {
           if (NULL == prev) {
             bucket.node = node->next;
           } else {
@@ -585,9 +501,8 @@ class ObHashTable {
           if (NULL != value) {
             *value = node->data;
           }
-          allocer_->free(node);
-          atomic_dec((uint64_t*)&size_);
-          cond_broadcaster()(bucket.cond);
+          allocer_->deallocate(node);
+          --size_;
           ret = HASH_EXIST;
           break;
         } else {
@@ -598,33 +513,6 @@ class ObHashTable {
     }
     return ret;
   };
-
-  /**
-   * thread safe scan, will add read lock to the bucket, the modification to the value is forbidden
-   *
-   * @param callback
-   * @return 0 in case success
-   *         -1 in case not initialized
-   */
-  template<class _callback>
-  int foreach (_callback& callback) {
-    int ret = 0;
-    if (!inited(buckets_) || NULL == allocer_) {
-      HASH_WRITE_LOG(HASH_WARNING, "hashtable is empty");
-      ret = -1;
-    } else {
-      for (int64_t i = 0; i < bucket_num_; i++) {
-        const hashbucket& bucket = buckets_[i];
-        readlocker locker(bucket.lock);
-        hashnode* node = bucket.node;
-        while (NULL != node) {
-          callback(node->data);
-          node = node->next;
-        }
-      }
-    }
-    return ret;
-  }
  public:
   int64_t size() const {
     return size_;
@@ -674,7 +562,7 @@ class ObHashTable {
       if (inited(buckets_) && NULL != allocer_) {
         destroy();
       }
-      if (0 == (ret = create(bucket_num, allocer, bucket_allocer_))) {
+      if (0 == (ret = create(bucket_num, allocer))) {
         _value_type value;
         for (int64_t i = 0; i < size; i++) {
           if (0 != hash::deserialization(archive, value)) {
@@ -721,9 +609,7 @@ class ObHashTable {
     return ret;
   };
  private:
-  _bucket_allocer default_bucket_allocer_;
   _allocer* allocer_;
-  _bucket_allocer* bucket_allocer_;
   //hashbucket *buckets_;
   bucket_array buckets_;
   int64_t bucket_num_;
@@ -739,3 +625,5 @@ class ObHashTable {
 }
 
 #endif //OCEANBASE_COMMON_HASH_HASHTABLE_H_
+
+

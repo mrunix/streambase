@@ -1,14 +1,16 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_sstable_block_index_v2.h for block block index.
+ * Version: 5567
+ *
+ * ob_sstable_block_index_v2.h
  *
  * Authors:
- *   duanfei <duanfei@taobao.com>
+ *     huating <huating.zmq@taobao.com>
  *
  */
 #ifndef OCEANBASE_SSTABLE_OB_SSTABLE_BLOCK_INDEX_V2_H_
@@ -16,10 +18,11 @@
 
 #include "common/murmur_hash.h"
 #include "common/ob_string.h"
-#include "common/ob_rowkey.h"
-#include "common/ob_range2.h"
 
 namespace sb {
+namespace common {
+class ObRange;
+}
 namespace sstable {
 enum SearchMode {
   OB_SEARCH_MODE_MIN_VALUE = 1,
@@ -67,19 +70,36 @@ struct ObBlockPositionInfos {
 };
 
 class ObBlockIndexCache;
-class ObSSTableSchema;
 
 class ObSSTableBlockIndexV2 {
  private:
   friend class DumpSSTable;
   friend class ObBlockIndexCache;
+  struct ObSSTableBlockIndexHeader {
+    int64_t block_count_;
+    int32_t end_key_offset_;
+    int32_t reserved32_;
+    int64_t reserved64_[2];
+    int deserialize(const char* buf, const int64_t data_len, int64_t& pos);
+  };
+
+  struct ObSSTableBlockIndexElement {
+    int16_t reserved1_;
+    uint16_t column_group_id_;
+    uint32_t table_id_;
+    int32_t block_record_size_;
+    int16_t block_end_key_size_;
+    int16_t reserved2_;
+    int deserialize(const char* buf, const int64_t data_len, int64_t& pos);
+  };
 
   struct IndexEntryType {
     uint64_t table_id_;
     uint64_t column_group_id_;
     int64_t block_offset_;
     int64_t block_record_size_;
-    common::ObRowkey rowkey_;
+    int32_t end_key_offset_;
+    int32_t end_key_size_;
     inline bool operator<(const IndexEntryType& entry) const {
       bool ret = false;
       if (table_id_ == entry.table_id_) {
@@ -108,9 +128,9 @@ class ObSSTableBlockIndexV2 {
   struct IndexLookupKey {
     uint64_t table_id_;
     uint64_t column_group_id_;
-    common::ObRowkey rowkey_;
+    common::ObString rowkey_;
     IndexLookupKey(const uint64_t id,
-                   const uint64_t column_group_id, const common::ObRowkey& key)
+                   const uint64_t column_group_id, const common::ObString& key)
       : table_id_(id), column_group_id_(column_group_id), rowkey_(key) {}
   };
 
@@ -121,7 +141,9 @@ class ObSSTableBlockIndexV2 {
       bool ret = false;
       if (index.table_id_ == key.table_id_) {
         if (index.column_group_id_ == key.column_group_id_) {
-          ret = index.rowkey_.compare(key.rowkey_) < 0;
+          common::ObString compare_key(0, index.end_key_size_,
+                                       const_cast<char*>(block_index_.get_base()) + index.end_key_offset_);
+          ret = compare_key.compare(key.rowkey_) < 0;
         } else {
           ret = index.column_group_id_ < key.column_group_id_;
         }
@@ -167,7 +189,7 @@ class ObSSTableBlockIndexV2 {
    */
   int search_batch_blocks_by_key(const uint64_t table_id,
                                  const uint64_t column_group_id,
-                                 const sb::common::ObRowkey& key,
+                                 const sb::common::ObString& key,
                                  const SearchMode mode,
                                  ObBlockPositionInfos& pos_info) const;
 
@@ -177,7 +199,7 @@ class ObSSTableBlockIndexV2 {
    */
   int search_batch_blocks_by_range(const uint64_t table_id,
                                    const uint64_t column_group_id,
-                                   const common::ObNewRange& range,
+                                   const sb::common::ObRange& range,
                                    const bool is_reverse_scan,
                                    ObBlockPositionInfos& pos_info) const;
 
@@ -186,7 +208,7 @@ class ObSSTableBlockIndexV2 {
    */
   int search_one_block_by_key(const uint64_t table_id,
                               const uint64_t column_group_id,
-                              const sb::common::ObRowkey& key,
+                              const sb::common::ObString& key,
                               const SearchMode mode,
                               ObBlockPositionInfo& pos_info) const;
 
@@ -213,11 +235,11 @@ class ObSSTableBlockIndexV2 {
    * the first block is a empty block, fill nothing but
    * only represents start key.
    */
-  common::ObRowkey get_start_key(const uint64_t table_id) const;
+  common::ObString get_start_key(const uint64_t table_id) const;
   /**
    * end key of sstable is end_key of the last block.
    */
-  common::ObRowkey get_end_key(const uint64_t table_id) const;
+  common::ObString get_end_key(const uint64_t table_id) const;
 
   ObSSTableBlockIndexV2* deserialize_copy(char* buffer) const;
 
@@ -231,11 +253,12 @@ class ObSSTableBlockIndexV2 {
   };
 
   int get_bound(Bound& bound) const;
-  inline const char* get_base() const { return base_; }
-  inline char* get_base() { return base_; }
+  const char* get_base() const;
+  char* get_base();
 
   const_iterator begin() const;
   const_iterator end() const;
+  common::ObString get_end_key(const_iterator index_entry) const;
 
 
   inline bool match_table_group(const IndexEntryType& entry,
@@ -249,7 +272,7 @@ class ObSSTableBlockIndexV2 {
     const_iterator find,
     const Bound& bound,
     const SearchMode mode,
-    const common::ObRowkey& end_key,
+    const common::ObString& end_key,
     const uint64_t table_id,
     const uint64_t column_group_id,
     ObBlockPositionInfos& pos_info) const;
@@ -263,7 +286,7 @@ class ObSSTableBlockIndexV2 {
 
   int find_by_key(const uint64_t table_id,
                   const uint64_t column_group_id,
-                  const sb::common::ObRowkey& key,
+                  const sb::common::ObString& key,
                   const SearchMode mode,
                   const Bound& bond,
                   const_iterator& find) const;
@@ -278,9 +301,9 @@ class ObSSTableBlockIndexV2 {
                       const_iterator& find_it) const;
 
   int trans_range_to_search_key(
-    const common::ObNewRange& range,
+    const common::ObRange& range,
     const bool is_reverse_scan,
-    common::ObRowkey& search_key,
+    common::ObString& search_key,
     SearchMode& mode) const;
 
   /**

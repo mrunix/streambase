@@ -1,23 +1,18 @@
-////===================================================================
-//
-// ob_schema_mgr.cc updateserver / Oceanbase
-//
-// Copyright (C) 2010 Taobao.com, Inc.
-//
-// Created on 2010-10-08 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
-#include "ob_ups_utils.h"
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_schema_mgrv2.cc for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #include "ob_schema_mgrv2.h"
 
 namespace sb {
@@ -25,17 +20,8 @@ namespace updateserver {
 using namespace common;
 
 CommonSchemaManagerWrapper::CommonSchemaManagerWrapper() : schema_mgr_buffer_(NULL), schema_mgr_impl_(NULL) {
-  schema_mgr_buffer_ = ob_malloc(sizeof(CommonSchemaManager), ObModIds::OB_UPS_SCHEMA);
+  schema_mgr_buffer_ = ob_malloc(sizeof(CommonSchemaManager));
   schema_mgr_impl_ = new(schema_mgr_buffer_) CommonSchemaManager();
-  if (NULL == schema_mgr_impl_) {
-    TBSYS_LOG(WARN, "new schema mgr fail");
-  }
-}
-
-CommonSchemaManagerWrapper::CommonSchemaManagerWrapper(const CommonSchemaManager& other) : schema_mgr_buffer_(NULL),
-  schema_mgr_impl_(NULL) {
-  schema_mgr_buffer_ = ob_malloc(sizeof(CommonSchemaManager), ObModIds::OB_UPS_SCHEMA);
-  schema_mgr_impl_ = new(schema_mgr_buffer_) CommonSchemaManager(other);
   if (NULL == schema_mgr_impl_) {
     TBSYS_LOG(WARN, "new schema mgr fail");
   }
@@ -48,13 +34,6 @@ CommonSchemaManagerWrapper::~CommonSchemaManagerWrapper() {
     schema_mgr_buffer_ = NULL;
     schema_mgr_impl_ = NULL;
   }
-}
-
-CommonSchemaManagerWrapper& CommonSchemaManagerWrapper::operator= (const CommonSchemaManager& other) {
-  if (NULL != schema_mgr_impl_) {
-    *schema_mgr_impl_ = other;
-  }
-  return *this;
 }
 
 DEFINE_SERIALIZE(CommonSchemaManagerWrapper)
@@ -100,26 +79,12 @@ int64_t CommonSchemaManagerWrapper::get_version() const {
   return ret;
 }
 
-int64_t CommonSchemaManagerWrapper::get_code_version() const {
-  int64_t ret = 0;
-  if (NULL != schema_mgr_impl_) {
-    ret = schema_mgr_impl_->get_code_version();
-  }
-  return ret;
-}
-
 bool CommonSchemaManagerWrapper::parse_from_file(const char* file_name, tbsys::CConfig& config) {
   bool bret = false;
   if (NULL != schema_mgr_impl_) {
     bret = schema_mgr_impl_->parse_from_file(file_name, config);
   }
   return bret;
-}
-
-void CommonSchemaManagerWrapper::print_info() const {
-  if (NULL != schema_mgr_impl_) {
-    schema_mgr_impl_->print_info();
-  }
 }
 
 const CommonSchemaManager* CommonSchemaManagerWrapper::get_impl() const {
@@ -144,8 +109,7 @@ UpsSchemaMgr::UpsSchemaMgr() : cur_schema_mgr_imp_(NULL), has_schema_(false) {
   if (NULL == (cur_schema_mgr_imp_ = new(std::nothrow) UpsSchemaMgrImp())) {
     TBSYS_LOG(ERROR, "new schema mgr imp fail");
   } else {
-    cur_schema_mgr_imp_->born();
-    //cur_schema_mgr_imp_->inc_ref_cnt();
+    cur_schema_mgr_imp_->inc_ref_cnt();
   }
 }
 
@@ -170,14 +134,10 @@ int UpsSchemaMgr::set_schema_mgr(const CommonSchemaManagerWrapper& schema_manage
     tmp_schema_mgr_imp->get_schema_mgr() = *schema_mgr;
     rwlock_.wrlock();
     UpsSchemaMgrImp* prev_schema_mgr_imp = cur_schema_mgr_imp_;
-    tmp_schema_mgr_imp->born();
-    //tmp_schema_mgr_imp->inc_ref_cnt();
+    tmp_schema_mgr_imp->inc_ref_cnt();
     cur_schema_mgr_imp_ = tmp_schema_mgr_imp;
-    g_conf.global_schema_version = schema_mgr->get_version();
     if (NULL != prev_schema_mgr_imp
-        && prev_schema_mgr_imp->end())
-      //&& 0 == prev_schema_mgr_imp->dec_ref_cnt())
-    {
+        && 0 == prev_schema_mgr_imp->dec_ref_cnt()) {
       delete prev_schema_mgr_imp;
       prev_schema_mgr_imp = NULL;
     }
@@ -205,8 +165,7 @@ int UpsSchemaMgr::get_schema_handle(SchemaHandle& schema_handle) const {
   if (NULL == cur_schema_mgr_imp_) {
     ret = OB_ERROR;
   } else {
-    cur_schema_mgr_imp_->ref();
-    //cur_schema_mgr_imp_->inc_ref_cnt();
+    cur_schema_mgr_imp_->inc_ref_cnt();
     schema_handle = cur_schema_mgr_imp_;
   }
   rwlock_.unlock();
@@ -216,24 +175,11 @@ int UpsSchemaMgr::get_schema_handle(SchemaHandle& schema_handle) const {
 void UpsSchemaMgr::revert_schema_handle(SchemaHandle& schema_handle) const {
   rwlock_.rdlock();
   if (NULL != schema_handle
-      && schema_handle->deref())
-    //&& 0 == schema_handle->dec_ref_cnt())
-  {
+      && 0 == schema_handle->dec_ref_cnt()) {
     delete schema_handle;
     schema_handle = NULL;
   }
   rwlock_.unlock();
-}
-
-int64_t UpsSchemaMgr::get_version() const {
-  int64_t ret = 0;
-  SchemaHandle schema_handle = INVALID_SCHEMA_HANDLE;
-  int tmp_ret = OB_SUCCESS;
-  if (OB_SUCCESS == (tmp_ret = get_schema_handle(schema_handle))) {
-    ret = schema_handle->get_schema_mgr().get_version();
-    revert_schema_handle(schema_handle);
-  }
-  return ret;
 }
 
 uint64_t UpsSchemaMgr::get_create_time_column_id(const SchemaHandle& schema_handle, const uint64_t table_id) const {
@@ -300,25 +246,33 @@ const CommonColumnSchema* UpsSchemaMgr::get_column_schema(const SchemaHandle& sc
   return ret;
 }
 
-const CommonSchemaManager* UpsSchemaMgr::get_schema_mgr(UpsSchemaMgrGuard& guard) const {
-  const CommonSchemaManager* ret = NULL;
-  SchemaHandle schema_handle = INVALID_SCHEMA_HANDLE;
-  if (OB_SUCCESS == get_schema_handle(schema_handle)
-      && INVALID_SCHEMA_HANDLE != schema_handle) {
-    ret = &(schema_handle->get_schema_mgr());
-    guard.set_host(this, schema_handle);
-  }
-  return ret;
-}
-
 int UpsSchemaMgr::build_sstable_schema(const SchemaHandle schema_handle, sstable::ObSSTableSchema& sstable_schema) const {
   int ret = OB_SUCCESS;
   if (INVALID_SCHEMA_HANDLE == schema_handle) {
     ret = OB_ERROR;
   } else {
     const CommonSchemaManager& schema_mgr = schema_handle->get_schema_mgr();
-    sstable_schema.reset();
-    ret = sb::sstable::build_sstable_schema(schema_mgr, sstable_schema);
+    sstable::ObSSTableSchemaColumnDef column_info;
+    const CommonColumnSchema* iter = NULL;
+    for (iter = schema_mgr.column_begin(); iter != schema_mgr.column_end(); iter++) {
+      if (NULL == iter) {
+        TBSYS_LOG(WARN, "invalid column schema");
+        ret = OB_ERROR;
+        break;
+      } else {
+        column_info.reserved_ = 0;
+        column_info.column_group_id_ = DEFAULT_COLUMN_GROUP_ID;
+        column_info.column_name_id_ = iter->get_id();
+        column_info.column_value_type_ = iter->get_type();
+        column_info.table_id_ = iter->get_table_id();
+        if (OB_SUCCESS != (ret = sstable_schema.add_column_def(column_info))) {
+          TBSYS_LOG(WARN, "add_column_def fail ret=%d group_id=%hu column_id=%u value_type=%d table_id=%u",
+                    ret, column_info.column_group_id_, column_info.column_name_id_,
+                    column_info.column_value_type_, column_info.table_id_);
+          break;
+        }
+      }
+    }
   }
   return ret;
 }
@@ -355,37 +309,11 @@ void UpsSchemaMgr::dump2text() const {
       }
       revert_schema_handle(schema_handle);
     }
-    fclose(fd);
   }
+  fclose(fd);
+}
+}
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
 
-UpsSchemaMgrGuard::UpsSchemaMgrGuard() : host_(NULL),
-  handle_(UpsSchemaMgr::INVALID_SCHEMA_HANDLE) {
-}
-
-UpsSchemaMgrGuard::~UpsSchemaMgrGuard() {
-  deref_();
-}
-
-void UpsSchemaMgrGuard::set_host(const UpsSchemaMgr* host, const UpsSchemaMgr::SchemaHandle& handle) {
-  if (NULL != host
-      && UpsSchemaMgr::INVALID_SCHEMA_HANDLE != handle) {
-    deref_();
-    host_ = host;
-    handle_ = handle;
-  }
-}
-
-void UpsSchemaMgrGuard::deref_() {
-  if (NULL != host_
-      && UpsSchemaMgr::INVALID_SCHEMA_HANDLE != handle_) {
-    host_->revert_schema_handle(handle_);
-    host_ = NULL;
-    handle_ = UpsSchemaMgr::INVALID_SCHEMA_HANDLE;
-  }
-}
-}
-}
 

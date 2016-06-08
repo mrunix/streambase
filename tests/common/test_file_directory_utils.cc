@@ -11,7 +11,7 @@ namespace tests {
 
 namespace common {
 
-static const std::string basepath = "/home/duanfei/local/oceanbase";
+static const std::string basepath = "/home/duanfei/local/sb";
 
 class TestFileDirectoryUtils: public ::testing::Test {
  public:
@@ -143,7 +143,7 @@ TEST_F(TestFileDirectoryUtils, delete_direcotry_recursively) {
 
 }//end namespace tests
 
-}//end namesapce oceanbase
+}//end namesapce sb
 
 int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);

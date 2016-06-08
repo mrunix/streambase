@@ -20,6 +20,10 @@
 using namespace sb::common;
 using namespace sb::lsync;
 
+namespace {
+const char* PUBLIC_SECTION_NAME = "public";
+}
+
 int main(int argc, char** argv) {
   int ret = OB_SUCCESS;
   TBSYS_LOGGER.setLogLevel("INFO");
@@ -29,7 +33,7 @@ int main(int argc, char** argv) {
   } else if (NULL == lsync_server) {
     ret = OB_ERROR;
     TBSYS_LOG(ERROR, "new ObLsyncServerMain failed");
-  } else if (OB_SUCCESS != (ret = lsync_server->start(argc, argv))) {
+  } else if (OB_SUCCESS != (ret = lsync_server->start(argc, argv, PUBLIC_SECTION_NAME))) {
     TBSYS_LOG(ERROR, "lsync_server->start()=>%d", ret);
   } else {
     lsync_server->destroy();

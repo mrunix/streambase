@@ -1,14 +1,18 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_block_cache_loader.h for load new block cache.
+ * Version: 5567
+ *
+ * ob_block_cache_loader.h
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
+ *     huating <huating.zmq@taobao.com>
+ * Changes:
+ *     qushan <qushan@taobao.com>
  *
  */
 #ifndef OCEANBASE_CHUNKSERVER_OB_BLOCK_CACHE_LOADER_H_
@@ -20,9 +24,6 @@
 #include "ob_tablet_image.h"
 
 namespace sb {
-namespace common {
-class ObRowkey;
-}
 namespace chunkserver {
 class ObBlockCacheLoader {
  public:
@@ -55,7 +56,7 @@ class ObBlockCacheLoader {
                             sstable::ObBlockCache& block_cache,
                             const uint64_t table_id,
                             const uint64_t column_group_id,
-                            const common::ObRowkey& rowkey,
+                            const common::ObString& rowkey,
                             sstable::ObSSTableReader* sstable_reader = NULL);
 
   /**
@@ -121,7 +122,7 @@ class ObBlockCacheLoader {
    *         rowkey belong to, if fail, return NULL.
    */
   sstable::ObSSTableReader* get_sstable_reader(uint64_t table_id,
-                                               const common::ObRowkey& rowkey,
+                                               const common::ObString& rowkey,
                                                ObTablet*& tablet);
 
  private:

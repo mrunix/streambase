@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_packet_queue.cc for ...
+ *
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
+ */
 #include "ob_packet_queue.h"
 
 namespace sb {
@@ -28,7 +43,7 @@ int ObPacketQueue::init() {
   return ret;
 }
 
-int ObPacketQueue::pop_packets(ObPacket** packet_arr, const int64_t ary_size, int64_t& ret_size) {
+int ObPacketQueue::pop_packets(tbnet::Packet** packet_arr, const int64_t ary_size, int64_t& ret_size) {
   int err = OB_SUCCESS;
   ThreadSpecificBuffer::Buffer* tb = NULL;
 
@@ -86,7 +101,7 @@ int ObPacketQueue::pop_packets(ObPacket** packet_arr, const int64_t ary_size, in
           TBSYS_LOG(ERROR, "failed to pop task, err=%d", err);
         }
 
-        tb->advance(static_cast<int32_t>(total_size));
+        tb->advance(total_size);
         ++ret_size;
 
       }
@@ -180,11 +195,11 @@ void ObPacketQueue::push(ObPacket* packet) {
   }
 }
 
-int ObPacketQueue::size() const {
+int ObPacketQueue::size() {
   return size_;
 }
 
-bool ObPacketQueue::empty() const {
+bool ObPacketQueue::empty() {
   return (size_ == 0);
 }
 
@@ -209,7 +224,7 @@ ObPacket* ObPacketQueue::get_timeout_list(const int64_t now) {
   list = tail = NULL;
 
   while (head_ != NULL) {
-    int64_t t = head_->get_expire_time();
+    int64_t t = head_->getExpireTime();
     if (t == 0 || t >= now) break;
     if (tail == NULL) {
       list = head_;
@@ -238,4 +253,5 @@ ObPacket* ObPacketQueue::get_packet_list() {
 }
 
 } /* common */
-} /* oceanbase */
+} /* sb */
+

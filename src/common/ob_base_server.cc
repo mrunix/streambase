@@ -1,110 +1,83 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_base_server.cc for ...
+ *
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
+ */
 #include "ob_base_server.h"
-#include "ob_tbnet_callback.h"
-#include "ob_tsi_factory.h"
-#include "ob_libeasy_mem_pool.h"
-#include "easy_pool.h"
 
 namespace sb {
 namespace common {
-ObBaseServer::ObBaseServer() : stoped_(false), batch_(false), port_(0), eio_(NULL), local_ip_(0) {
+ObBaseServer::ObBaseServer() : stoped_(false), batch_(false), port_(0), packet_factory_(NULL) {
 }
 
 ObBaseServer::~ObBaseServer() {
-  if (NULL != eio_) {
-    easy_eio_destroy(eio_);
-    eio_ = NULL;
-  }
 }
 
-int ObBaseServer::initialize() {
-  tzset();
-  return OB_SUCCESS;
-}
+int ObBaseServer::initialize() { return OB_SUCCESS; }
 int ObBaseServer::start_service() {return OB_SUCCESS; }
 
 void ObBaseServer::wait_for_queue() {}
 
 void ObBaseServer::wait() {
-  if (NULL != eio_) {
-    easy_eio_wait(eio_);
-  }
+  transport_.wait();
 }
 
-
-void ObBaseServer::destroy() {
-  TBSYS_LOG(WARN, "base server destroyed");
-}
+void ObBaseServer::destroy() {}
 
 int ObBaseServer::start(bool need_wait) {
   int rc = OB_SUCCESS;
-  int ret = EASY_OK;
-  easy_pool_set_allocator(ob_easy_realloc);
-  easy_listen_t* listen = NULL;
-  //create io thread
-  eio_ = easy_eio_create(eio_, io_thread_count_);
-  eio_->do_signal = 0;
-  eio_->force_destroy_second = OB_CONNECTION_FREE_TIME_S;
-  eio_->checkdrc = 1;
-  eio_->support_ipv6 = 0;
-  eio_->no_redispatch = 1;
-  eio_->no_delayack = 1;
-  easy_eio_set_uthread_start(eio_, easy_on_ioth_start, this);
-  eio_->uthread_enable = 0;
-  if (NULL == eio_) {
-    rc = OB_ERROR;
-    TBSYS_LOG(ERROR, "easy_io_create error");
-  }
-
-  if (OB_SUCCESS == rc) {
-    rc = initialize();
-  }
+  rc = initialize();
 
   if (rc != OB_SUCCESS) {
-    TBSYS_LOG(WARN, "initialize failed, ret = %d", rc);
+    TBSYS_LOG(WARN, "initialize failed");
   } else {
-    //add listen
-    uint32_t local_ip = tbsys::CNetUtil::getLocalAddr(dev_name_);
-    local_ip_ = local_ip;
-    server_id_ = tbsys::CNetUtil::ipToAddr(local_ip, port_);
-    if (OB_SUCCESS == rc) {
-      if (NULL == (listen = easy_connection_add_listen(eio_, NULL, port_, &server_handler_))) {
-        TBSYS_LOG(ERROR, "easy_connection_add_listen error, port: %d, %s", port_, strerror(errno));
+    if (packet_factory_ == NULL) {
+      rc = OB_INVALID_ARGUMENT;
+      TBSYS_LOG(WARN, "packet factory can not be NULL, server not started");
+    } else {
+      uint32_t local_ip = tbsys::CNetUtil::getLocalAddr(dev_name_);
+      server_id_ = tbsys::CNetUtil::ipToAddr(local_ip, port_);
+
+      streamer_.setPacketFactory(packet_factory_);
+
+      setBatchPushPacket(batch_); // IServerAdapter's method
+
+      transport_.start();
+
+      char spec[32];
+      snprintf(spec, 32, "tcp::%d", port_);
+      spec[31] = '\0';
+
+      if (transport_.listen(spec, &streamer_, this) == NULL) {
+        TBSYS_LOG(ERROR, "listen on port %d failed", port_);
         rc = OB_SERVER_LISTEN_ERROR;
       } else {
-        TBSYS_LOG(INFO, "listen start, port = %d", port_);
+        TBSYS_LOG(INFO, "listened on port %d", port_);
       }
-    }
-    if (OB_SUCCESS == rc) {
-      easy_io_thread_t* ioth = NULL;
-      easy_thread_pool_for_each(ioth, eio_->io_thread_pool, 0) {
-        ev_timer_init(&ioth->user_timer, easy_timer_cb, OB_LIBEASY_STATISTICS_TIMER, OB_LIBEASY_STATISTICS_TIMER);
-        ev_timer_start(ioth->loop, &(ioth->user_timer));
-      }
-    }
 
-    //start io thread
-    if (rc == OB_SUCCESS) {
-      ret = easy_eio_start(eio_);
-      if (EASY_OK == ret) {
-        rc = OB_SUCCESS;
-        TBSYS_LOG(INFO, "start io thread");
-      } else {
-        TBSYS_LOG(ERROR, "easy_eio_start failed");
-        rc = OB_ERROR;
+      if (rc == OB_SUCCESS) {
+        rc = start_service();
       }
-    }
-    if (rc == OB_SUCCESS) {
-      rc = start_service();
-    }
 
-    if (rc == OB_SUCCESS) {
-      //wait for io thread exit
-      if (need_wait) {
-        easy_eio_wait(eio_);
+      if (rc == OB_SUCCESS) {
+        //wait_for_queue();
+        if (need_wait) {
+          transport_.wait();
+        }
       }
     }
   }
-  //stop
+
   if (need_wait) {
     stop();
   }
@@ -112,30 +85,13 @@ int ObBaseServer::start(bool need_wait) {
   return rc;
 }
 
-void ObBaseServer::stop_eio() {
-  if (!stoped_) {
-    stoped_ = true;
-    destroy();
-    if (eio_ != NULL && NULL != eio_->pool) {
-      easy_eio_stop(eio_);
-    }
-    TBSYS_LOG(INFO, "stop eio.");
-  }
-}
-
 void ObBaseServer::stop() {
   if (!stoped_) {
     stoped_ = true;
-    TBSYS_LOG(WARN, "start to stop the server");
     destroy();
-    TBSYS_LOG(WARN, "start to stop eio");
-    if (eio_ != NULL && NULL != eio_->pool) {
-      easy_eio_stop(eio_);
-      easy_eio_wait(eio_);
-      easy_eio_destroy(eio_);
-      eio_ = NULL;
-    }
-    TBSYS_LOG(WARN, "server stoped.");
+    transport_.stop();
+    transport_.wait();
+    TBSYS_LOG(INFO, "server stoped.");
   }
 }
 
@@ -144,13 +100,26 @@ void ObBaseServer::set_batch_process(const bool batch) {
   TBSYS_LOG(INFO, "batch process mode %s", batch ? "enabled" : "disabled");
 }
 
+int ObBaseServer::set_packet_factory(tbnet::IPacketFactory* packet_factory) {
+  int ret = OB_SUCCESS;
+
+  if (packet_factory == NULL) {
+    ret = OB_INVALID_ARGUMENT;
+    TBSYS_LOG(WARN, "packet factory can not be NULL");
+  } else {
+    packet_factory_ = packet_factory;
+  }
+
+  return ret;
+}
+
 int ObBaseServer::set_dev_name(const char* dev_name) {
   int rc = OB_INVALID_ARGUMENT;
 
   if (dev_name != NULL) {
     TBSYS_LOG(INFO, "set interface name to [%s]", dev_name);
     strncpy(dev_name_, dev_name, DEV_NAME_LENGTH);
-    size_t end = sizeof(dev_name_) - 1;
+    int end = sizeof(dev_name_) - 1;
     dev_name_[end] = '\0';
     rc = OB_SUCCESS;
   } else {
@@ -183,65 +152,57 @@ uint64_t ObBaseServer::get_server_id() const {
   return server_id_;
 }
 
-int ObBaseServer::send_response(const int32_t pcode, const int32_t version, const ObDataBuffer& buffer, easy_request_t* req, const uint32_t channel_id, const int64_t session_id) {
+tbnet::Transport* ObBaseServer::get_transport() {
+  return &transport_;
+}
+
+tbnet::IPacketStreamer* ObBaseServer::get_packet_streamer() {
+  return &streamer_;
+}
+
+int ObBaseServer::send_response(const int32_t pcode, const int32_t version, const ObDataBuffer& buffer, tbnet::Connection* connection, const int32_t channel_id) {
   int rc = OB_SUCCESS;
 
-  if (req == NULL) {
+  if (connection == NULL) {
     rc = OB_ERROR;
-    TBSYS_LOG(WARN, "req is NULL");
-  } else {
-    //copy packet into req buffer
-    int64_t size = buffer.get_position() + OB_RECORD_HEADER_LENGTH + sizeof(ObPacket);
-    char* ibuffer = reinterpret_cast<char*>(easy_pool_alloc(req->ms->pool, static_cast<uint32_t>(size)));
-    if (NULL == ibuffer) {
-      TBSYS_LOG(WARN, "alloc buffer from req->ms->pool failed");
-      rc = OB_LIBEASY_ERROR;
-    }
-
-    if (OB_SUCCESS == rc) {
-      ObPacket* packet = new(ibuffer)ObPacket();
-      packet->set_packet_code(pcode);
-      packet->set_channel_id(channel_id);
-      packet->set_api_version(version);
-      packet->set_data(buffer);
-      packet->set_session_id(session_id);
-      TraceId* trace_id = GET_TSI_MULT(TraceId, TSI_COMMON_PACKET_TRACE_ID_1);
-      if (NULL == trace_id) {
-        rc = OB_ALLOCATE_MEMORY_FAILED;
-        TBSYS_LOG(ERROR, "trace id == NULL, ret=%d", rc);
-      } else {
-        packet->set_trace_id(trace_id->uval_);
-        ObDataBuffer ibuf(reinterpret_cast<char*>(packet + 1), size - sizeof(ObPacket));
-        rc = packet->serialize(&ibuf);
-        if (rc != OB_SUCCESS) {
-          TBSYS_LOG(ERROR, "packet serialize error, error: %d", rc);
-        } else {
-          packet->set_packet_buffer(ibuf.get_data(), ibuf.get_position());
-          packet->get_inner_buffer()->get_position() = ibuf.get_position();
-          req->opacket = packet;
-          TBSYS_LOG(DEBUG, "packet channel is %u, req is %p, c is %p", packet->get_channel_id(), req, req->ms->c);
-        }
-      }
-    }
-    //wakeup the ioth to send response
-    req->retcode = EASY_OK;
-    easy_request_wakeup(req);
+    TBSYS_LOG(WARN, "connection is NULL");
   }
+
+  ObPacket* packet = new(std::nothrow) ObPacket();
+  if (packet == NULL) {
+    rc = OB_ALLOCATE_MEMORY_FAILED;
+    TBSYS_LOG(ERROR, "create packet failed");
+  } else {
+    packet->set_packet_code(pcode);
+    packet->setChannelId(channel_id);
+    packet->set_api_version(version);
+    packet->set_data(buffer);
+  }
+
+  if (rc == OB_SUCCESS) {
+    rc = packet->serialize();
+    if (rc != OB_SUCCESS)
+      TBSYS_LOG(WARN, "packet serialize error, error: %d", rc);
+  }
+
+  if (rc == OB_SUCCESS) {
+    if (!connection->postPacket(packet)) {
+      uint64_t peer_id = connection->getPeerId();
+      TBSYS_LOG(WARN, "send packet to [%s] failed", tbsys::CNetUtil::addrToString(peer_id).c_str());
+      rc = OB_ERROR;
+    }
+  }
+
+  if (rc != OB_SUCCESS) {
+    if (NULL != packet) {
+      packet->free();
+      packet = NULL;
+    }
+  }
+
   return rc;
 }
-void ObBaseServer::easy_timer_cb(EV_P_ ev_timer* w, int revents) {
-  UNUSED(w);
-  UNUSED(loop);
-  UNUSED(revents);
-  char buffer[FD_BUFFER_SIZE];
-  int64_t pos = 0;
-  databuff_printf(buffer, FD_BUFFER_SIZE, pos, "tid=%ld fds=", EASY_IOTH_SELF->tid);
-  easy_connection_t* c = NULL;
-  easy_connection_t* c2 = NULL;
-  easy_list_for_each_entry_safe(c, c2, &(EASY_IOTH_SELF->connected_list), conn_list_node) {
-    databuff_printf(buffer, FD_BUFFER_SIZE, pos, "%d,", c->fd);
-  }
-  TBSYS_LOG(INFO, "%.*s", static_cast<int>(pos), buffer);
-}
+
 } /* common */
-} /* oceanbase */
+} /* sb */
+

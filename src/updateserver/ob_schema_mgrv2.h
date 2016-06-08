@@ -1,22 +1,18 @@
-////===================================================================
-//
-// ob_schema_mgr.h updateserver / Oceanbase
-//
-// Copyright (C) 2010 Taobao.com, Inc.
-//
-// Created on 2010-10-08 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_schema_mgrv2.h for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #ifndef  OCEANBASE_UPDATESERVER_SCHEMA_MGRV2_H_
 #define  OCEANBASE_UPDATESERVER_SCHEMA_MGRV2_H_
 #include <stdlib.h>
@@ -25,7 +21,7 @@
 #include <pthread.h>
 #include <new>
 #include <algorithm>
-#include "common/ob_atomic.h"
+#include "ob_atomic.h"
 #include "common/ob_define.h"
 #include "common/hash/ob_hashmap.h"
 #include "common/ob_schema.h"
@@ -33,7 +29,6 @@
 #include "common/ob_spin_rwlock.h"
 #include "sstable/ob_sstable_schema.h"
 #include "ob_ups_utils.h"
-#include "ob_inc_seq.h"
 
 #define DEFAULT_COLUMN_GROUP_ID 0
 
@@ -43,30 +38,32 @@ namespace updateserver {
 class CommonSchemaManagerWrapper {
  public:
   CommonSchemaManagerWrapper();
-  explicit CommonSchemaManagerWrapper(const CommonSchemaManager& other);
   ~CommonSchemaManagerWrapper();
-  CommonSchemaManagerWrapper& operator= (const CommonSchemaManager& other);
   DISALLOW_COPY_AND_ASSIGN(CommonSchemaManagerWrapper);
  public:
   int64_t get_version() const;
-  int64_t get_code_version() const;
   bool parse_from_file(const char* file_name, tbsys::CConfig& config);
   const CommonSchemaManager* get_impl() const;
   int set_impl(const CommonSchemaManager& schema_impl) const;
-  void print_info() const;
   NEED_SERIALIZE_AND_DESERIALIZE;
  public:
   void* schema_mgr_buffer_;
   CommonSchemaManager* schema_mgr_impl_;
 };
 
-class UpsSchemaMgrImp : public RefCnt {
+class UpsSchemaMgrImp {
  public:
-  UpsSchemaMgrImp() : schema_mgr_() {
+  UpsSchemaMgrImp() : ref_cnt_(0), schema_mgr_() {
   };
   ~UpsSchemaMgrImp() {
   };
  public:
+  inline int64_t inc_ref_cnt() {
+    return atomic_inc((uint64_t*)&ref_cnt_);
+  };
+  inline int64_t dec_ref_cnt() {
+    return atomic_dec((uint64_t*)&ref_cnt_);
+  };
   inline const CommonSchemaManager& get_schema_mgr() const {
     return schema_mgr_;
   };
@@ -74,10 +71,10 @@ class UpsSchemaMgrImp : public RefCnt {
     return schema_mgr_;
   };
  private:
+  int64_t ref_cnt_;
   CommonSchemaManager schema_mgr_;
 };
 
-class UpsSchemaMgrGuard;
 class UpsSchemaMgr {
  public:
   typedef UpsSchemaMgrImp* SchemaHandle;
@@ -92,7 +89,6 @@ class UpsSchemaMgr {
   int get_schema_handle(SchemaHandle& schema_handle) const;
   void revert_schema_handle(SchemaHandle& schema_handle) const;
 
-  int64_t get_version() const;
   uint64_t get_create_time_column_id(const uint64_t table_id) const;
   uint64_t get_modify_time_column_id(const uint64_t table_id) const;
   uint64_t get_create_time_column_id(const SchemaHandle& schema_handle, const uint64_t table_id) const;
@@ -102,7 +98,6 @@ class UpsSchemaMgr {
   const CommonColumnSchema* get_column_schema(const SchemaHandle& schema_handle,
                                               const common::ObString& table_name,
                                               const common::ObString& column_name) const;
-  const CommonSchemaManager* get_schema_mgr(UpsSchemaMgrGuard& guard) const;
 
   int build_sstable_schema(const SchemaHandle schema_handle, sstable::ObSSTableSchema& sstable_schema) const;
   void dump2text() const;
@@ -110,26 +105,13 @@ class UpsSchemaMgr {
   bool has_schema() const {return has_schema_;}
  private:
   mutable UpsSchemaMgrImp* cur_schema_mgr_imp_;
-  //mutable common::SpinRWLock rwlock_;
-  mutable RWLock rwlock_;
+  mutable common::SpinRWLock rwlock_;
   bool has_schema_;
-};
-
-class UpsSchemaMgrGuard {
- public:
-  UpsSchemaMgrGuard();
-  ~UpsSchemaMgrGuard();
- public:
-  void set_host(const UpsSchemaMgr* host, const UpsSchemaMgr::SchemaHandle& handle);
- private:
-  void deref_();
-  DISALLOW_COPY_AND_ASSIGN(UpsSchemaMgrGuard);
- private:
-  const UpsSchemaMgr* host_;
-  UpsSchemaMgr::SchemaHandle handle_;
 };
 }
 }
 
 #endif //OCEANBASE_UPDATESERVER_SCHEMA_MGRV2_H_
+
+
 

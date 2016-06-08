@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <stdlib.h>
+#include <numa.h>
 #include "common/ob_define.h"
 #include "common/ob_memory_pool.h"
 #include "common/ob_malloc.h"
@@ -122,6 +123,7 @@ TEST(ObFixedMemPoolTest, OverWrite) {
 }
 
 TEST(ObFixedMemPoolTest, basicTestNuma) {
+  ASSERT_NE(numa_available(), -1);
   if (getenv("__OB_MALLOC_DIRECT__") == NULL) {
     char* direct_newed_ptr = new(std::nothrow)char[512];
     ASSERT_NE(direct_newed_ptr, reinterpret_cast<void*>(NULL));
@@ -136,11 +138,11 @@ TEST(ObFixedMemPoolTest, basicTestNuma) {
     ASSERT_EQ(mem_pool.get_used_block_num(), 0);
     ASSERT_EQ(mem_pool.get_memory_size_handled(), 0);
     /// initialize with invalid agument
-    ASSERT_GT(0, mem_pool.init(1024, -1, NULL));
-    ASSERT_GT(0, mem_pool.init(-1024, 1, NULL));
+    ASSERT_GT(0, mem_pool.init(1024, -1, NULL, true));
+    ASSERT_GT(0, mem_pool.init(-1024, 1, NULL, true));
     /// initialize
-    ASSERT_EQ(0, mem_pool.init(1024, 1, NULL));
-    ASSERT_LT(mem_pool.init(1024, 1, NULL), 0);
+    ASSERT_EQ(0, mem_pool.init(1024, 1, NULL, true));
+    ASSERT_LT(mem_pool.init(1024, 1, NULL, true), 0);
     ASSERT_GT(mem_pool.get_block_size(), 1024);
     ASSERT_EQ(mem_pool.malloc(-1), reinterpret_cast<void*>(0));
     /// allocate from system, handled by pool when free
@@ -201,7 +203,7 @@ TEST(ObFixedMemPoolTest, basicTestNuma) {
       /// check with unfreed memory
       void* unfree_ptr = NULL;
       ObFixedMemPool unfree_pool;
-      ASSERT_EQ(unfree_pool.init(1024, 1, NULL), 0);
+      ASSERT_EQ(unfree_pool.init(1024, 1, NULL, true), 0);
       unfree_ptr = unfree_pool.malloc(512);
       ASSERT_NE(unfree_ptr, reinterpret_cast<void*>(0));
     }
@@ -210,7 +212,7 @@ TEST(ObFixedMemPoolTest, basicTestNuma) {
       /// check with unfreed memory
       void* unfree_ptr = NULL;
       ObFixedMemPool unfree_pool;
-      ASSERT_EQ(unfree_pool.init(1024, 1, NULL), 0);
+      ASSERT_EQ(unfree_pool.init(1024, 1, NULL, true), 0);
       unfree_ptr = unfree_pool.malloc(512);
       ASSERT_NE(unfree_ptr, reinterpret_cast<void*>(0));
       unfree_pool.clear();
@@ -220,10 +222,11 @@ TEST(ObFixedMemPoolTest, basicTestNuma) {
 
 /// @fn memory overwrite
 TEST(ObFixedMemPoolTest, OverWriteNuma) {
+  ASSERT_NE(numa_available(), -1);
   if (getenv("__OB_MALLOC_DIRECT__") == NULL) {
     void* ptr1 = NULL;
     ObFixedMemPool mem_pool;
-    ASSERT_EQ(mem_pool.init(1024, 1, NULL), 0);
+    ASSERT_EQ(mem_pool.init(1024, 1, NULL, true), 0);
     ptr1 = mem_pool.malloc(256);
     ASSERT_NE(ptr1, (void*)0);
     ASSERT_EQ(mem_pool.get_block_num(), 1);
@@ -370,18 +373,18 @@ TEST(ObVarMemPoolTest, directly) {
 TEST(ob_malloc, basicTest) {
   if (getenv("__OB_MALLOC_DIRECT__") == NULL) {
     ASSERT_EQ(ob_init_memory_pool(1024 * 1024 * 2), 0);
-    void* ptr1 = ob_malloc(2048, ObModIds::TEST);
+    void* ptr1 = ob_malloc(2048);
     void* ptr2 = NULL;
     memset(ptr1, 0, 2048);
     ob_free(ptr1);
-    ptr2 = ob_malloc(2048, ObModIds::TEST);
+    ptr2 = ob_malloc(2048);
     ASSERT_EQ(ptr1, ptr2);
     memset(ptr2, 0, 2048);
     ob_safe_free(ptr2);
     ASSERT_EQ(ptr2, reinterpret_cast<void*>(0));
 
     /// allocate nbyte < 0
-    ASSERT_EQ(ob_malloc(-1, ObModIds::TEST), reinterpret_cast<void*>(0));
+    ASSERT_EQ(ob_malloc(-1), reinterpret_cast<void*>(0));
 
     /// ObMemBuffer default constructor
     ObMemBuffer empty_buf;
@@ -420,8 +423,8 @@ TEST(ob_malloc, basicTest) {
     cache_ptr = ob_malloc(size, ObModIds::OB_MS_LOCATION_CACHE);
     EXPECT_EQ(ob_get_mod_memory_usage(ObModIds::OB_MS_LOCATION_CACHE), block_size);
 
-    ptr = ob_malloc(size, ObModIds::TEST);
-    EXPECT_EQ(ob_get_mod_memory_usage(ObModIds::TEST), block_size);
+    ptr = ob_malloc(size);
+    EXPECT_EQ(ob_get_mod_memory_usage(ObModIds::OB_MOD_DEFAULT), block_size);
 
     ob_print_mod_memory_usage(true);
 
@@ -435,7 +438,7 @@ TEST(ob_malloc, basicTest) {
     EXPECT_EQ(ob_get_mod_memory_usage(ObModIds::OB_MS_LOCATION_CACHE), 0);
 
     ob_free(ptr);
-    EXPECT_EQ(ob_get_mod_memory_usage(ObModIds::TEST), 0);
+    EXPECT_EQ(ob_get_mod_memory_usage(ObModIds::OB_MOD_DEFAULT), 0);
 
     cache_ptr = ob_malloc(block_size, ObModIds::OB_MS_LOCATION_CACHE);
     EXPECT_EQ(ob_get_mod_memory_usage(ObModIds::OB_MS_LOCATION_CACHE), block_size + meta_size);

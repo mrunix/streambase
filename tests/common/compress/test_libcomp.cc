@@ -30,7 +30,7 @@ TEST(TestLibcomp, create) {
 }
 
 TEST(TestLibcomp, compress) {
-  char* fname = (char*)"./data/comp.data";
+  char* fname = "./data/comp.data";
   struct stat st;
   FILE* fd = fopen(fname, "r");
   stat(fname, &st);
@@ -67,7 +67,7 @@ TEST(TestLibcomp, compress) {
 
     EXPECT_EQ(0, strcmp("lzo_1.0", comp->get_compressor_name()));
 
-    EXPECT_EQ(((int64_t)1) << 48, comp->get_interface_ver());
+    EXPECT_EQ(((uint64_t)1) << 48, comp->get_interface_ver());
 
     delete[] decomp_buffer;
     delete[] comp_buffer;
@@ -76,7 +76,7 @@ TEST(TestLibcomp, compress) {
 }
 
 TEST(TestLibcomp, compress_snappy) {
-  char* fname = (char*)"./data/comp.data";
+  char* fname = "./data/comp.data";
   struct stat st;
   FILE* fd = fopen(fname, "r");
   stat(fname, &st);
@@ -113,7 +113,7 @@ TEST(TestLibcomp, compress_snappy) {
 
     EXPECT_EQ(0, strcmp("snappy", comp->get_compressor_name()));
 
-    EXPECT_EQ(((int64_t)1) << 48, comp->get_interface_ver());
+    EXPECT_EQ(((uint64_t)1) << 48, comp->get_interface_ver());
 
     delete[] decomp_buffer;
     delete[] comp_buffer;
@@ -125,3 +125,4 @@ int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+

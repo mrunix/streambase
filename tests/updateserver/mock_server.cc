@@ -1,4 +1,18 @@
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * mock_server.cc for ...
+ *
+ * Authors:
+ *   rizhao <rizhao.ych@taobao.com>
+ *
+ */
 #include <gtest/gtest.h>
 
 #include "updateserver/ob_ups_rpc_stub.h"
@@ -178,4 +192,6 @@ int main(int argc, char** argv) {
 
   return 0;
 }
+
+
 

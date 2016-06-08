@@ -1,20 +1,18 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: 0.1: ob_lease_common.cc,v 0.1 2010/12/01 09:30:33 chuanhui Exp $
+ * ob_lease_common.cc for ...
  *
  * Authors:
- *   chuanhui <rizhao.ych@taobao.com>
- *     - some work details if you want
+ *   yanran <yanran.hfs@taobao.com>
  *
  */
-
 #include "ob_lease_common.h"
 #include "tbsys.h"
 
@@ -72,3 +70,4 @@ DEFINE_GET_SERIALIZE_SIZE(ObLease) {
 }
 }
 }
+

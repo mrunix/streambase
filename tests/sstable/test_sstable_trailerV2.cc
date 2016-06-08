@@ -1,14 +1,17 @@
-/**
- * (C) 2010-2011 Taobao Inc.
+/*
+ * (C) 2007-2010 Taobao Inc.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
  *
  * test_sstable_trailerV2.cc is for what ...
  *
+ * Version: ***: test_sstable_trailerV2.cc  Thu Apr  7 17:24:54 2011 fangji.hcm Exp $
+ *
  * Authors:
- *   fangji.hcm <fangji.hcm@taobao.com>
+ *   Author fangji.hcm <fangji.hcm@taobao.com>
+ *     -some work detail if you want
  *
  */
 
@@ -44,11 +47,11 @@ class TestObSSTableTrailerV2: public ::testing::Test {
 TEST_F(TestObSSTableTrailerV2, deserialize_and_check) {
   ObSSTableTrailer trailer2;
   ObTrailerOffset trailer_offset;
-  FileUtils filesys;
-  FileDirectoryUtils dirsys;
+  common::FileUtils filesys;
+  common::FileDirectoryUtils dirsys;
   const char* compressor_name = "lzo1x_1_11_compress";
   int32_t fd = -1;
-  fd = filesys.open("tmptrailer", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+  fd = filesys.open("tmptrailer", O_RDONLY, 0644);
   int64_t file_size = dirsys.get_size("tmptrailer");
   int64_t read_size = 0;
   char* buf = new char[file_size];

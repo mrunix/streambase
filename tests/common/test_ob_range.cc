@@ -17,188 +17,11 @@
 
 #include "gtest/gtest.h"
 #include "common/ob_range.h"
-#include "common/ob_malloc.h"
 
 #define FUNC_BLOCK() if (true) \
 
 using namespace sb;
 using namespace common;
-
-TEST(TestObRange, trim) {
-  int ret = OB_SUCCESS;
-  ObStringBuf string_buf;
-
-  FUNC_BLOCK() {
-    ObRange r1, r2;
-    r1.table_id_ = 1;
-    r2.table_id_ = 2;
-
-    ret = r1.trim(r2, string_buf);
-    EXPECT_EQ(ret, OB_ERROR);
-  }
-
-  FUNC_BLOCK() {
-    ObRange r1, r2;
-    r1.table_id_ = 1;
-    r2.table_id_ = 1;
-
-    r1.border_flag_.unset_min_value();
-    r1.border_flag_.unset_max_value();
-    r1.border_flag_.set_inclusive_start();
-    r1.border_flag_.set_inclusive_end();
-
-    char* r1_start = (char*)"abc";
-    char* r1_end = (char*)"abd";
-
-    r1.start_key_.assign_ptr(r1_start, static_cast<int32_t>(strlen(r1_start)));
-    r1.end_key_.assign_ptr(r1_end, static_cast<int32_t>(strlen(r1_end)));
-
-    r2.border_flag_.unset_min_value();
-    r2.border_flag_.unset_max_value();
-    r2.border_flag_.set_inclusive_start();
-    r2.border_flag_.set_inclusive_end();
-
-    char* r2_start = (char*)"abc";
-    char* r2_end = (char*)"abd";
-
-    r2.start_key_.assign_ptr(r2_start, static_cast<int32_t>(strlen(r2_start)));
-    r2.end_key_.assign_ptr(r2_end, static_cast<int32_t>(strlen(r2_end)));
-
-    ret = r1.trim(r2, string_buf);
-    EXPECT_EQ(ret, OB_EMPTY_RANGE);
-  }
-
-  FUNC_BLOCK() {
-    ObRange r1, r2;
-    r1.table_id_ = 1;
-    r2.table_id_ = 1;
-
-    r1.border_flag_.unset_min_value();
-    r1.border_flag_.unset_max_value();
-    r1.border_flag_.set_inclusive_start();
-    r1.border_flag_.set_inclusive_end();
-
-    char* r1_start = (char*)"abc";
-    char* r1_end = (char*)"abd";
-
-    r1.start_key_.assign_ptr(r1_start, static_cast<int32_t>(strlen(r1_start)));
-    r1.end_key_.assign_ptr(r1_end, static_cast<int32_t>(strlen(r1_end)));
-
-    r2.border_flag_.unset_min_value();
-    r2.border_flag_.unset_max_value();
-    r2.border_flag_.set_inclusive_start();
-    r2.border_flag_.set_inclusive_end();
-
-    char* r2_start = (char*)"abc";
-    char* r2_end = (char*)"abf";
-
-    r2.start_key_.assign_ptr(r2_start, static_cast<int32_t>(strlen(r2_start)));
-    r2.end_key_.assign_ptr(r2_end, static_cast<int32_t>(strlen(r2_end)));
-
-    ret = r1.trim(r2, string_buf);
-    EXPECT_EQ(ret, OB_ERROR);
-  }
-
-  FUNC_BLOCK() {
-    ObRange r1, r2;
-    r1.table_id_ = 1;
-    r2.table_id_ = 1;
-
-    r1.border_flag_.unset_min_value();
-    r1.border_flag_.set_max_value();
-    r1.border_flag_.set_inclusive_start();
-    r1.border_flag_.set_inclusive_end();
-
-    char* r1_start = (char*)"abc";
-    char* r1_end = (char*)"abd";
-
-    r1.start_key_.assign_ptr(r1_start, static_cast<int32_t>(strlen(r1_start)));
-    r1.end_key_.assign_ptr(r1_end, static_cast<int32_t>(strlen(r1_end)));
-
-    r2.border_flag_.unset_min_value();
-    r2.border_flag_.unset_max_value();
-    r2.border_flag_.set_inclusive_start();
-    r2.border_flag_.set_inclusive_end();
-
-    char* r2_start = (char*)"abc";
-    char* r2_end = (char*)"abf";
-
-    r2.start_key_.assign_ptr(r2_start, static_cast<int32_t>(strlen(r2_start)));
-    r2.end_key_.assign_ptr(r2_end, static_cast<int32_t>(strlen(r2_end)));
-
-    ret = r1.trim(r2, string_buf);
-    EXPECT_EQ(ret, OB_SUCCESS);
-    EXPECT_TRUE(r1.start_key_ == ObString(0, static_cast<int32_t>(strlen(r2_end)), r2_end));
-    EXPECT_TRUE(!r1.border_flag_.inclusive_start());
-  }
-
-  FUNC_BLOCK() {
-    ObRange r1, r2;
-    r1.table_id_ = 1;
-    r2.table_id_ = 1;
-
-    r1.border_flag_.set_min_value();
-    r1.border_flag_.unset_max_value();
-    r1.border_flag_.set_inclusive_start();
-    r1.border_flag_.set_inclusive_end();
-
-    char* r1_start = (char*)"abc";
-    char* r1_end = (char*)"abf";
-
-    r1.start_key_.assign_ptr(r1_start, static_cast<int32_t>(strlen(r1_start)));
-    r1.end_key_.assign_ptr(r1_end, static_cast<int32_t>(strlen(r1_end)));
-
-    r2.border_flag_.unset_min_value();
-    r2.border_flag_.unset_max_value();
-    r2.border_flag_.set_inclusive_start();
-    r2.border_flag_.set_inclusive_end();
-
-    char* r2_start = (char*)"abc";
-    char* r2_end = (char*)"abf";
-
-    r2.start_key_.assign_ptr(r2_start, static_cast<int32_t>(strlen(r2_start)));
-    r2.end_key_.assign_ptr(r2_end, static_cast<int32_t>(strlen(r2_end)));
-
-    ret = r1.trim(r2, string_buf);
-    EXPECT_EQ(ret, OB_SUCCESS);
-    EXPECT_TRUE(r1.end_key_ == ObString(0, static_cast<int32_t>(strlen(r2_start)), r2_start));
-    EXPECT_TRUE(!r1.border_flag_.inclusive_end());
-  }
-
-  FUNC_BLOCK() {
-    ObRange r1, r2;
-    r1.table_id_ = 1;
-    r2.table_id_ = 1;
-
-    r1.border_flag_.set_min_value();
-    r1.border_flag_.set_max_value();
-    r1.border_flag_.set_inclusive_start();
-    r1.border_flag_.set_inclusive_end();
-
-    char* r1_start = (char*)"abc";
-    char* r1_end = (char*)"abf";
-
-    r1.start_key_.assign_ptr(r1_start, static_cast<int32_t>(strlen(r1_start)));
-    r1.end_key_.assign_ptr(r1_end, static_cast<int32_t>(strlen(r1_end)));
-
-    r2.border_flag_.unset_min_value();
-    r2.border_flag_.set_max_value();
-    r2.border_flag_.set_inclusive_start();
-    r2.border_flag_.set_inclusive_end();
-
-    char* r2_start = (char*)"abc";
-    char* r2_end = (char*)"abf";
-
-    r2.start_key_.assign_ptr(r2_start, static_cast<int32_t>(strlen(r2_start)));
-    r2.end_key_.assign_ptr(r2_end, static_cast<int32_t>(strlen(r2_end)));
-
-    ret = r1.trim(r2, string_buf);
-    EXPECT_EQ(ret, OB_SUCCESS);
-    EXPECT_TRUE(r1.end_key_ == ObString(0, static_cast<int32_t>(strlen(r2_start)), r2_start));
-    EXPECT_TRUE(!r1.border_flag_.inclusive_end());
-  }
-
-}
 
 TEST(TestObRange, compare_with_startkey2) {
   const int EQ = 0;
@@ -221,7 +44,7 @@ TEST(TestObRange, compare_with_startkey2) {
 
   // rowkey eq
   FUNC_BLOCK() {
-    char* key1 = (char*)"cdef";
+    char* key1 = "cdef";
     ObString sk1(0, 4, key1);
 
     ObRange r1, r2;
@@ -246,8 +69,8 @@ TEST(TestObRange, compare_with_startkey2) {
 
   // row key not eq
   FUNC_BLOCK() {
-    char* key1 = (char*)"cdef";
-    char* key2 = (char*)"ddef";
+    char* key1 = "cdef";
+    char* key2 = "ddef";
     ObString sk1(0, 4, key1);
     ObString sk2(0, 4, key2);
 
@@ -289,7 +112,7 @@ TEST(TestObRange, compare_with_endkey2) {
 
   // rowkey eq
   FUNC_BLOCK() {
-    char* key1 = (char*)"cdef";
+    char* key1 = "cdef";
     ObString sk1(0, 4, key1);
 
     ObRange r1, r2;
@@ -314,8 +137,8 @@ TEST(TestObRange, compare_with_endkey2) {
 
   // row key not eq
   FUNC_BLOCK() {
-    char* key1 = (char*)"cdef";
-    char* key2 = (char*)"ddef";
+    char* key1 = "cdef";
+    char* key2 = "ddef";
     ObString sk1(0, 4, key1);
     ObString sk2(0, 4, key2);
 
@@ -342,13 +165,13 @@ TEST(TestObRange, check_range) {
 
   ObString key1;
   scan_range.table_id_ = 23455;
-  char* start_key = (char*)"start_row_key_start";
-  char* end_key = (char*)"tend_row_key_end";
-  key1.assign(start_key, static_cast<int32_t>(strlen(start_key)));
+  char* start_key = "start_row_key_start";
+  char* end_key = "tend_row_key_end";
+  key1.assign(start_key, strlen(start_key));
   scan_range.start_key_ = key1;
 
   ObString key2;
-  key2.assign(end_key, static_cast<int32_t>(strlen(end_key)));
+  key2.assign(end_key, strlen(end_key));
   scan_range.end_key_ = key2;
   EXPECT_TRUE(scan_range.check() == true);
 
@@ -395,8 +218,8 @@ TEST(TestObRange, check_range) {
 
 
 TEST(TestObRange, intersect) {
-  char* key1 = (char*)"cdef";
-  char* key2 = (char*)"cdef";
+  char* key1 = "cdef";
+  char* key2 = "cdef";
   //char key1[9];
   //char key2[9];
   //memset(key1, 0xff, 9);
@@ -471,7 +294,7 @@ TEST(TestObRange, to_string) {
 }
 
 int main(int argc, char** argv) {
-  ob_init_memory_pool();
+  //ob_init_memory_pool();
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

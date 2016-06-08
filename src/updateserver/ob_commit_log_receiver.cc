@@ -24,14 +24,13 @@ ObCommitLogReceiver::ObCommitLogReceiver() {
   is_initialized_ = false;
 }
 
-int ObCommitLogReceiver::init(common::ObLogWriter* log_writer, common::ObBaseServer* base_server, ObUpsSlaveMgr* slave_mgr, const int64_t time_warn_us) {
+int ObCommitLogReceiver::init(common::ObLogWriter* log_writer, common::ObBaseServer* base_server, const int64_t time_warn_us) {
   int ret = OB_SUCCESS;
 
-  if (NULL == log_writer || NULL == base_server || NULL == slave_mgr) {
+  if (NULL == log_writer || NULL == base_server) {
     TBSYS_LOG(WARN, "Parameters are invalid, log_writer=%p base_server=%p", log_writer, base_server);
   } else {
     log_writer_ = log_writer;
-    slave_mgr_ = slave_mgr;
     base_server_ = base_server;
     time_warn_us_ = time_warn_us;
     is_initialized_ = true;
@@ -41,7 +40,7 @@ int ObCommitLogReceiver::init(common::ObLogWriter* log_writer, common::ObBaseSer
 }
 
 int ObCommitLogReceiver::receive_log(const int32_t version, common::ObDataBuffer& in_buff,
-                                     easy_request_t* req, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+                                     tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
 
   if (!log_writer_->get_is_log_start()) {
@@ -62,7 +61,7 @@ int ObCommitLogReceiver::receive_log(const int32_t version, common::ObDataBuffer
   }
 
   if (OB_SUCCESS == ret) {
-    ret = end_receiving_log(version, req, channel_id, out_buff);
+    ret = end_receiving_log(version, conn, channel_id, out_buff);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(ERROR, "flush log error, ret=%d", ret);
     }
@@ -105,7 +104,6 @@ int ObCommitLogReceiver::start_log(ObDataBuffer& buff) {
 
 int ObCommitLogReceiver::write_data(const char* log_data, const int64_t data_len, uint64_t& log_id, uint64_t& log_seq) {
   int ret = OB_SUCCESS;
-  int64_t switch_begin = 0;
 
   ret = check_inner_stat();
   if (OB_SUCCESS != ret) {
@@ -119,10 +117,8 @@ int ObCommitLogReceiver::write_data(const char* log_data, const int64_t data_len
 
   bool switch_log_flag = false;
   int64_t pos = 0;
-  int64_t switch_begin_tmp = 0;
   while (OB_SUCCESS == ret && pos < data_len) {
     ObLogEntry log_ent;
-    switch_begin_tmp = pos;
     ret = log_ent.deserialize(log_data, data_len, pos);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(WARN, "ObLogEntry deserialize error, ret=%d", ret);
@@ -131,11 +127,10 @@ int ObCommitLogReceiver::write_data(const char* log_data, const int64_t data_len
 
       // check switch_log
       if (OB_LOG_SWITCH_LOG == log_ent.cmd_) {
-        switch_begin = switch_begin_tmp;
         if ((pos + log_ent.get_log_data_len()) != data_len) {
           TBSYS_LOG(ERROR, "swith_log is not at the end, this should not happen, "
-                    "pos=%ld log_data_len=%d data_len=%ld", pos, log_ent.get_log_data_len(), data_len);
-          hex_dump(log_data, static_cast<int32_t>(data_len), TBSYS_LOG_LEVEL_WARN);
+                    "pos=%ld log_data_len=%ld data_len=%d", pos, log_ent.get_log_data_len(), data_len);
+          hex_dump(log_data, data_len, TBSYS_LOG_LEVEL_WARN);
           ret = OB_ERROR;
         } else {
           ret = serialization::decode_i64(log_data, data_len, pos, (int64_t*)&log_id);
@@ -165,15 +160,6 @@ int ObCommitLogReceiver::write_data(const char* log_data, const int64_t data_len
                 store_elapse, tbsys::CTimeUtil::getTime(), data_len);
     }
   }
-  //send log to slave_slave
-  // if (OB_SUCCESS == ret)
-  // {
-  //   ret = slave_mgr_->send_data(log_data, data_len, log_id, switch_log_flag, data_len - switch_begin);
-  //   if (OB_SUCCESS != ret)
-  //   {
-  //     TBSYS_LOG(WARN, "fail to send data to slave");
-  //   }
-  // }
 
   if (OB_SUCCESS == ret && switch_log_flag) {
     ret = log_writer_->switch_to_log_file(log_id + 1);
@@ -193,7 +179,7 @@ int ObCommitLogReceiver::start_receiving_log() {
   return ret;
 }
 
-int ObCommitLogReceiver::end_receiving_log(const int32_t version, easy_request_t* req, const int32_t channel_id, common::ObDataBuffer& out_buff) {
+int ObCommitLogReceiver::end_receiving_log(const int32_t version, tbnet::Connection* conn, const int32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
 
   ret = log_writer_->flush_log();
@@ -206,7 +192,7 @@ int ObCommitLogReceiver::end_receiving_log(const int32_t version, easy_request_t
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(ERROR, "ObResultCode serialize error, ret=%d", ret);
     } else {
-      ret = base_server_->send_response(OB_SEND_LOG_RES, version, out_buff, req, channel_id);
+      ret = base_server_->send_response(OB_SEND_LOG_RES, version, out_buff, conn, channel_id);
       if (OB_SUCCESS != ret) {
         TBSYS_LOG(WARN, "send_response error, ret=%d", ret);
       }

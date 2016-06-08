@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./btree_root_pointer.cc for ...
+ *
+ * Authors:
+ *   duolong <duolong@taobao.com>
+ *
+ */
 #include "btree_define.h"
 #include "btree_alloc.h"
 #include "btree_node.h"
@@ -146,7 +161,7 @@ BtreeNode* BtreeRootPointer::new_node(int32_t count) {
     OCEAN_BTREE_CHECK_TRUE(node, "node is null.");
   }
   if (node) {
-    node->init(static_cast<int16_t>(count));
+    node->init(count);
     node->set_sequence(sequence_);
     OCEAN_BTREE_CHECK_TRUE(0 == node->is_deleted(), "deleted %d", node->is_deleted());
     node_list_.add_node_list(node_allocator_, 1, node);
@@ -191,7 +206,7 @@ unsigned char BtreeRootPointer::refcas(volatile int64_t* ref, int64_t old_value,
 /**
  * copy node数量
  */
-int32_t BtreeRootPointer::get_copy_node_count() {
+size_t BtreeRootPointer::get_copy_node_count() {
   return node_list_.get_copy_node_count();
 }
 
@@ -312,3 +327,4 @@ bool BtreeRootPointerList::empty() {
 
 } // end namespace common
 } // end namespace sb
+

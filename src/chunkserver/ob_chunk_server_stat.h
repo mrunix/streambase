@@ -1,16 +1,18 @@
-/*
- * (C) 2007-2010 TaoBao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- * ob_chunk_server_stat.h is for what ...
+ * Version: 5567
  *
- * Version: $id$
+ * ob_chunk_server_stat.h
  *
  * Authors:
- *   MaoQi maoqi@taobao.com
+ *     qushan <qushan@taobao.com>
+ * Changes:
+ *     maoqi <maoqi@taobao.com>
  *
  */
 
@@ -18,18 +20,59 @@
 #define OCEANBASE_CHUNKSERVER_OB_CHUNK_SERVER_STAT_H_
 
 #include "common/ob_statistics.h"
-#include "common/ob_common_stat.h"
 namespace sb {
 namespace chunkserver {
 class ObChunkServerStatManager : public common::ObStatManager {
  public:
-  ObChunkServerStatManager()
-    : ObStatManager(common::OB_CHUNKSERVER) {
-    set_id2name(common::OB_STAT_CHUNKSERVER, common::ObStatSingleton::cs_map, common::CHUNKSERVER_STAT_MAX);
-    set_id2name(common::OB_STAT_COMMON, common::ObStatSingleton::common_map, common::COMMON_STAT_MAX);
-    set_id2name(common::OB_STAT_SSTABLE, common::ObStatSingleton::sstable_map, common::SSTABLE_STAT_MAX);
-  }
+  ObChunkServerStatManager() : ObStatManager(common::ObStatManager::SERVER_TYPE_CHUNK) {}
+
+  enum {
+    INDEX_GET_COUNT       = 0,
+    INDEX_SCAN_COUNT      = 1,
+
+    INDEX_GET_TIME        = 2,
+    INDEX_SCAN_TIME       = 3,
+
+    INDEX_BLOCK_INDEX_CACHE_HIT   = 4,
+    INDEX_BLOCK_INDEX_CACHE_MISS  = 5,
+
+    INDEX_BLOCK_CACHE_HIT         = 6,
+    INDEX_BLOCK_CACHE_MISS        = 7,
+
+    INDEX_GET_BYTES               = 8,
+    INDEX_SCAN_BYTES              = 9,
+
+    INDEX_DISK_IO_NUM             = 10,
+    INDEX_DISK_IO_BYTES           = 11,
+
+  };
+
+  enum {
+    META_TABLE_ID = 0,
+  };
+
+  enum {
+    INDEX_META_TABLETS_NUM        = 0,
+    INDEX_META_MERGE_TABLETS_NUM  = 1,
+    INDEX_META_MERGE_MERGED       = 2,
+
+    INDEX_MU_DEFAULT = 3,
+    INDEX_MU_NETWORK = 4,
+    INDEX_MU_THREAD_BUFFER = 5,
+    INDEX_MU_TABLET = 6,
+    INDEX_MU_BI_CACHE = 7,
+    INDEX_MU_BLOCK_CACHE = 8,
+    INDEX_MU_BI_CACHE_UNSERVING = 9,
+    INDEX_MU_BLOCK_CACHE_UNSERVING = 10,
+    INDEX_MU_JOIN_CACHE = 11,
+    INDEX_MU_MERGE_BUFFER = 12,
+    INDEX_MU_MERGE_SPLIT_BUFFER = 13,
+
+    INDEX_META_REQUEST_COUNT = 14,
+    INDEX_META_REQUEST_COUNT_PER_SECOND = 15,
+  };
 };
+
 } /* chunkserver */
-} /* oceanbase */
+} /* sb */
 #endif

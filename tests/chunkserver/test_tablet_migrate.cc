@@ -272,7 +272,8 @@ class TestObTabletMigrate : public ::testing::Test {
       ranges[i].border_flag_.unset_inclusive_start();
 
       if (0 == i) {
-        ranges[i].start_key_.set_min_row();
+        ranges[i].start_key_.assign(NULL, 0);
+        ranges[i].border_flag_.set_min_value();
       } else {
         ranges[i].start_key_ = cell_infos[i * SSTABLE_ROW_NUM - 1][0].row_key_;
       }
@@ -309,7 +310,7 @@ class TestObTabletMigrate : public ::testing::Test {
     bic_conf.max_no_active_usec = -1;
     bic_conf.hash_slot_num = 1024;
 
-    err = chunk_server.get_tablet_manager().init(conf, bic_conf);
+    err = chunk_server.get_tablet_manager().init(conf, bic_conf, 100);
     EXPECT_EQ(OB_SUCCESS, err);
 
     chunk_server.start_service();

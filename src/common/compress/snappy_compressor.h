@@ -1,14 +1,16 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * snappy_compressor.h is for what ...
+ * Version: $Id$
+ *
+ * ./snappy_compressor.h for ...
  *
  * Authors:
- *   fangji.hcm <fangji.hcm@taobao.com>
+ *   qushan <qushan@taobao.com>
  *
  */
 #ifndef OCEANBASE_COMMON_COMPRESS_SNAPPY_COMPRESSOR_H_
@@ -37,3 +39,4 @@ class SnappyCompressor : public ObCompressor {
 extern "C" ObCompressor* create();
 extern "C" void destroy(ObCompressor* snappy);
 #endif //OCEANBASE_COMMON_COMPRESS_SNAPPY_COMPRESSOR_H_ 
+

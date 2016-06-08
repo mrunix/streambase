@@ -1,24 +1,24 @@
 /**
- * (C) 2007-2010 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
  * Version: $Id$
  *
+ * ob_log_reader.h for ...
+ *
  * Authors:
  *   yanran <yanran.hfs@taobao.com>
- *     - some work details if you want
+ *
  */
-
 #ifndef OCEANBASE_COMMON_OB_LOG_READER_H_
 #define OCEANBASE_COMMON_OB_LOG_READER_H_
 
 #include "ob_log_entry.h"
 #include "ob_single_log_reader.h"
 #include "ob_atomic.h"
-#include "ob_log_cursor.h"
 
 namespace sb {
 namespace common {
@@ -39,15 +39,13 @@ class ObLogReader {
 
   /**
    * 初始化
-   * @param [in] reader 读单个文件的单元
    * @param [in] log_dir 日志目录
    * @param [in] log_file_id_start 日志读取起始文件id
    * @param [in] log_seq 日志读取上一条日志的seq
    * @param [in] is_wait 在打开文件和读取数据出错时，是否重试
    */
-  int init(ObSingleLogReader* reader, const char* log_dir,
-           const uint64_t log_file_id_start, const uint64_t log_seq,
-           bool is_wait);
+  int init(const char* log_dir, const uint64_t log_file_id_start,
+           const uint64_t log_seq, bool is_wait);
 
   /**
    * @brief 读日志
@@ -61,8 +59,6 @@ class ObLogReader {
    * @return otherwise 失败
    */
   int read_log(LogCommand& cmd, uint64_t& seq, char*& log_data, int64_t& data_len);
-  //重新打开一个新的文件，并定位到当前日志的下一位
-  int reset_file_id(const uint64_t log_id_start, const uint64_t log_seq_start);
 
   inline void set_max_log_file_id(uint64_t max_log_file_id) {
     atomic_exchange(&max_log_file_id_, max_log_file_id);
@@ -80,9 +76,6 @@ class ObLogReader {
   inline void set_has_no_max() {
     has_max_ = false;
   }
-  inline uint64_t get_cur_log_file_id() const {
-    return cur_log_file_id_;
-  }
 
   inline uint64_t get_cur_log_file_id() {
     return cur_log_file_id_;
@@ -91,29 +84,7 @@ class ObLogReader {
     return cur_log_seq_id_;
   }
   inline uint64_t get_last_log_offset() {
-    return NULL != log_file_reader_ ? log_file_reader_->get_last_log_offset() : 0;
-  }
-  inline int get_cursor(common::ObLogCursor& cursor) {
-    int err = OB_SUCCESS;
-    if (NULL == log_file_reader_) {
-      err = OB_READ_NOTHING;
-    } else {
-      cursor.file_id_ = cur_log_file_id_;
-      cursor.log_id_ = cur_log_seq_id_;
-      cursor.offset_ = log_file_reader_->get_last_log_offset();
-    }
-    return err;
-  }
-  inline int get_next_cursor(common::ObLogCursor& cursor) {
-    int err = OB_SUCCESS;
-    if (NULL == log_file_reader_) {
-      err = OB_READ_NOTHING;
-    } else {
-      cursor.file_id_ = cur_log_file_id_;
-      cursor.log_id_ = cur_log_seq_id_  + 1;
-      cursor.offset_ = log_file_reader_->get_last_log_offset();
-    }
-    return err;
+    return log_file_reader_.get_last_log_offset();
   }
  private:
   int seek(uint64_t log_seq);
@@ -126,7 +97,7 @@ class ObLogReader {
   uint64_t cur_log_file_id_;
   uint64_t cur_log_seq_id_;
   uint64_t max_log_file_id_;
-  ObSingleLogReader* log_file_reader_;
+  ObSingleLogReader log_file_reader_;
   bool is_initialized_;
   bool is_wait_;
   bool has_max_;
@@ -135,3 +106,4 @@ class ObLogReader {
 } // end namespace sb
 
 #endif // OCEANBASE_COMMON_OB_LOG_READER_H_
+

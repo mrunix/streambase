@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -31,39 +31,10 @@ namespace sb {
 namespace tests {
 namespace sstable {
 static const char* trailer_file_name = "trailer_for_test";
-static const ObString start_key(static_cast<int32_t>(strlen("start_key")),
-                                static_cast<int32_t>(strlen("start_key")), const_cast<char*>("start_key"));
-static const ObString end_key(static_cast<int32_t>(strlen("end_key")),
-                              static_cast<int32_t>(strlen("end_key")), const_cast<char*>("end_key"));
-static ObString key_stream;
-static ObObj start_key_obj;
-static ObObj end_key_obj;
-static ObNewRange range;
-static ObNewRange default_range;
-static char key_stream_buf[512];
-static ModuleArena arena;
-
 class TestObSSTableTrailer: public ::testing::Test {
  public:
   virtual void SetUp() {
-    int64_t pos = 0;
 
-    range.table_id_ = 1001;
-    start_key_obj.set_varchar(start_key);
-    range.start_key_.assign(&start_key_obj, 1);
-    end_key_obj.set_varchar(end_key);
-    range.end_key_.assign(&end_key_obj, 1);
-    range.border_flag_.unset_inclusive_start();
-    range.border_flag_.set_inclusive_end();
-
-    default_range.table_id_ = OB_INVALID_ID;
-    default_range.set_whole_range();
-    default_range.border_flag_.unset_inclusive_start();
-    default_range.border_flag_.unset_inclusive_end();
-
-    range.start_key_.serialize(key_stream_buf, 512, pos);
-    range.end_key_.serialize(key_stream_buf, 512, pos);
-    key_stream.assign_ptr(key_stream_buf, static_cast<int32_t>(pos));
   }
 
   virtual void TearDown() {
@@ -73,8 +44,7 @@ class TestObSSTableTrailer: public ::testing::Test {
 
 TEST_F(TestObSSTableTrailer, SetAndGetV2) {
   ObSSTableTrailer trailer;
-  EXPECT_TRUE(default_range == trailer.get_range());
-  trailer.set_trailer_version(0x300);
+  trailer.set_trailer_version(0x200);
   trailer.set_table_version(1);
   trailer.set_first_block_data_offset(0);
   trailer.set_row_value_store_style(1);
@@ -91,14 +61,13 @@ TEST_F(TestObSSTableTrailer, SetAndGetV2) {
   trailer.set_sstable_checksum(123456789);
   trailer.set_first_table_id(1001);
   trailer.set_frozen_time(123456789);
-  trailer.set_range_record_offset(2047 + 1024 + 511 + 1023);
-  trailer.set_range_record_size(48);
   const char* compressor_name = "lzo1x_1_11_compress";
   trailer.set_compressor_name(compressor_name);
+#ifdef COMPATIBLE
+  trailer.set_table_count(1);
+#endif
   ObTrailerOffset trailer_offset;
   trailer_offset.trailer_record_offset_ = 256 * 1024 - 1023;
-  trailer.set_range(range);
-  EXPECT_TRUE(range == trailer.get_range());
 
   int64_t offset_len = trailer_offset.get_serialize_size();
   int64_t trailer_len = trailer.get_serialize_size();
@@ -114,10 +83,9 @@ TEST_F(TestObSSTableTrailer, SetAndGetV2) {
   EXPECT_EQ(trailer_offset.trailer_record_offset_, 256 * 1024 - 1023);
 
   trailer.reset();
-  EXPECT_TRUE(default_range == trailer.get_range());
   pos = 0;
   trailer.deserialize(buf, len, pos);
-  EXPECT_EQ(0x300, trailer.get_trailer_version());
+  EXPECT_EQ(0x200, trailer.get_trailer_version());
   EXPECT_EQ(1, trailer.get_table_version());
   EXPECT_EQ(0, trailer.get_first_block_data_offset());
   EXPECT_EQ(1, trailer.get_row_value_store_style());
@@ -129,8 +97,10 @@ TEST_F(TestObSSTableTrailer, SetAndGetV2) {
   EXPECT_EQ(511, trailer.get_bloom_filter_record_size());
   EXPECT_EQ(2047 + 1024 + 511, trailer.get_schema_record_offset());
   EXPECT_EQ(1023, trailer.get_schema_record_size());
-  EXPECT_EQ(2047 + 1024 + 511 + 1023, trailer.get_range_record_offset());
-  EXPECT_EQ(48, trailer.get_range_record_size());
+#ifdef COMPATIBLE
+  EXPECT_EQ(0, trailer.get_key_stream_record_offset());
+  EXPECT_EQ(0, trailer.get_key_stream_record_size());
+#endif
   EXPECT_EQ(64 * 1024, trailer.get_block_size());
   EXPECT_EQ(777, trailer.get_row_count());
   EXPECT_EQ(123456789, (int64_t)trailer.get_sstable_checksum());
@@ -138,17 +108,14 @@ TEST_F(TestObSSTableTrailer, SetAndGetV2) {
   EXPECT_EQ(123456789, trailer.get_frozen_time());
   int ret = memcmp(compressor_name, trailer.get_compressor_name(), strlen(compressor_name));
   EXPECT_EQ(0, ret);
-  trailer.copy_range(range);
-  EXPECT_TRUE(range == trailer.get_range());
 
   delete [] buf;
 }
 
 TEST_F(TestObSSTableTrailer, write_tariler_to_disk) {
   ObSSTableTrailer trailer;
-  EXPECT_TRUE(default_range == trailer.get_range());
   FileUtils filesys;
-  trailer.set_trailer_version(0x300);
+  trailer.set_trailer_version(0x200);
   trailer.set_table_version(1);
   trailer.set_first_block_data_offset(0);
   trailer.set_row_value_store_style(1);
@@ -165,8 +132,6 @@ TEST_F(TestObSSTableTrailer, write_tariler_to_disk) {
   trailer.set_sstable_checksum(123456789);
   trailer.set_first_table_id(1001);
   trailer.set_frozen_time(123456789);
-  trailer.set_range_record_offset(2047 + 1024 + 511 + 1023);
-  trailer.set_range_record_size(0);
   const char* compressor_name = "lzo1x_1_11_compress";
   trailer.set_compressor_name(compressor_name);
 
@@ -188,21 +153,144 @@ TEST_F(TestObSSTableTrailer, write_tariler_to_disk) {
   EXPECT_EQ(write_size, buf_size);
   free(serialize_buf);
   serialize_buf = NULL;
-  filesys.close();
 }
 
+#ifdef  COMPATIBLE
+//test compatible between version1 and version2
+TEST_F(TestObSSTableTrailer, Compatible) {
+  ObSSTableTrailerV1 trailer;
+  ObSSTableTrailer trailer2;
+
+  trailer.set_trailer_version(0);
+  trailer.set_table_version(1);
+  trailer.set_first_block_data_offset(0);
+  trailer.set_row_value_store_style(1);
+  trailer.set_block_count(1023);
+  trailer.set_block_index_record_offset(2047);
+  trailer.set_block_index_record_size(1024);
+  trailer.set_bloom_filter_hash_count(8);
+  trailer.set_bloom_filter_record_offset(2047 + 1024);
+  trailer.set_bloom_filter_record_size(511);
+  trailer.set_schema_record_offset(2047 + 1024 + 511);
+  trailer.set_schema_record_size(1023);
+  trailer.set_key_stream_record_offset(2047 + 1024 + 511 + 1023);
+  trailer.set_key_stream_record_size(1024);
+  trailer.set_block_size(64 * 1024);
+  trailer.set_row_count(777);
+  trailer.set_sstable_checksum(123456789);
+  const char* compressor_name = "lzo1x_1_11_compress";
+  trailer.set_compressor_name(compressor_name);
+  trailer.set_table_count(1);
+  int err = trailer.init_table_info(1);
+  EXPECT_EQ(0, err);
+  trailer.set_table_id(0, 1);
+  char* start_key_value = "0101010101011";
+  char* end_key_value = "1101010101011";
+  sb::common::ObString start_key(13, 13, start_key_value);
+  sb::common::ObString end_key(13, 13, end_key_value);
+  trailer.set_start_key(0, start_key);
+  trailer.set_end_key(0, end_key);
+  ObTrailerOffset trailer_offset;
+  trailer_offset.trailer_record_offset_ = 256 * 1024 - 1023;
+
+  int64_t offset_len = trailer_offset.get_serialize_size();
+  int64_t trailer_len = trailer.get_serialize_size();
+  int64_t len = offset_len + trailer_len;
+  char* buf = new char[len];
+  int64_t pos = 0;
+  trailer.serialize(buf, len, pos);
+  trailer_offset.serialize(buf, len, pos);
+
+  EXPECT_EQ(pos, len);
+  pos = trailer_len;
+  trailer_offset.trailer_record_offset_ = 0;
+  trailer_offset.deserialize(buf, len, pos);
+  EXPECT_EQ(trailer_offset.trailer_record_offset_, 256 * 1024 - 1023);
+
+  pos = 0;
+  trailer2.deserialize(buf, len, pos);
+  delete [] buf;
+  EXPECT_EQ(0, trailer2.get_trailer_version());
+  EXPECT_EQ(1, trailer2.get_table_version());
+  EXPECT_EQ(0, trailer2.get_first_block_data_offset());
+  EXPECT_EQ(1, trailer2.get_row_value_store_style());
+  EXPECT_EQ(1023, trailer2.get_block_count());
+  EXPECT_EQ(2047, trailer2.get_block_index_record_offset());
+  EXPECT_EQ(1024, trailer2.get_block_index_record_size());
+  EXPECT_EQ(8, trailer2.get_bloom_filter_hash_count());
+  EXPECT_EQ(2047 + 1024, trailer2.get_bloom_filter_record_offset());
+  EXPECT_EQ(511, trailer2.get_bloom_filter_record_size());
+  EXPECT_EQ(2047 + 1024 + 511, trailer2.get_schema_record_offset());
+  EXPECT_EQ(1023, trailer2.get_schema_record_size());
+  EXPECT_EQ(2047 + 1024 + 511 + 1023, trailer2.get_key_stream_record_offset());
+  EXPECT_EQ(1024, trailer2.get_key_stream_record_size());
+  EXPECT_EQ(64 * 1024, trailer2.get_block_size());
+  EXPECT_EQ(777, trailer2.get_row_count());
+  EXPECT_EQ(1, trailer2.get_table_count());
+  EXPECT_EQ(123456789, (int64_t)trailer2.get_sstable_checksum());
+  int ret = memcmp(compressor_name, trailer2.get_compressor_name(), strlen(compressor_name));
+  EXPECT_EQ(0, ret);
+
+  //set trailer version 0x200
+  trailer2.set_trailer_version(0x200);
+  trailer_offset.trailer_record_offset_ = 256 * 1024 - 1023;
+
+  offset_len = trailer_offset.get_serialize_size();
+  trailer_len = trailer2.get_serialize_size();
+  len = offset_len + trailer_len;
+  buf = new char[len];
+  pos = 0;
+  trailer2.serialize(buf, len, pos);
+  trailer_offset.serialize(buf, len, pos);
+  common::FileUtils filesys;
+  int32_t fd = -1;
+  fd = filesys.open("tmptrailer", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+  int64_t write_size = 0;
+  write_size = filesys.write(buf, len);
+  EXPECT_EQ(write_size, len);
+  filesys.close();
+  EXPECT_EQ(pos, len);
+  pos = trailer_len;
+
+  pos = 0;
+  trailer2.reset();
+  //deserialize trailer version 0x200
+  trailer2.deserialize(buf, len, pos);
+  delete [] buf;
+
+  //check data in trailer2
+  EXPECT_EQ(0x200, trailer2.get_trailer_version());
+  EXPECT_EQ(1, trailer2.get_table_version());
+  EXPECT_EQ(0, trailer2.get_first_block_data_offset());
+  EXPECT_EQ(1, trailer2.get_row_value_store_style());
+  EXPECT_EQ(1023, trailer2.get_block_count());
+  EXPECT_EQ(2047, trailer2.get_block_index_record_offset());
+  EXPECT_EQ(1024, trailer2.get_block_index_record_size());
+  EXPECT_EQ(8, trailer2.get_bloom_filter_hash_count());
+  EXPECT_EQ(2047 + 1024, trailer2.get_bloom_filter_record_offset());
+  EXPECT_EQ(511, trailer2.get_bloom_filter_record_size());
+  EXPECT_EQ(2047 + 1024 + 511, trailer2.get_schema_record_offset());
+  EXPECT_EQ(1023, trailer2.get_schema_record_size());
+  EXPECT_EQ(0, trailer2.get_key_stream_record_offset());
+  EXPECT_EQ(0, trailer2.get_key_stream_record_size());
+  EXPECT_EQ(64 * 1024, trailer2.get_block_size());
+  EXPECT_EQ(777, trailer2.get_row_count());
+  EXPECT_EQ(0, trailer2.get_table_count());
+  EXPECT_EQ(123456789, (int64_t)trailer2.get_sstable_checksum());
+  ret = memcmp(compressor_name, trailer2.get_compressor_name(), strlen(compressor_name));
+  EXPECT_EQ(0, ret);
+}
+#else
 //test compatible between version2 && version2 compiled without -DCOMPATIBLE
 TEST_F(TestObSSTableTrailer, Compatible) {
   ObTrailerOffset trailer_offset;
   ObSSTableTrailer trailer;
-  EXPECT_TRUE(default_range == trailer.get_range());
   FileUtils filesys;
   const char* compressor_name = "lzo1x_1_11_compress";
   int64_t file_len = FileDirectoryUtils::get_size(trailer_file_name);
   char* file_buf = reinterpret_cast<char*>(malloc(file_len));
   EXPECT_TRUE(NULL != file_buf);
   int64_t read_size = 0;
-  filesys.open(trailer_file_name, O_RDONLY);
   read_size = filesys.read(file_buf, file_len);
   EXPECT_EQ(read_size, file_len);
 
@@ -214,7 +302,7 @@ TEST_F(TestObSSTableTrailer, Compatible) {
 
   pos = 0;
   trailer.deserialize(file_buf, file_len, pos);
-  EXPECT_EQ(0x300, trailer.get_trailer_version());
+  EXPECT_EQ(0x200, trailer.get_trailer_version());
   EXPECT_EQ(1, trailer.get_table_version());
   EXPECT_EQ(0, trailer.get_first_block_data_offset());
   EXPECT_EQ(1, trailer.get_row_value_store_style());
@@ -233,11 +321,10 @@ TEST_F(TestObSSTableTrailer, Compatible) {
   EXPECT_EQ(123456789, trailer.get_frozen_time());
   int ret = memcmp(compressor_name, trailer.get_compressor_name(), strlen(compressor_name));
   EXPECT_EQ(0, ret);
-  EXPECT_TRUE(default_range == trailer.get_range());
   free(file_buf);
   file_buf = NULL;
-  filesys.close();
 }
+#endif
 }//end namespace sstable
 }//end namespace tests
 }//end namespace sb

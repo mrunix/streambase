@@ -1,14 +1,16 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * none_compressor.h for compressor without compress.
+ * Version: $Id$
+ *
+ * ./none_compressor.h for ...
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
+ *   qushan <qushan@taobao.com>
  *
  */
 #ifndef OCEANBASE_COMMON_COMPRESS_NONE_COMPRESSOR_H_
@@ -36,3 +38,4 @@ extern "C" ObCompressor* create();
 extern "C" void destroy(ObCompressor* lzo);
 
 #endif // OCEANBASE_COMMON_COMPRESS_NONE_COMPRESSOR_H_
+

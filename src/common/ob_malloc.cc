@@ -1,17 +1,16 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- * ob_malloc.cc is for what ...
+ * Version: $Id$
  *
- * Version: $id: ob_malloc.cc,v 0.1 8/19/2010 9:57a wushi Exp $
+ * ob_malloc.cc for ...
  *
  * Authors:
  *   wushi <wushi.ly@taobao.com>
- *     - some work details if you want
  *
  */
 #include "ob_malloc.h"
@@ -20,21 +19,6 @@
 #include "ob_mod_define.h"
 #include "ob_thread_mempool.h"
 #include "ob_tsi_factory.h"
-#include "utility.h"
-#include "ob_tsi_block_allocator.h"
-#include <algorithm>
-#ifdef __OB_MTRACE__
-#include <execinfo.h>
-#endif
-
-namespace sb {
-namespace common {
-ObTSIBlockAllocator& get_global_tsi_block_allocator() {
-  static ObTSIBlockAllocator tsi_block_allocator;
-  return tsi_block_allocator;
-}
-}
-}
 namespace {
 /// @warning 这里使用了gcc的扩展属性，以及一些不常使用的语言特征，目的是解决
 ///          static变量的析构顺序问题，如果把全局的内存池申明为static对象，那么
@@ -75,84 +59,13 @@ void  __attribute__((destructor)) deinit_global_memory_pool() {
 sb::common::ObFixedMemPool& get_fixed_memory_pool_instance() {
   return *g_memory_pool;
 }
-}
 
-namespace sb {
-namespace common {
-void* ob_tc_malloc(const int64_t nbyte, const int32_t mod_id) {
-  return get_global_tsi_block_allocator().mod_alloc(nbyte, mod_id);
-}
-
-void ob_tc_free(void* ptr, const int32_t mod_id) {
-  get_global_tsi_block_allocator().mod_free(ptr, mod_id);
-}
-
-void* ob_tc_realloc(void* ptr, const int64_t nbyte, const int32_t mod_id) {
-  return get_global_tsi_block_allocator().mod_realloc(ptr, nbyte, mod_id);
-}
-}
 }
 
 
-int sb::common::ob_init_memory_pool(int64_t block_size) {
-  int ret = OB_SUCCESS;
-  static ObMalloc sys_allocator;
-  sys_allocator.set_mod_id(ObModIds::OB_MOD_TC_TOTAL);
-  if (OB_SUCCESS != (ret = get_fixed_memory_pool_instance().init(block_size, 1, g_mod_set))) {
-    TBSYS_LOG(ERROR, "fixed_memory_pool.init(block_size=%ld)=>%d", block_size, ret);
-  } else if (OB_SUCCESS != (ret = get_global_tsi_block_allocator().init(&sys_allocator))) {
-    TBSYS_LOG(ERROR, "tsi_block_allocator.init()=>%d", ret);
-  } else {
-    get_global_tsi_block_allocator().set_mod_id(ObModIds::OB_MOD_TCDEFAULT);
-  }
-  return ret;
+int sb::common::ob_init_memory_pool(int64_t block_size, const bool numa_enabled/* = true*/) {
+  return get_fixed_memory_pool_instance().init(block_size, 1, g_mod_set, numa_enabled);
 }
-
-void sb::common::ob_mod_usage_update(const int64_t delta, const int32_t mod_id) {
-  get_fixed_memory_pool_instance().mod_usage_update(delta, mod_id);
-}
-
-void __attribute__((weak)) memory_limit_callback() {
-  TBSYS_LOG(DEBUG, "common memory_limit_callback");
-}
-
-void* sb::common::ob_malloc(void* ptr, size_t size) {
-  if (size) {
-    if (NULL != ptr) {
-      ob_free(ptr, ObModIds::OB_COMMON_NETWORK);
-      ptr = NULL;
-    }
-    ptr = get_fixed_memory_pool_instance().malloc(size, ObModIds::OB_COMMON_NETWORK, NULL);
-    if (OB_UNLIKELY(NULL == ptr && ENOMEM == errno)) {
-      if (REACH_TIME_INTERVAL(60L * 1000000L)) {
-        ob_print_mod_memory_usage();
-      }
-      memory_limit_callback();
-    } else {
-      memset(ptr, 0, size);
-    }
-  } else if (ptr) {
-    ob_free(ptr, ObModIds::OB_COMMON_NETWORK);
-    return 0;
-  }
-  return ptr;
-}
-
-static int64_t MON_BLOCK_SIZE_ARRAY[] = {
-  1 << 8,
-  1 << 9,
-  1 << 10,
-  1 << 13,
-  1 << 16,
-  1 << 17,
-  1 << 20,
-  1 << 21,
-  1 << 22,
-  INT64_MAX
-};
-
-static int64_t MON_BLOCK_ARRAY[ARRAYSIZEOF(MON_BLOCK_SIZE_ARRAY)] = {0};
-
 void* sb::common::ob_malloc(const int64_t nbyte, const int32_t mod_id, int64_t* got_size) {
   void* result = NULL;
   if (nbyte <= 0) {
@@ -160,22 +73,6 @@ void* sb::common::ob_malloc(const int64_t nbyte, const int32_t mod_id, int64_t* 
     errno = EINVAL;
   } else {
     result = get_fixed_memory_pool_instance().malloc(nbyte, mod_id, got_size);
-    if (OB_UNLIKELY(NULL == result && ENOMEM == errno)) {
-      if (REACH_TIME_INTERVAL(60L * 1000000L)) {
-        ob_print_mod_memory_usage();
-      }
-      memory_limit_callback();
-    }
-    int64_t* p = std::lower_bound(MON_BLOCK_SIZE_ARRAY, MON_BLOCK_SIZE_ARRAY + ARRAYSIZEOF(MON_BLOCK_SIZE_ARRAY), nbyte);
-    OB_ASSERT(p >= MON_BLOCK_SIZE_ARRAY && p < MON_BLOCK_SIZE_ARRAY + ARRAYSIZEOF(MON_BLOCK_SIZE_ARRAY));
-    MON_BLOCK_ARRAY[p - MON_BLOCK_SIZE_ARRAY] ++;
-#ifdef __OB_MTRACE__
-    BACKTRACE(
-      WARN,
-      (nbyte > OB_MALLOC_BLOCK_SIZE && nbyte < OB_MAX_PACKET_LENGTH),
-      "ob_malloc  addr=%p nbyte=%ld", result, nbyte
-    );
-#endif
   }
   return  result;
 }
@@ -205,10 +102,6 @@ void sb::common::ob_safe_free(void*& ptr, const int32_t mod_id) {
 
 void sb::common::ob_print_mod_memory_usage(bool print_to_std) {
   g_memory_pool->print_mod_memory_usage(print_to_std);
-  TBSYS_LOG(INFO, "malloc size distribution\n%s", to_cstring(g_malloc_size_stat));
-  for (uint32_t i = 0; i < ARRAYSIZEOF(MON_BLOCK_SIZE_ARRAY); ++i) {
-    TBSYS_LOG(INFO, "[BLOCK_STAT] size=%ld times=%ld", MON_BLOCK_SIZE_ARRAY[i], MON_BLOCK_ARRAY[i]);
-  } // end for
 }
 
 int64_t sb::common::ob_get_mod_memory_usage(int32_t mod_id) {
@@ -231,12 +124,6 @@ int64_t sb::common::ob_get_memory_size_handled() {
   return get_fixed_memory_pool_instance().get_memory_size_handled();
 }
 
-int64_t sb::common::ob_get_memory_size_used() {
-  sb::common::ObFixedMemPool& fixed_pool = get_fixed_memory_pool_instance();
-  return fixed_pool.get_memory_size_handled()
-         - (fixed_pool.get_block_size() * fixed_pool.get_free_block_num());
-}
-
 sb::common::ObMemBuffer::ObMemBuffer() {
   buf_size_ = 0;
   buf_ptr_ = NULL;
@@ -245,7 +132,7 @@ sb::common::ObMemBuffer::ObMemBuffer() {
 sb::common::ObMemBuffer::ObMemBuffer(const int64_t nbyte) {
   buf_size_ = 0;
   buf_ptr_ = NULL;
-  buf_ptr_ = ob_malloc(nbyte, ObModIds::OB_MEM_BUFFER);
+  buf_ptr_ = ob_malloc(nbyte);
   if (buf_ptr_ != NULL) {
     buf_size_ = nbyte;
   }
@@ -311,3 +198,5 @@ int sb::common::ObMemBuf::ensure_space(const int64_t size, const int32_t mod_id)
 
   return ret;
 }
+
+

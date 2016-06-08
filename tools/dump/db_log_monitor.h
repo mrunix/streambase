@@ -88,7 +88,6 @@ class DbLogMonitor : public tbsys::CDefaultRunnable {
 
     bool operator()(const char* dir, const char* file) {
       bool ret = false;
-      UNUSED(dir);
       if ((ret = is_number(file)) == true) {
         int64_t file_id = atol(file);
 

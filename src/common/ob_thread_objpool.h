@@ -1,21 +1,18 @@
-////===================================================================
-//
-// ob_thread_objpool.h common / Oceanbase
-//
-// Copyright (C) 2010, 2013 Taobao.com, Inc.
-//
-// Created on 2011-03-08 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_thread_objpool.h for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #ifndef  OCEANBASE_COMMON_THREAD_OBJPOOL_H_
 #define  OCEANBASE_COMMON_THREAD_OBJPOOL_H_
 #include <stdlib.h>
@@ -341,16 +338,16 @@ class ThreadAllocator {
   };
   void inc_ref() {};
   void dec_ref() {};
-  T* alloc() {
+  T* allocate() {
     T* ret = NULL;
-    ObjPool* pool = GET_TSI_MULT(ObjPool, TSI_COMMON_OBJPOOL_1);
+    ObjPool* pool = GET_TSI(ObjPool);
     if (NULL != pool) {
       ret = pool->alloc(gfrelist_);
     }
     return ret;
   };
-  void free(T* ptr) {
-    ObjPool* pool = GET_TSI_MULT(ObjPool, TSI_COMMON_OBJPOOL_1);
+  void deallocate(T* ptr) {
+    ObjPool* pool = GET_TSI(ObjPool);
     if (NULL != pool) {
       pool->free(ptr, gfrelist_, thread_max_free_num_, global_max_free_num_);
     }
@@ -364,3 +361,5 @@ class ThreadAllocator {
 }
 
 #endif //OCEANBASE_COMMON_THREAD_OBJPOOL_H_
+
+

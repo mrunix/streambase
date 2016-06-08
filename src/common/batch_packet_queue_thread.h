@@ -1,26 +1,24 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: 0.1: batch_packet_queue_thread.h,v 0.1 2010/09/30 10:00:00 chuanhui Exp $
+ * batch_packet_queue_thread.h for ...
  *
  * Authors:
- *   chuanhui <rizhao.ych@taobao.com>
- *     - modify PacketQueueThread to support use mode of UpdateServer row mutation
+ *   rizhao <rizhao.ych@taobao.com>
  *
  */
-
 #ifndef OCEANBASE_COMMON_BATCH_PACKET_QUEUE_THREAD_H
 #define OCEANBASE_COMMON_BATCH_PACKET_QUEUE_THREAD_H
 
+#include "tbnet.h"
 #include "ob_packet.h"
 #include "ob_packet_queue.h"
-#include "ob_switch.h"
 
 namespace sb {
 namespace common {
@@ -29,7 +27,7 @@ namespace common {
 class IBatchPacketQueueHandler {
  public:
   virtual ~IBatchPacketQueueHandler() {}
-  virtual bool handleBatchPacketQueue(const int64_t packet_num, ObPacket** packet, void* args) = 0;
+  virtual bool handleBatchPacketQueue(const int64_t packet_num, tbnet::Packet** packet, void* args) = 0;
 };
 
 class BatchPacketQueueThread : public tbsys::CDefaultRunnable {
@@ -66,31 +64,23 @@ class BatchPacketQueueThread : public tbsys::CDefaultRunnable {
   // 设置限速
   void setWaitTime(int t);
 
-  ObPacket* head() {
+  tbnet::Packet* head() {
     return _queue.head();
   }
-  ObPacket* tail() {
+  tbnet::Packet* tail() {
     return _queue.tail();
   }
   size_t size() {
     return _queue.size();
   }
-
-  bool notify_state_change() {
-    return switch_.wait_on();
-  }
-  bool wait_state_change_ack() {
-    return switch_.wait_off();
-  }
- public:
-  static const int64_t MAX_BATCH_NUM = 1024;
-
  private:
   //void PacketQueueThread::checkSendSpeed()
   void checkSendSpeed();
 
  private:
-  ObSwitch switch_;
+  static const int64_t MAX_BATCH_NUM = 1024;
+
+ private:
   ObPacketQueue _queue;
   IBatchPacketQueueHandler* _handler;
   tbsys::CThreadCond _cond;
@@ -112,4 +102,5 @@ class BatchPacketQueueThread : public tbsys::CDefaultRunnable {
 }
 
 #endif
+
 

@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,27 +15,62 @@
 #ifndef OCEANBASE_CLIENT_OB_SERVER_RPC_H_
 #define OCEANBASE_CLIENT_OB_SERVER_RPC_H_
 
-#include "common/ob_general_rpc_stub.h"
-#include "common/ob_new_scanner.h"
-#include "sql/ob_sql_scan_param.h"
-#include "sql/ob_sql_get_param.h"
-#include "rootserver/ob_chunk_server_manager.h"
+#include "common/ob_schema.h"
+#include "common/ob_server.h"
+#include "common/ob_tablet_info.h"
+#include "common/thread_buffer.h"
+#include "common/data_buffer.h"
+#include "common/ob_client_manager.h"
+#include "common/ob_packet.h"
+#include "common/ob_read_common_data.h"
+#include "common/thread_buffer.h"
+#include "common/ob_scanner.h"
+#include "common/ob_mutator.h"
 
 namespace sb {
 namespace client {
-class ObServerRpc : public common::ObGeneralRpcStub {
+class ObServerRpc {
  public:
+  static const int64_t FRAME_BUFFER_SIZE = 2 * 1024 * 1024L;
 
   ObServerRpc();
   ~ObServerRpc();
 
  public:
-  int cs_sql_scan(const int64_t timeout, const common::ObServer& root_server,
-                  const sql::ObSqlScanParam& scan_param, common::ObNewScanner& scanner);
-  int cs_sql_get(const int64_t timeout, const common::ObServer& root_server,
-                 const sql::ObSqlGetParam& get_param, common::ObNewScanner& scanner);
-  int rs_get_data_servers(const int64_t timeout, const common::ObServer& root_server,
-                          const int32_t pcode, common::ObArray<common::ObServer>& chunk_servers);
+  // warning: rpc_buff should be only used by rpc stub for reset
+  int init(const common::ObClientManager* rpc_frame);
+
+  int fetch_schema(const common::ObServer& root_server,
+                   const int64_t timestap,
+                   common::ObSchemaManagerV2& schema_mgr,
+                   const int64_t timeout);
+
+  int fetch_update_server(const common::ObServer& root_server,
+                          common::ObServer& update_server,
+                          const int64_t timeout);
+
+  int scan(const common::ObServer& remote_server,
+           const common::ObScanParam& scan_param,
+           common::ObScanner& scanner,
+           const int64_t timeout);
+
+  int get(const common::ObServer& remote_server,
+          const common::ObGetParam& get_param,
+          common::ObScanner& scanner,
+          const int64_t timeout);
+
+  int ups_apply(const common::ObServer& update_server,
+                const common::ObMutator& mutator,
+                const int64_t timeout);
+
+ private:
+  static const int32_t DEFAULT_VERSION = 1;
+
+  int get_frame_buffer(common::ObDataBuffer& data_buffer) const;
+
+ private:
+  common::ThreadSpecificBuffer frame_buffer_;
+  const common::ObClientManager* rpc_frame_;  // rpc frame for send request
 };
 } // namespace sb::client
 } // namespace Oceanbase

@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./btree_base.cc for ...
+ *
+ * Authors:
+ *   duolong <duolong@taobao.com>
+ *
+ */
 #include "btree_node.h"
 #include "btree_read_param.h"
 #include "btree_write_param.h"
@@ -29,7 +44,7 @@ BtreeBase::BtreeBase(BtreeAlloc* allocator) {
 
   // 锁初始化
   pthread_mutexattr_t mta;
-  int32_t __attribute__((unused)) rc = pthread_mutexattr_init(&mta);
+  int32_t rc = pthread_mutexattr_init(&mta);
   rc = pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_RECURSIVE);
   pthread_mutex_init(&mutex_, &mta);
   pthread_mutexattr_destroy(&mta);
@@ -280,7 +295,7 @@ int32_t BtreeBase::pos_move_next(BtreeReadParam* param, int32_t direction) {
       // 向后移
       if (direction > 0) {
         param->node_pos_[level] ++;
-        while (param->node_pos_[level] >= param->node_[level]->get_size()) {
+        while (param->node_pos_[level] >= static_cast<int32_t>(param->node_[level]->get_size())) {
           param->node_pos_[level] = 0;
           if (--level < 0) {
             is_eof = 1;
@@ -324,7 +339,7 @@ int32_t BtreeBase::pos_move_next(BtreeReadParam* param, int32_t direction) {
           }
 
           if (param->node_pos_[level + 1] < 0) {
-            param->node_pos_[level + 1] = static_cast<int16_t>(param->node_[level + 1]->get_size() - 1);
+            param->node_pos_[level + 1] = static_cast<int32_t>(param->node_[level + 1]->get_size() - 1);
             OCEAN_BTREE_CHECK_TRUE(param->node_pos_[level + 1] >= 0,
                                    "param->node_pos: %d, level: %d, size: %d", param->node_pos_[level + 1], level + 1,
                                    param->node_[level + 1]->get_size());
@@ -360,19 +375,19 @@ int32_t BtreeBase::get_children(BtreeRootPointer* proot, const int32_t tree_id, 
           pos = -1;
           found = 1;
         } else if (BtreeBase::MAX_KEY == key) {
-          pos = root->get_size() - 1;
+          pos = static_cast<int32_t>(root->get_size() - 1);
           found = -1;
         } else {
-          pos = root->find_pos(key, key_compare_[tree_id], found);
+          pos = static_cast<int32_t>(root->find_pos(key, key_compare_[tree_id], found));
         }
       } else {
-        pos = root->find_pos(key, key_compare_[tree_id], found);
+        pos = static_cast<int32_t>(root->find_pos(key, key_compare_[tree_id], found));
       }
       if (CONST_NODE_OBJECT_COUNT == pos) break;
 
       // set path
       param.node_[i] = root;
-      param.node_pos_[i] = static_cast<int16_t>(pos);
+      param.node_pos_[i] = pos;
       param.node_length_ ++;
       if (i == depth - 1) {
         ret = ERROR_CODE_OK;
@@ -713,7 +728,7 @@ int32_t BtreeBase::add_pair_to_node(BtreeWriteHandle& handle, BtreeWriteParam& p
   OCEAN_BTREE_CHECK_TRUE(node, "node is null.");
   // 叶节点没满, 直接插入
   if (node && node->get_size() < CONST_NODE_OBJECT_COUNT) {
-    ret = node->add_pair(static_cast<int16_t>(new_pos), key, value, key_compare_[param.tree_id]);
+    ret = node->add_pair(new_pos, key, value, key_compare_[param.tree_id]);
     OCEAN_BTREE_CHECK_TRUE(ERROR_CODE_OK == ret, "ret:%d", ret);
   } else if (node) {
     // copy出来再写
@@ -727,7 +742,7 @@ int32_t BtreeBase::add_pair_to_node(BtreeWriteHandle& handle, BtreeWriteParam& p
       OCEAN_BTREE_CHECK_TRUE(ERROR_CODE_OK == ret, "ret:%d", ret);
     } else if (next_node && is_no_full) {
       // 平均个数
-      size = (node->get_size() + next_node->get_size()) / 2;
+      size = static_cast<int32_t>((node->get_size() + next_node->get_size()) / 2);
       move_size = CONST_NODE_OBJECT_COUNT - size;
 
       // 保证key能插入在当前node上
@@ -743,7 +758,7 @@ int32_t BtreeBase::add_pair_to_node(BtreeWriteHandle& handle, BtreeWriteParam& p
 
       if (ERROR_CODE_OK == ret) {
         // 插入到当前的node上
-        ret = node->add_pair(static_cast<int16_t>(new_pos), key, value, key_compare_[param.tree_id]);
+        ret = node->add_pair(new_pos, key, value, key_compare_[param.tree_id]);
         OCEAN_BTREE_CHECK_TRUE(ERROR_CODE_OK == ret, "ret:%d", ret);
       }
     } else {
@@ -765,12 +780,12 @@ int32_t BtreeBase::add_pair_to_node(BtreeWriteHandle& handle, BtreeWriteParam& p
           }
 
           // 插入新的key,value
-          if (node->get_size() > new_pos) {
-            ret = node->add_pair(static_cast<int16_t>(new_pos), key, value, key_compare_[param.tree_id]);
+          if (static_cast<int32_t>(node->get_size()) > new_pos) {
+            ret = node->add_pair(new_pos, key, value, key_compare_[param.tree_id]);
             OCEAN_BTREE_CHECK_TRUE(ERROR_CODE_OK == ret, "ret:%d", ret);
           } else {
-            pos = new_pos - node->get_size();
-            ret = new_node->add_pair(static_cast<int16_t>(pos), key, value, key_compare_[param.tree_id]);
+            pos = new_pos - static_cast<int32_t>(node->get_size());
+            ret = new_node->add_pair(pos, key, value, key_compare_[param.tree_id]);
             OCEAN_BTREE_CHECK_TRUE(ERROR_CODE_OK == ret, "ret:%d", ret);
           }
         }
@@ -856,11 +871,11 @@ int32_t BtreeBase::remove_pair_from_node(BtreeWriteHandle& handle,
   if (NULL != node) {
 
     next_node = param.next_node_[level];
-    if (new_pos >= node->get_size()) {
+    if (new_pos >= static_cast<int32_t>(node->get_size())) {
       new_pos = 0;
       next_node = copy_next_node_for_write(handle, param, level);
       if (NULL != next_node) {
-        ret = next_node->remove_pair(static_cast<int16_t>(new_pos), romoved_pair);
+        ret = next_node->remove_pair(new_pos, romoved_pair);
         OCEAN_BTREE_CHECK_TRUE(ERROR_CODE_OK == ret, "ret:%d", ret);
       }
     } else {
@@ -959,7 +974,7 @@ BtreeNode* BtreeBase::copy_next_node_for_write(BtreeWriteHandle& handle, BtreeWr
   if (NULL == node && level > 0) {
     BtreeNode* parent = param.node_[level - 1];
     int32_t pos = param.node_pos_[level - 1];
-    BtreeKeyValuePair* pair = parent->get_next_pair(static_cast<int16_t>(pos));
+    BtreeKeyValuePair* pair = parent->get_next_pair(pos);
 
     // 最后一个pos
     if (NULL == pair) {
@@ -989,7 +1004,7 @@ BtreeNode* BtreeBase::copy_next_node_for_write(BtreeWriteHandle& handle, BtreeWr
       }
       node = param.next_node_[level];
       if (node) {
-        int32_t ret = parent->set_pair(static_cast<int16_t>(pos + 1), NULL, reinterpret_cast<char*>(node),
+        int32_t ret = parent->set_pair(pos + 1, NULL, reinterpret_cast<char*>(node),
                                        BtreeNode::UPDATE_VALUE,
                                        key_compare_[param.tree_id]);
         OCEAN_BTREE_CHECK_TRUE(ERROR_CODE_OK == ret, "ret:%d", ret);
@@ -1031,7 +1046,7 @@ void BtreeBase::update_parent_first_key(BtreeWriteHandle& handle, BtreeWritePara
   BtreeNode* parent = NULL;
   BtreeKeyValuePair* first_key = NULL;
   BtreeKeyValuePair* old_key = NULL;
-  int32_t __attribute__((unused)) ret = 0;
+  int32_t ret = 0;
 
   node = param.node_[level];
   parent = param.node_[level - 1];
@@ -1059,18 +1074,18 @@ void BtreeBase::update_parent_first_key(BtreeWriteHandle& handle, BtreeWritePara
   if (NULL != node && NULL != parent && 0 == node->is_read_only()) {
     first_key = node->get_pair(0);
     int32_t pos = param.node_pos_[level - 1] + 1;
-    if (pos >= parent->get_size()) {
+    if (pos >= static_cast<int32_t>(parent->get_size())) {
       pos = 0;
       parent = param.next_node_[level - 1];
     }
     OCEAN_BTREE_CHECK_TRUE(parent, "parent is null.");
     if (parent && first_key) {
       // key是引用的
-      old_key = parent->get_pair(static_cast<int16_t>(pos));
+      old_key = parent->get_pair(pos);
       if (key_allocator_ && old_key) {
         update_key_ref_count(handle, old_key->key_, first_key->key_);
       }
-      ret = parent->set_pair(static_cast<int16_t>(pos), first_key->key_, reinterpret_cast<char*>(node),
+      ret = parent->set_pair(pos, first_key->key_, reinterpret_cast<char*>(node),
                              BtreeNode::UPDATE_KEY | BtreeNode::UPDATE_VALUE,
                              key_compare_[param.tree_id]);
       OCEAN_BTREE_CHECK_TRUE(ERROR_CODE_OK == ret, "ret:%d", ret);
@@ -1175,9 +1190,9 @@ void BtreeBase::remove_allnode(BtreeWriteHandle& handle, BtreeNode* root, int32_
   int32_t* addr = NULL;
   handle.prev_root_pointer_->add_node_list(root);
   if (level < depth) {
-    int32_t size = root->get_size();
+    int32_t size = static_cast<int32_t>(root->get_size());
     for (int32_t i = 0; i < size; i++) {
-      pair = root->get_pair(static_cast<int16_t>(i));
+      pair = root->get_pair(i);
       if (pair) {
         if (key_allocator_) {
           addr = reinterpret_cast<int32_t*>(pair->key_);
@@ -1302,3 +1317,4 @@ void BtreeBase::print(BtreeBaseHandle* handle) {
 
 } // end namespace common
 } // end namespace sb
+

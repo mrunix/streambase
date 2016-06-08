@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,7 +15,6 @@
 #include <tblog.h>
 #include <gtest/gtest.h>
 #include "common/ob_object.h"
-#include "common/utility.h"
 #include "sstable/ob_sstable_schema.h"
 #include "sstable/ob_sstable_row.h"
 #include "key.h"
@@ -93,44 +92,13 @@ TEST_F(TestObSSTableBlockBuilder, test_reinit) {
   EXPECT_EQ(0, block_builder.get_row_index_size());
 }
 
-void build_rowkey_info(ObRowkeyInfo& rowkey_info) {
-  ObRowkeyColumn split;
-  split.length_ = 8;
-  split.type_   = ObIntType;
-  rowkey_info.add_column(split);
-
-  split.length_ = 1;
-  split.type_   = ObVarcharType;
-  rowkey_info.add_column(split);
-
-  split.length_ = 8;
-  split.type_   = ObIntType;
-  rowkey_info.add_column(split);
-
-  ASSERT_EQ(3, rowkey_info.get_size());
-
-  rowkey_info.get_column(0, split);
-  ASSERT_EQ(8, split.length_);
-  ASSERT_EQ(ObIntType, split.type_);
-
-  rowkey_info.get_column(1, split);
-  ASSERT_EQ(1, split.length_);
-  ASSERT_EQ(ObVarcharType, split.type_);
-
-  rowkey_info.get_column(2, split);
-  ASSERT_EQ(8, split.length_);
-  ASSERT_EQ(ObIntType, split.type_);
-}
-
 TEST_F(TestObSSTableBlockBuilder, test_add_one_row) {
   ObSSTableBlockBuilder block_builder;
   block_builder.set_table_id(1000);
   block_builder.set_column_group_id(2);
   const char* block_buf = NULL;
   const char* index_buf = NULL;
-  ObRowkeyInfo rowkey_info;
-  build_rowkey_info(rowkey_info);
-  ObSSTableRow row(NULL);
+  ObSSTableRow row;
   ObObj tmp_obj;
   ObString row_key;
   char value_data[1024 + 1];
@@ -145,10 +113,9 @@ TEST_F(TestObSSTableBlockBuilder, test_add_one_row) {
   }
   ObString value_str(1025, 1025, value_data);
 
-  ObRowkey key;
   Key tmp_key(10, 0, 0);
-  tmp_key.trans_to_rowkey(key);
-  row.set_rowkey(key);
+  ObString key(tmp_key.key_len(), tmp_key.key_len(), tmp_key.get_ptr());
+  row.set_row_key(key);
   row.set_table_id(1000);
   row.set_column_group_id(2);
 
@@ -158,12 +125,11 @@ TEST_F(TestObSSTableBlockBuilder, test_add_one_row) {
   row.add_obj(tmp_obj);
   tmp_obj.set_varchar(value_str);
   row.add_obj(tmp_obj);
-  EXPECT_EQ(3 + key.get_obj_cnt(), row.get_obj_count());
+  EXPECT_EQ(3, row.get_obj_count());
 
   ret = block_builder.init();
   EXPECT_TRUE(OB_SUCCESS == ret);
-  uint64_t row_checksum = 0;
-  ret = block_builder.add_row(row, row_checksum);
+  ret = block_builder.add_row(row);
   EXPECT_TRUE(OB_SUCCESS == ret);
 
   EXPECT_EQ(1, block_builder.get_row_count());
@@ -176,7 +142,7 @@ TEST_F(TestObSSTableBlockBuilder, test_add_one_row) {
   EXPECT_TRUE(block_builder.get_row_index_size() > 0);
 
   row.clear();
-  row.set_rowkey(key);
+  row.set_row_key(key);
   row.set_table_id(1000);
   row.set_column_group_id(3);
 
@@ -186,23 +152,22 @@ TEST_F(TestObSSTableBlockBuilder, test_add_one_row) {
   row.add_obj(tmp_obj);
   tmp_obj.set_varchar(value_str);
   row.add_obj(tmp_obj);
-  EXPECT_EQ(3 + key.get_obj_cnt(), row.get_obj_count());
+  EXPECT_EQ(3, row.get_obj_count());
 
-  ret = block_builder.add_row(row, row_checksum);
+  ret = block_builder.add_row(row);
   EXPECT_TRUE(OB_ERROR == ret);
 }
 
 void build_row(int64_t index, ObSSTableRow& row) {
   ObObj tmp_obj;
 
-  ObRowkey key;
   Key tmp_key(index, 10, 1000);
-  tmp_key.trans_to_rowkey(key);
-  row.set_rowkey(key);
+  ObString key(tmp_key.key_len(), tmp_key.key_len(), tmp_key.get_ptr());
+  row.set_row_key(key);
   row.set_table_id(1000);
   row.set_column_group_id(2);
 
-  for (int i = 0; i < OB_MAX_COLUMN_NUMBER; ++i) {
+  for (int i = 0; i < common::OB_MAX_COLUMN_NUMBER; ++i) {
     tmp_obj.set_int(i);
     row.add_obj(tmp_obj);
   }
@@ -214,9 +179,7 @@ TEST_F(TestObSSTableBlockBuilder, test_add_many_rows_to_one_block) {
   block_builder.set_column_group_id(2);
   const char* block_buf = NULL;
   const char* index_buf = NULL;
-  ObRowkeyInfo rowkey_info;
-  build_rowkey_info(rowkey_info);
-  ObSSTableRow row(NULL);
+  ObSSTableRow row;
   int i = 0;
   int ret;
 
@@ -228,8 +191,7 @@ TEST_F(TestObSSTableBlockBuilder, test_add_many_rows_to_one_block) {
       break;
     }
     build_row(i, row);
-    uint64_t row_checksum = 0;
-    ret = block_builder.add_row(row, row_checksum);
+    ret = block_builder.add_row(row);
     if (ret == OB_SUCCESS) {
       i++;
       EXPECT_EQ(i, block_builder.get_row_count());
@@ -251,9 +213,7 @@ TEST_F(TestObSSTableBlockBuilder, test_add_many_rows_to_blocks) {
   ObSSTableBlockBuilder block_builder;
   block_builder.set_table_id(1000);
   block_builder.set_column_group_id(2);
-  ObRowkeyInfo rowkey_info;
-  build_rowkey_info(rowkey_info);
-  ObSSTableRow row(NULL);
+  ObSSTableRow row;
   int block_count = 0;
   int i = 0;
   int ret;
@@ -263,9 +223,8 @@ TEST_F(TestObSSTableBlockBuilder, test_add_many_rows_to_blocks) {
 
   while (true) {
     build_row(i, row);
-    uint64_t row_checksum = 0;
-    ret = block_builder.add_row(row, row_checksum);
-    ASSERT_EQ(ret , OB_SUCCESS);
+    ret = block_builder.add_row(row);
+    EXPECT_TRUE(ret == OB_SUCCESS);
 
     i++;
     EXPECT_EQ(i, block_builder.get_row_count());
@@ -288,16 +247,12 @@ TEST_F(TestObSSTableBlockBuilder, test_add_many_rows_to_blocks) {
 
 TEST_F(TestObSSTableBlockBuilder, test_add_null_row) {
   ObSSTableBlockBuilder block_builder;
-  ObRowkeyInfo rowkey_info;
-  build_rowkey_info(rowkey_info);
-  ObSSTableRow row(NULL);
+  ObSSTableRow row;
   int ret;
 
   ret = block_builder.init();
   EXPECT_TRUE(OB_SUCCESS == ret);
-
-  uint64_t row_checksum = 0;
-  ret = block_builder.add_row(row, row_checksum);
+  ret = block_builder.add_row(row);
   EXPECT_TRUE(OB_ERROR == ret);
 }
 
@@ -313,16 +268,15 @@ void build_large_row(ObSSTableRow& row) {
     memcpy(ptr, "testing ", 8);
     ptr += 8;
   }
-  ObString value_str(static_cast<int32_t>(value_size), static_cast<int32_t>(value_size), value_data);
+  ObString value_str(value_size, value_size, value_data);
 
-  ObRowkey key;
   Key tmp_key(10, 10, 1000);
-  tmp_key.trans_to_rowkey(key);
-  row.set_rowkey(key);
+  ObString key(tmp_key.key_len(), tmp_key.key_len(), tmp_key.get_ptr());
+  row.set_row_key(key);
   row.set_table_id(1000);
   row.set_column_group_id(2);
 
-  for (int i = 0; i < OB_MAX_COLUMN_NUMBER; ++i) {
+  for (int i = 0; i < common::OB_MAX_COLUMN_NUMBER; ++i) {
     tmp_obj.set_varchar(value_str);
     row.add_obj(tmp_obj);
   }
@@ -332,16 +286,13 @@ TEST_F(TestObSSTableBlockBuilder, test_add_large_row) {
   ObSSTableBlockBuilder block_builder;
   block_builder.set_table_id(1000);
   block_builder.set_column_group_id(2);
-  ObRowkeyInfo rowkey_info;
-  build_rowkey_info(rowkey_info);
-  ObSSTableRow row(NULL);
+  ObSSTableRow row;
   int ret;
 
   ret = block_builder.init();
   EXPECT_TRUE(OB_SUCCESS == ret);
   build_large_row(row);
-  uint64_t row_checksum = 0;
-  ret = block_builder.add_row(row, row_checksum);
+  ret = block_builder.add_row(row);
   //fprintf(stderr, "block buffer size is %ld\n", block_builder.get_block_data_size()
   //      + block_builder.get_row_index_size());
   EXPECT_TRUE(OB_SUCCESS == ret);
@@ -381,11 +332,9 @@ TEST_F(TestObSSTableBlockBuilder, test_build_blocks) {
   const char* block_buf = NULL;
   const char* index_buf = NULL;
   char* row_data = NULL;
-  ObRowkeyInfo rowkey_info;
-  build_rowkey_info(rowkey_info);
-  ObSSTableRow row(NULL);
-  ObSSTableRow new_row(NULL);
-  ObRowkey row_key(NULL, 3);
+  ObSSTableRow row;
+  ObSSTableRow new_row;
+  ObString row_key;
   ObObj tmp_obj;
   const ObObj* obj = NULL;
   int64_t row_data_len = 0;
@@ -396,30 +345,27 @@ TEST_F(TestObSSTableBlockBuilder, test_build_blocks) {
   int i = 0;
   int64_t pos = 0;
   int ret;
-  ObRowkey key;
 
   ret = block_builder.init();
   EXPECT_TRUE(OB_SUCCESS == ret);
 
   while (true) {
     Key tmp_key(i, 10, 1000);
-    tmp_key.trans_to_rowkey(key);
-    row.clear();
-    row.set_rowkey(key);
+    ObString key(tmp_key.key_len(), tmp_key.key_len(), tmp_key.get_ptr());
+    row.set_row_key(key);
     row.set_table_id(1000);
     row.set_column_group_id(2);
 
-    for (int64_t k = row_key.get_obj_cnt(); k < OB_MAX_COLUMN_NUMBER; ++k) {
+    for (int k = 0; k < common::OB_MAX_COLUMN_NUMBER; ++k) {
       tmp_obj.set_int(k);
       row.add_obj(tmp_obj);
     }
 
-    uint64_t row_checksum = 0;
-    ret = block_builder.add_row(row, row_checksum);
+    ret = block_builder.add_row(row);
     EXPECT_TRUE(ret == OB_SUCCESS);
 
     i++;
-    ASSERT_EQ(i, block_builder.get_row_count());
+    EXPECT_EQ(i, block_builder.get_row_count());
 
     if (block_builder.get_block_size() >= sstable_size) {
       block_count++;
@@ -451,24 +397,24 @@ TEST_F(TestObSSTableBlockBuilder, test_build_blocks) {
       pos = 0;
       for (int j = 0; j < row_count; ++j) {
         new_row.clear();
-        new_row.set_obj_count(OB_MAX_COLUMN_NUMBER);
+        new_row.set_obj_count(common::OB_MAX_COLUMN_NUMBER);
         ret = new_row.deserialize(row_data, row_data_len, pos);
         EXPECT_TRUE(OB_SUCCESS == ret);
-        new_row.get_rowkey(row_key);
+        row_key = new_row.get_row_key();
 
         Key tmp_key(j, 10, 1000);
-        tmp_key.trans_to_rowkey(key);
+        ObString key(tmp_key.key_len(), tmp_key.key_len(), tmp_key.get_ptr());
         EXPECT_EQ(tmp_key.key_len(), row_key.length());
-        ASSERT_EQ(key , row_key);
+        EXPECT_TRUE(key == row_key);
 
-        for (int64_t k = row_key.get_obj_cnt(); k < OB_MAX_COLUMN_NUMBER; ++k) {
+        for (int k = 0; k < common::OB_MAX_COLUMN_NUMBER; ++k) {
           EXPECT_EQ(OB_INVALID_ID, new_row.get_table_id());
           EXPECT_EQ(OB_INVALID_ID, new_row.get_column_group_id());
-          obj = new_row.get_obj((int32_t)k);
+          obj = new_row.get_obj(k);
           EXPECT_TRUE(NULL != obj);
           int64_t val;
           obj->get_int(val);
-          ASSERT_EQ(k, val);
+          EXPECT_EQ(k, val);
         }
       }
 

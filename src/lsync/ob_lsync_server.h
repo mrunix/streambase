@@ -18,13 +18,13 @@
 #define __OCEANBASE_LSYNC_OB_LSYNC_SERVER_H__
 
 #include "common/ob_define.h"
-#include "ob_seekable_log_reader2.h"
+#include "ob_seekable_log_reader.h"
 #include "common/ob_base_server.h"
 #include "common/ob_packet_factory.h"
 #include "common/ob_server.h"
 #include "common/ob_result.h"
 #include "common/serialization.h"
-#include "common/utility.h"
+
 using namespace sb::common;
 
 namespace sb {
@@ -78,7 +78,7 @@ struct ObLogSyncPoint: public ObLsyncPacket {
   uint64_t log_file_id;
   uint64_t log_seq_id;
   ObLogSyncPoint(): log_file_id(0), log_seq_id(0) {}
-  ObLogSyncPoint(ObLogSyncPoint& sync_point) : ObLsyncPacket() {
+  ObLogSyncPoint(ObLogSyncPoint& sync_point) {
     log_file_id = sync_point.log_file_id;
     log_seq_id = sync_point.log_seq_id;
   }
@@ -183,7 +183,7 @@ struct ObFetchLogResponse: public ObLsyncPacket {
   ObResultCode result_code;
   ObDataBuffer data;
   ObFetchLogResponse(int64_t err, ObDataBuffer& data) {
-    result_code.result_code_ = static_cast<int32_t>(err);
+    result_code.result_code_ = err;
     this->data.set_data(data.get_data(), data.get_capacity());
     this->data.get_position()  = data.get_position();
   }
@@ -216,36 +216,35 @@ struct ObFetchLogResponse: public ObLsyncPacket {
 
 class ObLsyncServer: public ObBaseServer {
  public:
-  ObLsyncServer();
+  ObLsyncServer() {}
   virtual ~ObLsyncServer();
 
-  int initialize(const char* log_dir, uint64_t start_id, const char* dev, int port, int64_t timeout, int64_t convert_switch_log, int64_t lsync_retry_wait_time);
+  int initialize(const char* log_dir, uint64_t start_id, const char* dev, int port, int64_t timeout);
   virtual void destroy();
 
-  //tbnet::IPacketHandler::HPRetCode handlePacket(tbnet::Connection *connection, tbnet::Packet *packet);
-  //bool handleBatchPacket(tbnet::Connection *connection, ObPacketQueue &packetQueue);
-
-  int handlePacket(ObPacket* packet);
-  int handleBatchPacket(ObPacketQueue& packetQueue);
+  tbnet::IPacketHandler::HPRetCode handlePacket(tbnet::Connection* connection, tbnet::Packet* packet);
+  bool handleBatchPacket(tbnet::Connection* connection, tbnet::PacketQueue& packetQueue);
 
  private:
   int send_response_packet(int packet_code, int version, ObLsyncPacket* packet,
-                           easy_request_t* req, const uint32_t channel_id);
-  int handleRequest(easy_request_t* req, const uint32_t channel_id, int packet_code, ObDataBuffer* buf, int64_t timeout);
-  int handleRequestMayNeedRetry(easy_request_t* req, const uint32_t channel_id, int packet_code, ObDataBuffer* buf, int64_t timeout);
-  int ups_slave_register(easy_request_t* req, const uint32_t channel_id, int packet_code, ObDataBuffer* buf);
-  int send_log(easy_request_t* req, const uint32_t channel_id, int packet_code, ObDataBuffer* buf, int64_t timeout);
-  int send_log_(ObFetchLogRequest& req, easy_request_t* request, const uint32_t channel_id, int64_t timeout);
+                           tbnet::Connection* conn, const uint32_t channel_id);
+  int handleRequest(tbnet::Connection* conn, const uint32_t channel_id, int packet_code, ObDataBuffer* buf, int64_t timeout);
+  int handleRequestMayNeedRetry(tbnet::Connection* conn, const uint32_t channel_id, int packet_code, ObDataBuffer* buf, int64_t timeout);
+  int ups_slave_register(tbnet::Connection* conn, const uint32_t channel_id, int packet_code, ObDataBuffer* buf);
+  int send_log(tbnet::Connection* conn, const uint32_t channel_id, int packet_code, ObDataBuffer* buf, int64_t timeout);
+  int send_log_(ObFetchLogRequest& req, tbnet::Connection* conn, const uint32_t channel_id, int64_t timeout);
   int get_log(ObFetchLogRequest& req, char* buf, int64_t limit, int64_t& pos, int64_t timeout);
   bool is_registered(uint64_t id);
+  int get_thread_buffer_(ObDataBuffer& data_buff);
 
   static const int MY_VERSION = 1;
+  int64_t timeout_;
   const char* log_dir_;
   uint64_t origin_log_file_id_;
   ObSeekableLogReader reader_;
   int state_;
   uint64_t slave_id_;
-  //ObPacketFactory my_packet_factory_;
+  ObPacketFactory my_packet_factory_;
   ObDataBuffer log_buffer_;
   ThreadSpecificBuffer thread_buffer_;
 };

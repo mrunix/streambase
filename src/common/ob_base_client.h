@@ -14,14 +14,11 @@
  *     - some work details here
  */
 #ifndef _OB_BASE_CLIENT_H
-#define _OB_BASE_CLIENT_H
+#define _OB_BASE_CLIENT_H 1
 
 #include "common/ob_client_manager.h"
 #include "common/ob_packet_factory.h"
 #include "common/ob_server.h"
-#include "easy_io.h"
-#include "ob_tbnet_callback.h"
-
 namespace sb {
 namespace common {
 class ObBaseClient {
@@ -36,8 +33,9 @@ class ObBaseClient {
  private:
   bool init_;
   ObServer server_;
-  easy_io_t* eio_;
-  easy_io_handler_pt client_handler_;
+  tbnet::DefaultPacketStreamer streamer_;
+  tbnet::Transport transport_;
+  ObPacketFactory factory_;
   ObClientManager client_mgr_;
 };
 

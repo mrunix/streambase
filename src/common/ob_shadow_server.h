@@ -1,16 +1,16 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * Shadow server
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
  * Version: $Id$
  *
+ * ob_shadow_server.h for ...
+ *
  * Authors:
- *   ruohai <ruohai@taobao.com>
+ *   rizhao <rizhao.ych@taobao.com>
  *
  */
 #ifndef OCEANBASE_COMMON_SHADOW_SERVER_H_
@@ -27,20 +27,17 @@ class ObShadowServer : public ObBaseServer {
   virtual ~ObShadowServer();
 
   void set_priority(const int32_t priority);
-  int initialize();
-  //int start(bool need_wait);
 
-  int set_io_thread_count(int32_t io_thread_count);
+  virtual tbnet::IPacketHandler::HPRetCode handlePacket(tbnet::Connection* connection, tbnet::Packet* packet);
 
-  int handlePacket(ObPacket* packet);
-
-  int handleBatchPacket(ObPacketQueue& packetQueue);
+  virtual bool handleBatchPacket(tbnet::Connection* connection, tbnet::PacketQueue& packetQueue);
 
  private:
   int32_t priority_;
   ObBaseServer* master_;
 };
 } /* common */
-} /* oceanbase */
+} /* sb */
 
 #endif /* end of include guard: OCEANBASE_COMMON_SHADOW_SERVER_H_ */
+

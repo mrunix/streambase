@@ -1,15 +1,18 @@
 /**
- *  (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- *  This program is free software; you can redistribute it
- *  and/or modify it under the terms of the GNU General Public
- *  License version 2 as published by the Free Software
- *  Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- *  ob_seq_sstablet_scanner.cc is for what ...
+ * Version: 5567
  *
- *  Authors:
+ * ob_seq_sstable_scanner.cc
+ *
+ * Authors:
  *     qushan <qushan@taobao.com>
+ * Changes:
+ *     huating <huating.zmq@taobao.com>
  *
  */
 
@@ -17,7 +20,6 @@
 #include "common/ob_read_common_data.h"
 #include "ob_sstable_reader.h"
 #include "ob_sstable_scanner.h"
-#include "ob_aio_buffer_mgr.h"
 
 using namespace sb::common;
 
@@ -25,20 +27,18 @@ namespace sb {
 namespace sstable {
 
 ObSeqSSTableScanner::ObSeqSSTableScanner()
-  : cur_iter_idx_(0), cur_iter_status_(NOT_START), not_exit_col_ret_nop_(false),
-    block_cache_(NULL), block_index_cache_(NULL), scan_param_(NULL) {
+  : cur_iter_idx_(0), cur_iter_status_(NOT_START),
+    block_cache_(NULL), block_index_cache_(NULL) {
   memset(sstable_readers_, 0, sizeof(sstable_readers_));
   sstable_array_.init(MAX_SSTABLE_SCANNER_NUM, sstable_readers_, 0);
 }
 
 ObSeqSSTableScanner::~ObSeqSSTableScanner() {
-  sstable_scanner_.cleanup();
+  cleanup();
 }
 
 void ObSeqSSTableScanner::cleanup() {
   sstable_scanner_.cleanup();
-  reset_query_thread_local_buffer();
-  wait_aio_buffer();
 }
 
 // ObSeqSSTableScanner stored pointer of ObScanParam but not param's value
@@ -47,8 +47,7 @@ void ObSeqSSTableScanner::cleanup() {
 int ObSeqSSTableScanner::set_scan_param(
   const common::ObScanParam& param,
   ObBlockCache& block_cache,
-  ObBlockIndexCache& block_index_cache,
-  bool not_exit_col_ret_nop) {
+  ObBlockIndexCache& block_index_cache) {
   int ret = OB_SUCCESS;
 
   if (NULL == param.get_range() || param.get_range()->empty()) {
@@ -63,11 +62,10 @@ int ObSeqSSTableScanner::set_scan_param(
 
     block_cache_ = &block_cache;
     block_index_cache_ = &block_index_cache;
-    scan_param_ = &param;
+    scan_param_.safe_copy(param);
     cur_iter_idx_ = 0;
     cur_iter_status_ = NOT_START;
     sstable_array_.clear();
-    not_exit_col_ret_nop_ = not_exit_col_ret_nop;
   }
 
   return ret;
@@ -105,19 +103,13 @@ int ObSeqSSTableScanner::next_cell() {
     switch (cur_iter_status_) {
     case NOT_START:
       cur_iter_idx_ = 0;
-      if (!(*sstable_array_.at(cur_iter_idx_))->get_schema()->is_table_exist(scan_param_->get_table_id())) {
-        //table doesn't exist, no cell is returned
-        cur_iter_status_ = END_OF_DATA;
-        ret = OB_ITER_END;
-      } else {
-        ret = sstable_scanner_.set_scan_param(*scan_param_,
-                                              *sstable_array_.at(cur_iter_idx_), *block_cache_, *block_index_cache_);
-        TBSYS_LOG(DEBUG, "begin to scan first sstable id =%ld, ret=%d",
-                  (*sstable_array_.at(cur_iter_idx_))->get_sstable_id().sstable_file_id_, ret);
-        if (OB_SUCCESS == ret)
-          ret = sstable_scanner_.next_cell();
-        cur_iter_status_ = PROGRESS;
-      }
+      ret = sstable_scanner_.set_scan_param(scan_param_,
+                                            *sstable_array_.at(cur_iter_idx_), *block_cache_, *block_index_cache_);
+      TBSYS_LOG(DEBUG, "begin to scan first sstable id =%ld, ret=%d",
+                (*sstable_array_.at(cur_iter_idx_))->get_sstable_id().sstable_file_id_, ret);
+      if (OB_SUCCESS == ret)
+        ret = sstable_scanner_.next_cell();
+      cur_iter_status_ = PROGRESS;
       break;
     case PROGRESS:
       ret = sstable_scanner_.next_cell();
@@ -136,8 +128,8 @@ int ObSeqSSTableScanner::next_cell() {
       ++cur_iter_idx_;
       if (PROGRESS == cur_iter_status_
           && cur_iter_idx_ < sstable_array_.get_array_index()) {
-        cleanup();
-        ret = sstable_scanner_.set_scan_param(*scan_param_,
+        sstable_scanner_.cleanup();
+        ret = sstable_scanner_.set_scan_param(scan_param_,
                                               *sstable_array_.at(cur_iter_idx_), *block_cache_, *block_index_cache_);
         TBSYS_LOG(DEBUG, "begin to scan %d th sstable id =%ld, ret=%d", cur_iter_idx_,
                   (*sstable_array_.at(cur_iter_idx_))->get_sstable_id().sstable_file_id_, ret);

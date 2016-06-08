@@ -1,17 +1,16 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: 0.1: ob_ring_buffer.h,v 0.1 2011/04/26 10:40:16 ruohai Exp $
+ * ob_ring_buffer.h for ...
  *
  * Authors:
- *   ruohai <ruohai@taobao.com>
- *     - modified by chuanhui <rizhao.ych@taobao.com>
+ *   rizhao <rizhao.ych@taobao.com>
  *
  */
 #ifndef __OCEANBASE_COMMON_OB_RING_BUFFER_H__
@@ -102,4 +101,5 @@ class ObRingBuffer {
 }
 
 #endif //__OB_RING_BUFFER_H__
+
 

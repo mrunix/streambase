@@ -1,33 +1,18 @@
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-// Unit Test Steps
-// Build environment at a host with more than 6 disks
-// assuming path to disks is /data/X
-// run command followd
-// mkdir -p /data/1/test_ups_fetch/
-// mkdir -p /data/2/test_ups_fetch/
-// mkdir -p /data/3/test_ups_fetch/
-// mkdir -p /data/4/test_ups_fetch/
-// mkdir -p /data/5/test_ups_fetch/
-// mkdir -p /data/6/test_ups_fetch/
-// mkdir -p raid1
-// mkdir -p raid2
-// ln -s /data/1/test_ups_fetch raid1/store1
-// ln -s /data/2/test_ups_fetch raid1/store2
-// ln -s /data/3/test_ups_fetch raid1/store3
-// ln -s /data/4/test_ups_fetch raid2/store1
-// ln -s /data/5/test_ups_fetch raid2/store2
-// ln -s /data/6/test_ups_fetch raid2/store3
-//
-// build trust relationship with another host with same user
-// rm -r ~/tmp1234
-// mkdir ~/tmp1234
-// mkdir -p ~/tmp1234/raid1/store1
-// mkdir -p ~/tmp1234/raid1/store2
-// mkdir -p ~/tmp1234/raid2/store1
-// touch ~/tmp1234/raid1/store1/ss1
-// touch ~/tmp1234/raid1/store2/ss2
-// touch ~/tmp1234/raid2/store1/ss3
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * test_ob_ups_fetch_runnable.cc for ...
+ *
+ * Authors:
+ *   yanran <yanran.hfs@taobao.com>
+ *
+ */
 #include <gtest/gtest.h>
 
 #include "updateserver/ob_ups_fetch_runnable.h"
@@ -196,3 +181,5 @@ int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+
+

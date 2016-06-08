@@ -28,7 +28,7 @@ class DbRowFilter {
  public:
   virtual ~DbRowFilter() { };
   //filter row
-  virtual bool operator()(DbRecord* row) const = 0;
+  virtual bool operator()(DbRecord* row) = 0;
 };
 
 enum FilterType {
@@ -46,7 +46,7 @@ class DbDateTimeFilter : public DbRowFilter {
     : column_(column), start_time_(start_time),
       end_time_(end_time), filter_type_(tp) {  }
 
-  virtual bool operator()(DbRecord* row) const;
+  virtual bool operator()(DbRecord* row);
 
   std::string& column() { return column_; }
   std::string& start_time() { return start_time_; }

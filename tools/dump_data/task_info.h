@@ -1,14 +1,12 @@
 #ifndef TASK_INFO_H_
 #define TASK_INFO_H_
 
-#include "common/utility.h"
 #include "common/ob_string_buf.h"
 #include "common/ob_common_param.h"
 #include "common/ob_scan_param.h"
 #include "common/ob_malloc.h"
 #include "tablet_location.h"
 #include "task_packet.h"
-#include <string>
 
 namespace sb {
 namespace tools {
@@ -47,7 +45,6 @@ class TaskInfo {
     task_limit_ = 0;
     first_index_ = 0;
     param_buffer_ = NULL;
-    table_id_ = INVALID_ID;
   }
 
   TaskInfo(const TaskInfo& other) {
@@ -56,23 +53,6 @@ class TaskInfo {
       ++other.param_buffer_->ref_count_;
     }
     memcpy(this, &other, sizeof(TaskInfo));
-    // deep copy the scam_param_ start_key objs
-    int64_t length = scan_param_.get_range()->start_key_.length();
-    for (int64_t i = 0; i < length; ++i) {
-      start_key_ptr_[i] = scan_param_.get_range()->start_key_.ptr()[i];
-    }
-    const_cast<common::ObNewRange*>(scan_param_.get_range())->start_key_.assign(start_key_ptr_, length);
-    // deep copy the scam_param_ end_key objs
-    length = scan_param_.get_range()->end_key_.length();
-    for (int64_t i = 0; i < length; ++i) {
-      end_key_ptr_[i] = scan_param_.get_range()->end_key_.ptr()[i];
-    }
-    const_cast<common::ObNewRange*>(scan_param_.get_range())->end_key_.assign(end_key_ptr_, length);
-    /*
-    TBSYS_LOG(TRACE, "construct the task info:[%p->%p], src_range[%p:%s], new_range[%p:%s]",
-        &other, this, other.scan_param_.get_range(), to_cstring(*other.scan_param_.get_range()),
-        scan_param_.get_range(), to_cstring(*scan_param_.get_range()));
-    */
   }
 
   virtual ~TaskInfo() {
@@ -148,22 +128,6 @@ class TaskInfo {
 
   int set_param(const common::ObScanParam& param);
 
-  void set_table_id(int64_t table_id) {
-    table_id_ = table_id;
-  }
-
-  int64_t get_table_id() const {
-    return table_id_;
-  }
-
-  void set_table_name(const char* table_name) {
-    table_name_.assign_ptr(const_cast<char*>(table_name), int32_t(strlen(table_name)));
-  }
-
-  const common::ObString& get_table_name() const {
-    return table_name_;
-  }
-
   bool operator == (const TaskInfo& other) {
     return ((timestamp_ == other.timestamp_)
             && (task_token_ == other.task_token_)
@@ -181,18 +145,6 @@ class TaskInfo {
       ++other.param_buffer_->ref_count_;
     }
     memcpy(this, &other, sizeof(TaskInfo));
-    // deep copy the scam_param_ start_key objs
-    int64_t length = scan_param_.get_range()->start_key_.length();
-    for (int64_t i = 0; i < length; ++i) {
-      start_key_ptr_[i] = scan_param_.get_range()->start_key_.ptr()[i];
-    }
-    const_cast<common::ObNewRange*>(scan_param_.get_range())->start_key_.assign(start_key_ptr_, length);
-    // deep copy the scam_param_ end_key objs
-    length = scan_param_.get_range()->end_key_.length();
-    for (int64_t i = 0; i < length; ++i) {
-      end_key_ptr_[i] = scan_param_.get_range()->end_key_.ptr()[i];
-    }
-    const_cast<common::ObNewRange*>(scan_param_.get_range())->end_key_.assign(end_key_ptr_, length);
   }
 
  private:
@@ -201,13 +153,9 @@ class TaskInfo {
   uint64_t task_id_;
   uint64_t task_limit_;
   int64_t first_index_;
-  int64_t table_id_;
   TabletLocation servers_;
   common::ObScanParam scan_param_;
-  common::ObObj start_key_ptr_[common::OB_MAX_ROWKEY_COLUMN_NUMBER];
-  common::ObObj end_key_ptr_[common::OB_MAX_ROWKEY_COLUMN_NUMBER];
   ParamBuffer* param_buffer_;
-  common::ObString table_name_;
  public:
   NEED_SERIALIZE_AND_DESERIALIZE;
 };

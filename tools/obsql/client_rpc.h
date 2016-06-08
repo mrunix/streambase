@@ -22,7 +22,7 @@
 #include "common/ob_scanner.h"
 #include "common/ob_statistics.h"
 #include "common/ob_mutator.h"
-#include "rootserver/ob_chunk_server_manager.h"
+#include "nameserver/ob_chunk_server_manager.h"
 
 
 class ObClientServerStub {
@@ -40,7 +40,7 @@ class ObClientServerStub {
   	int initialize(const sb::common::ObServer & root_server,
           const sb::common::ObClientManager * rpc_frame,
           const sb::common::ObServer & update_server,
-          const sb::rootserver::ObChunkServerManager & obcsm);
+          const sb::nameserver::ObChunkServerManager & obcsm);
   */
   int cs_scan(const sb::common::ObScanParam& scan_param,
               sb::common::ObScanner& scanner);
@@ -54,7 +54,7 @@ class ObClientServerStub {
                           const int32_t disk_no,
                           sb::common::ObString& image_buf);
 
-  int rs_dump_cs_info(sb::rootserver::ObChunkServerManager& obcsm);
+  int rs_dump_cs_info(sb::nameserver::ObChunkServerManager& obcsm);
 
   int fetch_stats(const sb::common::ObServer& remote_server,
                   sb::common::ObStatManager& obsm);
@@ -75,7 +75,7 @@ class ObClientServerStub {
   get_merge_server_list() { return merge_server_list_; }
   std::vector<sb::common::ObServer>&
   get_chunk_server_list() { return chunk_server_list_; }
-  //const sb::rootserver::ObChunkServerManager &
+  //const sb::nameserver::ObChunkServerManager &
   //  get_chunk_server_manager() const { return obcs_manager_; }
 
 

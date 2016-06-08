@@ -16,19 +16,8 @@
 
 
 #include "common/ob_range.h"
-#include "common/ob_range2.h"
-#include "common/ob_scanner.h"
-#include "chunkserver/ob_tablet_image.h"
 
 int64_t random_number(int64_t min, int64_t max);
 int parse_number_range(const char* number_string,
                        int32_t* number_array, int32_t& number_array_size);
-int parse_range_str(const char* range_str, int hex_format, sb::common::ObNewRange& range);
-void dump_scanner(sb::common::ObScanner& scanner);
-int dump_tablet_info(sb::common::ObScanner& scanner);
-int parse_rowkey(const char* rowkey_type_str, const char* rowkey_value_str,
-                 sb::common::PageArena<char>& allocer, sb::common::ObRowkey& rowkey);
-void init_obj_type_map_();
-void dump_multi_version_tablet_image(sb::chunkserver::ObMultiVersionTabletImage& image, bool load_sstable);
-void dump_tablet_image(sb::chunkserver::ObTabletImage& image, bool load_sstable);
-int dump_tablet(const sb::chunkserver::ObTablet& tablet, const bool dump_sstable);
+int parse_range_str(const char* range_str, int hex_format, sb::common::ObRange& range);

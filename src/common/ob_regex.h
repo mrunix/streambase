@@ -1,23 +1,18 @@
-////===================================================================
-//
-// ob_regex.h common / Oceanbase
-//
-// Copyright (C) 2010 Taobao.com, Inc.
-//
-// Created on 2011-03-19 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-// 只封装了对regex的调用，没有对内存使用做任何优化，慎用
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_regex.h for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #ifndef  OCEANBASE_COMMON_REGEX_H_
 #define  OCEANBASE_COMMON_REGEX_H_
 
@@ -43,4 +38,5 @@ class ObRegex {
 }
 
 #endif //OCEANBASE_COMMON_REGEX_H_
+
 

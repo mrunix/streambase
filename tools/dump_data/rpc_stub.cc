@@ -5,7 +5,6 @@ using namespace sb::common;
 using namespace sb::tools;
 
 RpcStub::RpcStub(ObClientManager* client, ThreadSpecificBuffer* buffer) {
-  server_ = NULL;
   frame_ = client;
   buffer_ = buffer;
 }
@@ -175,7 +174,7 @@ int RpcStub::get(const ObServer& server, const int64_t timeout,
 
   // step 4. deserialize the scanner
   if (OB_SUCCESS == ret) {
-    result.reset();
+    result.clear();
     ret = result.deserialize(data_buff.get_data(), data_buff.get_position(), pos);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(ERROR, "deserialize scanner from buff failed:pos[%ld], ret[%d]", pos, ret);
@@ -238,18 +237,8 @@ int RpcStub::scan(const int64_t index, const TabletLocation& list, const int64_t
   char server_addr[MAX_SERVER_ADDR_SIZE];
   int64_t count = 0;
   int64_t size = list.size();
-  int64_t version = list[index].tablet_version_;
-
   for (int64_t i = index; count < size; i = (i + 1) % size, ++count) {
     list[i].chunkserver_.to_string(server_addr, MAX_SERVER_ADDR_SIZE);
-    /* 09/13/2011, add tablet version control */
-    if (list[i].tablet_version_ != version &&
-        list[i].tablet_version_ != (version + 1)) {
-      TBSYS_LOG(DEBUG, "skip version:index[%ld], size[%ld], server[%s], tablet_ver=%ld, version=%ld",
-                i, size, server_addr, list[i].tablet_version_, version);
-      continue;
-    }
-
     ret = scan(list[i].chunkserver_, timeout, param, result);
     if (OB_SUCCESS == ret) {
       TBSYS_LOG(DEBUG, "scan from server succ:index[%ld], size[%ld], server[%s]",
@@ -386,7 +375,7 @@ int RpcStub::get_version(const ObServer& server, const int64_t timeout, int64_t&
 
 int RpcStub::response_finish(const int ret_code, const ObPacket* packet) {
   int ret = common::OB_SUCCESS;
-  if ((NULL == packet) || (false == check_inner_stat()) || NULL == server_) {
+  if ((NULL == packet) || (false == check_inner_stat())) {
     TBSYS_LOG(ERROR, "check packet or inner stat failed:packet[%p]", packet);
     ret = common::OB_ERROR;
   } else {
@@ -405,8 +394,9 @@ int RpcStub::response_finish(const int ret_code, const ObPacket* packet) {
 
       // send reponse
       if (OB_SUCCESS == ret) {
-        ret = server_->send_response(REPORT_TASK_RESPONSE, DEFAULT_VERSION, out_buffer, packet->get_request(),
-                                     packet->get_channel_id());
+        int32_t channel_id = packet->getChannelId();
+        tbnet::Connection* connection = packet->get_connection();
+        ret = send_packet(REPORT_TASK_RESPONSE, DEFAULT_VERSION, out_buffer, connection, channel_id);
         if (ret != common::OB_SUCCESS) {
           TBSYS_LOG(WARN, "send response packet failed:ret[%d]", ret);
         }
@@ -418,7 +408,7 @@ int RpcStub::response_finish(const int ret_code, const ObPacket* packet) {
 
 int RpcStub::response_fetch(const int ret_code, const TaskCounter& couter, const TaskInfo& task, ObPacket* packet) {
   int ret = OB_SUCCESS;
-  if ((NULL == packet) || (false == check_inner_stat()) || NULL == server_) {
+  if ((NULL == packet) || (false == check_inner_stat())) {
     TBSYS_LOG(ERROR, "check packet or inner stat failed:packet[%p]", packet);
     ret = OB_ERROR;
   } else {
@@ -451,8 +441,9 @@ int RpcStub::response_fetch(const int ret_code, const TaskCounter& couter, const
 
     // step 3. send packet for response
     if (OB_SUCCESS == ret) {
-      ret = server_->send_response(FETCH_TASK_RESPONSE, DEFAULT_VERSION, out_buffer, packet->get_request(),
-                                   packet->get_channel_id());
+      int32_t channel_id = packet->getChannelId();
+      tbnet::Connection* connection = packet->get_connection();
+      ret = send_packet(FETCH_TASK_RESPONSE, DEFAULT_VERSION, out_buffer, connection, channel_id);
       if (ret != common::OB_SUCCESS) {
         TBSYS_LOG(WARN, "send response packet failed:ret[%d]", ret);
       }
@@ -460,4 +451,45 @@ int RpcStub::response_fetch(const int ret_code, const TaskCounter& couter, const
   }
   return ret;
 }
+
+
+int RpcStub::send_packet(const int32_t pcode, const int32_t version, const ObDataBuffer& buffer,
+                         tbnet::Connection* conn, const int32_t channel_id) {
+  int ret = OB_SUCCESS;
+  if (conn == NULL) {
+    ret = OB_ERROR;
+    TBSYS_LOG(ERROR, "%s", "check connection is NULL");
+  } else {
+    ObPacket* packet = new(std::nothrow) ObPacket();
+    if (NULL == packet) {
+      ret = OB_ERROR;
+      TBSYS_LOG(ERROR, "%s", "check new packet failed");
+    } else {
+      packet->set_packet_code(pcode);
+      packet->setChannelId(channel_id);
+      packet->set_api_version(version);
+      packet->set_data(buffer);
+      if (ret == OB_SUCCESS) {
+        ret = packet->serialize();
+        if (ret != OB_SUCCESS) {
+          TBSYS_LOG(WARN, "packet serialize error, error: %d", ret);
+        }
+      }
+    }
+
+    if (ret == OB_SUCCESS) {
+      if (!conn->postPacket(packet)) {
+        uint64_t peer_id = conn->getPeerId();
+        TBSYS_LOG(WARN, "send packet to [%s] failed", tbsys::CNetUtil::addrToString(peer_id).c_str());
+        ret = OB_ERROR;
+      }
+    }
+
+    if (ret != OB_SUCCESS) {
+      packet->free();
+    }
+  }
+  return ret;
+}
+
 

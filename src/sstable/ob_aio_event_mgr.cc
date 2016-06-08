@@ -1,14 +1,16 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_aio_event_mgr.cc for manage aio event.
+ * Version: 5567
+ *
+ * ob_aio_event_mgr.cc
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
+ *     huating <huating.zmq@taobao.com>
  *
  */
 #include <tblog.h>
@@ -106,7 +108,7 @@ int ObAIOEventMgr::aio_wait(int64_t& timeout_us) {
       } else {
         for (int64_t i = 0; i < event_nr; ++i) {
           static_cast<ObAIOBufferInterface*>(events[i].data)->aio_finished(
-            events[i].res, static_cast<int>(events[i].res2));
+            events[i].res, events[i].res2);
           if (events[i].data == iocb_.data) {
             /**
              * this event is what we wait, it means that the waiting aio

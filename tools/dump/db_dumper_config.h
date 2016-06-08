@@ -21,53 +21,37 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "common/ob_schema.h"
 #include "db_record_filter.h"
 
 #define DUMP_CONFIG (DbDumpConfigMgr::get_instance())
 
-using namespace sb::common;
-
 class DbTableConfig {
  public:
   struct RowkeyItem {
-    std::string key_name;
-    int info_idx;
+    std::string name;
+    int64_t start_pos;
+    int64_t end_pos;
+    sb::common::ObObjType type;
+    int endian;
 
-    RowkeyItem() {
-      info_idx = -1;
-    }
-
-    RowkeyItem(const std::string& key_name) {
-      this->key_name = key_name;
-    }
-
-    RowkeyItem(const char* key_name, int idx) {
-      this->key_name = key_name;
-      info_idx = idx;
-    }
-
-    bool operator==(const RowkeyItem& rhs) const {
-      return key_name == rhs.key_name;
-    }
+    bool operator==(const RowkeyItem& item) { return name == item.name; }
   };
+
  public:
-  DbTableConfig(const std::string& tab, const std::vector<const char*>& columns, const ObSchemaManagerV2* schema_mgr) {
+  DbTableConfig(std::string tab, std::vector<const char*>& columns) {
     table_ = tab;
     filter_ = NULL;
 
-    std::vector<const char*>::const_iterator itr = columns.begin();
+    std::vector<const char*>::iterator itr = columns.begin();
     while (itr != columns.end()) {
       columns_.push_back(std::string(*itr));
       itr++;
     }
-    schema_mgr_ = schema_mgr;
   }
 
   DbTableConfig() {
     table_id_ = 0;
     filter_ = NULL;
-    schema_mgr_ = NULL;
   }
 
   ~DbTableConfig() {
@@ -81,7 +65,6 @@ class DbTableConfig {
     rowkey_columns_ = rhs.rowkey_columns_;
     output_columns_ = rhs.output_columns_;
     revise_columns_ = rhs.revise_columns_;
-    schema_mgr_ = rhs.schema_mgr_;
   }
 
   const std::string& get_table() { return table_; }
@@ -90,21 +73,17 @@ class DbTableConfig {
     return columns_;
   }
 
-  inline const std::vector<std::string>& get_columns() const {
-    return columns_;
-  }
-
-  bool check_valid() const;
-
   std::vector<RowkeyItem>& rowkey_columns() { return rowkey_columns_; }
   std::vector<std::string>& output_columns() { return output_columns_; }
-  const std::vector<std::string>& output_columns() const { return output_columns_; }
 
-  const std::string& table() const { return table_; }
-  uint64_t table_id() const { return table_id_; }
+  std::string& table() { return table_; }
+  uint64_t table_id() { return table_id_; }
 
-  void parse_rowkey_item();
-  void parse_output_columns(const std::string& out_columns);
+  uint64_t table_id_;
+  DbRowFilter* filter_;
+
+  void parse_rowkey_item(std::vector<const char*>& vec);
+  void parse_output_columns(std::string out_columns);
 
   std::vector<const char*>& get_revise_columns() { return revise_columns_; }
 
@@ -112,13 +91,8 @@ class DbTableConfig {
     revise_columns_ = revise_columns;
   }
 
-  bool is_revise_column(const std::string& column) const;
+  bool is_revise_column(std::string& column);
 
-  bool get_is_rowkey_column(RowkeyItem& item) const;
-
-  void set_filter(DbRowFilter* filter) { filter_ = filter; }
-
-  const DbRowFilter* filter() const { return filter_; }
  private:
   std::string table_;
   std::vector<std::string> columns_;
@@ -126,9 +100,6 @@ class DbTableConfig {
   std::vector<std::string> output_columns_;
 
   std::vector<const char*> revise_columns_;
-  const ObSchemaManagerV2* schema_mgr_;
-  uint64_t table_id_;
-  DbRowFilter* filter_;
 };
 
 class DbDumpConfigMgr {
@@ -136,20 +107,18 @@ class DbDumpConfigMgr {
   ~DbDumpConfigMgr();
 
   int load(const char* file);
-  int load_sys_param();
-
   static DbDumpConfigMgr* get_instance();
   std::vector<DbTableConfig>& get_configs() { return configs_; }
 
-  int get_table_config(const std::string& table, const DbTableConfig*& cfg);
-  int get_table_config(uint64_t table_id, const DbTableConfig*& cfg);
+  int get_table_config(std::string table, DbTableConfig*& cfg);
+  int get_table_config(uint64_t table_id, DbTableConfig*& cfg);
 
-  const std::string& get_output_dir() const { return output_dir_; }
+  std::string& get_output_dir() { return output_dir_; }
 
   const std::string& get_log_dir() { return log_dir_; }
   const std::string& get_log_level() { return log_level_; }
-  const std::string& get_ob_log() const { return ob_log_dir_; }
-  const std::string& app_name() const { return app_name_; }
+  std::string& get_ob_log() { return ob_log_dir_; }
+  std::string& app_name() { return app_name_; }
 
   const char* get_host() const { return host_.c_str(); }
   unsigned short get_port() const { return port_; }
@@ -163,7 +132,7 @@ class DbDumpConfigMgr {
   int64_t max_file_size() { return max_file_size_; }
   int64_t rotate_file_interval() { return rotate_file_interval_; }
 
-  const std::string& get_tmp_log_path() const { return tmp_log_path_; }
+  std::string& get_tmp_log_path() { return tmp_log_path_; }
   int64_t get_monitor_interval() { return nas_check_interval_; }
 
   int64_t get_init_log() { return init_log_id_; }
@@ -171,18 +140,10 @@ class DbDumpConfigMgr {
   char get_header_delima() { return header_delima_; }
   char get_body_delima() { return body_delima_; }
 
-  const std::string& pid_file() { return pid_file_; }
+  std::string pid_file() { return pid_file_; }
   void destory();
 
   int64_t max_nolog_interval() { return max_nolog_interval_; }
-
-  bool get_consistency() const { return consistency_; }
-
-  const char* init_date() const { return init_date_;}
-
-  int muti_get_nr() const { return muti_get_nr_; }
-
-  void add_table_config(const std::string& table_name);
  private:
   DbDumpConfigMgr() {
     network_timeout_ = 1000000;
@@ -195,9 +156,6 @@ class DbDumpConfigMgr {
     header_delima_ = '\002';
     pid_file_ = "obdump.pid";
     max_nolog_interval_ = 0;
-    consistency_ = true;
-    init_date_ = NULL;
-    muti_get_nr_ = 0;
   }
 
   std::vector<DbRowFilter*> filter_set_;
@@ -240,13 +198,6 @@ class DbDumpConfigMgr {
 
   int64_t monitor_interval_;
   int64_t max_nolog_interval_;                /* seconds */
-
-  bool consistency_;
-
-  const char* init_date_;
-  int muti_get_nr_;
-
-  ObSchemaManagerV2 schema_mgr_;
 };
 
 #endif   /* ----- #ifndef ob_api_db_schema_INC  ----- */

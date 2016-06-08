@@ -1,15 +1,16 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_sstable_getter.h for get one or more columns from
- * sstables.
+ * Version: 5567
+ *
+ * ob_sstable_getter.h
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
+ *     huating <huating.zmq@taobao.com>
  *
  */
 #ifndef OCEANBASE_SSTABLE_OB_SSTABLE_GETTER_H_
@@ -24,7 +25,6 @@
 #include "ob_blockcache.h"
 #include "ob_scan_column_indexes.h"
 #include "ob_sstable_block_getter.h"
-#include "ob_sstable_row_cache.h"
 
 namespace sb {
 namespace sstable {
@@ -68,27 +68,16 @@ class ObSSTableGetter : public common::ObIterator {
    * @param get_param get parameter
    * @param readers readers for each row
    * @param reader_size readers count
-   * @param not_exit_col_ret_nop whether return nop if column
-   *                             doesn't exit
-   * @param row_cahe sstable row cache to store static row data
    *
    * @return int if success, return OB_SUCCESS, else return
    *         OB_ERROR or OB_INVALID_ARGUMENT
    */
   int init(ObBlockCache& block_cache, ObBlockIndexCache& block_index_cache,
            const common::ObGetParam& get_param,
-           const ObSSTableReader* const readers[], const int64_t reader_size,
-           bool not_exit_col_ret_nop = false, ObSSTableRowCache* row_cache = NULL);
+           const ObSSTableReader* const readers[], const int64_t reader_size);
 
-  inline int64_t get_handled_cells_in_param() {
+  int64_t get_handled_cells_in_param() {
     return handled_cells_;
-  }
-
-  inline int is_row_finished(bool* is_row_finished) {
-    if (NULL != is_row_finished) {
-      *is_row_finished = is_row_finished_;
-    }
-    return common::OB_SUCCESS;
   }
 
  private:
@@ -142,9 +131,6 @@ class ObSSTableGetter : public common::ObIterator {
    */
   int fetch_block();
 
-  int fetch_cache_row(const common::ObRowkey& row_key,
-                      const int64_t store_style, ObSSTableRowCacheValue& row_cache_val);
-
   /**
    * filter columns of current row key, set flag for expected
    * column
@@ -186,15 +172,11 @@ class ObSSTableGetter : public common::ObIterator {
 
  private:
   static const int64_t DEFAULT_UNCOMP_BUF_SIZE  = 128 * 1024; //128k
-  static const int64_t DEFAULT_ROW_BUF_SIZE     = 64 * 1024; //64k
-  static const int64_t MAX_GET_COLUMN_COUNT_PRE_ROW = common::ObGetParam::MAX_CELLS_PER_ROW;
 
   DISALLOW_COPY_AND_ASSIGN(ObSSTableGetter);
 
   bool inited_;                     //whether sstable getter is initialized
   ObGetterIterState cur_state_;     //current getter state
-  bool not_exit_col_ret_nop_;       //whether return nop if columns doesn't exit
-  bool is_row_finished_;            //whether the row is end
 
   const ObSSTableReader* const* readers_; //sstable readers
   int64_t readers_size_;            //sstable readers count
@@ -215,12 +197,8 @@ class ObSSTableGetter : public common::ObIterator {
 
   ObBlockCache* block_cache_;       //block cache
   ObBlockIndexCache* block_index_cache_; //block index cache
-  ObSSTableRowCache* sstable_row_cache_; //sstable row cache
 
   common::ObMemBuf uncomp_buf_;     //uncompressed buffer
-  common::ObMemBuf row_buf_;     //sstable row data buffer
-  common::ObObj rowkey_obj_array_[common::OB_MAX_ROWKEY_COLUMN_NUMBER];
-  common::ObRowkeyInfo rowkey_info_; // for deserialize old fashion binary rowkey
 };
 }//end namespace sstable
 }//end namespace sb

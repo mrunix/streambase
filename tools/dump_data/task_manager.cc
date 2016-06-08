@@ -6,10 +6,8 @@ using namespace std;
 using namespace sb::common;
 using namespace sb::tools;
 
-static const int CS_HIST_VERSION = 2;
-
 TaskManager::TaskManager(const int64_t avg_times, const int64_t max_count) {
-  TBSYS_LOG(DEBUG, "max times[%ld], max_count[%ld]", avg_times, max_count);
+  TBSYS_LOG(DEBUG, "max timeout[%ld], max_count[%ld]", avg_times, max_count);
   if ((avg_times <= 0) || max_count <= 0) {
     TBSYS_LOG(WARN, "check max count failed:times[%ld], count[%ld]", avg_times, max_count);
     avg_times_ = DEFAULT_TIMES;
@@ -24,7 +22,6 @@ TaskManager::TaskManager(const int64_t avg_times, const int64_t max_count) {
   task_token_ = tbsys::CTimeUtil::getTime();
   total_finish_time_ = MAX_WAIT_TIME;
   total_finish_count_ = 1;
-  tablet_version_ = 0;
   TBSYS_LOG(INFO, "task token is created:token[%ld]", task_token_);
 }
 
@@ -40,12 +37,12 @@ bool TaskManager::check_tasks(const uint64_t tablet_count) {
   } else {
     TaskInfo cur_task;
     TaskInfo last_task;
-    const ObNewRange* cur_range = NULL;
-    const ObNewRange* last_range = NULL;
+    const ObRange* cur_range = NULL;
+    const ObRange* last_range = NULL;
     map<uint64_t, TaskInfo>::const_iterator it;
     for (it = wait_queue_.begin(); it != wait_queue_.end(); ++it) {
       cur_task = it->second;
-      if ((NULL != last_range) && (last_task.get_param().get_table_name() == cur_task.get_param().get_table_name())) {
+      if (last_task.get_param().get_table_name() == cur_task.get_param().get_table_name()) {
         last_range = last_task.get_param().get_range();
         cur_range = cur_task.get_param().get_range();
         if ((NULL == last_range) || (NULL == cur_range)) {
@@ -54,34 +51,17 @@ bool TaskManager::check_tasks(const uint64_t tablet_count) {
           break;
         }
         if (last_range->end_key_ != cur_range->start_key_) {
-          TBSYS_LOG(ERROR, "check last tablet end_key not equal with cur tablet start_key:last[%s], cur[%s]",
-                    to_cstring(*last_range), to_cstring(*cur_range));
+          TBSYS_LOG(ERROR, "%s", "check last tablet end_key not equal with cur tablet start_key");
+          hex_dump(last_range->start_key_.ptr(), last_range->start_key_.length());
+          hex_dump(last_range->end_key_.ptr(), last_range->end_key_.length());
+          hex_dump(cur_range->start_key_.ptr(), cur_range->start_key_.length());
+          hex_dump(cur_range->end_key_.ptr(), cur_range->end_key_.length());
           ret = false;
-          break;
-        } else {
-          last_task = cur_task;
-          last_range = last_task.get_param().get_range();
-          TBSYS_LOG(DEBUG, "check last tablet end_key equal with cur tablet start_key:last[%s], cur[%s]",
-                    to_cstring(*last_range), to_cstring(*cur_range));
-          continue;
-        }
-      }
-      // table changed
-      cur_range = cur_task.get_param().get_range();
-      if (!cur_range->start_key_.is_min_row()) {
-        ret = false;
-        TBSYS_LOG(WARN, "check table frist tablet start_key is not min value:range[%s]", to_cstring(*cur_range));
-        break;
-      }
-      if (last_range != NULL) {
-        if (!last_range->end_key_.is_max_row()) {
-          ret = false;
-          TBSYS_LOG(WARN, "check table last tablet start_key is not max value:range[%s]", to_cstring(*last_range));
           break;
         }
       }
+      // TODO check min/max value for first tablet and end tablet rowkey
       last_task = cur_task;
-      last_range = last_task.get_param().get_range();
     }
   }
 
@@ -93,54 +73,6 @@ bool TaskManager::check_tasks(const uint64_t tablet_count) {
     }
   }
   return ret;
-}
-
-bool TaskManager::get_tablet_version(int64_t memtable_version, int64_t& version) {
-  bool find = false;
-  for (int64_t ver = memtable_version; ver > memtable_version - CS_HIST_VERSION; --ver) {
-    map<uint64_t, TaskInfo>::iterator it = wait_queue_.begin();
-    while (it != wait_queue_.end()) {
-      const TabletLocation& loc = it->second.get_location();
-      int64_t i = 0;
-      for (i = 0; i < loc.size(); i++) {
-        TBSYS_LOG(DEBUG, "task_id=%ld, task_param=[table:%.*s, range:%s], version=%ld",
-                  it->first, it->second.get_param().get_table_name().length(), it->second.get_param().get_table_name().ptr(),
-                  to_cstring(*it->second.get_param().get_range()), loc[i].tablet_version_);
-        /* if tablet version == version or tablet version == version + 1
-         * we can dump data from this tablet
-         */
-        if ((ver == loc[i].tablet_version_) || ((ver + 1) == loc[i].tablet_version_)) {
-          break;
-        }
-      }
-      if (i == loc.size()) {
-        TBSYS_LOG(DEBUG, "version:%ld can't be dumped from task[%ld]", ver, it->first);
-        break;
-      }
-      it++;
-    }
-    if (it == wait_queue_.end()) {
-      tablet_version_ = version = ver;
-      find = true;
-      TBSYS_LOG(INFO, "version:%ld is selected", version);
-      break;
-    }
-  }
-
-  return find;
-}
-
-void TaskManager::setup_all_tasks_vesion(int64_t version) {
-  map<uint64_t, TaskInfo>::iterator it = wait_queue_.begin();
-  while (it != wait_queue_.end()) {
-    ObScanParam* param = const_cast<ObScanParam*>(&it->second.get_param());
-    ObVersionRange version_range;
-    version_range.border_flag_.set_min_value();
-    version_range.end_version_ = version;
-    version_range.border_flag_.set_inclusive_end();
-    param->set_version_range(version_range);
-    it++;
-  }
 }
 
 int TaskManager::repair_all_tasks(int64_t& count) {
@@ -201,17 +133,7 @@ int TaskManager::insert_task(const TabletLocation& location, TaskInfo& task) {
       server_manager_.insert(pair<ObServer, int64_t>(location[i].chunkserver_, 1));
     }
   }
-  TBSYS_LOG(DEBUG, "insert task succ:id[%lu], table_name[%.*s], range[%s], count[%lu]", task_id_alloc_,
-            task.get_param().get_table_name().length(), task.get_param().get_table_name().ptr(),
-            to_cstring(*task.get_param().get_range()), total_task_count_);
-#if false
-  std::map<uint64_t, TaskInfo>::iterator temp_it;
-  for (temp_it = wait_queue_.begin(); temp_it != wait_queue_.end(); ++temp_it) {
-    TBSYS_LOG(TRACE, "dump task range:task[%ld], range[%p:%s], key_obj[%p:%p]", temp_it->first,
-              temp_it->second.get_param().get_range(), to_cstring(*temp_it->second.get_param().get_range()),
-              temp_it->second.get_param().get_range()->start_key_.ptr(), temp_it->second.get_param().get_range()->end_key_.ptr());
-  }
-#endif
+  TBSYS_LOG(DEBUG, "insert task succ:id[%lu], count[%lu]", task_id_alloc_, total_task_count_);
   return ret;
 }
 
@@ -224,19 +146,6 @@ int TaskManager::fetch_task(TaskCounter& counter, TaskInfo& task) {
   // step 1. check waiting task
   for (it = wait_queue_.begin(); it != wait_queue_.end(); ++it) {
     for (int64_t i = 0; i < it->second.get_location().size(); ++i) {
-
-      if (it->second.get_location()[i].tablet_version_ != tablet_version_ &&
-          it->second.get_location()[i].tablet_version_ != (tablet_version_ + 1)) {
-#if 1
-        it->second.get_location()[i].dump(it->second.get_location()[i]);
-        TBSYS_LOG(DEBUG, "skip task[%ld], due to version compatiablility", it->first);
-#endif
-        continue;
-      }
-
-      TBSYS_LOG(DEBUG, "server:%s is selected, task_count = %ld",
-                it->second.get_location()[i].chunkserver_.to_cstring(), task_count);
-
       task_count = get_server_task_count(it->second.get_location()[i].chunkserver_);
       if (task_count >= max_count_) {
         continue;
@@ -262,24 +171,17 @@ int TaskManager::fetch_task(TaskCounter& counter, TaskInfo& task) {
     int64_t avg_finish_time = total_finish_time_ / total_finish_count_;
     for (it = doing_queue_.begin(); it != doing_queue_.end(); ++it) {
       if ((timestamp - it->second.get_timestamp()) > (avg_times_ * avg_finish_time)) {
-        int64_t last_index = task.get_index();  /* last used mergeserver index */
-
         // timeout so reset the visit count
         for (int64_t i = 0; i < it->second.get_location().size(); ++i) {
-          if (i == last_index) {
-            continue;                           /* do not allocate same task to same server */
-          }
-
           task_count = get_server_task_count(it->second.get_location()[i].chunkserver_);
           // must > not include equal with
           if (task_count > max_count_) {
             continue;
           } else {
             TBSYS_LOG(INFO, "check task timeout:task[%lu], avg_time[%ld], timeout_times[%ld], "
-                      "total_time[%ld], total_finish[%ld], finish[%ld], now[%ld], add_time[%ld], old_idx=%lu, new_idx=%lu",
+                      "total_time[%ld], total_finish[%ld], finish[%ld], now[%ld], add_time[%ld]",
                       it->second.get_id(), avg_finish_time, avg_times_, total_finish_time_, total_finish_count_,
-                      complete_queue_.size(), timestamp, it->second.get_timestamp(),
-                      last_index, i);
+                      complete_queue_.size(), timestamp, it->second.get_timestamp());
             // update timestamp
             it->second.set_timestamp(timestamp);
             task = it->second;
@@ -288,7 +190,6 @@ int TaskManager::fetch_task(TaskCounter& counter, TaskInfo& task) {
             break;
           }
         }
-
         if (find_task) {
           break;
         }
@@ -316,7 +217,7 @@ int TaskManager::fetch_task(TaskCounter& counter, TaskInfo& task) {
 void TaskManager::print_access_server() {
   map<common::ObServer, int64_t>::const_iterator it = working_queue_.begin();
   for (it = working_queue_.begin(); it != working_queue_.end(); ++it) {
-    TBSYS_LOG(INFO, "server info:ip[%s], count[%ld]", it->first.to_cstring(), it->second);
+    TBSYS_LOG(INFO, "server info:ip[%ld], count[%ld]", it->first.get_ipv4(), it->second);
   }
 }
 
@@ -361,8 +262,6 @@ int TaskManager::finish_task(const bool result, const TaskInfo& task) {
     if (task_count < 1) {
       TBSYS_LOG(WARN, "check server task count failed:task[%lu], count[%ld]", task.get_id(), task_count);
     } else {
-      TBSYS_LOG(DEBUG, "server ip = %s, task_count = %ld",
-                task.get_location()[task.get_index()].chunkserver_.to_cstring(), task_count);
       // wait timeout for next dispatch
       working_queue_[task.get_location()[task.get_index()].chunkserver_] = --task_count;
       // print_access_server();
@@ -392,48 +291,9 @@ int TaskManager::finish_task(const bool result, const TaskInfo& task) {
       }
     }
   }
-  TBSYS_LOG(INFO, "finish monitor task [id=%lu] stat:wait[%lu], doing[%lu], finish[%lu], avg_time[%ld]", task.get_id(),
+  TBSYS_LOG(INFO, "finish monitor task stat:wait[%lu], doing[%lu], finish[%lu], avg_time[%ld]",
             wait_queue_.size(), doing_queue_.size(), complete_queue_.size(), total_finish_time_ / total_finish_count_);
   return ret;
 }
 
-void TaskManager::dump_tablets(const char* file) {
-  FILE* f = fopen(file, "w");
-  char* key_buf = NULL;
-
-  if (NULL == f) {
-    TBSYS_LOG(ERROR, "can't write tablets list file, %s", file);
-    return;
-  }
-
-  key_buf = new(std::nothrow) char[2 * OB_MAX_ROW_KEY_LENGTH];
-  if (NULL == key_buf) {
-    TBSYS_LOG(ERROR, "can't allocate memory");
-    fclose(f);
-    return;
-  }
-
-  map<uint64_t, TaskInfo>::iterator itr = wait_queue_.begin();
-  while (itr != wait_queue_.end()) {
-    TabletLocation loc = itr->second.get_location();
-    fprintf(f, "TaskId:%ld, ReplicaSize=%ld, TableId:%ld\n",
-            itr->first, loc.size(), itr->second.get_table_id());
-
-    const ObNewRange* range = itr->second.get_param().get_range();
-    fprintf(f, "S:%s\n", to_cstring(range->start_key_));
-    fprintf(f, "E:%s\n", to_cstring(range->end_key_));
-
-    for (int i = 0; i < loc.size(); i++) {
-      loc[i].chunkserver_.to_string(key_buf, 2 * OB_MAX_ROW_KEY_LENGTH);
-      fprintf(f, "MergeServer=%s\n", key_buf);
-    }
-
-    fprintf(f, "\n");
-
-    itr++;
-  }
-
-  fclose(f);
-  delete [] key_buf;
-}
 

@@ -1,22 +1,18 @@
-////===================================================================
-//
-// ob_trace_log.cc / hash / common / Oceanbase
-//
-// Copyright (C) 2010, 2013 Taobao.com, Inc.
-//
-// Created on 2010-09-01 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_trace_log.cc for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -31,15 +27,14 @@
 namespace sb {
 namespace common {
 const char* const TraceLog::LOG_LEVEL_ENV_KEY = "_OB_TRACE_LOG_LEVEL_";
-const char* const TraceLog::level_strs_[] = {"ERROR", "USER_ERR", "WARN", "INFO", "TRACE", "DEBUG"};
-volatile int TraceLog::log_level_ = TBSYS_LOG_LEVEL_TRACE;
+const char* const TraceLog::level_strs_[] = {"ERROR", "WARN", "INFO", "DEBUG"};
+volatile int TraceLog::log_level_ = TBSYS_LOG_LEVEL_DEBUG;
 bool TraceLog::got_env_ = false;
 
 TraceLog::LogBuffer& TraceLog::get_logbuffer() {
   static __thread LogBuffer log_buffer;
   static __thread bool inited = false;
   if (!inited) {
-    TBSYS_LOG(INFO, "init trace log buffer tid=%ld buffer=%p", GETTID(), &log_buffer);
     memset(&log_buffer, 0, sizeof(log_buffer));
     inited = true;
   }
@@ -70,7 +65,7 @@ int TraceLog::inc_log_level() {
 
 int TraceLog::set_log_level(const char* log_level_str) {
   if (NULL != log_level_str) {
-    int level_num = (int)(sizeof(level_strs_) / sizeof(const char*));
+    int level_num = sizeof(level_strs_) / sizeof(const char*);
     for (int i = 0; i < level_num; ++i) {
       if (0 == strcasecmp(level_strs_[i], log_level_str)) {
         log_level_ = i;
@@ -90,8 +85,9 @@ int TraceLog::get_log_level() {
   return log_level_;
 }
 
-void TraceLog::fill_log(LogBuffer& log_buffer, const char* fmt, ...) {
-  if (get_log_level() > TBSYS_LOGGER._level && !log_buffer.force_log_) {
+void TraceLog::fill_log(const char* fmt, ...) {
+  if (get_log_level() > TBSYS_LOGGER._level) {
+    LogBuffer& log_buffer = get_logbuffer();
     if (0 == log_buffer.prev_timestamp) {
       log_buffer.start_timestamp = tbsys::CTimeUtil::getTime();
       log_buffer.prev_timestamp = log_buffer.start_timestamp;
@@ -99,6 +95,7 @@ void TraceLog::fill_log(LogBuffer& log_buffer, const char* fmt, ...) {
   } else {
     va_list args;
     va_start(args, fmt);
+    LogBuffer& log_buffer = get_logbuffer();
     int64_t valid_buffer_size = LogBuffer::LOG_BUFFER_SIZE - log_buffer.cur_pos;
     if (0 < valid_buffer_size) {
       int64_t ret = 0;
@@ -126,11 +123,12 @@ void TraceLog::fill_log(LogBuffer& log_buffer, const char* fmt, ...) {
   }
 }
 
-void TraceLog::clear_log(LogBuffer& log_buffer) {
-  log_buffer.cur_pos = 0;
-  log_buffer.prev_timestamp = 0;
-  log_buffer.start_timestamp = 0;
-  log_buffer.force_log_ = false;
+void TraceLog::clear_log() {
+  sb::common::TraceLog::get_logbuffer().cur_pos = 0;
+  sb::common::TraceLog::get_logbuffer().prev_timestamp = 0;
+  sb::common::TraceLog::get_logbuffer().start_timestamp = 0;
 }
 }
 }
+
+

@@ -1,21 +1,18 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: $Id: file_directory_utils.cc,v 0.1 2010/07/22 16:58:07 duanfei Exp $
+ * file_directory_utils.cc for ...
  *
  * Authors:
- *   duanfei <duanfei@taobao.com>
- *     - some work details if you want
- *   Author Name ...
+ *   yanran <yanran.hfs@taobao.com>
  *
  */
-
 #include "file_directory_utils.h"
 
 #include "ob_define.h"
@@ -63,7 +60,7 @@ bool FileDirectoryUtils::exists(const char* filename) {
   if (filename == NULL)
     return false;
 
-  int32_t iLen = static_cast<int32_t>(strlen(filename));
+  int32_t iLen = strlen(filename);
   if (iLen > MAX_PATH || iLen <= 0)
     return false;
 
@@ -82,7 +79,7 @@ bool FileDirectoryUtils::is_directory(const char* dirname) {
   if (dirname == NULL)
     return false;
 
-  int32_t iLen = static_cast<int32_t>(strlen(dirname));
+  int32_t iLen = strlen(dirname);
   if (iLen > MAX_PATH || iLen <= 0)
     return false;
 
@@ -120,7 +117,7 @@ bool FileDirectoryUtils::create_full_path(const char* fullpath) {
   if (fullpath == NULL)
     return false;
 
-  int32_t iLen = static_cast<int32_t>(strlen(fullpath));
+  int32_t iLen = strlen(fullpath);
   if (iLen > MAX_PATH || iLen <= 0x01)
     return false;
 
@@ -228,7 +225,7 @@ bool FileDirectoryUtils::delete_directory_recursively(const char* directory) {
     bRet = false;
   }
 
-  while (bRet && !readdir_r(dir, &dirent, &result) && result) {
+  while (!readdir_r(dir, &dirent, &result) && result && bRet) {
     char* name = result->d_name;
     if (((name[0] == '.') && (name[1] == '\0'))
         || ((name[0] == '.') && (name[1] == '.') && (name[2] == '\0'))) {
@@ -336,10 +333,10 @@ int FileDirectoryUtils::cp(const char* src_path, const char* src_name, const cha
   const char* CP_CMD_FORMAT3 = "cp %s/%s %s";
   const char* CP_CMD_FORMAT4 = "cp %s %s";
   char* cmd = NULL;
-  int cp_cmd_len = static_cast<int32_t>(strlen(src_name) + strlen(dst_name) + strlen(src_path) + strlen(dst_path) + strlen(CP_CMD_FORMAT1));
+  int cp_cmd_len = strlen(src_name) + strlen(dst_name) + strlen(src_path) + strlen(dst_path) + strlen(CP_CMD_FORMAT1);
 
   if (OB_SUCCESS == ret) {
-    cmd = static_cast<char*>(ob_malloc(cp_cmd_len, ObModIds::OB_FILE_DIRECTOR_UTIL));
+    cmd = static_cast<char*>(ob_malloc(cp_cmd_len));
     if (NULL == cmd) {
       TBSYS_LOG(WARN, "ob_malloc error, cp_cmd_len=%d", cp_cmd_len);
       ret = OB_ERROR;
@@ -401,7 +398,7 @@ int FileDirectoryUtils::cp_safe(const char* src_path, const char* src_name,
 
   if (OB_SUCCESS == ret) {
     int64_t tmp_name_len = strlen(dst_path) + strlen(dst_name) + strlen(tmp_postfix) + 2;
-    tmp_name = static_cast<char*>(ob_malloc(tmp_name_len, ObModIds::OB_FILE_DIRECTOR_UTIL));
+    tmp_name = static_cast<char*>(ob_malloc(tmp_name_len));
     if (NULL == tmp_name) {
       TBSYS_LOG(ERROR, "ob_malloc error, tmp_name_len=%ld", tmp_name_len);
       ret = OB_ERROR;
@@ -467,10 +464,10 @@ int FileDirectoryUtils::mv(const char* src_path, const char* src_name, const cha
   const char* MV_CMD_FORMAT3 = "mv %s/%s %s";
   const char* MV_CMD_FORMAT4 = "mv %s %s";
   char* cmd = NULL;
-  int mv_cmd_len = static_cast<int32_t>(strlen(src_path) + strlen(dst_path) + strlen(src_name) + strlen(dst_name) + strlen(MV_CMD_FORMAT1));
+  int mv_cmd_len = strlen(src_path) + strlen(dst_path) + strlen(src_name) + strlen(dst_name) + strlen(MV_CMD_FORMAT1);
 
   if (OB_SUCCESS == ret) {
-    cmd = static_cast<char*>(ob_malloc(mv_cmd_len, ObModIds::OB_FILE_DIRECTOR_UTIL));
+    cmd = static_cast<char*>(ob_malloc(mv_cmd_len));
     if (NULL == cmd) {
       TBSYS_LOG(WARN, "ob_malloc error, mv_cmd_len=%d", mv_cmd_len);
       ret = OB_ERROR;
@@ -525,11 +522,11 @@ int FileDirectoryUtils::rm(const char* path, const char* name) {
     ret = OB_INVALID_ARGUMENT;
   }
 
-  int full_name_len = static_cast<int32_t>(strlen(name) + strlen(path) + 2);
+  int full_name_len = strlen(name) + strlen(path) + 2;
   char* full_name = NULL;
 
   if (OB_SUCCESS == ret) {
-    full_name = static_cast<char*>(ob_malloc(full_name_len, ObModIds::OB_FILE_DIRECTOR_UTIL));
+    full_name = static_cast<char*>(ob_malloc(full_name_len));
     if (NULL == full_name) {
       TBSYS_LOG(WARN, "ob_malloc error, full_name_len=%d", full_name_len);
       ret = OB_ERROR;
@@ -565,3 +562,4 @@ int FileDirectoryUtils::rm(const char* path, const char* name) {
 
 }//end namespace common
 }//end namespace sb
+

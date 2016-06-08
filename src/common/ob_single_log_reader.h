@@ -1,17 +1,18 @@
 /**
- * (C) 2007-2010 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
  * Version: $Id$
  *
+ * ob_single_log_reader.h for ...
+ *
  * Authors:
  *   yanran <yanran.hfs@taobao.com>
- *     - some work details if you want
+ *
  */
-
 #ifndef OCEANBASE_COMMON_OB_SINGLE_LOG_READER_H_
 #define OCEANBASE_COMMON_OB_SINGLE_LOG_READER_H_
 
@@ -25,7 +26,6 @@
 
 namespace sb {
 namespace common {
-const int64_t DEFAULT_LOG_SIZE = 2 * 1024 * 1024;
 class ObSingleLogReader {
  public:
   static const int64_t LOG_BUFFER_MAX_LENGTH;
@@ -75,7 +75,7 @@ class ObSingleLogReader {
    *         OB_READ_NOTHING: 从文件中没有读到数据
    *         others: 发生了错误.
    */
-  virtual int read_log(LogCommand& cmd, uint64_t& log_seq, char*& log_data, int64_t& data_len) = 0;
+  int read_log(LogCommand& cmd, uint64_t& log_seq, char*& log_data, int64_t& data_len);
   inline uint64_t get_cur_log_file_id() {
     return file_id_;
   }
@@ -85,20 +85,11 @@ class ObSingleLogReader {
   inline uint64_t get_last_log_offset() {
     return pos;
   }
-
   /// @brief is log file opened
   inline bool is_opened() const {return file_.is_opened();}
 
-  ///@brief 初始化时，获取当前目录下的最大日志文件号
-  int get_max_log_file_id(uint64_t& max_log_file_id);
-  int64_t get_cur_offset() const;
-
   inline void unset_dio() {dio_ = false;};
 
- protected:
-  int read_header(ObLogEntry& entry);
-  int trim_last_zero_padding(int64_t header_size);
-  int open_with_lucky(const uint64_t file_id, const uint64_t last_log_seq);
  protected:
   /**
    * 从日志文件中读取数据到读缓冲区
@@ -107,6 +98,8 @@ class ObSingleLogReader {
    *         others: 发生了错误.
    */
   int read_log_();
+
+  bool is_entry_zeroed_(const ObLogEntry& entry);
 
   inline int check_inner_stat_() {
     int ret = OB_SUCCESS;
@@ -117,7 +110,7 @@ class ObSingleLogReader {
     return ret;
   }
 
- protected:
+ private:
   uint64_t file_id_;  //日志文件id
   uint64_t last_log_seq_;  //上一条日志(Mutator)序号
   ObDataBuffer log_buffer_;  //读缓冲区
@@ -133,3 +126,4 @@ class ObSingleLogReader {
 } // end namespace sb
 
 #endif // OCEANBASE_COMMON_OB_SINGLE_LOG_READER_H_
+

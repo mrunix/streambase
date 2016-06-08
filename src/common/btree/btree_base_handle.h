@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./btree_base_handle.h for ...
+ *
+ * Authors:
+ *   duolong <duolong@taobao.com>
+ *
+ */
 #ifndef OCEANBASE_COMMON_BTREE_BTREE_BASE_HANDLE_H_
 #define OCEANBASE_COMMON_BTREE_BTREE_BASE_HANDLE_H_
 
@@ -48,4 +63,5 @@ class BtreeCallback {
 } // end namespace sb
 
 #endif
+
 

@@ -1,17 +1,18 @@
 /**
- * (C) 2007-2010 Taobao Inc.
+ * (C) 2007-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
  * Version: $Id$
  *
+ * ob_schema_proxy.h for ...
+ *
  * Authors:
  *   yanran <yanran.hfs@taobao.com>
- *     - some work details if you want
+ *
  */
-
 #ifndef OCEANBASE_TEST_OB_SCHEMA_PROXY_H_
 #define OCEANBASE_TEST_OB_SCHEMA_PROXY_H_
 
@@ -49,3 +50,4 @@ class ObSchemaProxy { // : public updateserver::ObSchemaManagerWrapper
 } // end namespace sb
 
 #endif // OCEANBASE_TEST_OB_SCHEMA_PROXY_H_
+

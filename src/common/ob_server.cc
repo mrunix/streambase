@@ -1,26 +1,23 @@
-/*
- *   (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License version 2 as
- *   published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
+ * ob_server.cc for ...
  *
- *   Version: 0.1
- *
- *   Authors:
- *      qushan <qushan@taobao.com>
- *        - some work details if you want
+ * Authors:
+ *   daoan <daoan@taobao.com>
  *
  */
-
 #include "ob_server.h"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include "utility.h"
 
 namespace sb {
 namespace common {
@@ -41,29 +38,29 @@ uint32_t ObServer::convert_ipv4_addr(const char* ip) {
   return x;
 }
 
-int64_t ObServer::to_string(char* buffer, const int64_t size) const {
-  int64_t pos = 0;
+bool ObServer::to_string(char* buffer, const int32_t size) const {
+  bool res = false;
   if (NULL != buffer && size > 0) {
-    // databuff_printf(buffer, size, pos, "version=%d ", version_);
     if (version_ == IPV4) {
       // ip.v4_ is network byte order
       if (port_ > 0) {
-        databuff_printf(buffer, size, pos, "%d.%d.%d.%d:%d",
-                        (this->ip.v4_ & 0xFF),
-                        (this->ip.v4_ >> 8) & 0xFF,
-                        (this->ip.v4_ >> 16) & 0xFF,
-                        (this->ip.v4_ >> 24) & 0xFF,
-                        port_);
+        snprintf(buffer, size, "%d.%d.%d.%d:%d",
+                 (this->ip.v4_ & 0xFF),
+                 (this->ip.v4_ >> 8) & 0xFF,
+                 (this->ip.v4_ >> 16) & 0xFF,
+                 (this->ip.v4_ >> 24) & 0xFF,
+                 port_);
       } else {
-        databuff_printf(buffer, size, pos, "%d.%d.%d.%d",
-                        (this->ip.v4_ & 0xFF),
-                        (this->ip.v4_ >> 8) & 0xFF,
-                        (this->ip.v4_ >> 16) & 0xFF,
-                        (this->ip.v4_ >> 24) & 0xFF);
+        snprintf(buffer, size, "%d.%d.%d.%d",
+                 (this->ip.v4_ & 0xFF),
+                 (this->ip.v4_ >> 8) & 0xFF,
+                 (this->ip.v4_ >> 16) & 0xFF,
+                 (this->ip.v4_ >> 24) & 0xFF);
       }
     }
+    res = true;
   }
-  return pos;
+  return res;
 }
 
 bool ObServer::ip_to_string(char* buffer, const int32_t size) const {
@@ -80,16 +77,6 @@ bool ObServer::ip_to_string(char* buffer, const int32_t size) const {
     res = true;
   }
   return res;
-}
-
-const char* ObServer::to_cstring() const {
-  static const int64_t BUFFER_NUM = 16;
-  static __thread char buff[BUFFER_NUM][OB_IP_STR_BUFF];
-  static __thread int64_t i = 0;
-  i++;
-  memset(buff[i % BUFFER_NUM], 0, OB_IP_STR_BUFF);
-  to_string(buff[i % BUFFER_NUM], OB_IP_STR_BUFF);
-  return buff[ i % BUFFER_NUM];
 }
 
 bool ObServer::set_ipv4_addr(const char* ip, const int32_t port) {
@@ -128,38 +115,40 @@ int64_t ObServer::get_ipv4_server_id() const {
 }
 
 bool ObServer::operator ==(const ObServer& rv) const {
-  bool res = true;
-  if (version_ != rv.version_) {
-    res = false;
-  } else if (port_ != rv.port_) {
-    res = false;
-  } else {
-    if (version_ == IPV4) {
-      if (ip.v4_ != rv.ip.v4_) {
-        res = false;
-      }
-    } else if (version_ == IPV6) {
-      if (ip.v6_[0] != rv.ip.v6_[0] ||
-          ip.v6_[1] != rv.ip.v6_[1] ||
-          ip.v6_[2] != rv.ip.v6_[2] ||
-          ip.v6_[3] != rv.ip.v6_[3]) {
-        res = false;
-      }
-    }
-  }
-  return res;
-}
+  /*
+   bool res = true;
+   if (version_ != rv.version_)
+   {
+     res = false;
+   }
+   if (res)
+   {
+     if (version_ == IPV4)
+     {
+       if (ip.v4_ != rv.ip.v4_)
+       {
+         res = false;
+       }
+     }
+     else if (version_ == IPV6)
+     {
+       if (ip.v6_[0] != rv.ip.v6_[0] ||
+           ip.v6_[1] != rv.ip.v6_[1] ||
+           ip.v6_[2] != rv.ip.v6_[2] ||
+           ip.v6_[3] != rv.ip.v6_[3] )
+       {
+         res = false;
+       }
+     }
+     else
+     {
+       assert(false); //never reach this
+     }
 
-bool ObServer::operator !=(const ObServer& rv) const {
-  bool res = false;
-  if (*this == rv) {
-    res = false;
-  } else {
-    res = true;
-  }
-  return res;
+   }
+   */
+  return (!(*this < rv)) && (!(rv < *this));
 }
-
 bool ObServer::compare_by_ip(const ObServer& rv) const {
   bool res = true;
   if (version_ != rv.version_) {
@@ -173,36 +162,10 @@ bool ObServer::compare_by_ip(const ObServer& rv) const {
   }
   return res;
 }
-
-bool ObServer::is_same_ip(const ObServer& rv) const {
-  bool res = true;
-  if (version_ != rv.version_) {
-    res = false;
-  } else {
-    if (version_ == IPV4) {
-      if (ip.v4_ != rv.ip.v4_) {
-        res = false;
-      }
-    } else if (version_ == IPV6) {
-      if (ip.v6_[0] != rv.ip.v6_[0] ||
-          ip.v6_[1] != rv.ip.v6_[1] ||
-          ip.v6_[2] != rv.ip.v6_[2] ||
-          ip.v6_[3] != rv.ip.v6_[3]) {
-        res = false;
-      }
-    }
-  }
-  return res;
-}
-
 bool ObServer::operator < (const ObServer& rv) const {
   bool res = compare_by_ip(rv);
-  // a >= b
-  if (false == res) {
-    // b >= a
-    if (false == rv.compare_by_ip(*this)) {
-      res = port_ < rv.port_;
-    }
+  if (!res) {
+    res = port_ < rv.port_;
   }
   return res;
 }
@@ -213,26 +176,9 @@ int32_t ObServer::get_version() const {
 int32_t ObServer::get_port() const {
   return port_;
 }
-uint32_t ObServer::get_ipv4() const {
+int32_t ObServer::get_ipv4() const {
   return ip.v4_;
 }
-uint64_t ObServer::get_ipv6_high() const {
-  const uint64_t* p = reinterpret_cast<const uint64_t*>(&ip.v6_[0]);
-  return *p;
-}
-uint64_t ObServer::get_ipv6_low() const {
-  const uint64_t* p = reinterpret_cast<const uint64_t*>(&ip.v6_[2]);
-  return *p;
-}
-
-void ObServer::set_max() {
-  ip.v4_ = UINT32_MAX;
-  port_ = UINT32_MAX;
-  for (int i = 0; i < 4; i++) {
-    ip.v6_[i] = UINT32_MAX;
-  }
-}
-
 void ObServer::set_port(int32_t port) {
   port_ = port;
 }
@@ -301,4 +247,5 @@ DEFINE_GET_SERIALIZE_SIZE(ObServer) {
 
 } // end namespace common
 } // end namespace sb
+
 

@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * test_sstablemgr.cc for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #include "common/ob_malloc.h"
 #include "updateserver/ob_sstable_mgr.h"
 
@@ -25,10 +40,6 @@ class OBS : public ISSTableObserver {
     TBSYS_LOG(INFO, "erase sstable id=%lu", sstable_id);
     return OB_SUCCESS;
   };
-  virtual int add_sstable(const common::ObList<uint64_t>& sstable_list) {
-    TBSYS_LOG(INFO, "add sstable list size=%lu", sstable_list.size());
-    return OB_SUCCESS;
-  };
 };
 
 class FP { // : public IFetchParam
@@ -50,7 +61,6 @@ class TestSSTableInfo {
   static int main(int argc, char** argv) {
     SSTableMgr sstable_mgr;
     OBS obs;
-    UNUSED(argc);
 
     char* root = argv[1];
     char* raid = argv[2];
@@ -182,4 +192,6 @@ int main(int argc, char** argv) {
   TBSYS_LOGGER.setLogLevel("info");
   return TestSSTableInfo::main(argc, argv);
 }
+
+
 

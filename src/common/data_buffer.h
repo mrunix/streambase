@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * data_buffer.h for ...
+ *
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
+ */
 #ifndef OCEANBASE_COMMON_OB_DATA_BUFFER_H_
 
 #define OCEANBASE_COMMON_OB_DATA_BUFFER_H_
@@ -6,7 +21,6 @@
 
 namespace sb {
 namespace common {
-
 class ObDataBuffer {
  public:
   ObDataBuffer() : data_(NULL), capacity_(0), position_(0) {
@@ -59,6 +73,7 @@ class ObDataBuffer {
   int64_t limit_;
 };
 } /* common */
-} /* oceanbase */
+} /* sb */
 
 #endif /* end of include guard: OCEANBASE_COMMON_OB_DATA_BUFFER_H_ */
+

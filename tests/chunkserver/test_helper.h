@@ -38,6 +38,8 @@ void check_string(const ObString& expected, const ObString& real);
 
 void check_obj(const ObObj& expected, const ObObj& real);
 
+void check_range(const ObRange& expected, const ObRange& real);
+
 void check_cell(const ObCellInfo& expected, const ObCellInfo& real);
 
 void check_cell_with_name(const ObCellInfo& expected, const ObCellInfo& real);
@@ -76,8 +78,6 @@ int write_cg_sstable(const ObCellInfo** cell_infos,
                      const int64_t row_num, const int64_t col_num, const char* sstable_file_path);
 int write_sstable(const ObCellInfo** cell_infos,
                   const int64_t row_num, const int64_t col_num, const char* sstable_file_path);
-int write_empty_sstable(const ObCellInfo** cell_infos,
-                        const int64_t row_num, const int64_t col_num, const char* sstable_file_path);
 
 class SSTableBuilder {
  public:
@@ -108,7 +108,7 @@ class MultSSTableBuilder {
 
   }
 
-  int generate_sstable_files(bool empty_sstable = false);
+  int generate_sstable_files();
 
   int get_sstable_id(ObSSTableId& sstable_id, const int64_t index) const {
     int ret = OB_SUCCESS;
@@ -147,15 +147,15 @@ class TabletManagerIniter {
 
   }
 
-  int init(bool create = false, bool empty_tablet = false);
+  int init(bool create = false);
 
   const MultSSTableBuilder& get_mult_sstable_builder() const {
     return builder_;
   }
 
  private:
-  int create_tablet(const ObNewRange& range, const ObSSTableId& sst_id, bool serving, bool add_sst_id = true, const int64_t version = 1);
-  int create_tablets(bool empty_tablet = false);
+  int create_tablet(const ObRange& range, const ObSSTableId& sst_id, bool serving, const int64_t version = 1);
+  int create_tablets();
 
  private:
   bool inited_;

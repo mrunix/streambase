@@ -30,44 +30,28 @@ int DbRecordSet::Iterator::get_record(DbRecord** recp) {
   return last_err_;
 }
 
-DbRecordSet::Iterator::Iterator() {
-  ds_ = NULL;
-  last_err_ = OB_SUCCESS;
-}
-
 DbRecordSet::Iterator::Iterator(DbRecordSet* ds, common::ObScannerIterator cur_pos) {
   ds_ = ds;
   cur_pos_ = rec_end_pos_ = cur_pos;
-
+  fill_record(rec_end_pos_);
   last_err_ = OB_SUCCESS;
-  bool has_record = false;
-  if (fill_record(rec_end_pos_, has_record) == common::OB_ITER_END) {
-    if (!has_record)
-      cur_pos_ = rec_end_pos_;
-  }
 }
 
-int DbRecordSet::Iterator::fill_record(common::ObScannerIterator& itr, bool& has_record) {
+void DbRecordSet::Iterator::fill_record(common::ObScannerIterator& itr) {
   common::ObCellInfo* cell;
   bool row_changed = false;
   bool row_start = false;
   int ret = OB_SUCCESS;
   int64_t value;
-  has_record = false;
 
   record_.reset();
-
-  //skip first row
   while ((ret = itr.get_cell(&cell, &row_changed)) == common::OB_SUCCESS) {
     if (cell->value_.get_ext(value) == common::OB_SUCCESS) {
       itr++;
-    } else
-      break;
-  }
+      continue;
+    }
 
-  while ((ret = itr.get_cell(&cell, &row_changed)) == common::OB_SUCCESS) {
-    has_record = true;
-
+    record_.append_column(*cell);
     if (row_changed) {
       if (row_start == false)
         row_start = true;
@@ -75,8 +59,6 @@ int DbRecordSet::Iterator::fill_record(common::ObScannerIterator& itr, bool& has
         break;
       }
     }
-
-    record_.append_column(*cell);
     itr++;
   }
 
@@ -86,31 +68,11 @@ int DbRecordSet::Iterator::fill_record(common::ObScannerIterator& itr, bool& has
   } else {
     last_err_ = OB_SUCCESS;
   }
-
-  return ret;
-}
-
-bool DbRecordSet::empty() const {
-  return scanner_.is_empty();
-}
-
-bool DbRecordSet::has_more_data() const {
-  bool fullfilled = false;
-  int64_t item_num;
-
-  scanner_.get_is_req_fullfilled(fullfilled, item_num);
-  return fullfilled;
-}
-
-int DbRecordSet::get_last_rowkey(common::ObRowkey& last_key) {
-  return scanner_.get_last_row_key(last_key);
 }
 
 DbRecordSet::Iterator& DbRecordSet::Iterator::operator++(int i) {
-  UNUSED(i);
   cur_pos_ = rec_end_pos_;
-  bool has_record = false;
-  fill_record(rec_end_pos_, has_record);
+  fill_record(rec_end_pos_);
   return *this;
 }
 

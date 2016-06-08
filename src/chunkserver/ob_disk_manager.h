@@ -1,16 +1,19 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- * ob_disk_manager.h is for what ...
+ * Version: 5567
  *
- * Version: $id$
+ * ob_disk_manager.h
  *
  * Authors:
- *   maoqi <maoqi@taobao.com>
+ *     maoqi <maoqi@taobao.com>
+ * Changes:
+ *     qushan <qushan@taobao.com>
+ *     huating <huating.zmq@taobao.com>
  *
  */
 
@@ -40,19 +43,17 @@ class ObDiskManager {
   int32_t get_dest_disk();
   int32_t get_disk_for_migrate();
   void shrink_space(const int32_t disk_no, const int64_t used);
-  void add_used_space(const int32_t disk_no, const int64_t used,
-                      const bool decr_pending_cnt = true);
+  void add_used_space(const int32_t disk_no, const int64_t used);
   void release_space(const int32_t disk_no, const int64_t size);
   int64_t get_total_capacity(void) const;
   int64_t get_total_used(void) const;
   void add_sstable_num(const int32_t disk_no, const int32_t num);
-  int set_disk_status(const int32_t disk_no, const ObDiskStatus stat);
+  void set_disk_status(const int32_t disk_no, const ObDiskStatus stat);
   const int32_t* get_disk_no_array(int32_t& disk_num) const;
-  bool is_disk_avail(const int32_t disk_no) const;
   void dump();
  private:
   void reset();
-  int32_t find_disk(const int32_t disk_no) const;
+  int32_t find_disk(const int32_t disk_no);
   static const char* PROC_MOUNTS_FILE;
   static const int32_t PROC_MOUNTS_FILE_SIZE;
   bool is_mount_point(const char* path) const;
@@ -69,5 +70,5 @@ class ObDiskManager {
 };
 
 } /* chunkserver */
-} /* oceanbase */
+} /* sb */
 #endif

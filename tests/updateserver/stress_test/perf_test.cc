@@ -1,20 +1,18 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2007-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: 0.1: perf_test.cc,v 0.1 2011/03/22 14:32:03 chuanhui Exp $
+ * perf_test.cc for ...
  *
  * Authors:
- *   chuanhui <rizhao.ych@taobao.com>
- *     - some work details if you want
+ *   rizhao <rizhao.ych@taobao.com>
  *
  */
-
 #include <pthread.h>
 #include <unistd.h>
 #include <getopt.h>
@@ -813,6 +811,7 @@ int main(int argc, char** argv) {
   g_update_client.destroy();
   return 0;
 }
+
 
 
 

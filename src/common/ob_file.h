@@ -1,22 +1,18 @@
-////===================================================================
-//
-// ob_file_utils.h / common / Oceanbase
-//
-// Copyright (C) 2010 Taobao.com, Inc.
-//
-// Created on 2011-05-25 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_file.h for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #ifndef  OCEANBASE_COMMON_FILE_H_
 #define  OCEANBASE_COMMON_FILE_H_
 #include <stdlib.h>
@@ -26,7 +22,6 @@
 #include <new>
 #include <algorithm>
 #include <malloc.h>
-#include <libaio.h>
 #include "ob_define.h"
 #include "ob_malloc.h"
 #include "ob_atomic.h"
@@ -88,7 +83,6 @@ class IFileAppender {
   virtual int create(const ObString& fname);
   virtual void close();
   virtual bool is_opened() const;
-  virtual int get_fd() const;
  public:
   virtual int append(const void* buf, const int64_t count, const bool is_fsync) = 0;
   virtual int async_append(const void* buf, const int64_t count, IFileAsyncCallback* callback) = 0;
@@ -128,8 +122,8 @@ class DirectFileReader : public IFileReader {
   static const int OPEN_FLAGS = O_RDONLY | O_DIRECT;
   static const int OPEN_MODE = S_IRWXU;
  public:
-  static const int64_t DEFAULT_ALIGN_SIZE = 4L * 1024L;
-  static const int64_t DEFAULT_BUFFER_SIZE = 1L * 1024L * 1024L;
+  static const int64_t DEFAULT_ALIGN_SIZE = 4 * 1024;
+  static const int64_t DEFAULT_BUFFER_SIZE = 1 * 1024 * 1024;
  public:
   DirectFileReader(const int64_t buffer_size = DEFAULT_BUFFER_SIZE, const int64_t align_size = DEFAULT_ALIGN_SIZE);
   ~DirectFileReader();
@@ -154,12 +148,11 @@ class BufferFileAppender : public IFileAppender {
   static const int EXCL_FLAGS = O_EXCL;
   static const int OPEN_MODE = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
  public:
-  static const int64_t DEFAULT_BUFFER_SIZE = 2L * 1024L * 1024L;
+  static const int64_t DEFAULT_BUFFER_SIZE = 2 * 1024 * 1024;
  public:
   BufferFileAppender(const int64_t buffer_size = DEFAULT_BUFFER_SIZE);
   ~BufferFileAppender();
  public:
-  void close();
   int append(const void* buf, const int64_t count, const bool is_fsync);
   int async_append(const void* buf, const int64_t count, IFileAsyncCallback* callback);
   int fsync();
@@ -191,20 +184,18 @@ class DirectFileAppender : public IFileAppender {
   static const int EXCL_FLAGS = O_EXCL;
   static const int OPEN_MODE = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
  public:
-  static const int64_t DEFAULT_ALIGN_SIZE = 4L * 1024L;
-  static const int64_t DEFAULT_BUFFER_SIZE = 2L * 1024L * 1024L;
+  static const int64_t DEFAULT_ALIGN_SIZE = 4 * 1024;
+  static const int64_t DEFAULT_BUFFER_SIZE = 2 * 1024 * 1024;
  public:
   DirectFileAppender(const int64_t buffer_size = DEFAULT_BUFFER_SIZE, const int64_t align_size = DEFAULT_ALIGN_SIZE);
   ~DirectFileAppender();
  public:
-  void close();
   int append(const void* buf, const int64_t count, const bool is_fsync);
   int async_append(const void* buf, const int64_t count, IFileAsyncCallback* callback);
   int fsync();
   int get_open_flags() const;
   int get_open_mode() const;
   int64_t get_file_pos() const {return file_pos_;}
-  int set_align_size(const int64_t align_size);
  private:
   int buffer_sync_(bool* need_truncate = NULL);
  private:
@@ -216,7 +207,7 @@ class DirectFileAppender : public IFileAppender {
   void set_file_pos_(const int64_t file_pos);
  private:
   int open_flags_;
-  int64_t align_size_;
+  const int64_t align_size_;
   const int64_t buffer_size_;
   int64_t buffer_pos_;
   int64_t file_pos_;
@@ -255,7 +246,7 @@ extern int64_t get_file_size(const char* fname);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class ObFileBuffer : public IFileBuffer {
-  static const int64_t MIN_BUFFER_SIZE = 1L * 1024L * 1024L;
+  static const int64_t MIN_BUFFER_SIZE = 1 * 1024 * 1024;
  public:
   ObFileBuffer();
   ~ObFileBuffer();
@@ -267,7 +258,7 @@ class ObFileBuffer : public IFileBuffer {
   int assign(const int64_t size);
  public:
   void release();
- protected:
+ private:
   char* buffer_;
   int64_t base_pos_;
   int64_t buffer_size_;
@@ -302,33 +293,18 @@ class ObFileReader {
   FileComponent::IFileReader* file_;
 };
 
-class ObIFileAppender {
- public:
-  virtual ~ObIFileAppender() {};
- public:
-  virtual int open(const ObString& fname, const bool dio, const bool is_create, const bool is_trunc = false,
-                   const int64_t align_size = FileComponent::DirectFileAppender::DEFAULT_ALIGN_SIZE) = 0;
-  virtual int create(const ObString& fname, const bool dio,
-                     const int64_t align_size = FileComponent::DirectFileAppender::DEFAULT_ALIGN_SIZE) = 0;
-  virtual void close() = 0;
-  virtual int64_t get_file_pos() const = 0;
-  virtual int append(const void* buf, const int64_t count, const bool is_fsync) = 0;
-  virtual int fsync() = 0;
-};
-
 // file appender 线程不安全 只允许同时一个线程调用
 // 关闭普通io的实现 暂时只支持dio
-class ObFileAppender : public ObIFileAppender {
+class ObFileAppender {
  public:
   ObFileAppender();
-  ~ObFileAppender();
+  virtual ~ObFileAppender();
  public:
   // 子类可以重载open close get_file_pos
-  int open(const ObString& fname, const bool dio, const bool is_create, const bool is_trunc = false,
-           const int64_t align_size = FileComponent::DirectFileAppender::DEFAULT_ALIGN_SIZE);
-  void close();
-  int64_t get_file_pos() const {return NULL == file_ ? -1 : file_->get_file_pos();}
-  virtual int get_fd() const { return file_->get_fd();}
+  virtual int open(const ObString& fname, const bool dio, const bool is_create, const bool is_trunc = false,
+                   const int64_t align_size = FileComponent::DirectFileAppender::DEFAULT_ALIGN_SIZE);
+  virtual void close();
+  virtual int64_t get_file_pos() const {return NULL == file_ ? -1 : file_->get_file_pos();}
  public:
   int create(const ObString& fname, const bool dio,
              const int64_t align_size = FileComponent::DirectFileAppender::DEFAULT_ALIGN_SIZE);
@@ -336,8 +312,8 @@ class ObFileAppender : public ObIFileAppender {
  public:
   // 子类可以重载append fsync
   // 如果没有设置is_fsync 那么默认使用内部buffer缓存数据 直到buffer满后刷磁盘
-  int append(const void* buf, const int64_t count, const bool is_fsync);
-  int fsync();
+  virtual int append(const void* buf, const int64_t count, const bool is_fsync);
+  virtual int fsync();
  public:
   // 暂时不实现
   int async_append(const void* buf, const int64_t count, IFileAsyncCallback* callback);
@@ -345,177 +321,10 @@ class ObFileAppender : public ObIFileAppender {
   DISALLOW_COPY_AND_ASSIGN(ObFileAppender);
  private:
   FileComponent::IFileAppender* file_;
-  FileComponent::DirectFileAppender direct_file_;
-  FileComponent::BufferFileAppender buffer_file_;
 };
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#define __USE_AIO_FILE
-#ifdef __USE_AIO_FILE
-class ObIWaiter {
- public:
-  virtual ~ObIWaiter() {};
-  virtual void wait() = 0;
-};
-
-template <class T,
-          int64_t SIZE>
-class ObWaitablePool {
-  struct Node {
-    T data;
-    Node* next;
-  };
- public:
-  ObWaitablePool();
-  ~ObWaitablePool();
- public:
-  int alloc_obj(T*& obj, ObIWaiter& waiter);
-  void free_obj(T* obj);
-  int64_t used() const {return used_;};
- private:
-  Node* objs_;
-  Node* list_;
-  int64_t used_;
-};
-
-template <class T, int64_t SIZE>
-ObWaitablePool<T, SIZE>::ObWaitablePool() : list_(NULL),
-  used_(0) {
-  if (NULL == (objs_ = (Node*)ob_malloc(sizeof(Node) * SIZE, ObModIds::OB_WAITABLE_POOL))) {
-    TBSYS_LOG(ERROR, "alloc obj array fail");
-  } else {
-    for (int64_t i = 0; i < SIZE; i++) {
-      new(&objs_[i].data) T();
-      objs_[i].next = list_;
-      list_ = &objs_[i];
-    }
-  }
-}
-
-template <class T, int64_t SIZE>
-ObWaitablePool<T, SIZE>::~ObWaitablePool() {
-  Node* iter = list_;
-  int64_t counter = 0;
-  while (NULL != iter) {
-    Node* next = iter->next;
-    iter->data.~T();
-    iter = next;
-    counter++;
-  }
-  if (NULL != objs_) {
-    if (SIZE != counter) {
-      TBSYS_LOG(ERROR, "still have %ld node not been free, memory=%p will leek", SIZE - counter, objs_);
-    } else {
-      ob_free(objs_);
-    }
-  }
-}
-
-template <class T, int64_t SIZE>
-int ObWaitablePool<T, SIZE>::alloc_obj(T*& obj, ObIWaiter& waiter) {
-  int ret = OB_SUCCESS;
-  if (NULL == objs_) {
-    ret = OB_NOT_INIT;
-  } else {
-    if (NULL == list_) {
-      waiter.wait();
-    }
-    if (NULL == list_) {
-      ret = OB_PROCESS_TIMEOUT;
-    } else {
-      obj = &list_->data;
-      list_ = list_->next;
-      used_ += 1;
-    }
-  }
-  return ret;
-}
-
-template <class T, int64_t SIZE>
-void ObWaitablePool<T, SIZE>::free_obj(T* obj) {
-  if (NULL != objs_
-      && NULL != obj) {
-    Node* node = (Node*)(obj);
-    node->next = list_;
-    list_ = node;
-    used_ -= 1;
-  }
-}
-
-class ObFileAsyncAppender : public ObIFileAppender, ObIWaiter {
-  struct AIOCB {
-    AIOCB() : buffer_pos(0),
-      buffer(NULL) {
-      memset(&cb, 0, sizeof(cb));
-    };
-    ~AIOCB() {
-      if (NULL != buffer) {
-        free(buffer);
-      }
-    };
-    struct iocb cb;
-    int64_t buffer_pos;
-    char* buffer;
-  };
-  struct OpenParam {
-    OpenParam(const bool dio,
-              const bool is_create,
-              const bool is_trunc,
-              const bool is_excl) : flag(O_RDWR),
-      mode(S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) {
-      flag |= dio       ? O_DIRECT  : 0;
-      flag |= is_create ? O_CREAT   : 0;
-      flag |= is_trunc  ? O_TRUNC   : 0;
-      flag |= is_excl   ? O_EXCL    : 0;
-    };
-    int get_open_flags() const {
-      return flag;
-    };
-    int get_open_mode() const {
-      return mode;
-    };
-    int flag;
-    int mode;
-  };
-  static const int64_t AIO_BUFFER_SIZE = 16L << 20;
-  static const int AIO_MAXEVENTS = 8;
-  static const int64_t AIO_WAIT_TIME_US = 1000000;
-  typedef ObWaitablePool<AIOCB, AIO_MAXEVENTS> Pool;
- public:
-  ObFileAsyncAppender();
-  ~ObFileAsyncAppender();
- public:
-  int open(const ObString& fname,
-           const bool dio,
-           const bool is_create,
-           const bool is_trunc = false,
-           const int64_t align_size = FileComponent::DirectFileAppender::DEFAULT_ALIGN_SIZE);
-  int create(const ObString& fname,
-             const bool dio,
-             const int64_t align_size = FileComponent::DirectFileAppender::DEFAULT_ALIGN_SIZE);
-  void close();
-  int64_t get_file_pos() const;
-  int append(const void* buf,
-             const int64_t count,
-             const bool is_fsync);
-  int fsync();
- public:
-  void wait();
- private:
-  int submit_iocb_(AIOCB* iocb);
-  AIOCB* get_iocb_();
- private:
-  Pool pool_;
-  int fd_;
-  int64_t file_pos_;
-  int64_t align_size_;
-  AIOCB* cur_iocb_;
-  io_context_t ctx_;
-};
-#endif // __USE_AIO_FILE
 }
 }
 
 #endif //OCEANBASE_COMMON_FILE_H_
+
 

@@ -2,26 +2,26 @@
 // Unit Test Steps
 // build trust relationship with 10.232.35.41
 // at 10.232.35.41
-// rm -r ~/code/oceanbase/tests/common/tmp1234
-// mkdir ~/code/oceanbase/tests/common/tmp1234
-// touch ~/code/oceanbase/tests/common/tmp1234/1001
-// touch ~/code/oceanbase/tests/common/tmp1234/1002
-// touch ~/code/oceanbase/tests/common/tmp1234/1003
-// touch ~/code/oceanbase/tests/common/tmp1234/1004
-// touch ~/code/oceanbase/tests/common/tmp1234/1005
-// touch ~/code/oceanbase/tests/common/tmp1234/1006
-// touch ~/code/oceanbase/tests/common/tmp1234/1007
-// touch ~/code/oceanbase/tests/common/tmp1234/1008
-// touch ~/code/oceanbase/tests/common/tmp1234/1009
-// touch ~/code/oceanbase/tests/common/tmp1234/1010
-// touch ~/code/oceanbase/tests/common/tmp1234/1001.checkpoint
-// touch ~/code/oceanbase/tests/common/tmp1234/99998888.checkpoint
-// touch ~/code/oceanbase/tests/common/tmp1234/99998888.schema
-// touch ~/code/oceanbase/tests/common/tmp1234/99998888.memtable
-// touch ~/code/oceanbase/tests/common/tmp1234/9999.checkpoint
-// touch ~/code/oceanbase/tests/common/tmp1234/9999.schema
-// touch ~/code/oceanbase/tests/common/tmp1234/9999.memtable
-// touch ~/code/oceanbase/tests/common/tmp1234/0
+// rm -r ~/code/sb/tests/common/tmp1234
+// mkdir ~/code/sb/tests/common/tmp1234
+// touch ~/code/sb/tests/common/tmp1234/1001
+// touch ~/code/sb/tests/common/tmp1234/1002
+// touch ~/code/sb/tests/common/tmp1234/1003
+// touch ~/code/sb/tests/common/tmp1234/1004
+// touch ~/code/sb/tests/common/tmp1234/1005
+// touch ~/code/sb/tests/common/tmp1234/1006
+// touch ~/code/sb/tests/common/tmp1234/1007
+// touch ~/code/sb/tests/common/tmp1234/1008
+// touch ~/code/sb/tests/common/tmp1234/1009
+// touch ~/code/sb/tests/common/tmp1234/1010
+// touch ~/code/sb/tests/common/tmp1234/1001.checkpoint
+// touch ~/code/sb/tests/common/tmp1234/99998888.checkpoint
+// touch ~/code/sb/tests/common/tmp1234/99998888.schema
+// touch ~/code/sb/tests/common/tmp1234/99998888.memtable
+// touch ~/code/sb/tests/common/tmp1234/9999.checkpoint
+// touch ~/code/sb/tests/common/tmp1234/9999.schema
+// touch ~/code/sb/tests/common/tmp1234/9999.memtable
+// touch ~/code/sb/tests/common/tmp1234/0
 
 #include <gtest/gtest.h>
 

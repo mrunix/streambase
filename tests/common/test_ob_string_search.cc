@@ -35,9 +35,9 @@ TEST_F(TestObStringSearch, test_kr_fast_print) {
 
   const char* text    = "Free software is a matter of freedom: people should be free to use software in all the ways that are socially useful. Software differs from material objects—such as chairs, sandwiches, and gasoline—in that it can be copied and changed much more easily. These possibilities make software as useful as abcdefghigklmnopqrstuvwxyzABCDEFGIJKLMNOPQRSTUVWXYZabcdefghigklmnopqrstuvwxyz it is; we believe software use";
   ObString txt;
-  txt.assign(const_cast<char*>(text), static_cast<int32_t>(strlen(text)));
+  txt.assign(const_cast<char*>(text), strlen(text));
   for (int i = 0; i < 8; ++i) {
-    ObString pat(static_cast<int32_t>(strlen(pattern[i])), static_cast<int32_t>(strlen(pattern[i])), const_cast<char*>(pattern[i]));
+    ObString pat(strlen(pattern[i]), strlen(pattern[i]), const_cast<char*>(pattern[i]));
     uint64_t pat_print = ObStringSearch::cal_print(pat);
     if (7 == i) {
       EXPECT_EQ(-1, ObStringSearch::kr_search(pat, pat_print, txt));

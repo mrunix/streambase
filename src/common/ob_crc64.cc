@@ -1,20 +1,15 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_crc64.cc is for what ...
+ * Version: $Id$
  *
- *   The method to compute the CRC64 is referred to as
- *      CRC-64-ISO:
- *  http://en.wikipedia.org/wiki/Cyclic_redundancy_check The
- *      generator polynomial is x^64 + x^4 + x^3 + x + 1.
- *      Reverse polynom: 0xd800000000000000ULL *
+ * ob_crc64.cc for ...
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
  *   yubai <yubai.lk@taobao.com>
  *
  */
@@ -66,7 +61,7 @@ void ob_init_crc64_table(const uint64_t polynom) {
       }
     }
     s_crc64_table[i] = shift;
-    s_optimized_crc64_table[i] = static_cast<int16_t >((shift >> 48) & 0xffff);
+    s_optimized_crc64_table[i] = ((shift >> 48) & 0xffff);
   }
 }
 
@@ -217,46 +212,46 @@ static const uint64_t s_crc64_table[] =
 #ifdef __x86_64__
 #define DO_1_OPTIMIZED_STEP(uCRC64, pu8)  \
                 __asm__ __volatile__(   \
-        "movq (%1),%%mm0\n\t"  \
-        "pxor  %0, %%mm0\n\t"   \
-        "pextrw $0, %%mm0, %%eax\n\t"   \
+    		"movq (%1),%%mm0\n\t"  \
+    		"pxor  %0, %%mm0\n\t"   \
+    		"pextrw $0, %%mm0, %%eax\n\t"   \
             "movzbq %%al, %%r8\n\t" \
-        "movzwl (%2,%%r8,2), %%ecx\n\t"        \
+    		"movzwl (%2,%%r8,2), %%ecx\n\t"        \
             "pinsrw $0, %%ecx, %%mm3\n\t"      \
-        "pextrw $3, %%mm0, %%ebx\n\t"   \
+    		"pextrw $3, %%mm0, %%ebx\n\t"   \
             "xorb %%bh, %%cl\n\t" \
             "movzbq %%cl, %%r8\n\t" \
-        "movzwl (%2,%%r8,2), %%edx\n\t" \
-        "pinsrw $3, %%edx, %%mm4\n\t"    \
+    		"movzwl (%2,%%r8,2), %%edx\n\t" \
+    		"pinsrw $3, %%edx, %%mm4\n\t"    \
             "movb %%ah, %%al\n\t"   \
             "movzbq %%al, %%r8\n\t" \
             "movzwl (%2, %%r8,2), %%ecx\n\t"    \
-        "pinsrw $0, %%ecx, %%mm4\n\t"    \
+    		"pinsrw $0, %%ecx, %%mm4\n\t"    \
             "movzbq %%bl, %%r8\n\t" \
-        "movzwl (%2, %%r8,2), %%edx\n\t"       \
-        "pinsrw $3, %%edx, %%mm3\n\t"    \
-        "pextrw $1, %%mm0, %%eax\n\t"   \
+    		"movzwl (%2, %%r8,2), %%edx\n\t"       \
+    		"pinsrw $3, %%edx, %%mm3\n\t"    \
+    		"pextrw $1, %%mm0, %%eax\n\t"   \
             "movzbq %%al, %%r8\n\t" \
-        "movzwl (%2, %%r8,2), %%ecx\n\t" \
-        "pinsrw $1, %%ecx, %%mm3\n\t"    \
+    		"movzwl (%2, %%r8,2), %%ecx\n\t" \
+    		"pinsrw $1, %%ecx, %%mm3\n\t"    \
             "movb %%ah, %%al\n\t"   \
             "movzbq %%al, %%r8\n\t" \
-        "movzwl (%2, %%r8,2), %%edx\n\t" \
-        "pinsrw $1, %%edx, %%mm4\n\t"    \
-        "pextrw $2, %%mm0, %%ebx\n\t"   \
+    		"movzwl (%2, %%r8,2), %%edx\n\t" \
+    		"pinsrw $1, %%edx, %%mm4\n\t"    \
+    		"pextrw $2, %%mm0, %%ebx\n\t"   \
             "movzbq %%bl, %%r8\n\t" \
-        "movzwl (%2, %%r8,2), %%ecx\n\t" \
-        "pinsrw $2, %%ecx, %%mm3\n\t"    \
+    		"movzwl (%2, %%r8,2), %%ecx\n\t" \
+    		"pinsrw $2, %%ecx, %%mm3\n\t"    \
             "movb %%bh, %%al\n\t"   \
             "movzbq %%al, %%r8\n\t" \
-        "movzwl (%2, %%r8,2), %%edx\n\t" \
-        "pinsrw $2, %%edx, %%mm4\n\t"    \
+    		"movzwl (%2, %%r8,2), %%edx\n\t" \
+    		"pinsrw $2, %%edx, %%mm4\n\t"    \
             "psrlq $8, %%mm3\n\t" \
-        "pxor %%mm3, %%mm4\n\t" \
-        "movq %%mm4, %0\n\t"    \
-        :"+&y" (uCRC64) \
-        :"r"(pu8),"D"(s_optimized_crc64_table)   \
-        :"eax","ebx","ecx","edx","mm0","mm3","mm4","r8");
+    		"pxor %%mm3, %%mm4\n\t" \
+    		"movq %%mm4, %0\n\t"    \
+    		:"+&y" (uCRC64) \
+    		:"r"(pu8),"D"(s_optimized_crc64_table)   \
+    		:"eax","ebx","ecx","edx","mm0","mm3","mm4","r8");
 #else
 #define DO_1_OPTIMIZED_STEP(uCRC64, pu8, u_data, operand1, operand2, table_result0)  \
                 u_data = uCRC64 ^ (*(uint64_t*)pu8); \
@@ -389,4 +384,5 @@ const uint64_t* ob_get_crc64_table() {
 
 }
 }
+
 

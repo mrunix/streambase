@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -55,7 +55,7 @@ TEST_F(TestObSSTableBlockIndexBuilder, test_init) {
 
 TEST_F(TestObSSTableBlockIndexBuilder, test_add_one_entry) {
   ObSSTableBlockIndexBuilder index_builder;
-  char* key = (char*)"test";
+  char* key = "test";
   ObString end_key;
   int ret = OB_SUCCESS;
 
@@ -85,7 +85,7 @@ TEST_F(TestObSSTableBlockIndexBuilder, test_add_one_entry) {
   EXPECT_EQ(0, index_builder.get_end_keys_buffer()->get_total_size());
 
   //right key, wrong record size
-  end_key.assign(key, static_cast<int32_t>(strlen(key)));
+  end_key.assign(key, strlen(key));
   ret = index_builder.add_entry(table_id, column_group_id, end_key, -1);
   EXPECT_TRUE(OB_ERROR == ret);
   EXPECT_EQ(0, index_builder.get_block_count());
@@ -99,7 +99,7 @@ TEST_F(TestObSSTableBlockIndexBuilder, test_add_one_entry) {
   EXPECT_EQ(0, index_builder.get_end_keys_buffer()->get_total_size());
 
   //right key, right offset
-  end_key.assign(key, static_cast<int32_t>(strlen(key)));
+  end_key.assign(key, strlen(key));
   ret = index_builder.add_entry(table_id, column_group_id, end_key, 100);
   EXPECT_TRUE(OB_SUCCESS == ret);
   EXPECT_EQ(1, index_builder.get_block_count());
@@ -132,20 +132,20 @@ TEST_F(TestObSSTableBlockIndexBuilder, test_add_one_entry) {
 
 TEST_F(TestObSSTableBlockIndexBuilder, test_add_many_entries) {
   ObSSTableBlockIndexBuilder index_builder;
-  char* key = (char*)"test test test ";
+  char* key = "test test test ";
   ObString end_key;
   int ret = OB_SUCCESS;
   ObSSTableBlockIndexItem ii;
-  int item_size = static_cast<int32_t>(ii.get_serialize_size());
+  int item_size = ii.get_serialize_size();
 
-  int npindex = static_cast<int32_t>((ObSSTableBlockIndexBuffer::DEFAULT_MEM_BLOCK_SIZE -
-                                      sizeof(ObSSTableBlockIndexBuffer::MemBlock)) / item_size);
+  int npindex = (ObSSTableBlockIndexBuffer::DEFAULT_MEM_BLOCK_SIZE -
+                 sizeof(ObSSTableBlockIndexBuffer::MemBlock)) / item_size;
 
-  int npkey   = static_cast<int32_t>((ObSSTableBlockIndexBuffer::DEFAULT_MEM_BLOCK_SIZE -
-                                      sizeof(ObSSTableBlockIndexBuffer::MemBlock)) / strlen(key));
+  int npkey   = (ObSSTableBlockIndexBuffer::DEFAULT_MEM_BLOCK_SIZE -
+                 sizeof(ObSSTableBlockIndexBuffer::MemBlock)) / strlen(key);
 
-  if (0 == static_cast<int32_t>((ObSSTableBlockIndexBuffer::DEFAULT_MEM_BLOCK_SIZE -
-                                 sizeof(ObSSTableBlockIndexBuffer::MemBlock)) % strlen(key))) {
+  if (0 == (ObSSTableBlockIndexBuffer::DEFAULT_MEM_BLOCK_SIZE -
+            sizeof(ObSSTableBlockIndexBuffer::MemBlock)) % strlen(key)) {
     npkey--;
   }
 
@@ -154,7 +154,7 @@ TEST_F(TestObSSTableBlockIndexBuilder, test_add_many_entries) {
     npindex--;
   }
 
-  end_key.assign(key, static_cast<int32_t>(strlen(key)));
+  end_key.assign(key, strlen(key));
   for (int i = 0; i < 204800; ++i) {
     ret = index_builder.add_entry(table_id, i / 1000, end_key, i * 16 + 1);
     EXPECT_EQ(i + 1, index_builder.get_block_count());
@@ -207,7 +207,7 @@ TEST_F(TestObSSTableBlockIndexBuilder, test_build_index_block) {
   ObSSTableBlockIndexHeader deserialize_header;
   ObSSTableBlockIndexItem index_item;
 
-  char* key = (char*)"test test test test test test test ";
+  char* key = "test test test test test test test ";
   int64_t key_len = strlen(key);
 
   char* index_block = NULL;
@@ -217,7 +217,7 @@ TEST_F(TestObSSTableBlockIndexBuilder, test_build_index_block) {
   int i = 0;
   int ret;
 
-  end_key.assign(key, static_cast<int32_t>(strlen(key)));
+  end_key.assign(key, strlen(key));
   for (i = 0; i < 204800; ++i) {
     ret = index_builder.add_entry(table_id, i / 100, end_key, 320);
     EXPECT_TRUE(OB_SUCCESS == ret);
@@ -230,9 +230,9 @@ TEST_F(TestObSSTableBlockIndexBuilder, test_build_index_block) {
               index_builder.get_index_block_size());
   }
 
-  index_block = (char*)ob_malloc(index_builder.get_index_block_size(), ObModIds::TEST);
+  index_block = (char*)ob_malloc(index_builder.get_index_block_size());
   EXPECT_TRUE(NULL != index_block);
-  ret = index_builder.build_block_index(true, index_block,
+  ret = index_builder.build_block_index(index_block,
                                         index_builder.get_index_block_size(),
                                         index_size);
   EXPECT_TRUE(OB_SUCCESS == ret);
@@ -255,8 +255,7 @@ TEST_F(TestObSSTableBlockIndexBuilder, test_build_index_block) {
   EXPECT_EQ((int64_t)(sizeof(ObSSTableBlockIndexHeader)
                       + sizeof(ObSSTableBlockIndexItem) * i),
             deserialize_header.end_key_char_stream_offset_);
-  EXPECT_EQ(0, deserialize_header.rowkey_flag_);
-  EXPECT_EQ(0, deserialize_header.reserved16_);
+  EXPECT_EQ(0, deserialize_header.reserved32_);
   EXPECT_EQ(0, deserialize_header.reserved64_[0]);
   EXPECT_EQ(0, deserialize_header.reserved64_[1]);
 

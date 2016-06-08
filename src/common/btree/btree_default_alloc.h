@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./btree_default_alloc.h for ...
+ *
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
+ */
 #ifndef OCEANBASE_COMMON_BTREE_BTREE_DEFAULT_ALLOC_H_
 #define OCEANBASE_COMMON_BTREE_BTREE_DEFAULT_ALLOC_H_
 
@@ -46,7 +61,7 @@ class BtreeDefaultAlloc : public BtreeAlloc {
   /**
    * 得到每个item分配的大小
    */
-  int32_t get_alloc_size();
+  size_t get_alloc_size();
 
   /**
    * 用了多少块
@@ -76,7 +91,7 @@ class BtreeDefaultAlloc : public BtreeAlloc {
   // free list
   char* free_list_;
   // size
-  int32_t size_;
+  size_t size_;
   // use count;
   int64_t use_count_;
   // free count
@@ -89,4 +104,5 @@ class BtreeDefaultAlloc : public BtreeAlloc {
 } // end namespace sb
 
 #endif
+
 

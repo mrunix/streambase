@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./btree_node.cc for ...
+ *
+ * Authors:
+ *   duolong <duolong@taobao.com>
+ *
+ */
 #include "btree_alloc.h"
 #include "btree_node.h"
 
@@ -25,8 +40,8 @@ BtreeNode::~BtreeNode() {
 /**
  * 初始化
  */
-int32_t BtreeNode::init(int16_t max_size) {
-  OCEAN_BTREE_CHECK_TRUE(max_size > 0, "max_size: %d", max_size);
+int32_t BtreeNode::init(size_t max_size) {
+  OCEAN_BTREE_CHECK_TRUE(max_size > 0, "max_size: %zu", max_size);
 
   int32_t ret = ERROR_CODE_FAIL;
   if (max_size > 0) {
@@ -67,21 +82,21 @@ void BtreeNode::set_deleted(int32_t value) {
 /**
  * 在pos位置增加一个key
  */
-int32_t BtreeNode::add_pair(int16_t pos, const char* key, const char* value, BtreeKeyCompare *
+int32_t BtreeNode::add_pair(size_t pos, const char* key, const char* value, BtreeKeyCompare *
 #ifdef OCEAN_BTREE_CHECK
                             compr
 #endif
                            ) {
   OCEAN_BTREE_CHECK_TRUE(0 == read_only_, "read_only: %d", read_only_);
-  OCEAN_BTREE_CHECK_TRUE(pos >= 0 && pos <= size_, "pos: %d, size: %d", pos, size_);
+  OCEAN_BTREE_CHECK_TRUE(pos >= 0 && pos <= size_, "pos: %zu, size: %zu", pos, size_);
   OCEAN_BTREE_CHECK_TRUE(size_ >= 0 && size_ < max_size_ && max_size_ == CONST_NODE_OBJECT_COUNT,
-                         "size: %d, max_size: %d, cnt: %d", size_, max_size_, CONST_NODE_OBJECT_COUNT);
+                         "size: %zu, max_size: %zu, cnt: %d", size_, max_size_, CONST_NODE_OBJECT_COUNT);
 
   int32_t ret = ERROR_CODE_FAIL;
-  if (0 == read_only_ && pos >= 0 && pos <= size_ && size_ < max_size_) {
+  if (0 == read_only_ && pos <= size_ && size_ < max_size_) {
 
     // 向后移出一个pair
-    for (int32_t i = size_; i > pos; i--) {
+    for (size_t i = size_; i > pos; i--) {
       pairs_[i].key_ = pairs_[i - 1].key_;
       pairs_[i].value_ = pairs_[i - 1].value_;
     }
@@ -96,10 +111,10 @@ int32_t BtreeNode::add_pair(int16_t pos, const char* key, const char* value, Btr
 #ifdef OCEAN_BTREE_CHECK
   int64_t f = 0;
   if (compr && pos > 0 && (f = (*compr)(pairs_[pos - 1].key_, key)) >= 0) {
-    OCEAN_BTREE_CHECK_TRUE(0, "smaller than the left key, pos=%d, flag=%ld", pos, f);
+    OCEAN_BTREE_CHECK_TRUE(0, "smaller than the left key, pos=%zu, flag=%ld", pos, f);
   }
   if (compr && pos + 1 < size_ && (f = (*compr)(key, pairs_[pos + 1].key_)) >= 0) {
-    OCEAN_BTREE_CHECK_TRUE(0, "bigger than the right key, pos=%d, flag=%ld", pos, f);
+    OCEAN_BTREE_CHECK_TRUE(0, "bigger than the right key, pos=%zu, flag=%ld", pos, f);
   }
 #endif
 
@@ -109,18 +124,18 @@ int32_t BtreeNode::add_pair(int16_t pos, const char* key, const char* value, Btr
 /**
  * 把pos位置key删除掉
  */
-int32_t BtreeNode::remove_pair(int16_t pos, BtreeKeyValuePair& pair) {
+int32_t BtreeNode::remove_pair(size_t pos, BtreeKeyValuePair& pair) {
   OCEAN_BTREE_CHECK_TRUE(0 == read_only_ && pos >= 0 && pos < size_,
-                         "read_only: %d, pos: %d, size: %d", read_only_, pos, size_);
-  OCEAN_BTREE_CHECK_TRUE(max_size_ == CONST_NODE_OBJECT_COUNT, "max_size: %d", max_size_);
+                         "read_only: %d, pos: %zu, size: %zu", read_only_, pos, size_);
+  OCEAN_BTREE_CHECK_TRUE(max_size_ == CONST_NODE_OBJECT_COUNT, "max_size: %zu", max_size_);
 
   int32_t ret = ERROR_CODE_FAIL;
-  if (0 == read_only_ && pos >= 0 && pos < size_ && size_ <= CONST_NODE_OBJECT_COUNT) {
+  if (0 == read_only_ && pos < size_ && size_ <= CONST_NODE_OBJECT_COUNT) {
     pair.key_ = pairs_[pos].key_;
     pair.value_ = pairs_[pos].value_;
     // 向前移一个pair
     size_ --;
-    for (int32_t i = pos; i < size_; i++) {
+    for (size_t i = pos; i < size_; i++) {
       pairs_[i].key_ = pairs_[i + 1].key_;
       pairs_[i].value_ = pairs_[i + 1].value_;
     }
@@ -134,20 +149,20 @@ int32_t BtreeNode::remove_pair(int16_t pos, BtreeKeyValuePair& pair) {
 /**
  * 搜索位置
  */
-int32_t BtreeNode::find_pos(const char* key, BtreeKeyCompare* compr, int64_t& flag) {
+size_t BtreeNode::find_pos(const char* key, BtreeKeyCompare* compr, int64_t& flag) {
   flag = -1;
   OCEAN_BTREE_CHECK_FALSE(size_ < 0 || max_size_ != CONST_NODE_OBJECT_COUNT
-                          || size_ > max_size_ , "size: %d max_size: %d", size_, max_size_);
-  if (size_ < 0 || max_size_ != CONST_NODE_OBJECT_COUNT || size_ > max_size_)
+                          || size_ > max_size_ , "size: %zu max_size: %zu", size_, max_size_);
+  if (max_size_ != CONST_NODE_OBJECT_COUNT || size_ > max_size_)
     return CONST_NODE_OBJECT_COUNT;
 
   if (0 == size_)
     return 0;
 
   // 有数据
-  int32_t start = 0;
-  int32_t mid = 1;
-  int32_t end = size_ - 1;
+  size_t start = 0;
+  size_t mid = 1;
+  size_t end = size_ - 1;
 
   while (start != end) {
     mid = ((start + end) >> 1);
@@ -177,8 +192,8 @@ int32_t BtreeNode::find_pos(const char* key, BtreeKeyCompare* compr, int64_t& fl
 /**
  * 根据pos, 得到key,value对
  */
-BtreeKeyValuePair* BtreeNode::get_pair(int16_t pos) {
-  if (pos >= 0 && pos < size_ && size_ <= CONST_NODE_OBJECT_COUNT)
+BtreeKeyValuePair* BtreeNode::get_pair(size_t pos) {
+  if (pos < size_ && size_ <= CONST_NODE_OBJECT_COUNT)
     return &pairs_[pos];
   else
     return NULL;
@@ -187,8 +202,8 @@ BtreeKeyValuePair* BtreeNode::get_pair(int16_t pos) {
 /**
  * 根据pos, 得到下次key,value对
  */
-BtreeKeyValuePair* BtreeNode::get_next_pair(int16_t pos) {
-  if (pos >= 0 && pos + 1 < size_ && size_ <= CONST_NODE_OBJECT_COUNT)
+BtreeKeyValuePair* BtreeNode::get_next_pair(size_t pos) {
+  if (pos + 1 < size_ && size_ <= CONST_NODE_OBJECT_COUNT)
     return &pairs_[pos + 1];
   else
     return NULL;
@@ -197,17 +212,17 @@ BtreeKeyValuePair* BtreeNode::get_next_pair(int16_t pos) {
 /**
  * 设置key,value对, 如果key不更新设为null, 如果value不更新设为null
  */
-int32_t BtreeNode::set_pair(int16_t pos, const char* key, const char* value, const int32_t flag, BtreeKeyCompare *
+int32_t BtreeNode::set_pair(size_t pos, const char* key, const char* value, const int32_t flag, BtreeKeyCompare *
 #ifdef OCEAN_BTREE_CHECK
                             compr
 #endif
                            ) {
   OCEAN_BTREE_CHECK_TRUE(0 == read_only_ && pos >= 0 && pos < size_,
-                         "read_only: %d, pos: %d, size: %d", read_only_, pos, size_);
-  OCEAN_BTREE_CHECK_TRUE(max_size_ == CONST_NODE_OBJECT_COUNT, "max_size: %d", max_size_);
+                         "read_only: %d, pos: %zu, size: %zu", read_only_, pos, size_);
+  OCEAN_BTREE_CHECK_TRUE(max_size_ == CONST_NODE_OBJECT_COUNT, "max_size: %zu", max_size_);
 
   int32_t ret = ERROR_CODE_FAIL;
-  if (0 == read_only_ && pos >= 0 && pos < size_ && size_ <= CONST_NODE_OBJECT_COUNT) {
+  if (0 == read_only_ && pos < size_ && size_ <= CONST_NODE_OBJECT_COUNT) {
     if ((flag & UPDATE_KEY)) pairs_[pos].key_ = const_cast<char*>(key);
     if ((flag & UPDATE_VALUE)) pairs_[pos].value_ = const_cast<char*>(value);
     ret = ERROR_CODE_OK;
@@ -216,10 +231,10 @@ int32_t BtreeNode::set_pair(int16_t pos, const char* key, const char* value, con
 #ifdef OCEAN_BTREE_CHECK
   int64_t f = 0;
   if (compr && (flag & UPDATE_KEY) && pos > 0 && (f = (*compr)(pairs_[pos - 1].key_, key)) >= 0) {
-    OCEAN_BTREE_CHECK_TRUE(0, "smaller than the left key, pos=%d, flag=%ld", pos, f);
+    OCEAN_BTREE_CHECK_TRUE(0, "smaller than the left key, pos=%zu, flag=%ld", pos, f);
   }
   if (compr && (flag & UPDATE_KEY) && pos + 1 < size_ && (f = (*compr)(key, pairs_[pos + 1].key_)) >= 0) {
-    OCEAN_BTREE_CHECK_TRUE(0, "bigger than the right key, pos=%d, flag=%ld", pos, f);
+    OCEAN_BTREE_CHECK_TRUE(0, "bigger than the right key, pos=%zu, flag=%ld", pos, f);
   }
 #endif
   return ret;
@@ -228,22 +243,22 @@ int32_t BtreeNode::set_pair(int16_t pos, const char* key, const char* value, con
 /**
  * 得到当前个数
  */
-int32_t BtreeNode::get_size() {
+size_t BtreeNode::get_size() {
   return size_;
 }
 
 /**
  * 移出size个pair到next_node上
  */
-int32_t BtreeNode::move_pair_out(BtreeNode* next_node, int32_t size) {
+int32_t BtreeNode::move_pair_out(BtreeNode* next_node, size_t size) {
   OCEAN_BTREE_CHECK_TRUE(next_node, "next_node is null.");
   if (next_node) {
     OCEAN_BTREE_CHECK_TRUE((0 == read_only_ && 0 == next_node->read_only_ &&
                             size > 0 && size <= size_ && ((size + next_node->size_) <= next_node->max_size_)),
-                           "read_only: %d, next_read_only: %d, size: %d, size_:%d, next_size: %d max_size: %d",
+                           "read_only: %d, next_read_only: %d, size: %zu, size_:%zu, next_size: %zu max_size: %zu",
                            read_only_, next_node->read_only_, size, size_, next_node->size_, next_node->max_size_);
   }
-  OCEAN_BTREE_CHECK_TRUE(max_size_ == CONST_NODE_OBJECT_COUNT, "max_size: %d", max_size_);
+  OCEAN_BTREE_CHECK_TRUE(max_size_ == CONST_NODE_OBJECT_COUNT, "max_size: %zu", max_size_);
 
   int32_t ret = ERROR_CODE_FAIL;
   if (next_node && 0 == read_only_ && 0 == next_node->read_only_ &&
@@ -253,19 +268,19 @@ int32_t BtreeNode::move_pair_out(BtreeNode* next_node, int32_t size) {
 
     // 把next_node向后移size个位置
     if (next_node->size_ > 0)
-      next_node->pair_move_backward(static_cast<int16_t>(size), 0, next_node->size_);
+      next_node->pair_move_backward(size, 0, next_node->size_);
 
     // copy to next_node
     BtreeKeyValuePair* dst = next_node->pairs_;
     BtreeKeyValuePair* src = pairs_ + size_ - size;
-    for (int32_t i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
       dst->key_ = src->key_;
       dst->value_ = src->value_;
       dst ++;
       src ++;
     }
-    next_node->size_ = static_cast<int16_t>(next_node->size_ + size);
-    size_ = static_cast<int16_t>(size_ - size);
+    next_node->size_ += size;
+    size_ -= size;
     ret = ERROR_CODE_OK;
   }
   return ret;
@@ -274,15 +289,15 @@ int32_t BtreeNode::move_pair_out(BtreeNode* next_node, int32_t size) {
 /**
  * 从next_node上移入size个pair到此node上
  */
-int32_t BtreeNode::move_pair_in(BtreeNode* next_node, int32_t size) {
+int32_t BtreeNode::move_pair_in(BtreeNode* next_node, size_t size) {
   OCEAN_BTREE_CHECK_TRUE(next_node, "next_node is null.");
   if (next_node) {
     OCEAN_BTREE_CHECK_TRUE((0 == read_only_ && 0 == next_node->read_only_ &&
                             size > 0 && size <= next_node->size_ && size + size_ <= max_size_),
-                           "read_only: %d, next_read_only: %d, size: %d, size_:%d, next_size: %d max_size: %d",
+                           "read_only: %d, next_read_only: %d, size: %zu, size_:%zu, next_size: %zu max_size: %zu",
                            read_only_, next_node->read_only_, size, size_, next_node->size_, max_size_);
   }
-  OCEAN_BTREE_CHECK_TRUE(max_size_ == CONST_NODE_OBJECT_COUNT, "max_size: %d", max_size_);
+  OCEAN_BTREE_CHECK_TRUE(max_size_ == CONST_NODE_OBJECT_COUNT, "max_size: %zu", max_size_);
 
   int32_t ret = ERROR_CODE_FAIL;
   if (next_node && 0 == read_only_ && 0 == next_node->read_only_ &&
@@ -292,17 +307,17 @@ int32_t BtreeNode::move_pair_in(BtreeNode* next_node, int32_t size) {
     // 复制到当前node上
     BtreeKeyValuePair* dst = pairs_ + size_;
     BtreeKeyValuePair* src = next_node->pairs_;
-    for (int32_t i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
       dst->key_ = src->key_;
       dst->value_ = src->value_;
       dst ++;
       src ++;
     }
-    next_node->size_ = static_cast<int16_t>(next_node->size_ - size);
-    size_ = static_cast<int16_t>(size_ + size);
+    next_node->size_ -= size;
+    size_ += size;
 
     // 把next_node向前移size个位置
-    next_node->pair_move_forward(0, static_cast<int16_t>(size), next_node->size_);
+    next_node->pair_move_forward(0, size, next_node->size_);
     ret = ERROR_CODE_OK;
   }
   return ret;
@@ -315,27 +330,26 @@ int32_t BtreeNode::merge_pair_in(BtreeNode* next_node) {
   int32_t ret = ERROR_CODE_FAIL;
   OCEAN_BTREE_CHECK_TRUE(next_node, "next_node is null.");
   if (next_node) {
-    int32_t size = next_node->size_;
+    size_t size = next_node->size_;
 
     OCEAN_BTREE_CHECK_TRUE((0 == read_only_ && ((size + size_) <= max_size_)),
-                           "read_only: %d, size: %d, size_:%d, max_size: %d",
+                           "read_only: %d, size: %zu, size_:%zu, max_size: %zu",
                            read_only_, size, size_, max_size_);
-    OCEAN_BTREE_CHECK_TRUE(max_size_ == CONST_NODE_OBJECT_COUNT, "max_size: %d", max_size_);
+    OCEAN_BTREE_CHECK_TRUE(max_size_ == CONST_NODE_OBJECT_COUNT, "max_size: %zu", max_size_);
 
-    if (0 == read_only_ && size >= 0 &&
-        ((size + size_) <= max_size_) &&
+    if (0 == read_only_ && ((size + size_) <= max_size_) &&
         max_size_ == CONST_NODE_OBJECT_COUNT) {
 
       // 复制到当前node上
       BtreeKeyValuePair* dst = pairs_ + size_;
       BtreeKeyValuePair* src = next_node->pairs_;
-      for (int32_t i = 0; i < size; i++) {
+      for (size_t i = 0; i < size; i++) {
         dst->key_ = src->key_;
         dst->value_ = src->value_;
         dst ++;
         src ++;
       }
-      size_ = static_cast<int16_t>(size_ + size);
+      size_ += size;
       ret = ERROR_CODE_OK;
     }
   }
@@ -345,12 +359,12 @@ int32_t BtreeNode::merge_pair_in(BtreeNode* next_node) {
 /**
  * 移动pair对, 向前移
  */
-void BtreeNode::pair_move_forward(int16_t dst, int16_t src, int32_t n) {
-  OCEAN_BTREE_CHECK_TRUE(dst >= 0 && dst < max_size_, "dst: %d, max_size: %d", dst, max_size_);
-  OCEAN_BTREE_CHECK_TRUE(src >= 0 && src < max_size_, "src: %d, max_size: %d", src, max_size_);
-  OCEAN_BTREE_CHECK_TRUE(n > 0 && n + src <= max_size_, "n: %d src: %d, max_size: %d", n, src, max_size_);
-  OCEAN_BTREE_CHECK_TRUE(max_size_ == CONST_NODE_OBJECT_COUNT, "max_size: %d", max_size_);
-  OCEAN_BTREE_CHECK_TRUE(dst < src, "dst: %d, src: %d", dst, src);
+void BtreeNode::pair_move_forward(size_t dst, size_t src, size_t n) {
+  OCEAN_BTREE_CHECK_TRUE(dst >= 0 && dst < max_size_, "dst: %zu, max_size: %zu", dst, max_size_);
+  OCEAN_BTREE_CHECK_TRUE(src >= 0 && src < max_size_, "src: %zu, max_size: %zu", src, max_size_);
+  OCEAN_BTREE_CHECK_TRUE(n > 0 && n + src <= max_size_, "n: %zu src: %zu, max_size: %zu", n, src, max_size_);
+  OCEAN_BTREE_CHECK_TRUE(max_size_ == CONST_NODE_OBJECT_COUNT, "max_size: %zu", max_size_);
+  OCEAN_BTREE_CHECK_TRUE(dst < src, "dst: %zu, src: %zu", dst, src);
   if (n > 0 && n + src <= max_size_) {
     while (n-- > 0) {
       pairs_[dst].key_ = pairs_[src].key_;
@@ -362,17 +376,17 @@ void BtreeNode::pair_move_forward(int16_t dst, int16_t src, int32_t n) {
 /**
  * 移动pair对, 向后移
  */
-void BtreeNode::pair_move_backward(int16_t dst, int16_t src, int32_t n) {
-  OCEAN_BTREE_CHECK_TRUE(dst >= 0 && dst < max_size_, "dst: %d, max_size: %d", dst, max_size_);
-  OCEAN_BTREE_CHECK_TRUE(src >= 0 && src < max_size_, "src: %d, max_size: %d", src, max_size_);
-  OCEAN_BTREE_CHECK_TRUE(n > 0 && n + dst <= max_size_, "n: %d dst: %d, max_size: %d", n, dst, max_size_);
+void BtreeNode::pair_move_backward(size_t dst, size_t src, size_t n) {
+  OCEAN_BTREE_CHECK_TRUE(dst >= 0 && dst < max_size_, "dst: %zu, max_size: %zu", dst, max_size_);
+  OCEAN_BTREE_CHECK_TRUE(src >= 0 && src < max_size_, "src: %zu, max_size: %zu", src, max_size_);
+  OCEAN_BTREE_CHECK_TRUE(n > 0 && n + dst <= max_size_, "n: %zu dst: %zu, max_size: %zu", n, dst, max_size_);
 
-  OCEAN_BTREE_CHECK_TRUE(max_size_ == CONST_NODE_OBJECT_COUNT, "max_size: %d", max_size_);
-  OCEAN_BTREE_CHECK_TRUE(dst > src, "dst: %d, src: %d", dst, src);
+  OCEAN_BTREE_CHECK_TRUE(max_size_ == CONST_NODE_OBJECT_COUNT, "max_size: %zu", max_size_);
+  OCEAN_BTREE_CHECK_TRUE(dst > src, "dst: %zu, src: %zu", dst, src);
 
   if (n > 0 && n + dst <= max_size_) {
-    dst = static_cast<int16_t>(dst + n);
-    src = static_cast<int16_t>(src + n);
+    dst += n;
+    src += n;
     while (n-- > 0) {
       pairs_[--dst].key_ = pairs_[--src].key_;
       pairs_[dst].value_ = pairs_[src].value_;
@@ -400,15 +414,15 @@ int64_t BtreeNode::get_sequence() {
 void BtreeNode::inc_key_refcount() {
   if (is_leaf_) {
     OCEAN_BTREE_CHECK_TRUE(size_ <= max_size_ && max_size_ == CONST_NODE_OBJECT_COUNT,
-                           "size: %d, max_size: %d", size_, max_size_);
+                           "size: %zu, max_size: %zu", size_, max_size_);
 
     int32_t* addr;
     OCEAN_BTREE_CHECK_TRUE(read_only_ == 0, "is read only.");
-    for (int32_t i = 0; i < size_; i++) {
+    for (size_t i = 0; i < size_; i++) {
       addr = reinterpret_cast<int32_t*>(pairs_[i].key_);
       OCEAN_BTREE_CHECK_TRUE(addr, "addr is null.");
       if (addr) {
-        OCEAN_BTREE_CHECK_TRUE((*addr) >= 0, "addr:%p pos:%d value:%d", addr, i, *addr);
+        OCEAN_BTREE_CHECK_TRUE((*addr) >= 0, "addr:%p pos:%zu value:%d", addr, i, *addr);
         (*addr) ++;
       }
     }
@@ -421,14 +435,14 @@ void BtreeNode::inc_key_refcount() {
 void BtreeNode::dec_key_refcount(BtreeAlloc* allocator) {
   if (is_leaf_) {
     OCEAN_BTREE_CHECK_TRUE(size_ <= max_size_ && max_size_ == CONST_NODE_OBJECT_COUNT,
-                           "size: %d, max_size: %d", size_, max_size_);
+                           "size: %zu, max_size: %zu", size_, max_size_);
 
     int32_t* addr;
-    for (int32_t i = 0; i < size_; i++) {
+    for (size_t i = 0; i < size_; i++) {
       addr = reinterpret_cast<int32_t*>(pairs_[i].key_);
       OCEAN_BTREE_CHECK_TRUE(addr, "addr is null.");
       if (addr) {
-        OCEAN_BTREE_CHECK_TRUE((*addr) > 0, "addr:%p pos:%d value:%d", addr, i, *addr);
+        OCEAN_BTREE_CHECK_TRUE((*addr) > 0, "addr:%p pos:%zu value:%d", addr, i, *addr);
         (*addr) --;
         if (0 == (*addr)) {
           allocator->release(pairs_[i].key_);
@@ -476,3 +490,4 @@ int32_t BtreeNode::print(int32_t level, int32_t max_level, char* pbuf) {
 
 } // end namespace common
 } // end namespace sb
+

@@ -2,9 +2,6 @@
 #define TASK_SERVER_PARAM_H_
 
 #include "common/ob_define.h"
-#include "task_table_conf.h"
-#include <vector>
-
 namespace sb {
 namespace tools {
 class TaskServerParam {
@@ -26,10 +23,6 @@ class TaskServerParam {
 
   const char* get_result_file(void) const {
     return result_file_;
-  }
-
-  const char* get_tablet_list_file(void) const {
-    return tablet_list_file_;
   }
 
   const char* get_dev_name(void) const {
@@ -76,20 +69,15 @@ class TaskServerParam {
     return task_queue_size_;
   }
 
-  int64_t get_network_timeout(void) const {
+  int32_t get_network_timeout(void) const {
     return network_timeout_;
-  }
-
-  const std::vector<TableConf>& get_all_conf() const {
-    return confs_;
   }
 
  private:
   char result_file_[OB_MAX_FILE_NAME];
   char dev_name_[OB_MAX_IP_SIZE];
   char root_server_ip_[OB_MAX_IP_SIZE];
-  const char* log_name_;
-  char tablet_list_file_[OB_MAX_FILE_NAME];
+  char log_name_[OB_MAX_FILE_NAME];
   char log_level_[OB_MAX_LOG_LEVEL];
   int32_t max_visit_count_;
   int32_t max_timeout_times_;
@@ -99,8 +87,6 @@ class TaskServerParam {
   int32_t task_thread_count_;
   int32_t task_queue_size_;
   int64_t network_timeout_;
-
-  std::vector<TableConf> confs_;
 };
 }
 }

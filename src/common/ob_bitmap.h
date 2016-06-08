@@ -1,20 +1,18 @@
-/*
- *  (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 2 as
- *  published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- *         ob_bitmap.h is for what ...
+ * Version: $Id$
  *
- *  Version: $Id: ob_bitmap.h 2011年08月04日 14时37分25秒 qushan Exp $
+ * ob_bitmap.h for ...
  *
- *  Authors:
- *     qushan < qushan@taobao.com >
- *        - some work details if you want
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
  */
-
-
 #ifndef OCEANBASE_COMMON_OB_BITMAP_H_
 #define OCEANBASE_COMMON_OB_BITMAP_H_
 
@@ -118,7 +116,7 @@ class ObBitmap {
     return static_cast<block_width_type>(pos % BITS_PER_BLOCK);
   }
   static block_type bit_mask(size_type pos) {
-    return static_cast<block_type>(1ULL << bit_index(pos));
+    return block_type(1) << bit_index(pos);
   }
   static size_type round_up(size_type n, size_type align) {
     return (n +  align - 1) & ~(align - 1);
@@ -138,7 +136,7 @@ class ObBitmap {
   MemBlock* find_block(const size_type pos, size_type& inner_pos) const;
   MemBlock* expand_block(const size_type pos, size_type& inner_pos);
 
-  template <typename Pred> int for_each_block(Pred pred) const;
+  template <typename Pred> int for_each_block(Pred pred);
 
   int deallocate_block(MemBlock* mem_block) {
     if (NULL != mem_block->bits_ && NULL != allocator_) {
@@ -187,7 +185,7 @@ ObBitmap<Block, Allocator>::~ObBitmap() {
 
 template <typename Block, typename Allocator>
 template<typename Pred>
-int ObBitmap<Block, Allocator>::for_each_block(Pred pred) const {
+int ObBitmap<Block, Allocator>::for_each_block(Pred pred) {
   MemBlock* p = header_;
   MemBlock* next = header_;
   int ret = OB_SUCCESS;
@@ -217,14 +215,10 @@ int ObBitmap<Block, Allocator>::set(const size_type pos, const bool value) {
   size_type inner_pos = pos;
   MemBlock* mem_block = expand_block(pos, inner_pos);
   if (NULL != mem_block) {
-    // May a gcc bug, that would be a error:
-    //  conversion to 'sb::common::ObBitmap<char, sb::common::PageArena<char, sb::common::ModulePageAllocator> >::block_type {aka char}' from 'int' may alter its value [-Werror=conversion])
-    //    mem_block->bits_[block_index(inner_pos)] |= bit_mask(inner_pos)
-    //    mem_block->bits_[block_index(inner_pos)] &= static_cast<block_type>(~bit_mask(inner_pos))
     if (value) {
-      mem_block->bits_[block_index(inner_pos)] = mem_block->bits_[block_index(inner_pos)] | bit_mask(inner_pos);
+      mem_block->bits_[block_index(inner_pos)] |= bit_mask(inner_pos);
     } else {
-      mem_block->bits_[block_index(inner_pos)] = mem_block->bits_[block_index(inner_pos)] & static_cast<block_type>(~bit_mask(inner_pos));
+      mem_block->bits_[block_index(inner_pos)] &= ~bit_mask(inner_pos);
     }
   } else {
     ret = OB_ALLOCATE_MEMORY_FAILED;
@@ -371,3 +365,4 @@ ObBitmap<Block, Allocator>::expand_block(const size_type pos, size_type& inner_p
 }
 
 #endif // OCEANBASE_COMMON_OB_BITMAP_H_
+

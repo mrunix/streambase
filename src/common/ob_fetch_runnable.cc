@@ -1,17 +1,18 @@
 /**
- * (C) 2007-2010 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
  * Version: $Id$
  *
+ * ob_fetch_runnable.cc for ...
+ *
  * Authors:
  *   yanran <yanran.hfs@taobao.com>
- *     - some work details if you want
+ *
  */
-
 #include "ob_fetch_runnable.h"
 #include "file_directory_utils.h"
 #include "ob_log_dir_scanner.h"
@@ -105,7 +106,6 @@ void ObFetchRunnable::run(tbsys::CThread* thread, void* arg) {
 
   if (OB_SUCCESS != ret) {
     if (NULL != role_mgr_) { // double check
-      TBSYS_LOG(INFO, "role_mgr=%p", role_mgr_);
       role_mgr_->set_state(ObRoleMgr::ERROR);
     }
   } else {
@@ -120,10 +120,8 @@ void ObFetchRunnable::run(tbsys::CThread* thread, void* arg) {
 }
 
 void ObFetchRunnable::clear() {
-  if (NULL != _thread) {
-    delete[] _thread;
-    _thread = NULL;
-  }
+  delete[] _thread;
+  _thread = NULL;
 }
 
 int ObFetchRunnable::init(const ObServer& master, const char* log_dir, const ObFetchParam& param, ObRoleMgr* role_mgr, common::ObLogReplayRunnable* replay_thread) {
@@ -139,7 +137,7 @@ int ObFetchRunnable::init(const ObServer& master, const char* log_dir, const ObF
                 log_dir, role_mgr, replay_thread);
       ret = OB_INVALID_ARGUMENT;
     } else {
-      log_dir_len = static_cast<int32_t>(strlen(log_dir));
+      log_dir_len = strlen(log_dir);
       if (log_dir_len >= OB_MAX_FILE_NAME_LENGTH) {
         TBSYS_LOG(ERROR, "Parameter is invalid[log_dir_len=%d log_dir=%s]", log_dir_len, log_dir);
         ret = OB_INVALID_ARGUMENT;
@@ -148,7 +146,7 @@ int ObFetchRunnable::init(const ObServer& master, const char* log_dir, const ObF
   }
 
   if (OB_SUCCESS == ret) {
-    usr_opt_ = (char*)ob_malloc(OB_MAX_FETCH_CMD_LENGTH, ObModIds::OB_FETCH_RUNABLE);
+    usr_opt_ = (char*)ob_malloc(OB_MAX_FETCH_CMD_LENGTH);
     if (NULL == usr_opt_) {
       TBSYS_LOG(ERROR, "ob_malloc for usr_opt_ error, size=%ld", OB_MAX_FETCH_CMD_LENGTH);
       ret = OB_ALLOCATE_MEMORY_FAILED;
@@ -189,7 +187,7 @@ int ObFetchRunnable::add_ckpt_ext(const char* ext) {
     ret = OB_INVALID_ARGUMENT;
     TBSYS_LOG(ERROR, "Paramter is invalid[ext=NULL]");
   } else {
-    int ext_len = static_cast<int32_t>(strlen(ext));
+    int ext_len = strlen(ext);
     ObString new_ext(0, ext_len + 1, const_cast<char*>(ext));
     for (CkptIter i = ckpt_ext_.begin(); i != ckpt_ext_.end(); i++) {
       if (new_ext == *i) {
@@ -236,7 +234,7 @@ int ObFetchRunnable::got_log(uint64_t log_id) {
 int ObFetchRunnable::set_usr_opt(const char* opt) {
   int ret = OB_SUCCESS;
 
-  int opt_len = static_cast<int32_t>(strlen(opt));
+  int opt_len = strlen(opt);
   if (opt_len >= OB_MAX_FETCH_CMD_LENGTH) {
     TBSYS_LOG(WARN, "usr_option is too long, opt_len=%d maximum_length=%ld", opt_len, OB_MAX_FETCH_CMD_LENGTH);
     ret = OB_BUF_NOT_ENOUGH;
@@ -369,7 +367,7 @@ int ObFetchRunnable::gen_full_name_(const uint64_t id, const char* fn_ext, char*
     ret = OB_ERROR;
   } else {
     if (NULL != fn_ext) {
-      fn_ext_len = static_cast<int32_t>(strlen(fn_ext));
+      fn_ext_len = strlen(fn_ext);
     }
 
     if (NULL == fn_ext || 0 == fn_ext_len) {
@@ -404,7 +402,7 @@ int ObFetchRunnable::get_log_() {
   }
 
   if (OB_SUCCESS == ret) {
-    cmd = static_cast<char*>(ob_malloc(OB_MAX_FETCH_CMD_LENGTH, ObModIds::OB_FETCH_RUNABLE));
+    cmd = static_cast<char*>(ob_malloc(OB_MAX_FETCH_CMD_LENGTH));
     if (NULL == cmd) {
       TBSYS_LOG(WARN, "ob_malloc error, OB_MAX_FETCH_CMD_LENGTH=%ld", OB_MAX_FETCH_CMD_LENGTH);
       ret = OB_ERROR;
@@ -413,9 +411,7 @@ int ObFetchRunnable::get_log_() {
 
   if (OB_SUCCESS == ret) {
     if (param_.fetch_log_) {
-      TBSYS_LOG(INFO, "fetch param,min_log_id=%ld, max_log_id=%ld", param_.min_log_id_, param_.max_log_id_);
       for (uint64_t i = param_.min_log_id_; !_stop && i <= param_.max_log_id_; i++) {
-        //TBSYS_LOG(INFO, "lc: fetch %d log", i);
         ret = gen_fetch_cmd_(i, NULL, cmd, OB_MAX_FETCH_CMD_LENGTH);
         if (OB_SUCCESS != ret) {
           TBSYS_LOG(ERROR, "gen_fetch_cmd_[id=%lu fn_ext=NULL] error[ret=%d]", i, ret);
@@ -457,7 +453,7 @@ int ObFetchRunnable::get_ckpt_() {
   }
 
   if (OB_SUCCESS == ret) {
-    cmd = static_cast<char*>(ob_malloc(OB_MAX_FETCH_CMD_LENGTH, ObModIds::OB_FETCH_RUNABLE));
+    cmd = static_cast<char*>(ob_malloc(OB_MAX_FETCH_CMD_LENGTH));
     if (NULL == cmd) {
       TBSYS_LOG(WARN, "ob_malloc error, OB_MAX_FETCH_CMD_LENGTH=%ld", OB_MAX_FETCH_CMD_LENGTH);
       ret = OB_ERROR;
@@ -536,3 +532,4 @@ int ObFetchRunnable::get_ckpt_() {
 
   return ret;
 }
+

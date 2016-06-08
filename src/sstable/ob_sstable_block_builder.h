@@ -1,15 +1,18 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_sstable_block_builder.h for persistent ssatable block and
- * store inner block index.
+ * Version: 5567
+ *
+ * ob_sstable_block_builder.h
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
+ *     huating <huating.zmq@taobao.com>
+ * Changes:
+ *     fangji <fangji.hcm@taobao.com>
  *
  */
 #ifndef OCEANBASE_SSTABLE_OB_BLOCK_BUILDER_H_
@@ -17,7 +20,6 @@
 
 #include "common/ob_define.h"
 #include "common/ob_malloc.h"
-#include "common/ob_row.h"
 #include "ob_sstable_row.h"
 
 namespace sb {
@@ -57,9 +59,7 @@ class ObSSTableBlockBuilder {
    *
    * @return const char*
    */
-  inline const char* row_index_buf() const {
-    return row_index_buf_;
-  }
+  const char* row_index_buf() const;
 
   /**
    * return the block buffer
@@ -72,9 +72,7 @@ class ObSSTableBlockBuilder {
    *
    * @return const char*
    */
-  inline const char* block_buf() const {
-    return block_buf_;
-  }
+  const char* block_buf() const;
 
   /**
    * reset all the members
@@ -89,9 +87,7 @@ class ObSSTableBlockBuilder {
    *
    * @return int32_t
    */
-  inline const int64_t get_row_index_array_offset() const {
-    return block_header_.row_index_array_offset_;
-  }
+  const int64_t get_row_index_array_offset() const;
 
   /**
    * return row count in the block, if there is no row in block,
@@ -99,28 +95,21 @@ class ObSSTableBlockBuilder {
    *
    * @return int32_t
    */
-  inline const int64_t get_row_count() const {
-    return block_header_.row_count_;
-  }
+  const int64_t get_row_count() const;
 
   /**
    * return how much space to used to store this block in disk
    *
    * @return int64_t return block size
    */
-  inline const int64_t get_block_size() const {
-    return ((block_buf_cur_ - block_buf_)
-            + (row_index_buf_cur_ - row_index_buf_));
-  }
+  const int64_t get_block_size() const;
 
   /**
    * return the size of row index array
    *
    * @return int64_t
    */
-  inline const int64_t get_row_index_size() const {
-    return (row_index_buf_cur_ - row_index_buf_);
-  }
+  const int64_t get_row_index_size() const;
 
   /**
    * return the row data size in the block, not include row index,
@@ -128,9 +117,7 @@ class ObSSTableBlockBuilder {
    *
    * @return int64_t
    */
-  inline const int64_t get_block_data_size() const {
-    return (block_buf_cur_ - block_buf_);
-  }
+  const int64_t get_block_data_size() const;
 
   /**
    * initialize the index buffer and block buffer, user must run
@@ -168,9 +155,7 @@ class ObSSTableBlockBuilder {
    * @return int if success,return OB_SUCCESS, else return
    *         OB_ERROR
    */
-  int add_row(const ObSSTableRow& row, uint64_t& row_checksum, const int64_t row_serialize_size = 0);
-  int add_row(const uint64_t table_id, const uint64_t column_group_id,
-              const common::ObRow& row, const int64_t row_serialize_size = 0);
+  int add_row(const ObSSTableRow& row);
 
   /**
    * merge block header, block data and row index into one block

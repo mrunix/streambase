@@ -1,20 +1,29 @@
 #ifndef _BASE_CLIENT_H_
 #define _BASE_CLIENT_H_
 
+#include "tbnet.h"
 #include "common/ob_define.h"
-#include "common/ob_base_client.h"
 #include "common/thread_buffer.h"
 #include "common/ob_client_manager.h"
 #include "common/ob_packet_factory.h"
 
 namespace sb {
 namespace tools {
-class BaseClient: public common::ObBaseClient {
+class BaseClient {
  public:
-  int init(const common::ObServer& server);
+  BaseClient() {
+    int ret = init();
+    if (ret != common::OB_SUCCESS) {
+      TBSYS_LOG(ERROR, "client init failed:ret[%d]", ret);
+    }
+  }
+
+  virtual ~BaseClient() {
+    destroy();
+  }
 
   common::ObClientManager* get_client(void) {
-    return &get_client_mgr();
+    return &client_;
   }
 
   common::ThreadSpecificBuffer* get_buffer(void) {
@@ -22,8 +31,19 @@ class BaseClient: public common::ObBaseClient {
   }
 
  protected:
-  common::ObServer server_;
+  virtual int init();
+
+ private:
+  virtual int destroy();
+
+ private:
+  tbnet::DefaultPacketStreamer streamer_;
+  tbnet::Transport transport_;
+  common::ObPacketFactory factory_;
+
+ protected:
   common::ThreadSpecificBuffer rpc_buffer_;
+  common::ObClientManager client_;
 };
 }
 }

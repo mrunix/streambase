@@ -1,22 +1,18 @@
-////===================================================================
-//
-// ob_file.cc / common / Oceanbase
-//
-// Copyright (C) 2010 Taobao.com, Inc.
-//
-// Created on 2011-05-25 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_file.cc for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -29,7 +25,7 @@ namespace sb {
 namespace common {
 namespace FileComponent {
 template <class T>
-int open(const ObString& fname, const T& file, int& fd) {
+int open(const ObString& fname, T& file, int& fd) {
   int ret = OB_SUCCESS;
   if (-1 != fd) {
     TBSYS_LOG(WARN, "file has been open fd=%d", fd);
@@ -178,7 +174,7 @@ int DirectFileReader::pread_by_fd(const int fd, void* buf, const int64_t count, 
     ret = OB_ERROR;
   } else if (!param_align
              && NULL == buffer_
-             && NULL == (buffer_ = (char*)::memalign(align_size_, buffer_size_))) {
+             && NULL == (buffer_ = (char*)::memalign(align_size_, buffer_size_ + align_size_))) {
     TBSYS_LOG(WARN, "prepare buffer fail param_align=%s buffer=%p buf=%p count=%ld offset=%ld align_size=%ld buffer_size=%ld",
               STR_BOOL(param_align), buffer_, buf, count, offset, align_size_, buffer_size_);
     ret = OB_ERROR;
@@ -270,15 +266,11 @@ int IFileAppender::create(const ObString& fname) {
   int ret = OB_SUCCESS;
   this->add_create_flags_();
   this->add_excl_flags_();
-  if (OB_SUCCESS != (ret = FileComponent::open(fname, *this, fd_))) {
-    TBSYS_LOG(WARN, "open file error:ret=%d,fname=%s,fd_=%d",
-              ret, fname.ptr(), fd_);
-  } else {
-    this->set_normal_flags_();
-    this->set_file_pos_(0);
-    if (OB_SUCCESS != (ret = this->prepare_buffer_())) {
-      this->close();
-    }
+  ret = FileComponent::open(fname, *this, fd_);
+  this->set_normal_flags_();
+  this->set_file_pos_(0);
+  if (OB_SUCCESS != (ret = this->prepare_buffer_())) {
+    this->close();
   }
   return ret;
 }
@@ -293,10 +285,6 @@ void IFileAppender::close() {
 
 bool IFileAppender::is_opened() const {
   return fd_ != -1;
-}
-
-int IFileAppender::get_fd() const {
-  return fd_;
 }
 
 
@@ -319,13 +307,6 @@ BufferFileAppender::~BufferFileAppender() {
   }
 }
 
-void BufferFileAppender::close() {
-  IFileAppender::close();
-  open_flags_ = NORMAL_FLAGS;
-  buffer_pos_ = 0;
-  file_pos_ = 0;
-}
-
 int BufferFileAppender::buffer_sync_() {
   int ret = OB_SUCCESS;
   if (NULL != buffer_
@@ -336,7 +317,6 @@ int BufferFileAppender::buffer_sync_() {
                 fd_, buffer_, buffer_pos_, file_pos_, write_ret, errno);
       ret = OB_IO_ERROR;
     } else {
-      TBSYS_LOG(DEBUG, "write buffer succ fd=%d buffer_size=%ld file_pos=%ld", fd_, buffer_pos_, file_pos_);
       file_pos_ += buffer_pos_;
       buffer_pos_ = 0;
     }
@@ -464,15 +444,6 @@ DirectFileAppender::~DirectFileAppender() {
   }
 }
 
-void DirectFileAppender::close() {
-  IFileAppender::close();
-  open_flags_ = NORMAL_FLAGS;
-  buffer_pos_ = 0;
-  file_pos_ = 0;
-  buffer_length_ = 0;
-  align_warn_ = 0;
-}
-
 int DirectFileAppender::buffer_sync_(bool* need_truncate) {
   int ret = OB_SUCCESS;
   if (NULL != buffer_
@@ -488,7 +459,7 @@ int DirectFileAppender::buffer_sync_(bool* need_truncate) {
     //}
     size2write = upper_align(buffer_pos_, align_size_);
     int64_t write_ret = 0;
-    memset(buffer_ + buffer_pos_, 0, size2write - buffer_pos_);
+    memset(buffer_ + buffer_pos_, 0, buffer_size_ - buffer_pos_);
     if (size2write != (write_ret = unintr_pwrite(fd_, buffer_, size2write, offset2write))) {
       TBSYS_LOG(WARN, "write buffer fail fd=%d buffer=%p count=%ld offset=%ld write_ret=%ld errno=%u "
                 "file_pos=%ld align_size=%ld buffer_pos=%ld",
@@ -526,12 +497,6 @@ int DirectFileAppender::fsync() {
       ret = OB_IO_ERROR;
     }
   }
-  if (OB_SUCCESS == ret) {
-    if (0 != ::fsync(fd_)) {
-      TBSYS_LOG(WARN, "fsync fail fd=%d errno=%u", fd_, errno);
-      ret = OB_IO_ERROR;
-    }
-  }
   return ret;
 }
 
@@ -555,9 +520,9 @@ int DirectFileAppender::append(const void* buf, const int64_t count, const bool 
     ret = OB_INVALID_ARGUMENT;
   } else {
     if (0 == align_warn_
-        && 0 != file_pos_ % align_size_) {
+        && 0 != count % align_size_) {
       align_warn_++;
-      TBSYS_LOG(WARN, "file_pos_=%ld do not match align_size=%ld", file_pos_, align_size_);
+      TBSYS_LOG(WARN, "count=%ld do not match align_size=%ld", count, align_size_);
     }
 
     bool buffer_synced = false;
@@ -584,11 +549,6 @@ int DirectFileAppender::append(const void* buf, const int64_t count, const bool 
           ret = OB_IO_ERROR;
         } else {
           file_pos_ += count;
-        }
-        if (!param_align
-            && 0 != ::ftruncate(fd_, file_pos_)) {
-          TBSYS_LOG(WARN, "ftruncate fail fd=%d file_pos=%ld errno=%u", fd_, file_pos_, errno);
-          ret = OB_IO_ERROR;
         }
       } else {
         memcpy(buffer_ + buffer_pos_, buf, count);
@@ -652,25 +612,6 @@ int DirectFileAppender::get_open_flags() const {
 int DirectFileAppender::get_open_mode() const {
   return OPEN_MODE;
 }
-
-int DirectFileAppender::set_align_size(const int64_t align_size) {
-  int ret = OB_SUCCESS;
-  if (align_size != align_size_) {
-    TBSYS_LOG(INFO, "change align size from align_size=%ld to new_align_size=%ld",
-              align_size_, align_size);
-  }
-  if (-1 != fd_) {
-    TBSYS_LOG(WARN, "file is open cannot modify align_size");
-    ret = OB_INIT_TWICE;
-  } else {
-    align_size_ = align_size;
-    if (NULL != buffer_) {
-      ::free(buffer_);
-      buffer_ = NULL;
-    }
-  }
-  return ret;
-}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -700,8 +641,8 @@ int64_t unintr_pwrite(const int fd, const void* buf, const int64_t count, const 
         if (errno == EINTR) { // 阻塞IO不需要判断EAGAIN
           continue;
         }
-        TBSYS_LOG(ERROR, "pwrite fail ret=%ld errno=%u fd=%d buf=%p size2write=%ld offset2write=%ld retry_num=%ld",
-                  write_ret, errno, fd, (char*)buf + offset2write, length2write, offset + offset2write, retry);
+        TBSYS_LOG(ERROR, "pwrite fail ret=%ld fd=%d buf=%p size2write=%ld offset2write=%ld retry_num=%ld",
+                  write_ret, fd, (char*)buf + offset2write, length2write, offset + offset2write, retry);
         retry++;
       } else {
         break;
@@ -731,8 +672,8 @@ int64_t unintr_pread(const int fd, void* buf, const int64_t count, const int64_t
         if (errno == EINTR) { // 阻塞IO不需要判断EAGAIN
           continue;
         }
-        TBSYS_LOG(ERROR, "pread fail ret=%ld errno=%u fd=%d buf=%p size2read=%ld offset2read=%ld retry_num=%ld",
-                  read_ret, errno, fd, (char*)buf + offset2read, length2read, offset + offset2read, retry);
+        TBSYS_LOG(ERROR, "pread fail ret=%ld fd=%d buf=%p size2write=%ld offset2write=%ld retry_num=%ld",
+                  read_ret, fd, (char*)buf + offset2read, length2read, (offset + offset2read), retry);
         retry++;
       } else {
         break;
@@ -771,14 +712,18 @@ int64_t pread_align(const int fd, void* buf, const int64_t count, const int64_t 
                     void* align_buffer, const int64_t buffer_size, const int64_t align_size) {
   int64_t ret = 0;
   int64_t offset2read = lower_align(offset, align_size);
-  int64_t size2read = upper_align(offset + count, align_size) - offset2read;
+  int64_t total2read = upper_align(offset + count, align_size) - offset2read;
   int64_t buffer_offset = offset - offset2read;
 
+  int64_t size2read = 0;
   int64_t read_ret = 0;
   int64_t size2copy = 0;
-  while (size2read > 0
+  int64_t got_size = 0;
+  while (total2read > 0
          && ret < count) {
-    read_ret = unintr_pread(fd, align_buffer, buffer_size, offset2read);
+    // 每次多读一个align_size 但是不使用 保证可以确定是否到达文件末尾
+    size2read = std::min(buffer_size + align_size, total2read);
+    read_ret = unintr_pread(fd, align_buffer, size2read, offset2read);
     if (0 > read_ret) {
       ret = -1;
       break;
@@ -786,16 +731,17 @@ int64_t pread_align(const int fd, void* buf, const int64_t count, const int64_t 
       // 读取的数据量小于等于用于对齐的数据 即用户指定的offset后没有数据了 break出来
       break;
     } else {
-      size2copy = std::min(read_ret - buffer_offset, count - ret);
+      got_size = std::min(read_ret, buffer_size);
+      size2copy = std::min(got_size - buffer_offset, count - ret);
       memcpy((char*)buf + ret, (char*)align_buffer + buffer_offset, size2copy);
       ret += size2copy;
 
-      offset2read += read_ret;
-      size2read -= read_ret;
+      offset2read += got_size;
+      total2read -= got_size;
       buffer_offset = 0;
 
       // 读取的数据量小于请求的 到文件末尾了 break出来
-      if (buffer_size > read_ret) {
+      if (size2read > read_ret) {
         break;
       }
     }
@@ -805,7 +751,7 @@ int64_t pread_align(const int fd, void* buf, const int64_t count, const int64_t 
 
 int64_t pwrite_align(const int fd, const void* buf, const int64_t count, const int64_t offset,
                      void* align_buffer, const int64_t buffer_size, const int64_t align_size, int64_t& buffer_pos) {
-  int64_t ret = 0;
+  int ret = 0;
   int64_t total2write = count;
   int64_t total_offset = offset;
 
@@ -818,14 +764,14 @@ int64_t pwrite_align(const int fd, const void* buf, const int64_t count, const i
 
     int64_t offset2write = lower_align(total_offset, align_size);
     int64_t size2write = upper_align(buffer_pos, align_size);
-    memset((char*)align_buffer + buffer_pos, 0, size2write - buffer_pos);
+    memset((char*)align_buffer + buffer_pos, 0, buffer_size - buffer_pos);
     write_ret = unintr_pwrite(fd, align_buffer, size2write, offset2write);
     if (size2write != write_ret) {
       ret = -1;
       break;
     }
     total_offset += size2copy;
-    ret = ret + size2copy;
+    ret += size2copy;
     if (buffer_pos == size2write) {
       buffer_pos = 0;
     }
@@ -1076,7 +1022,7 @@ ObFileAppender::ObFileAppender() : file_(NULL) {
 
 ObFileAppender::~ObFileAppender() {
   if (NULL != file_) {
-    file_->close();
+    delete file_;
     file_ = NULL;
   }
 }
@@ -1090,22 +1036,18 @@ int ObFileAppender::open(const ObString& fname, const bool dio, const bool is_cr
     ret = OB_INVALID_ARGUMENT;
   } else {
     if (dio) {
-      file_ = &direct_file_;
-      ret = direct_file_.set_align_size(align_size);
+      using namespace FileComponent;
+      file_ = new(std::nothrow) DirectFileAppender(DirectFileAppender::DEFAULT_BUFFER_SIZE, align_size);
     } else {
-      file_ = &buffer_file_;
+      file_ = new(std::nothrow) FileComponent::BufferFileAppender();
+      //TBSYS_LOG(WARN, "do not support buffer io now fname=[%.*s]", fname.length(), fname.ptr());
     }
   }
   if (NULL == file_) {
     TBSYS_LOG(WARN, "construct file appender fail fname=[%.*s]", fname.length(), fname.ptr());
     ret = OB_ERROR;
-  } else if (OB_SUCCESS != ret) {
-    TBSYS_LOG(WARN, "set align_size=%ld fail", align_size);
   } else {
     ret = file_->open(fname, is_create, is_trunc);
-  }
-  if (OB_SUCCESS != ret) {
-    file_ = NULL;
   }
   return ret;
 }
@@ -1119,22 +1061,18 @@ int ObFileAppender::create(const ObString& fname, const bool dio, const int64_t 
     ret = OB_INVALID_ARGUMENT;
   } else {
     if (dio) {
-      file_ = &direct_file_;
-      ret = direct_file_.set_align_size(align_size);
+      using namespace FileComponent;
+      file_ = new(std::nothrow) DirectFileAppender(DirectFileAppender::DEFAULT_BUFFER_SIZE, align_size);
     } else {
-      file_ = &buffer_file_;
+      file_ = new(std::nothrow) FileComponent::BufferFileAppender();
+      //TBSYS_LOG(WARN, "do not support buffer io now fname=[%.*s]", fname.length(), fname.ptr());
     }
     if (NULL == file_) {
       TBSYS_LOG(WARN, "construct file appender fail fname=[%.*s]", fname.length(), fname.ptr());
       ret = OB_ERROR;
-    } else if (OB_SUCCESS != ret) {
-      TBSYS_LOG(WARN, "set align_size=%ld fail", align_size);
     } else {
       ret = file_->create(fname);
     }
-  }
-  if (OB_SUCCESS != ret) {
-    file_ = NULL;
   }
   return ret;
 }
@@ -1142,6 +1080,7 @@ int ObFileAppender::create(const ObString& fname, const bool dio, const int64_t 
 void ObFileAppender::close() {
   if (NULL != file_) {
     file_->close();
+    delete file_;
     file_ = NULL;
   }
 }
@@ -1180,233 +1119,7 @@ int ObFileAppender::fsync() {
   return ret;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef __USE_AIO_FILE
-ObFileAsyncAppender::ObFileAsyncAppender() : pool_(),
-  fd_(-1),
-  file_pos_(0),
-  align_size_(0),
-  cur_iocb_(NULL) {
-  memset(&ctx_, 0, sizeof(ctx_));
-  int tmp_ret = 0;
-  if (0 != (tmp_ret = io_setup(AIO_MAXEVENTS, &ctx_))) {
-    TBSYS_LOG(ERROR, "io_setup fail ret=%d", tmp_ret);
-  }
+}
 }
 
-ObFileAsyncAppender::~ObFileAsyncAppender() {
-  io_destroy(ctx_);
-  if (-1 != fd_) {
-    close();
-  }
-}
-
-int ObFileAsyncAppender::open(const ObString& fname,
-                              const bool dio,
-                              const bool is_create,
-                              const bool is_trunc,
-                              const int64_t align_size) {
-  int ret = OB_SUCCESS;
-  const bool is_excl = false;
-  OpenParam op(dio, is_create, is_trunc, is_excl);
-  if (-1 != fd_) {
-    ret = OB_INIT_TWICE;
-  } else if (!dio
-             || !is2n(align_size)) {
-    TBSYS_LOG(WARN, "invalid param dio=%s align_size=%ld", STR_BOOL(dio), align_size);
-    ret = OB_INVALID_ARGUMENT;
-  } else if (OB_SUCCESS != (ret = FileComponent::open(fname, op, fd_))) {
-    TBSYS_LOG(WARN, "open file fail, ret=%d dio=%s is_create=%s is_trunc=%s is_excl=%s fname=[%.*s]",
-              ret, STR_BOOL(dio), STR_BOOL(is_create), STR_BOOL(is_trunc), STR_BOOL(is_excl), fname.length(), fname.ptr());
-  } else {
-    file_pos_ = get_file_size(fd_);
-    if (0 != (file_pos_ % align_size)) {
-      TBSYS_LOG(WARN, "file_size=%ld do not align, align_size=%ld fd=%d", file_pos_, align_size, fd_);
-      close();
-    } else {
-      align_size_ = align_size;
-    }
-  }
-  return ret;
-}
-
-int ObFileAsyncAppender::create(const ObString& fname,
-                                const bool dio,
-                                const int64_t align_size) {
-  int ret = OB_SUCCESS;
-  const bool is_create = true;
-  const bool is_trunc = false;
-  const bool is_excl = true;
-  OpenParam op(dio, is_create, is_trunc, is_excl);
-  if (-1 != fd_) {
-    ret = OB_INIT_TWICE;
-  } else if (!dio
-             || !is2n(align_size)) {
-    TBSYS_LOG(WARN, "invalid param dio=%s align_size=%ld", STR_BOOL(dio), align_size);
-    ret = OB_INVALID_ARGUMENT;
-  } else if (OB_SUCCESS != (ret = FileComponent::open(fname, op, fd_))) {
-    TBSYS_LOG(WARN, "open file fail, ret=%d dio=%s is_create=%s is_trunc=%s is_excl=%s fname=[%.*s]",
-              ret, STR_BOOL(dio), STR_BOOL(is_create), STR_BOOL(is_trunc), STR_BOOL(is_excl), fname.length(), fname.ptr());
-  } else {
-    file_pos_ = 0;
-    align_size_ = align_size;
-  }
-  return ret;
-}
-
-void ObFileAsyncAppender::close() {
-  if (-1 != fd_) {
-    if (OB_SUCCESS != fsync()) {
-      // Fatal error
-      TBSYS_LOG(ERROR, "fsync fail fd=%d, will set fd=-1, and the fd will leek", fd_);
-    } else {
-      int __attribute__((unused)) ret = ftruncate(fd_, file_pos_);
-      ::close(fd_);
-    }
-    fd_ = -1;
-    cur_iocb_ = NULL;
-  }
-}
-
-int64_t ObFileAsyncAppender::get_file_pos() const {
-  return file_pos_;
-}
-
-int ObFileAsyncAppender::append(const void* buf,
-                                const int64_t count,
-                                const bool is_fsync) {
-  int ret = OB_SUCCESS;
-  UNUSED(buf);
-  UNUSED(count);
-  UNUSED(is_fsync);
-  AIOCB* iocb = NULL;
-  if (-1 == fd_) {
-    ret = OB_NOT_INIT;
-  } else if (NULL == buf
-             || 0 >= count) {
-    ret = OB_INVALID_ARGUMENT;
-  } else {
-    int64_t size2append = count;
-    while (0 < size2append) {
-      if (NULL == (iocb = get_iocb_())) {
-        ret = OB_AIO_TIMEOUT;
-        break;
-      }
-      int64_t buffer_available = AIO_BUFFER_SIZE - iocb->buffer_pos;
-      int64_t size2copy = std::min(buffer_available, size2append);
-      memcpy(iocb->buffer + iocb->buffer_pos, (char*)buf + (count - size2append), size2copy);
-      iocb->buffer_pos += size2copy;
-      size2append -= size2copy;
-      if (AIO_BUFFER_SIZE == iocb->buffer_pos
-          && OB_SUCCESS != (ret = submit_iocb_(iocb))) {
-        break;
-      }
-    }
-    if (OB_SUCCESS != ret
-        && 0 != size2append
-        && count != size2append) {
-      // Fatal error
-      TBSYS_LOG(ERROR, "iocb timeout, to protect the file, will set fd=-1, and the fd will leek");
-      fd_ = -1;
-      cur_iocb_ = NULL;
-    }
-    if (OB_SUCCESS == ret
-        && is_fsync) {
-      ret = fsync();
-    }
-  }
-  return ret;
-}
-
-int ObFileAsyncAppender::fsync() {
-  int ret = OB_SUCCESS;
-  if (-1 == fd_) {
-    ret = OB_NOT_INIT;
-  } else if (NULL != cur_iocb_) {
-    ret = submit_iocb_(cur_iocb_);
-  }
-
-  if (OB_SUCCESS == ret) {
-    int64_t pool_used = pool_.used();
-    for (int64_t i = 0; i < pool_used; i++) {
-      wait();
-    }
-    if (0 != pool_.used()) {
-      ret = OB_AIO_TIMEOUT;
-    }
-  }
-  return ret;
-}
-
-int ObFileAsyncAppender::submit_iocb_(AIOCB* iocb) {
-  int ret = OB_SUCCESS;
-  io_prep_pwrite(&(iocb->cb), fd_, iocb->buffer, upper_align(iocb->buffer_pos, align_size_), file_pos_);
-  iocb->cb.data = iocb;
-  struct iocb* cb_ptr = &(iocb->cb);
-  int tmp_ret = 0;
-  if (1 != (tmp_ret = io_submit(ctx_, 1, &cb_ptr))) {
-    TBSYS_LOG(WARN, "io_submit fail ret=%d", tmp_ret);
-    ret = OB_ERR_UNEXPECTED;
-  } else {
-    file_pos_ += iocb->buffer_pos;
-    cur_iocb_ = NULL;
-  }
-  return ret;
-}
-
-ObFileAsyncAppender::AIOCB* ObFileAsyncAppender::get_iocb_() {
-  AIOCB* ret = NULL;
-  if (NULL != cur_iocb_) {
-    if (AIO_BUFFER_SIZE != cur_iocb_->buffer_pos) {
-      ret = cur_iocb_;
-    } else {
-      if (OB_SUCCESS  == submit_iocb_(cur_iocb_)) {
-        pool_.alloc_obj(cur_iocb_, *this);
-        ret = cur_iocb_;
-      }
-    }
-  } else {
-    pool_.alloc_obj(cur_iocb_, *this);
-    ret = cur_iocb_;
-  }
-  if (NULL != ret
-      && NULL == ret->buffer) {
-    if (NULL == (ret->buffer = (char*)memalign(align_size_, AIO_BUFFER_SIZE))) {
-      TBSYS_LOG(WARN, "alloc async buffer fail");
-      pool_.free_obj(ret);
-      cur_iocb_ = NULL;
-      ret = NULL;
-    } else {
-      memset(ret->buffer, 0, AIO_BUFFER_SIZE);
-    }
-  }
-  return ret;
-}
-
-void ObFileAsyncAppender::wait() {
-  struct timespec ts;
-  ts.tv_sec = AIO_WAIT_TIME_US / 1000000;
-  ts.tv_nsec = (AIO_WAIT_TIME_US % 1000000) * 1000;
-  struct io_event ioe[1];
-  int64_t ret_num = io_getevents(ctx_, 1, 1, ioe, &ts);
-  for (int64_t i = 0; i < ret_num; i++) {
-    AIOCB* iocb = (AIOCB*)ioe[i].data;
-    if (NULL != iocb
-        && 0 == ioe[i].res2
-        && upper_align(iocb->buffer_pos, align_size_) == (int64_t)ioe[i].res) {
-      iocb->buffer_pos = 0;
-      pool_.free_obj(iocb);
-    } else {
-      // Fatal error
-      TBSYS_LOG(ERROR, "iocb return fail iocb=%p res=%ld res2=%ld, will set fd=-1, and the fd will leek",
-                ioe[i].data, ioe[i].res, ioe[i].res2);
-      fd_ = -1;
-      cur_iocb_ = NULL;
-    }
-  }
-}
-#endif // __USE_AIO_FILE
-}
-}
 

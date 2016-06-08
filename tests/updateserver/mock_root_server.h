@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * mock_root_server.h for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #ifndef MOCK_ROOT_SERVER2_H_
 #define MOCK_ROOT_SERVER2_H_
 
@@ -13,7 +28,7 @@ class MockRootServer : public MockServer {
   int initialize();
 
   // dispatcher process
-  int do_request(ObPacket* base_packet);
+  ObPacket* do_request(ObPacket* base_packet, bool& is_done);
 
  private:
   // schema changed
@@ -36,4 +51,6 @@ class MockRootServer : public MockServer {
 
 
 #endif //MOCK_ROOT_SERVER2_H_
+
+
 

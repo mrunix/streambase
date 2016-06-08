@@ -1,17 +1,16 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- * ob_cache.cc is for what ...
+ * Version: $Id$
  *
- * Version: $id: ob_cache.cc,v 0.1 8/19/2010 3:20p wushi Exp $
+ * ob_cache.cc for ...
  *
  * Authors:
  *   wushi <wushi.ly@taobao.com>
- *     - some work details if you want
  *
  */
 #include "ob_cache.h"
@@ -108,6 +107,7 @@ const sb::common::ObString& sb::common::ObCachePair::get_value() const {
 ///     total_ref_num_ ++;
 ///   }
 /// }
+
 
 
 

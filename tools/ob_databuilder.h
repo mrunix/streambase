@@ -7,14 +7,12 @@
 #include "common/ob_define.h"
 #include "common/ob_object.h"
 #include "common/ob_string.h"
-#include "compactsstablev2/ob_sstable_schema.h"
-#include "compactsstablev2/ob_compact_sstable_writer.h"
+#include "sstable/ob_sstable_row.h"
+#include "sstable/ob_sstable_writer.h"
 #include "chunkserver/ob_tablet.h"
 #include "chunkserver/ob_tablet_image.h"
 #include "common/ob_schema.h"
 #include "common/page_arena.h"
-#include "common/ob_row_desc.h"
-#include "common/ob_row.h"
 
 namespace sb {
 
@@ -26,25 +24,21 @@ class ObDataBuilder {
   static const int ROW_KEY_BUF_LEN = 1024; //TODO
   static const uint64_t SSTABLE_ID_BASE = 1000;
   static const int32_t MAX_PATH = 256;
-  static const int64_t DEFAULT_MAX_SSTABLE_SIZE = 256 * 1024 * 1024; //256M
+  static const int64_t MAX_SSTABLE_SIZE = 256 * 1024 * 1024; //256M
   static const int64_t MAX_LINE = 1000;
-  static const int64_t DEFAULT_MAX_SSTABLE_NUMBER = 30;
 
   struct ObDataBuilderArgs {
     ObDataBuilderArgs() : table_id_(0),
-      max_sstable_size_(DEFAULT_MAX_SSTABLE_SIZE),
       file_no_(-1),
-      reserve_ids_(DEFAULT_MAX_SSTABLE_NUMBER),
+      reserve_ids_(30),
       disk_no_(-1),
-      version_(1),
       filename_(NULL),
       syntax_file_(NULL),
       dest_dir_(NULL),
-      compressor_string_(NULL),
-      schema_(NULL)
+      schema_(NULL),
+      version_(1)
     {}
     int64_t table_id_;
-    int64_t max_sstable_size_;
 
     int32_t file_no_;
     int32_t reserve_ids_;
@@ -56,6 +50,7 @@ class ObDataBuilder {
     const char* dest_dir_;
     const char* compressor_string_;
 
+    //const common::ObSchema *schema_;
     const common::ObSchemaManagerV2* schema_;
   };
 
@@ -75,8 +70,8 @@ class ObDataBuilder {
 
  private:
 
-  int prepare_new_sstable_name();
-  int record_sstable_range();
+  int prepare_new_sstable();
+  int close_sstable();
   int write_idx_info();
 
   char* read_line(int& fields);
@@ -106,8 +101,8 @@ class ObDataBuilder {
   ObTabletImage image_;
   sstable::ObSSTableId id_;
 
-  int64_t max_sstable_size_;
   uint64_t current_sstable_id_;
+  int64_t current_sstable_size_;
 
   int64_t current_line_;
   int64_t serialize_size_;
@@ -127,14 +122,14 @@ class ObDataBuilder {
   common::ObString row_key_;
   common::ObString last_key_;
 
-  common::ObRow sstable_row_;
-  common::ObRowDesc* row_desc_;
-  compactsstablev2::ObCompactSSTableWriter writer_;
+  sstable::ObSSTableRow sstable_row_;
+  uint64_t tmp_buf_2[16 * 1024];
+  sstable::ObSSTableWriter writer_;
+  uint64_t tmp_buf_[16 * 1024];
 
   const common::ObTableSchema* table_schema_;
   const common::ObSchemaManagerV2* schema_;
-  compactsstablev2::ObSSTableSchema* sstable_schema_;
-  ObRowDesc* desc_;
+  sstable::ObSSTableSchema* sstable_schema_;
 
   common::CharArena arena_;
 
@@ -148,5 +143,5 @@ class ObDataBuilder {
 };
 
 } /* chunkserver */
-} /* oceanbase */
+} /* sb */
 #endif /*OCEANBASE_CHUNKSERVER_DATABUILDER_H_ */

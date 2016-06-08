@@ -1,23 +1,23 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_aio_buffer_mgr.cc for manage aio buffer.
+ * Version: 5567
+ *
+ * ob_aio_buffer_mgr.cc
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
+ *     huating <huating.zmq@taobao.com>
  *
  */
 #include <tblog.h>
 #include "common/ob_define.h"
-#include "common/ob_record_header.h"
 #include "ob_aio_buffer_mgr.h"
 #include "ob_sstable_block_index_v2.h"
 #include "ob_blockcache.h"
-#include "ob_sstable_writer.h"
 
 namespace sb {
 namespace sstable {
@@ -372,7 +372,7 @@ io_context_t ObAIOBufferMgr::get_io_context() {
   int64_t max_events = AIO_BUFFER_COUNT * OB_MAX_COLUMN_GROUP_NUMBER;
 
   if (NULL == ctx) {
-    if (0 != io_setup(static_cast<int>(max_events), &ctx)) {
+    if (0 != io_setup(max_events, &ctx)) {
       TBSYS_LOG(WARN, "failed to setup io context, ctx=%p, error:%s",
                 ctx, strerror(errno));
       ctx = NULL;
@@ -444,7 +444,6 @@ void ObAIOBufferMgr::reset() {
   preread_block_idx_ = 0;
   end_preread_block_idx_ = 0;
   cur_buf_idx_ = 0;
-  aio_stat_.reset();
 }
 
 int ObAIOBufferMgr::advise(ObBlockCache& block_cache,
@@ -517,14 +516,6 @@ int ObAIOBufferMgr::advise(ObBlockCache& block_cache,
         ret = OB_ERROR;
         break;
       }
-    }
-
-    if (OB_SUCCESS == ret) {
-      aio_stat_.sstable_id_ = sstable_id_;
-      aio_stat_.total_blocks_ = block_count_;
-      aio_stat_.total_size_ =
-        block_[block_count_ - 1].offset_ + block_[block_count_ - 1].size_
-        - block_[0].offset_;
     }
   }
 
@@ -605,7 +596,6 @@ int ObAIOBufferMgr::cur_aio_buf_add_block(
       //copy block to aio buffer from block cache
       block_[block_idx].cached_ = true;
       copy_from_cache_ = true;
-      aio_stat_.total_cached_size_ += block_size;
       ret = buffer_[cur_buf_idx_].put_cache_block(
               buffer_handle.get_buffer(), block_size, reverse_scan);
     }
@@ -640,7 +630,6 @@ int ObAIOBufferMgr::preread_aio_buf_add_block(
       //copy block to aio buffer from block cache
       block_[block_idx].cached_ = true;
       copy_from_cache_ = true;
-      aio_stat_.total_cached_size_ += block_size;
       ret = buffer_[preread_buf_idx].put_cache_block(
               buffer_handle.get_buffer(), block_size, reverse_scan);
     }
@@ -828,37 +817,38 @@ void ObAIOBufferMgr::do_only_cur_aio_buf_assigned(
   int64_t preread_size    = 0;
   int64_t preread_buf_idx = (cur_buf_idx_ + 1) % AIO_BUFFER_COUNT;
 
-  /**
-   * current aio buffer is filled some block data, but preread aio
-   * buffer is null, so preread aio buffer need read block data
-   * from sstable file. the following code caculate the preread
-   * block range if necessary.
-   */
   if (check_cache && 0 == buffer_[preread_buf_idx].get_read_size()
-      && !reverse_scan && preread_block_idx_ < block_count_) {
-    for (i = preread_block_idx_; i < block_count_; ++i) {
-      preread_size += block_[i].size_;
-      if (!can_fit_aio_buffer(preread_size)) {
-        end_preread_block_idx_ = i;
-        break;
+      && preread_block_idx_ < block_count_) {
+    /**
+     * current aio buffer is filled some block data, but preread aio
+     * buffer is null, so preread aio buffer need read block data
+     * from sstable file. the following code caculate the preread
+     * block range if necessary.
+     */
+    if (!reverse_scan && preread_block_idx_ < block_count_) {
+      for (i = preread_block_idx_; i < block_count_; ++i) {
+        preread_size += block_[i].size_;
+        if (!can_fit_aio_buffer(preread_size)) {
+          end_preread_block_idx_ = i;
+          break;
+        }
       }
-    }
 
-    if (block_count_ == i) {
-      end_preread_block_idx_ = block_count_;
-    }
-  } else if (check_cache && 0 == buffer_[preread_buf_idx].get_read_size()
-             && reverse_scan && end_preread_block_idx_ > 0) {
-    for (i = end_preread_block_idx_ - 1; i >= 0; --i) {
-      preread_size += block_[i].size_;
-      if (!can_fit_aio_buffer(preread_size)) {
-        preread_block_idx_ = i + 1;
-        break;
+      if (block_count_ == i) {
+        end_preread_block_idx_ = block_count_;
       }
-    }
+    } else if (reverse_scan && preread_block_idx_ > 0) {
+      for (i = preread_block_idx_ - 1; i >= 0; --i) {
+        preread_size += block_[i].size_;
+        if (!can_fit_aio_buffer(preread_size)) {
+          preread_block_idx_ = i + 1;
+          break;
+        }
+      }
 
-    if (i < 0) {
-      preread_block_idx_ = 0;
+      if (i < 0) {
+        preread_block_idx_ = 0;
+      }
     }
   } else {
     /**
@@ -894,7 +884,7 @@ int ObAIOBufferMgr::internal_init_read_range(const bool read_cache,
 
   for (i = start; reverse_scan ? (i >= end) : (i < end) && OB_SUCCESS == ret;) {
     ObBufferHandle buffer_handle;
-    block_size = static_cast<int32_t>(block_[i].size_);
+    block_size = block_[i].size_;
     if (check_cache) {
       block_size = block_cache_->get_cache_block(sstable_id_, block_[i].offset_,
                                                  block_[i].size_, buffer_handle);
@@ -923,7 +913,7 @@ int ObAIOBufferMgr::internal_init_read_range(const bool read_cache,
         break;
       }
     } else {
-      TBSYS_LOG(WARN, "get block from block cache failed, block_size=%d, "
+      TBSYS_LOG(WARN, "get block from block cache failed, block_size=%ld, "
                 "block_[%ld].size_=%ld, check_cache=%d",
                 block_size, i, block_[i].size_, check_cache);
       ret = OB_ERROR;
@@ -1076,7 +1066,6 @@ int ObAIOBufferMgr::update_read_range(const bool check_cache,
         } else if (check_cache && copy_from_cache_) {
           //copy block to preread aio buffer from block cache
           block_[i].cached_ = true;
-          aio_stat_.total_cached_size_ += block_[i].size_;
           ret = preread_aio_buf.put_cache_block(buffer_handle.get_buffer(),
                                                 block_[i].size_, reverse_scan);
         }
@@ -1137,9 +1126,6 @@ int ObAIOBufferMgr::aio_read_blocks(ObAIOBuffer& aio_buf, ObAIOEventMgr& event_m
       if (OB_SUCCESS == ret) {
         aio_buf.set_state(WAIT);
         cur_buf_idx_ = aio_buf_idx;
-        aio_stat_.total_read_size_ += aio_buf.get_toread_size();
-        aio_stat_.total_read_times_ += 1;
-        aio_stat_.total_read_blocks_ += end_curread_block_idx_ - cur_read_block_idx_;
         ret = event_mgr.aio_wait(timeout_us);
       }
     }
@@ -1171,9 +1157,6 @@ int ObAIOBufferMgr::preread_blocks() {
                                           preread_aio_buf->get_toread_size(),
                                           *preread_aio_buf);
       if (OB_SUCCESS == ret) {
-        aio_stat_.total_read_size_ += preread_aio_buf->get_toread_size();
-        aio_stat_.total_read_times_ += 1;
-        aio_stat_.total_read_blocks_ += end_preread_block_idx_ - preread_block_idx_;
         preread_aio_buf->set_state(WAIT);
       }
     }
@@ -1578,8 +1561,7 @@ int ObAIOBufferMgr::get_block(ObBlockCache& block_cache,
                               const int64_t offset,
                               const int64_t size,
                               const int64_t timeout_us,
-                              char*& buffer, bool& from_cache,
-                              const bool check_crc) {
+                              char*& buffer, bool& from_cache) {
   int ret                 = OB_SUCCESS;
   int64_t cur_timeout_us  = timeout_us;
   bool copy_to_cache      = false;
@@ -1623,22 +1605,10 @@ int ObAIOBufferMgr::get_block(ObBlockCache& block_cache,
     ret = get_block_state_machine(sstable_id, offset, size, cur_timeout_us, buffer);
   }
 
-  if (OB_SUCCESS == ret && NULL != buffer) {
-    if (check_crc && !from_cache) {
-      ret = ObRecordHeader::check_record(buffer,
-                                         size, ObSSTableWriter::DATA_BLOCK_MAGIC);
-      if (OB_SUCCESS != ret) {
-        TBSYS_LOG(WARN, "failed to check block record, sstable_id=%lu "
-                  "offset=%ld nbyte=%ld",
-                  sstable_id, offset, size);
-      }
-    }
-
-    //copy to block cache if necessary
-    if (OB_SUCCESS == ret && copy_to_cache) {
-      //ignore the return value of copy2cache
-      copy2cache(sstable_id, offset, size, buffer);
-    }
+  //copy to block cache if necessary
+  if (OB_SUCCESS == ret && NULL != buffer && copy_to_cache) {
+    //ignore the return value of copy2cache
+    copy2cache(sstable_id, offset, size, buffer);
   }
 
   return ret;
@@ -1662,21 +1632,11 @@ void ObAIOBufferMgr::copy_remain_block_to_cache(ObAIOBuffer& aio_buf) {
     if (OB_SUCCESS == status) {
       //if the block is not in block cache, copy it into block cache
       if (!cached_) {
-        status = ObRecordHeader::check_record(value.buffer,
-                                              dataindex_key.size, ObSSTableWriter::DATA_BLOCK_MAGIC);
-        if (OB_SUCCESS != status) {
-          TBSYS_LOG(WARN, "failed to check block record, sstable_id=%lu "
-                    "offset=%ld nbyte=%ld",
-                    dataindex_key.sstable_id, dataindex_key.offset,
-                    dataindex_key.size);
+        value.nbyte = dataindex_key.size;
+        status = block_cache_->get_kv_cache().put(dataindex_key, value);
+        if (OB_SUCCESS != status && OB_ENTRY_EXIST != status) {
+          TBSYS_LOG(WARN, "failed to copy block data to cache, status=%d", status);
           break;
-        } else {
-          value.nbyte = dataindex_key.size;
-          status = block_cache_->get_kv_cache().put(dataindex_key, value);
-          if (OB_SUCCESS != status && OB_ENTRY_EXIST != status) {
-            TBSYS_LOG(WARN, "failed to copy block data to cache, status=%d", status);
-            break;
-          }
         }
       }
     } else {
@@ -1719,7 +1679,6 @@ int ObAIOBufferMgr::wait_aio_buf_free(int64_t& timeout_us) {
       }
       preread_aio_buf.set_state(FREE);
     }
-    reset();
   }
 
   return ret;
@@ -1855,10 +1814,6 @@ ObAIOBufferMgr* ObThreadAIOBufferMgrArray::get_aio_buf_mgr(const uint64_t sstabl
     }
   }
 
-  if (free_mgr && NULL != aio_buf_mgr) {
-    thread_aio_stat_ += aio_buf_mgr->get_aio_stat();
-  }
-
   return aio_buf_mgr;
 }
 
@@ -1878,7 +1833,6 @@ int ObThreadAIOBufferMgrArray::wait_all_aio_buf_mgr_free(const int64_t timeout_u
     TBSYS_LOG(WARN, "wait all thread aio buffer manager free time out");
     ret = OB_AIO_TIMEOUT;
   }
-  thread_aio_stat_.reset();
 
   return ret;
 }
@@ -1891,66 +1845,6 @@ bool ObThreadAIOBufferMgrArray::check_all_aio_buf_free() {
   }
 
   return bret;
-}
-
-void ObThreadAIOBufferMgrArray::add_stat(const ObIOStat& stat) {
-  thread_aio_stat_ += stat;
-}
-
-const char* ObThreadAIOBufferMgrArray::get_thread_aio_stat_str() {
-  static __thread char buffer[512];
-  ObIOStat stat = thread_aio_stat_;
-
-  for (int64_t i = 0; i < item_count_; ++i) {
-    stat += item_array_[i].aio_buf_mgr_->get_aio_stat();
-  }
-
-  snprintf(buffer, 512, "read_size=%ld, read_times=%ld, "
-           "read_blocks=%ld, total_blocks=%ld, "
-           "total_size=%ld, cached_size=%ld, sstable_id=%lu",
-           stat.total_read_size_, stat.total_read_times_, stat.total_read_blocks_,
-           stat.total_blocks_, stat.total_size_, stat.total_cached_size_,
-           stat.sstable_id_);
-
-  return buffer;
-}
-
-int wait_aio_buffer() {
-  int ret = OB_SUCCESS;
-  int status = 0;
-
-  ObThreadAIOBufferMgrArray* aio_buf_mgr_array =
-    GET_TSI_MULT(ObThreadAIOBufferMgrArray, TSI_SSTABLE_THREAD_AIO_BUFFER_MGR_ARRAY_1);
-  if (NULL == aio_buf_mgr_array) {
-    ret = OB_ERROR;
-  } else if (OB_AIO_TIMEOUT == (status =
-                                  aio_buf_mgr_array->wait_all_aio_buf_mgr_free(10 * 1000000))) {
-    TBSYS_LOG(WARN, "failed to wait all aio buffer manager free, "
-              "stop current thread");
-    ret = OB_ERROR;
-  }
-
-  return ret;
-}
-
-const char* get_io_stat_str() {
-  const char* stat_str = "";
-
-  ObThreadAIOBufferMgrArray* aio_buf_mgr_array =
-    GET_TSI_MULT(ObThreadAIOBufferMgrArray, TSI_SSTABLE_THREAD_AIO_BUFFER_MGR_ARRAY_1);
-  if (NULL != aio_buf_mgr_array) {
-    stat_str = aio_buf_mgr_array->get_thread_aio_stat_str();
-  }
-
-  return stat_str;
-}
-
-void add_io_stat(const ObIOStat& stat) {
-  ObThreadAIOBufferMgrArray* aio_buf_mgr_array =
-    GET_TSI_MULT(ObThreadAIOBufferMgrArray, TSI_SSTABLE_THREAD_AIO_BUFFER_MGR_ARRAY_1);
-  if (NULL != aio_buf_mgr_array) {
-    aio_buf_mgr_array->add_stat(stat);
-  }
 }
 } // end namespace sstable
 } // end namespace sb

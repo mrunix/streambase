@@ -125,26 +125,20 @@ bool DbLogMonitor::is_lastlog_of_day(int64_t logid) {
 }
 
 void DbLogMonitor::start_servic(int64_t start_log) {
+  char buf[MAX_TIME_LEN];
 
   running_ = true;
   log_current_ = start_log;
-  TBSYS_LOG(INFO, "start log is %ld", start_log);
+  TBSYS_LOG(INFO, "start log is %d", start_log);
   interval_ = DUMP_CONFIG->get_monitor_interval();
   max_nolog_interval_ = DUMP_CONFIG->max_nolog_interval();
   last_nolog_time_ = time(NULL);
-  TBSYS_LOG(INFO, "Max Nolog Interval = [%ld]", max_nolog_interval_);
+  TBSYS_LOG(INFO, "Max Nolog Interval = [%d]", max_nolog_interval_);
 
   //init today
-  if (DUMP_CONFIG->init_date() == NULL) {
-    char buf[MAX_TIME_LEN];
+  get_current_date(buf, MAX_TIME_LEN);
+  today_ = buf;
 
-    get_current_date(buf, MAX_TIME_LEN);
-    today_ = buf;
-  } else {
-    today_ = DUMP_CONFIG->init_date();
-  }
-
-  TBSYS_LOG(INFO, "[LOG MONITOR]:today = %s", today_.c_str());
   start();
 }
 
@@ -163,12 +157,10 @@ int DbLogMonitor::monitor_log_dir() {
 }
 
 void DbLogMonitor::run(tbsys::CThread* thread, void* arg) {
-  UNUSED(thread);
-  UNUSED(arg);
   while (running_) {
-    TBSYS_LOG(INFO, "processing logs....., %ld", interval_);
+    TBSYS_LOG(INFO, "processing logs....., %d", interval_);
     process_logs();
-    sleep(static_cast<int32_t>(interval_));
+    sleep(interval_);
   }
 }
 
@@ -224,11 +216,10 @@ void DbLogMonitor::append_logs(std::vector<int64_t>& logs) {
   while (itr != logs.end()) {
     log_info.log_id = *itr;
     waiting_logs_.push_back(log_info);
-    TBSYS_LOG(INFO, "appending log=[%ld]", log_info.log_id);
+    TBSYS_LOG(INFO, "appending log=[%d]", log_info.log_id);
     itr++;
   }
-  //logs_cond_.broadcast();
-  logs_cond_.signal();
+  logs_cond_.broadcast();
   logs_cond_.unlock();
 }
 
@@ -284,8 +275,8 @@ bool DbLogMonitor::check_continuity(std::vector<int64_t>& vec, int64_t start) {
 
   while (itr != vec.end()) {
     if (*itr != start++) {
-      TBSYS_LOG(WARN, "continuity violated expected=%ld, found=%ld", start - 1, *itr);
-      report_msg(MSG_WARN, "continuity violated expected=%ld, found=%ld", start - 1, *itr);
+      TBSYS_LOG(WARN, "continuity violated expected=%d, found=%d", start - 1, *itr);
+      report_msg(MSG_WARN, "continuity violated expected=%d, found=%d", start - 1, *itr);
       start = *itr;
       ret = false;
       continue;

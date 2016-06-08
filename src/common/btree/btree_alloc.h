@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./btree_alloc.h for ...
+ *
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
+ */
 #ifndef OCEANBASE_COMMON_BTREE_BTREE_ALLOC_H_
 #define OCEANBASE_COMMON_BTREE_BTREE_ALLOC_H_
 
@@ -45,7 +60,7 @@ class BtreeAlloc {
   /**
    * 得到每个item分配的大小
    */
-  virtual int32_t get_alloc_size() = 0;
+  virtual size_t get_alloc_size() = 0;
 
   /**
    * 用了多少块
@@ -67,4 +82,5 @@ class BtreeAlloc {
 } // end namespace sb
 
 #endif
+
 

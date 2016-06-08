@@ -1,14 +1,17 @@
 /**
- *  (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- *  This program is free software; you can redistribute it
- *  and/or modify it under the terms of the GNU General Public
- *  License version 2 as published by the Free Software
- *  Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- *  Authors:
- *     qushan <qushan@taobao.com>
- *     ObSSTableReader hold a sstable file object.
+ * Version: 5567
+ *
+ * ob_sstable_reader.cc
+ *
+ * Authors:
+ *     huating <huating.zmq@taobao.com>
+ *
  */
 #include "ob_sstable_reader.h"
 #include "tbsys.h"
@@ -72,13 +75,12 @@ int ObSSTableReader::ObFileInfo::get_fd() const {
 }
 
 ObSSTableReader::ObSSTableReader(common::ModuleArena& arena,
-                                 common::IFileInfoMgr& fileinfo_cache,
-                                 tbsys::CThreadMutex* external_arena_mutex)
+                                 common::IFileInfoMgr& fileinfo_cache)
   : is_opened_(false), enable_bloom_filter_(true), use_external_arena_(true),
-    sstable_size_(0), schema_(NULL), compressor_(NULL), bloom_filter_(NULL), sstable_id_(),
+    sstable_size_(0), schema_(NULL), compressor_(NULL), sstable_id_(),
     mod_(ObModIds::OB_CS_SSTABLE_READER),
     own_arena_(ModuleArena::DEFAULT_PAGE_SIZE, mod_),
-    external_arena_(arena), external_arena_mutex_(external_arena_mutex), fileinfo_cache_(fileinfo_cache) {
+    external_arena_(arena), fileinfo_cache_(fileinfo_cache) {
 }
 
 ObSSTableReader::~ObSSTableReader() {
@@ -97,9 +99,9 @@ void ObSSTableReader::reset() {
   }
 
   trailer_.reset();
+  bloom_filter_.reset();
 
   if (!use_external_arena_) own_arena_.free();
-  external_arena_mutex_ = NULL;
 
   sstable_size_ = 0;
 
@@ -107,22 +109,9 @@ void ObSSTableReader::reset() {
     destroy_compressor(compressor_);
     compressor_ = NULL;
   }
-
-  if (NULL != bloom_filter_) {
-    destroy_bloom_filter(bloom_filter_);
-    bloom_filter_ = NULL;
-  }
-
 }
 
-int ObSSTableReader::open(const int64_t sstable_id, const int64_t version) {
-  ObSSTableId id;
-  id.sstable_file_id_ = sstable_id;
-  id.sstable_file_offset_ = 0; // not used for now.
-  return open(id, version);
-}
-
-int ObSSTableReader::open(const ObSSTableId& sstable_id, const int64_t version) {
+int ObSSTableReader::open(const ObSSTableId& sstable_id) {
   int ret                     = OB_SUCCESS;
   const IFileInfo* file_info  = NULL;
   const char* trailer_buf     = NULL;
@@ -171,26 +160,13 @@ int ObSSTableReader::open(const ObSSTableId& sstable_id, const int64_t version) 
       }
     }
 
-    /**
-     * for bypass sstable, the tabelt version is 0, when we load
-     * these sstable, we need set the sstable with right tablet
-     * version. otherwise the sstable schema is changed, but all the
-     * bypass sstable with version 0, maybe the sstable schema in
-     * sstable schema cache is existed, new sstable will use the
-     * old sstable schema, it's wrong.
-     */
-    if (OB_SUCCESS == ret && 0 == trailer_.get_table_version()
-        && version > 0) {
-      trailer_.set_table_version(version);
-    }
-
     // load schema;
     if (OB_SUCCESS == ret) {
       ret = load_schema(*file_info);
     }
 
     if (OB_SUCCESS == ret) {
-      ret = load_range(*file_info);
+      ret = load_bloom_filter(*file_info);
     }
 
     fileinfo_cache_.revert_fileinfo(file_info);
@@ -223,7 +199,7 @@ int ObSSTableReader::read_record(const IFileInfo& file_info,
                                  const int64_t size,
                                  const char*& out_buffer) {
   int ret                 = OB_SUCCESS;
-  ObFileBuffer* file_buf  = GET_TSI_MULT(ObFileBuffer, TSI_SSTABLE_FILE_BUFFER_1);
+  ObFileBuffer* file_buf  = GET_TSI(ObFileBuffer);
   out_buffer = NULL;
 
   if (NULL == file_buf) {
@@ -355,14 +331,6 @@ int ObSSTableReader::load_bloom_filter(const IFileInfo& file_info) {
   } else if (filter_offset == 0 && filter_size == 0) {
     //no bloom filter data in sstable file, disable floom filter
     enable_bloom_filter_ = false;
-  } else if (NULL != bloom_filter_) {
-    // already loaded before.
-    ret = OB_SUCCESS;
-  } else if (NULL == (bloom_filter_ = dynamic_cast<ObBloomFilterV1*>(
-                                        create_bloom_filter<ObTCMalloc>(
-                                          ObBasicBloomFilter<ObTCMalloc>::BLOOM_FILTER_VERSION)))) {
-    TBSYS_LOG(WARN, "cannot create bloom filter.");
-    ret = OB_ALLOCATE_MEMORY_FAILED;
   } else {
     enable_bloom_filter_ = true;
 
@@ -372,9 +340,9 @@ int ObSSTableReader::load_bloom_filter(const IFileInfo& file_info) {
                                          ObSSTableWriter::BLOOM_FILTER_MAGIC, header, payload_ptr, payload_size);
       if (OB_SUCCESS == ret) {
         if (!header.is_compress()) {
-          bloom_filter_->get_allocator()->set_mod_id(ObModIds::OB_BLOOM_FILTER);
-          bloom_filter_->init(trailer_.get_bloom_filter_hash_count(), payload_size);
-          bloom_filter_->set_buffer(reinterpret_cast<const uint8_t*>(payload_ptr), payload_size);
+          bloom_filter_.set_num_hash_functions(
+            trailer_.get_bloom_filter_hash_count());
+          bloom_filter_.set_bitmap(payload_ptr, payload_size);
         } else {
           // compressed bloom filter
           TBSYS_LOG(ERROR, "bloom filter is in compressed format, "
@@ -409,7 +377,7 @@ int ObSSTableReader::load_schema(const IFileInfo& file_info) {
     ret = OB_INVALID_ARGUMENT;
   } else {
     if (NULL == (schema_ = schema_cache.get_schema(first_table_id, version))) {
-      schema_buf = static_cast<char*>(ob_malloc(sizeof(ObSSTableSchema), ObModIds::OB_SSTABLE_READER));
+      schema_buf = static_cast<char*>(ob_malloc(sizeof(ObSSTableSchema)));
       if (NULL == schema_buf) {
         TBSYS_LOG(ERROR, "alloc schema buf error");
         ret = OB_ALLOCATE_MEMORY_FAILED;
@@ -446,197 +414,21 @@ int ObSSTableReader::load_schema(const IFileInfo& file_info) {
         schema_tmp  = schema_;
         ret = schema_cache.add_schema(schema_tmp, first_table_id, version);
         if (OB_ENTRY_EXIST == ret) {
-          ob_free(schema_tmp);
-          schema_tmp = NULL;
-
           schema_ = schema_cache.get_schema(first_table_id, version);
-          TBSYS_LOG(INFO, "schema exist with table id =%ld, version=%ld, and refetch from cache:%p",
-                    first_table_id, version, schema_);
           if (NULL == schema_) {
             TBSYS_LOG(WARN, "get schema from sstable schema cache failed, version=%ld",
                       version);
+            ob_free(schema_tmp);
+            schema_tmp = NULL;
             ret = OB_ERROR;
-          } else {
-            ret = OB_SUCCESS;
           }
         } else if (OB_SUCCESS != ret) {
-          ob_free(schema_tmp);
-          schema_tmp = NULL;
-
           TBSYS_LOG(WARN, "add schema to sstable schema cache failed, version=%ld",
                     version);
+          ob_free(schema_tmp);
+          schema_tmp = NULL;
         }
       }
-    }
-  }
-
-  return ret;
-}
-
-int ObSSTableReader::load_range_compatible(const char* payload_ptr, const int64_t payload_size,
-                                           common::ObNewRange& range, common::ObObj* start_key_obj_array, common::ObObj* end_key_obj_array) {
-  // load range for sstableV2 format, which is the sstable format of oceanbase 0.3.x
-  //start_key_obj_array and end_key_obj_array's length should be OB_MAX_ROWKEY_COLUMN_NUMBER
-  int ret = OB_SUCCESS;
-  ObRowkeyInfo rowkey_info;
-  ObString start_key;
-  ObString end_key;
-  uint64_t table_id = OB_INVALID_ID;
-  int8_t flag = 0;
-  int64_t pos = 0;
-
-  if (OB_SUCCESS !=
-      (ret = get_global_schema_rowkey_info(trailer_.get_first_table_id(), rowkey_info))) {
-    TBSYS_LOG(ERROR, "failed to get_global_schema_rowkey_info, ret=%d", ret);
-  } else if (OB_SUCCESS !=
-             (ret = serialization::decode_vi64(payload_ptr, payload_size,
-                                               pos, reinterpret_cast<int64_t*>(&table_id)))) {
-    TBSYS_LOG(ERROR, "failed to decode table id, payload_ptr=%p, payload_size=%ld, pos=%ld,"
-              " ret=%d", payload_ptr, payload_size, pos, ret);
-  } else if (OB_SUCCESS !=
-             (ret = serialization::decode_i8(payload_ptr, payload_size, pos, &flag))) {
-    TBSYS_LOG(ERROR, "failed to decode flag, payload_ptr=%p, payload_size=%ld, pos=%ld,"
-              " ret=%d", payload_ptr, payload_size, pos, ret);
-  } else if (OB_SUCCESS !=
-             (ret = start_key.deserialize(payload_ptr, payload_size, pos))) {
-    TBSYS_LOG(ERROR, "failed to deserialize start key, payload_ptr=%p, payload_size=%ld, pos=%ld,"
-              " ret=%d", payload_ptr, payload_size, pos, ret);
-  } else if (OB_SUCCESS !=
-             (ret = end_key.deserialize(payload_ptr, payload_size, pos))) {
-    TBSYS_LOG(ERROR, "failed to deserialize end key, payload_ptr=%p, payload_size=%ld, pos=%ld,"
-              " ret=%d", payload_ptr, payload_size, pos, ret);
-  } else {
-    range.table_id_ = table_id;
-    range.border_flag_.set_data(flag);
-    if (range.border_flag_.is_min_value()) {
-      range.border_flag_.unset_min_value();
-      range.border_flag_.unset_inclusive_start();
-
-      range.start_key_.set_min_row();
-    } else {
-      range.border_flag_.unset_min_value();
-      range.border_flag_.unset_inclusive_start();
-
-      ret = ObRowkeyHelper::binary_rowkey_to_obj_array(
-              rowkey_info, start_key, start_key_obj_array, OB_MAX_ROWKEY_COLUMN_NUMBER);
-      if (OB_SUCCESS != ret) {
-        TBSYS_LOG(ERROR, "failed to trans start binary rowkey to obj array, ret=%d", ret);
-      } else {
-        range.start_key_.assign(start_key_obj_array, rowkey_info.get_size());
-      }
-    }
-
-    if (range.border_flag_.is_max_value()) {
-      range.border_flag_.unset_max_value();
-      range.border_flag_.unset_inclusive_end();
-
-      range.end_key_.set_max_row();
-    } else {
-      range.border_flag_.unset_max_value();
-      range.border_flag_.set_inclusive_end();
-
-      ret = ObRowkeyHelper::binary_rowkey_to_obj_array(
-              rowkey_info, end_key, end_key_obj_array, OB_MAX_ROWKEY_COLUMN_NUMBER);
-      if (OB_SUCCESS != ret) {
-        TBSYS_LOG(ERROR, "failed to trans end binary rowkey to obj array, ret=%d", ret);
-      } else {
-        range.end_key_.assign(end_key_obj_array, rowkey_info.get_size());
-      }
-    }
-  }
-
-  return ret;
-}
-
-int ObSSTableReader::load_range(const IFileInfo& file_info) {
-  int ret = OB_SUCCESS;
-  int64_t range_offset = trailer_.get_range_record_offset();
-  int64_t range_size = trailer_.get_range_record_size();
-  int64_t payload_size    = 0;
-  int64_t pos = 0;
-  const char* payload_ptr = NULL;
-  const char* record_buf  = NULL;
-  ObRecordHeader header;
-  ObNewRange range;
-  ObObj start_key_obj_array[OB_MAX_ROWKEY_COLUMN_NUMBER];
-  ObObj end_key_obj_array[OB_MAX_ROWKEY_COLUMN_NUMBER];
-
-  if (0 == range_offset && 0 == range_size) {
-    // compat for SSTABLEV2
-    // no range set in sstable
-    // set range as (MIN, MAX)
-    range.reset();
-    range.set_whole_range();
-    range.table_id_ = trailer_.get_first_table_id();
-    ret = trailer_.set_range(range);
-    if (OB_SUCCESS != ret) {
-      TBSYS_LOG(ERROR, "failed to set range of trailer, ret=%d", ret);
-    }
-  } else if (range_offset < 0 || range_size <= 0) {
-    TBSYS_LOG(ERROR, "range_offset:%ld, range_size:%ld is illegal",
-              range_offset, range_size);
-    ret = OB_INVALID_ARGUMENT;
-  } else {
-    ret = read_record(file_info, range_offset, range_size, record_buf);
-    if (OB_SUCCESS == ret && NULL != record_buf) {
-      ret = ObRecordHeader::check_record(record_buf, range_size,
-                                         ObSSTableWriter::RANGE_MAGIC, header, payload_ptr, payload_size);
-      if (OB_SUCCESS == ret) {
-        if (header.is_compress()) {
-          // compressed range buf
-          TBSYS_LOG(ERROR, "range buf is in compressed format, "
-                    "but expect uncompressed format");
-          ret = OB_ERROR;
-        } else {
-          if (trailer_.get_trailer_version() == ObSSTableTrailer::SSTABLEV2) {
-            // compat for SSTABLEV2
-            ret = load_range_compatible(payload_ptr, payload_size,
-                                        range, start_key_obj_array, end_key_obj_array);
-            if (OB_SUCCESS != ret) {
-              TBSYS_LOG(ERROR, "failed to deserialize range of sstable v2: payload_ptr %p,"
-                        " payload_size %ld, pos %ld", payload_ptr, payload_size, pos);
-            }
-          } else {
-            range.start_key_.assign(start_key_obj_array, OB_MAX_ROWKEY_COLUMN_NUMBER);
-            range.end_key_.assign(end_key_obj_array, OB_MAX_ROWKEY_COLUMN_NUMBER);
-
-            ret = range.deserialize(payload_ptr, payload_size, pos);
-            if (OB_SUCCESS != ret) {
-              TBSYS_LOG(ERROR, "failed to deserialize range: payload_ptr %p,"
-                        " payload_size %ld, pos %ld", payload_ptr, payload_size, pos);
-            }
-          }
-
-          // deep copy range
-          if (OB_SUCCESS == ret) {
-            ObNewRange tmp_range;
-            if (use_external_arena_) {
-              if (NULL != external_arena_mutex_) {
-                external_arena_mutex_->lock();
-              }
-              ret = common::deep_copy_range(external_arena_, range, tmp_range);
-              if (NULL != external_arena_mutex_) {
-                external_arena_mutex_->unlock();
-              }
-            } else {
-              ret = common::deep_copy_range(own_arena_, range, tmp_range);
-            }
-
-            if (OB_SUCCESS != ret) {
-              TBSYS_LOG(ERROR, "failed to deep copy range,ret=%d", ret);
-            } else {
-              ret = trailer_.set_range(tmp_range);
-              if (OB_SUCCESS != ret) {
-                TBSYS_LOG(ERROR, "failed to set range of trailer, ret=%d", ret);
-              }
-            }
-          }
-        }
-      } else {
-        TBSYS_LOG(ERROR, "failed to check record");
-      }
-    } else {
-      TBSYS_LOG(ERROR, "failed to read_record of range");
     }
   }
 
@@ -656,27 +448,8 @@ int64_t ObSSTableReader::get_sstable_size() const {
   return size;
 }
 
-int64_t ObSSTableReader::get_sstable_checksum() const {
-  int64_t sum = 0;
-  if (is_opened_) sum = trailer_.get_sstable_checksum();
-  return sum;
-}
-
 const ObSSTableSchema* ObSSTableReader::get_schema() const {
   return schema_;
-}
-
-const BloomFilter* ObSSTableReader::get_bloom_filter() const {
-  bf_mutex_.lock();
-  if (NULL == bloom_filter_) {
-    const IFileInfo* file_info  = fileinfo_cache_.get_fileinfo(sstable_id_.sstable_file_id_);
-    if (NULL != file_info) {
-      const_cast<ObSSTableReader*>(this)->load_bloom_filter(*file_info);
-      fileinfo_cache_.revert_fileinfo(file_info);
-    }
-  }
-  bf_mutex_.unlock();
-  return bloom_filter_;
 }
 
 ObCompressor* ObSSTableReader::get_decompressor() {
@@ -694,19 +467,11 @@ ObCompressor* ObSSTableReader::get_decompressor() {
 }
 
 // check sstable if may contain %key, check by bloomfilter.
-bool ObSSTableReader::may_contain(const ObRowkey& key) const {
+bool ObSSTableReader::may_contain(const ObString& key) const {
   bool ret = false;
   if (is_opened_) {
-    if (NULL == bloom_filter_) {
-      const IFileInfo* file_info  = fileinfo_cache_.get_fileinfo(sstable_id_.sstable_file_id_);
-      if (NULL != file_info) {
-        const_cast<ObSSTableReader*>(this)->load_bloom_filter(*file_info);
-        fileinfo_cache_.revert_fileinfo(file_info);
-      }
-    }
-
-    if (enable_bloom_filter_ && NULL != bloom_filter_) {
-      ret = bloom_filter_->may_contain(key);
+    if (enable_bloom_filter_) {
+      ret = bloom_filter_.may_contain(key);
     } else {
       //disabled bloom filter, default return true
       ret = true;
@@ -715,7 +480,7 @@ bool ObSSTableReader::may_contain(const ObRowkey& key) const {
   return ret;
 }
 
-bool ObSSTableReader::check_sstable(const char* sstable_fname, uint64_t* sstable_checksum) {
+bool ObSSTableReader::check_sstable(const char* sstable_fname) {
   bool ret                  = false;
   int64_t sstable_size      = 0;
   const char* trailer_buf   = NULL;
@@ -742,10 +507,6 @@ bool ObSSTableReader::check_sstable(const char* sstable_fname, uint64_t* sstable
     ret = trailer.is_valid();
     if (!ret) {
       trailer.dump();
-    } else {
-      if (NULL != sstable_checksum) {
-        *sstable_checksum = trailer.get_sstable_checksum();
-      }
     }
   }
 

@@ -1,34 +1,20 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_kv_storecache.h is for what ...
+ * Version: $Id$
  *
- *  Description
- *
- * 无锁的lrucache实现
- *
- * ITEM_SIZE 为平均每个缓存对象的大小
- * 在没有深拷贝的情况下可以设为sizeof(Key) + sizeof(Value)
- *
- * 缓存对象可批量淘汰 BLOCK_SIZE 可以取默认值为1M
- * 缓存对象不可批量淘汰 BLOCK_SIZE 取值为ITEM_SIZE的大小
- *
- * BLOCK_SIZE 取值小于128K的时候 为了避免大量小内存的分配
- * 需要使用 KVStoreCacheComponent::MultiObjFreeList 作为内存分配器
- * 否则可以使用默认的 KVStoreCacheComponent::SingleObjFreeList 作为内存分配器
+ * ob_kv_storecache.h for ...
  *
  * Authors:
- *   yubai <yubai.lk@taobao.com>
  *   huating <huating.zmq@taobao.com>
  *
  */
 #ifndef  OCEANBASE_COMMON_KV_STORE_CACHE_H_
 #define  OCEANBASE_COMMON_KV_STORE_CACHE_H_
-
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -43,13 +29,13 @@
 #include "ob_atomic.h"
 #include "ob_thread_objpool.h"
 #include "ob_trace_log.h"
-#include "ob_rowkey.h"
+
 namespace sb {
 namespace common {
 namespace KVStoreCacheComponent {
 struct NotNeedDeepCopyTag {};
 struct ObStringDeepCopyTag {};
-struct ObRowkeyDeepCopyTag {};
+
 template <class T>
 struct traits {
   typedef NotNeedDeepCopyTag Tag;
@@ -60,10 +46,6 @@ struct traits<ObString> {
   typedef ObStringDeepCopyTag Tag;
 };
 
-template <>
-struct traits<ObRowkey> {
-  typedef ObRowkeyDeepCopyTag Tag;
-};
 template <class T>
 const char* log_str(const T& obj) {
   UNUSED(obj);
@@ -112,58 +94,21 @@ inline ObString* do_copy(const ObString& other, char* buffer, ObStringDeepCopyTa
 }
 
 inline int32_t do_size(const ObString& data, ObStringDeepCopyTag) {
-  return static_cast<int32_t>(sizeof(ObString) + std::max(data.size(), data.length()));
+  return (sizeof(ObString) + std::max(data.size(), data.length()));
 }
 
 inline void do_destroy(ObString* data, ObStringDeepCopyTag) {
   data->~ObString();
 }
-class BufferAllocator {
- public:
-  explicit BufferAllocator(char* buffer) : buffer_(buffer), pos_(0) {};
-  inline char* alloc(const int64_t size) {
-    char* ret = NULL;
-    if (NULL != buffer_) {
-      ret = buffer_ + pos_;
-      pos_ += size;
-    }
-    return ret;
-  };
- private:
-  char* buffer_;
-  int64_t pos_;
-};
-
-inline ObRowkey* do_copy(const ObRowkey& other, char* buffer, ObRowkeyDeepCopyTag) {
-  ObRowkey* ret = new(buffer) ObRowkey();
-  if (NULL != ret) {
-    BufferAllocator allocator(buffer + sizeof(ObRowkey));
-    int tmp_ret = other.deep_copy(*ret, allocator);
-    if (OB_SUCCESS != tmp_ret) {
-      TBSYS_LOG(WARN, "deep_copy rowkey fail ret=%d", tmp_ret);
-      ret = NULL;
-    }
-  }
-  return ret;
-}
-
-inline int32_t do_size(const ObRowkey& data, ObRowkeyDeepCopyTag) {
-  return (static_cast<int32_t>(sizeof(ObRowkey)) + static_cast<int32_t>(data.get_deep_copy_size()));
-}
-
-inline void do_destroy(ObRowkey* data, ObRowkeyDeepCopyTag) {
-  data->~ObRowkey();
-}
 
 struct DefaultAllocator {
-  void* alloc(const int32_t nbyte) {return ob_tc_malloc(nbyte, ObModIds::OB_KVSTORE_CACHE);};
-  void free(void* ptr) {ob_tc_free(ptr, ObModIds::OB_KVSTORE_CACHE);};
+  void* alloc(const int32_t nbyte) {return ob_malloc(nbyte, ObModIds::OB_KVSTORE_CACHE);};
+  void free(void* ptr) {ob_free(ptr, ObModIds::OB_KVSTORE_CACHE);};
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class StoreHandle {
- public:
   enum {
     FREE = 0,
     STORED = 1,
@@ -414,7 +359,7 @@ class MemBlock {
      * instance.
      */
     int ret = OB_SUCCESS;
-    int32_t align_kv_size = static_cast<int32_t>(get_align_size(key, value));
+    int32_t align_kv_size = get_align_size(key, value);
     AtomicInt64 old_atomic_pos = {0};
     AtomicInt64 new_atomic_pos = {0};
     while (true) {
@@ -531,7 +476,7 @@ class MemBlock {
       }
 
       if (NULL == buffer_) {
-        buffer_ = static_cast<char*>(allocator_.alloc(static_cast<int32_t>(alloc_size)));
+        buffer_ = static_cast<char*>(allocator_.alloc(alloc_size));
         if (NULL == buffer_) {
           TBSYS_LOG(ERROR, "allocate memory for memblock failed");
           ret = OB_ERROR;
@@ -613,17 +558,17 @@ enum FreeListType {
 };
 
 template <class T, class Allocator = DefaultAllocator>
-class MultiObjFreeListTemp {
+class MultiObjFreeList {
   static const int64_t BlockSize = T::MEM_BLOCK_SIZE;
-  static const uint64_t MB_SIZE = 2 * 1024 * 1024;
+  static const uint64_t MB_SIZE = 1024 * 1024;
   static const int64_t ITEM_NUM = MB_SIZE / sizeof(T) + ((MB_SIZE >= sizeof(T)) ? 0 : 1);
   typedef hash::SimpleAllocer<T, ITEM_NUM, hash::SpinMutexDefendMode, Allocator> FreeList;
  public:
   static const int type = MULTI;
  public:
-  MultiObjFreeListTemp() : max_alloc_size_(INT64_MAX), alloc_size_(0) {
+  MultiObjFreeList() : max_alloc_size_(INT64_MAX), alloc_size_(0) {
   };
-  ~MultiObjFreeListTemp() {
+  ~MultiObjFreeList() {
     clear();
   };
   void clear() {
@@ -649,7 +594,7 @@ class MultiObjFreeListTemp {
                 align_size, BlockSize);
     } else {
       if ((int64_t)atomic_add((uint64_t*)&alloc_size_, BlockSize) + BlockSize < max_alloc_size_) {
-        ret = allocator_.alloc();
+        ret = allocator_.allocate();
         if (NULL != ret && OB_SUCCESS != ret->alloc(BlockSize)) {
           free(ret);
           ret = NULL;
@@ -664,7 +609,7 @@ class MultiObjFreeListTemp {
   void free(T* ptr) {
     if (NULL != ptr) {
       int64_t free_size = ptr->free();
-      allocator_.free(ptr);
+      allocator_.deallocate(ptr);
       atomic_add((uint64_t*)&alloc_size_, (uint64_t) - free_size);
     }
   };
@@ -674,20 +619,16 @@ class MultiObjFreeListTemp {
   int64_t alloc_size_;     //how much memory has allocated currently
 };
 
-template <class T>
-class MultiObjFreeList : public MultiObjFreeListTemp<T, DefaultAllocator> {
-};
-
-template <class T, class Allocator = ThreadAllocator<T, MutilObjAllocator<T, 2 * 1024 * 1024> > >
-class SingleObjFreeListTemp {
+template <class T, class Allocator = ThreadAllocator<T, MutilObjAllocator<T, 1024 * 1024> > >
+class SingleObjFreeList {
   static const int64_t BlockSize = T::MEM_BLOCK_SIZE;
  public:
   static const int type = SINGLE;
  public:
-  SingleObjFreeListTemp() : head_(NULL), max_alloc_size_(INT64_MAX), alloc_size_(0) {
+  SingleObjFreeList() : head_(NULL), max_alloc_size_(INT64_MAX), alloc_size_(0) {
     pthread_spin_init(&spin_, PTHREAD_PROCESS_PRIVATE);
   };
-  ~SingleObjFreeListTemp() {
+  ~SingleObjFreeList() {
     clear();
     pthread_spin_destroy(&spin_);
   };
@@ -701,7 +642,7 @@ class SingleObjFreeListTemp {
         iter = iter->get_next();
         tmp->clear();
         tmp->~T();
-        allocator_.free(tmp);
+        allocator_.deallocate(tmp);
       }
       head_ = NULL;
     }
@@ -736,7 +677,7 @@ class SingleObjFreeListTemp {
         }
         pthread_spin_unlock(&spin_);
         if (NULL == ret) {
-          void* tmp = allocator_.alloc();
+          void* tmp = allocator_.allocate();
           ret = new(tmp) T();
         }
         if (NULL != ret && OB_SUCCESS != ret->alloc(alloc_size)) {
@@ -781,10 +722,6 @@ class SingleObjFreeListTemp {
   int64_t max_alloc_size_; //maximum memory size allowed to allocate
   int64_t alloc_size_;     //how much memory has allocated currently
 };
-
-template <class T>
-class SingleObjFreeList : public SingleObjFreeListTemp<T, ThreadAllocator<T, MutilObjAllocator<T, 2 * 1024 * 1024> > > {
-};
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -798,7 +735,6 @@ class KVStoreCache {
           FreeList<void*>::type == KVStoreCacheComponent::MULTI> MemBlock;
   static const int64_t MEM_BLOCK_SIZE = MemBlock::MEM_BLOCK_SIZE;
   static const int64_t MAX_WASH_OUT_SIZE = 10 * MEM_BLOCK_SIZE;
-  static const int64_t MAX_MEMBLOCK_INFO_COUNT = 128 * 1024; //128K
   typedef FreeList<MemBlock> MemBlockFreeList;
   struct MemBlockInfo {
     int64_t get_cnt;
@@ -824,8 +760,8 @@ class KVStoreCache {
   };
  public:
   KVStoreCache() : inited_(false), adapter_(NULL), free_list_(), avg_get_cnt_(0),
-    max_mb_num_(MAX_MEMBLOCK_INFO_COUNT), total_mb_num_(0), mb_infos_(NULL),
-    not_revert_cnt_(0), cache_miss_cnt_(0), cache_hit_cnt_(0),
+    total_mb_num_(0), mb_infos_(NULL), not_revert_cnt_(0),
+    cache_miss_cnt_(0), cache_hit_cnt_(0),
     cur_memblock_(NULL) {
   };
   ~KVStoreCache() {
@@ -840,9 +776,7 @@ class KVStoreCache {
       ret = OB_INVALID_ARGUMENT;
     } else {
       total_mb_num_ = total_size / MemBlock::MEM_BLOCK_SIZE + ((total_size >= MemBlock::MEM_BLOCK_SIZE) ? 0 : 1);
-      max_mb_num_ = std::max(max_mb_num_, total_mb_num_);
-      //preallocate mem block info with max size
-      mb_infos_ = new(std::nothrow) MemBlockInfo[max_mb_num_];
+      mb_infos_ = new(std::nothrow) MemBlockInfo[total_mb_num_];
       if (NULL != mb_infos_) {
         memset(mb_infos_, 0, sizeof(MemBlockInfo) * total_mb_num_);
         free_list_.set_max_alloc_size(total_mb_num_ * MemBlock::MEM_BLOCK_SIZE);
@@ -854,36 +788,6 @@ class KVStoreCache {
     }
     return ret;
   };
-  int enlarge_total_size(const int64_t total_size) {
-    int ret = OB_SUCCESS;
-    if (!inited_) {
-      ret = OB_NOT_INIT;
-    } else if (0 >= total_size) {
-      ret = OB_INVALID_ARGUMENT;
-    } else {
-      int64_t mb_num = total_size / MemBlock::MEM_BLOCK_SIZE + ((total_size >= MemBlock::MEM_BLOCK_SIZE) ? 0 : 1);
-      if (mb_num > total_mb_num_ && mb_num <= max_mb_num_) {
-        TBSYS_LOG(INFO, "cache size enlarged, new_cache_size=%ld, old_cache_size=%ld",
-                  total_size, total_mb_num_ * MemBlock::MEM_BLOCK_SIZE);
-        memset(mb_infos_ + total_mb_num_, 0, sizeof(MemBlockInfo) * (mb_num - total_mb_num_));
-        free_list_.set_max_alloc_size(mb_num * MemBlock::MEM_BLOCK_SIZE);
-        total_mb_num_ = mb_num;
-      } else if (mb_num < total_mb_num_) {
-        TBSYS_LOG(WARN, "can't resize cache size with less total size, "
-                  "new_memblock_info_num=%ld, old_memblock_info_num=%ld",
-                  mb_num, total_mb_num_);
-        ret = OB_ERROR;
-      } else if (mb_num == total_mb_num_) {
-        TBSYS_LOG(INFO, "cache size doesn't change, old_cache_size=%ld, cache_size=%ld",
-                  total_mb_num_ * MemBlock::MEM_BLOCK_SIZE, total_size);
-      } else {
-        TBSYS_LOG(INFO, "cache size can not change, max_cache_size=%ld, cache_size=%ld",
-                  max_mb_num_ * MemBlock::MEM_BLOCK_SIZE, total_size);
-        ret = OB_MEM_OVERFLOW;
-      }
-    }
-    return ret;
-  }
   int destroy() {
     int ret = OB_SUCCESS;
     if (0 != not_revert_cnt_) {
@@ -1003,7 +907,7 @@ class KVStoreCache {
     } else {
       if (StoreHandle::LOCKED == old_handle.stat) {
         if (NULL == old_handle.mem_block
-            || !((MemBlock*)old_handle.mem_block)->check_seq_num_and_inc_ref_cnt(static_cast<int32_t>(old_handle.seq_num))) {
+            || !((MemBlock*)old_handle.mem_block)->check_seq_num_and_inc_ref_cnt(old_handle.seq_num)) {
           ret = OB_ERROR;
         } else {
           atomic_inc((uint64_t*)&not_revert_cnt_);
@@ -1094,7 +998,7 @@ class KVStoreCache {
     } else if (NULL == handle.mem_block
                || StoreHandle::STORED != handle.stat) {
       ret = OB_INVALID_ARGUMENT;
-    } else if (!((MemBlock*)handle.mem_block)->check_seq_num_and_inc_ref_cnt(static_cast<int32_t>(handle.seq_num))) {
+    } else if (!((MemBlock*)handle.mem_block)->check_seq_num_and_inc_ref_cnt(handle.seq_num)) {
       atomic_inc((uint64_t*)&cache_miss_cnt_);
       ret = OB_ENTRY_NOT_EXIST;
     } else {
@@ -1205,9 +1109,6 @@ class KVStoreCache {
         num_get_cnt += 1;
       }
     }
-    for (int64_t i = 0; i < num; i++) {
-      std::pop_heap(&heap[0], &heap[num - i], cmp_func);
-    }
     if (0 != num_get_cnt) {
       avg_get_cnt_ = sum_get_cnt / num_get_cnt;
     }
@@ -1218,6 +1119,7 @@ class KVStoreCache {
       int64_t pos = heap[i];
       MemBlock* old = mb_infos_[pos].mem_block;
       if (NULL != old
+          && cmp_func(pos, max)
           && old == (MemBlock*)atomic_compare_exchange((uint64_t*) & (mb_infos_[pos].mem_block), (uint64_t)NULL, (uint64_t)old)) {
         memblock_payload_size = old->get_payload_size();
         TBSYS_LOG_US(DEBUG, "try to free memblock=%p", old);
@@ -1243,13 +1145,6 @@ class KVStoreCache {
                    "max_alloc_size=%ld",
                    align_kv_size, free_list_.get_max_alloc_size());
     } else {
-      //if cache is 95% full, wash out some memblocks
-      if ((free_list_.get_alloc_size() * 100 / free_list_.get_max_alloc_size() > 95)
-          && wash_out_lock_.try_wrlock()) {
-        wash_out_timeout_(MAX_WASH_OUT_SIZE);
-        wash_out_lock_.unlock();
-      }
-
       while (true) {
         if (align_kv_size > MemBlock::MEM_BLOCK_SIZE
             || (align_kv_size <= MemBlock::MEM_BLOCK_SIZE
@@ -1268,9 +1163,6 @@ class KVStoreCache {
                            free_list_.get_alloc_size(), align_kv_size, wash_out_size);
               break;
             }
-          }
-          if (NULL == new_memblock) {
-            break;
           }
           // 第一次加引用计数 因为初始化后引用就为1
           new_memblock->inc_ref_cnt();
@@ -1337,7 +1229,6 @@ class KVStoreCache {
   MemBlockFreeList free_list_;
 
   int64_t avg_get_cnt_;
-  int64_t max_mb_num_;
   int64_t total_mb_num_;
   MemBlockInfo* mb_infos_;
 
@@ -1346,7 +1237,6 @@ class KVStoreCache {
   int64_t cache_hit_cnt_;
 
   MemBlock* volatile cur_memblock_;
-  SpinRWLock wash_out_lock_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1356,14 +1246,13 @@ struct CacheHandle {
 };
 
 template <class Key, class Value, int64_t ItemSize,
-          int64_t BlockSize = 2 * 1024 * 1024,
-          template <class> class FreeList = KVStoreCacheComponent::SingleObjFreeList,
-          class DefendMode = hash::MultiWriteDefendMode>
+          int64_t BlockSize = 1024 * 1024,
+          template <class> class FreeList = KVStoreCacheComponent::SingleObjFreeList>
 class KeyValueCache {
   static const int64_t DEFAULT_ITEM_SIZE = 1024;
   static const int64_t DEFAULT_TIMEOUT_US = 10 * 1000 * 1000;
 
-  typedef KeyValueCache<Key, Value, ItemSize, BlockSize, FreeList, DefendMode> Cache;
+  typedef KeyValueCache<Key, Value, ItemSize, BlockSize, FreeList> Cache;
   typedef KVStoreCache<Key, Value, BlockSize, FreeList, Cache> Store;
   typedef typename KVStoreCacheComponent::StoreHandle StoreHandle;
 
@@ -1372,7 +1261,7 @@ class KeyValueCache {
   typedef ThreadAllocator<HashAllocType, MutilObjAllocator<HashAllocType, HashAllocatorPageSize, ObModIds::OB_KVSTORE_CACHE> > HashAllocator;
   //typedef ThreadAllocator<HashAllocType, SingleObjAllocator<HashAllocType> > HashAllocator;
   typedef hash::ObHashMap<Key, StoreHandle,
-          DefendMode,
+          hash::MultiWriteDefendMode,
           hash::hash_func<Key>,
           hash::equal_to<Key>,
           HashAllocator> HashMap;
@@ -1400,16 +1289,6 @@ class KeyValueCache {
     }
     return ret;
   };
-  int enlarge_total_size(const int64_t total_size) {
-    int ret = OB_SUCCESS;
-    if (!inited_) {
-      ret = OB_NOT_INIT;
-    } else if (OB_SUCCESS != (ret = store_.enlarge_total_size(total_size))) {
-      TBSYS_LOG(WARN, "enlarge total memory size of store cache fail, ret=%d, size=%ld",
-                ret, total_size);
-    }
-    return ret;
-  }
   int destroy() {
     int ret = OB_SUCCESS;
     if (inited_) {
@@ -1437,9 +1316,6 @@ class KeyValueCache {
   };
   int64_t size() const {
     return store_.size();
-  };
-  int64_t count() const {
-    return map_.size();
   };
   int64_t get_hit_cnt() const {
     return store_.get_hit_cnt();
@@ -1561,23 +1437,16 @@ class KeyValueCache {
     }
     return ret;
   };
-  int get(const Key& key, Value& value, CacheHandle& handle, bool only_cache = true) {
-    Value* pvalue = NULL;
-    int ret = get(key, pvalue, handle, only_cache);
-    if (OB_SUCCESS == ret) {
-      value = *pvalue;
-    }
-    return ret;
-  }
 #ifdef __DEBUG_TEST__
-  int get(const Key& key, Value*& pvalue, const Value& cv, CacheHandle& handle)
+  int get(const Key& key, Value& value, const Value& cv, CacheHandle& handle)
 #else
-  int get(const Key& key, Value*& pvalue, CacheHandle& handle, bool only_cache = true)
+  int get(const Key& key, Value& value, CacheHandle& handle, bool only_cache = true)
 #endif
   {
     int ret = OB_SUCCESS;
     int hash_ret = 0;
     Key* pkey = NULL;
+    Value* pvalue = NULL;
     int64_t timeout_us = only_cache ? 0 : DEFAULT_TIMEOUT_US;
     if (!inited_) {
       ret = OB_NOT_INIT;
@@ -1613,7 +1482,7 @@ class KeyValueCache {
 
     if (OB_SUCCESS == ret) {
       //TBSYS_TRACE_LOG("kv_store_cache hit key=[%s]", KVStoreCacheComponent::log_str(key));
-      //value = *pvalue;
+      value = *pvalue;
 #ifdef __DEBUG_TEST__
       //assert(value == cv);
 #endif
@@ -1639,14 +1508,7 @@ class KeyValueCache {
     if (!inited_) {
       ret = OB_NOT_INIT;
     } else {
-      int hash_ret = map_.erase(key);
-      if (hash::HASH_EXIST == hash_ret) {
-        ret = OB_SUCCESS;
-      } else if (hash::HASH_NOT_EXIST == hash_ret) {
-        ret = OB_ENTRY_NOT_EXIST;
-      } else {
-        ret = OB_ERROR;
-      }
+      map_.erase(key);
     }
     return ret;
   };
@@ -1661,4 +1523,6 @@ class KeyValueCache {
 }
 }
 
-#endif //OCEANBASE_COMMON_KV_STORE_CACHE_H_
+#endif //OCEANBASE_COMMON_KV_STORE_CACHE_H_ 
+
+

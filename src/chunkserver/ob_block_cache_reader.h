@@ -1,15 +1,18 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_block_cache_reader.h for read cached block.
+ * Version: 5567
+ *
+ * ob_block_cache_reader.h
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
- *
+ *     huating <huating.zmq@taobao.com>
+ * Changes:
+ *     qushan <qushan@taobao.com>
  */
 #ifndef OCEANBASE_CHUNKSERVER_OB_BLOCK_CACHE_READER_H_
 #define OCEANBASE_CHUNKSERVER_OB_BLOCK_CACHE_READER_H_
@@ -56,7 +59,7 @@ class ObBlockCacheReader {
   int get_start_key_of_next_block(sstable::ObBlockCache& block_cache,
                                   uint64_t& table_id,
                                   uint64_t& column_group_id,
-                                  common::ObRowkey& start_key,
+                                  common::ObString& start_key,
                                   sstable::ObSSTableReader* sstable_reader = NULL);
 
   /**
@@ -120,8 +123,7 @@ class ObBlockCacheReader {
    * @return ObSSTableReader* return the sstable reader which the
    *         sstable belong to, if fail, return NULL.
    */
-  sstable::ObSSTableReader* get_sstable_reader(const uint64_t sstable_id,
-                                               ObTablet*& tablet);
+  sstable::ObSSTableReader* get_sstable_reader(const uint64_t sstable_id);
 
   /**
    * decompress block data, first get the sstable reader by

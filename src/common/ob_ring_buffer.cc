@@ -1,17 +1,16 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: 0.1: ob_ring_buffer.cc,v 0.1 2011/04/26 10:40:58 ruohai Exp $
+ * ob_ring_buffer.cc for ...
  *
  * Authors:
- *   ruohai <ruohai@taobao.com>
- *     - modified by chuanhui <rizhao.ych@taobao.com>
+ *   rizhao <rizhao.ych@taobao.com>
  *
  */
 #include "ob_ring_buffer.h"
@@ -121,7 +120,7 @@ int ObRingBuffer::push_task(const void* ptr, const int64_t task_len, void*& ret_
       } else {
         RingTask task;
         task.magic = TASK_MAGIC_NUM;
-        task.size = static_cast<int32_t>(task_len);
+        task.size = task_len;
         task.block = block;
         ++(block->task_num);
         int64_t offset = get_offset_(queue_.versions[queue_.ring_tail_idx],
@@ -261,7 +260,6 @@ int ObRingBuffer::alloc_a_block_(RingBlock*& block) {
   } else {
     block = (RingBlock*) ptr;
     block->magic = BLOCK_MAGIC_NUM;
-    block->task_num = 0;
     block->block_size = DEF_BLOCK_SIZE;
     block->data_size = 0;
     block->version = -1;
@@ -487,3 +485,4 @@ void ObRingBuffer::extra_offset_(const int64_t offset, int64_t& version, int64_t
 }
 }
 }
+

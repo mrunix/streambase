@@ -19,7 +19,7 @@
 using namespace sb::common;
 
 ObiRole::ObiRole()
-  : role_(INIT) {
+  : role_(MASTER) {
 }
 
 ObiRole::~ObiRole() {

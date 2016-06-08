@@ -1,17 +1,18 @@
 /**
- * (C) 2007-2010 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
  * Version: $Id$
  *
+ * ob_log_dir_scanner.cc for ...
+ *
  * Authors:
  *   yanran <yanran.hfs@taobao.com>
- *     - some work details if you want
+ *
  */
-
 #include "ob_log_dir_scanner.h"
 
 #include <dirent.h>
@@ -27,11 +28,11 @@ int ObLogFile::assign(const char* filename, FileType& type) {
     ret = OB_ERROR;
   } else {
     char basename[OB_MAX_FILE_NAME_LENGTH];
-    int f_len = static_cast<int32_t>(strlen(filename));
+    int f_len = strlen(filename);
     if (f_len >= OB_MAX_FILE_NAME_LENGTH) {
       type = UNKNOWN;
     } else {
-      int ckpt_len = static_cast<int32_t>(strlen(DEFAULT_CKPT_EXTENSION));
+      int ckpt_len = strlen(DEFAULT_CKPT_EXTENSION);
       if (f_len > ckpt_len + 1
           && 0 == strcmp(filename + f_len - ckpt_len, DEFAULT_CKPT_EXTENSION)
           && '.' == *(filename + f_len - ckpt_len - 1)) {
@@ -190,8 +191,7 @@ int ObLogDirScanner::search_log_dir_(const char* log_dir) {
   DIR* plog_dir = opendir(log_dir);
   if (NULL == plog_dir) {
     err = mkdir(log_dir, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-    if (err != 0
-        && EEXIST != errno) {
+    if (err != 0) {
       TBSYS_LOG(ERROR, "mkdir[\"%s\"] error[%s]", log_dir, strerror(errno));
       ret = OB_ERROR;
     } else {
@@ -219,9 +219,9 @@ int ObLogDirScanner::search_log_dir_(const char* log_dir) {
       } else {
         if (ObLogFile::LOG == file_type) {
           log_files.push_back(log_file);
-          TBSYS_LOG(DEBUG, "find a valid log file(\"%s\")", log_file.name);
+          TBSYS_LOG(INFO, "find a valid log file(\"%s\")", log_file.name);
         } else if (ObLogFile::CKPT == file_type) {
-          TBSYS_LOG(DEBUG, "find a valid checkpoint file(\"%s\")", log_file.name);
+          TBSYS_LOG(INFO, "find a valid checkpoint file(\"%s\")", log_file.name);
           if (max_ckpt_id_ < log_file.id) {
             max_ckpt_id_ = log_file.id;
             has_ckpt_ = true;
@@ -283,3 +283,4 @@ int ObLogDirScanner::check_continuity_(const ObVector<ObLogFile>& files, uint64_
 
   return ret;
 }
+

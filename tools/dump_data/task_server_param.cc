@@ -1,6 +1,5 @@
 #include "config.h"
 #include "task_server_param.h"
-#include <string>
 
 using namespace sb::common;
 using namespace sb::tools;
@@ -17,7 +16,6 @@ static const char* OBTS_TIMEOUT_TIMES = "max_timeout_times";
 static const char* OBTS_TASK_QUEUE_SIZE = "task_queue_size";
 static const char* OBTS_TASK_THREAD_COUNT = "task_thread_count";
 static const char* OBTS_NETWORK_TIMEOUT = "network_timeout_us";
-static const char* OBTS_TALETS_FILE = "tablet_list_file";
 
 static const char* OBTS_RS_SECTION = "root_server";
 static const char* OBTS_RS_VIP = "vip";
@@ -35,6 +33,7 @@ TaskServerParam::TaskServerParam() {
 }
 
 TaskServerParam::~TaskServerParam() {
+
 }
 
 int TaskServerParam::load_from_config(const char* file) {
@@ -66,17 +65,14 @@ int TaskServerParam::load_from_config(const char* file) {
     ret = load_string(result_file_, OB_MAX_FILE_NAME, OBTS_SECTION, OBTS_RESULTFILE);
   }
 
-  if (OB_SUCCESS == ret) {
-    ret = load_string(tablet_list_file_, OB_MAX_FILE_NAME, OBTS_SECTION, OBTS_TALETS_FILE);
-  }
-
   // log conf
   if (OB_SUCCESS == ret) {
-    log_name_ = TBSYS_CONFIG.getString(OBTS_SECTION, OBTS_LOGFILE);
-
-    ret = load_string(log_level_, OB_MAX_LOG_LEVEL, OBTS_SECTION, OBTS_LOGLEVEL);
+    ret = load_string(log_name_, OB_MAX_FILE_NAME, OBTS_SECTION, OBTS_LOGFILE);
     if (OB_SUCCESS == ret) {
-      max_log_size_ = TBSYS_CONFIG.getInt(OBTS_SECTION, OBTS_MAX_LOGSIZE, 1024);
+      ret = load_string(log_level_, OB_MAX_LOG_LEVEL, OBTS_SECTION, OBTS_LOGLEVEL);
+      if (OB_SUCCESS == ret) {
+        max_log_size_ = TBSYS_CONFIG.getInt(OBTS_SECTION, OBTS_MAX_LOGSIZE, 1024);
+      }
     }
   }
 
@@ -90,8 +86,8 @@ int TaskServerParam::load_from_config(const char* file) {
     if ((max_visit_count_ <= 0) || (max_timeout_times_ <= 0) || (task_queue_size_ <= 0)
         || (task_thread_count_ <= 0) || (network_timeout_ <= 0)) {
       ret = OB_ERROR;
-      TBSYS_LOG(ERROR, "check task server conf failed:count[%d], times[%d], queue[%d], "
-                "thread[%d], timeout[%ld]", max_visit_count_, max_timeout_times_, task_queue_size_,
+      TBSYS_LOG(ERROR, "check task server conf failed:count[%ld], times[%d], queue[%d], "
+                "thread[%d], timeout[%d]", max_visit_count_, max_timeout_times_, task_queue_size_,
                 task_thread_count_, network_timeout_);
     }
   }
@@ -104,23 +100,6 @@ int TaskServerParam::load_from_config(const char* file) {
       if (root_server_port_ < 1024) {
         ret = OB_ERROR;
         TBSYS_LOG(ERROR, "check root server conf failed:port[%d]", root_server_port_);
-      }
-    }
-  }
-
-  if (ret == OB_SUCCESS) {
-    std::vector<std::string> sections;
-    TBSYS_CONFIG.getSectionName(sections);
-    for (size_t i = 0; i < sections.size(); i++) {
-      if (sections[i] != OBTS_SECTION && sections[i] != OBTS_RS_SECTION) {
-        TableConf conf;
-        TBSYS_LOG(DEBUG, "section=%s", sections[i].c_str());
-        ret = TableConf::loadConf(sections[i].c_str(), conf);
-        if (ret != OB_SUCCESS) {
-          TBSYS_LOG(ERROR, "can't load conf table_name = %s", sections[i].c_str());
-          break;
-        }
-        confs_.push_back(conf);
       }
     }
   }
@@ -146,7 +125,8 @@ int TaskServerParam::load_string(char* dest, const int32_t size, const char* sec
 
   if (OB_SUCCESS == ret && NULL != value) {
     if ((int32_t)strlen(value) >= size) {
-      TBSYS_LOG(ERROR, "%s.%s too long, length (%d) > %d", section, name, int(strlen(value)), size);
+      TBSYS_LOG(ERROR, "%s.%s too long, length (%ld) > %d",
+                section, name, strlen(value), size);
       ret = OB_SIZE_OVERFLOW;
     } else {
       strncpy(dest, value, strlen(value));

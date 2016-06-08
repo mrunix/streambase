@@ -44,7 +44,7 @@ void ObProbabilityRandom::build_index(const int32_t percent[], const int32_t cou
 int32_t ObProbabilityRandom::random(void) const {
   int32_t ret = -1;
   if (true == init_) {
-    int32_t random_percent = static_cast<int32_t>(::random());
+    int32_t random_percent = ::random();
     tbsys::CRLockGuard lock(lock_);
     ret = index_[random_percent % index_count_];
   } else {
@@ -77,7 +77,7 @@ int32_t ObStalessProbabilityRandom::random(const int32_t percent[], const int32_
   int32_t ret = -1;
   if ((count > 0) && (sum > 0)) {
     int32_t step_percent = 0;
-    int32_t random_percent = static_cast<int32_t>(::random() % sum);
+    int32_t random_percent = ::random() % sum;
     for (int32_t i = 0; i < count; ++i) {
       step_percent += percent[i];
       if ((random_percent < step_percent) && (percent[i] > 0)) {

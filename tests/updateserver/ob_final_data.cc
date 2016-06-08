@@ -1,17 +1,16 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- * ob_final_data.cc is for what ...
+ * Version: $Id$
  *
- * Version: $id: ob_final_data.cc,v 0.1 11/1/2010 3:47p wushi Exp $
+ * ob_final_data.cc for ...
  *
  * Authors:
  *   wushi <wushi.ly@taobao.com>
- *     - some work details if you want
  *
  */
 #include <utility>
@@ -337,10 +336,10 @@ int ObFinalResult::scan(const ObScanParam& scan_param, ObScanner& scanner) {
   ObCellInfo cur_cell;
   start.table_name_ = scan_param.get_table_name();
   end.table_name_ = scan_param.get_table_name();
-  if (!scan_param.get_range()->start_key_.is_min_row()) {
+  if (!scan_param.get_range()->border_flag_.is_min_value()) {
     start.row_key_ = scan_param.get_range()->start_key_;
   }
-  if (!scan_param.get_range()->end_key_.is_max_row()) {
+  if (!scan_param.get_range()->border_flag_.is_max_value()) {
     end.row_key_ = scan_param.get_range()->end_key_;
   } else {
     end.row_key_ = max_key;
@@ -738,3 +737,5 @@ bool check_result(const ObScanParam& scan_param,  ObScanner& ob_scanner,
   }
   return res;
 }
+
+

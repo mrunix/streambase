@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * test_utils.h for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #include "tbsys.h"
 #include "common/ob_define.h"
 #include "common/hash/ob_hashmap.h"
@@ -27,20 +42,15 @@ extern void read_cell_infos(const char* fname, const char* section, PageArena<ch
 
 extern void print_cellinfo(const ObCellInfo* ci, const char* ext_info = NULL);
 
-extern bool equal(const ObCellInfo& a, const ObCellInfo& b);
+extern bool operator == (const ObCellInfo& a, const ObCellInfo& b);
 
-//extern bool operator == (const UpsCellInfo &a, const UpsCellInfo &b);
+extern bool operator == (const UpsCellInfo& a, const UpsCellInfo& b);
+
+extern void print_all(PageArena<char>& allocer, MemTable& mt);
 
 extern const char* print_obj(const ObObj& obj);
 
 extern ObVersionRange str2range(const char* str);
 
-extern void reverse_col_in_row(ObMutator& mutator);
 
-extern void prepare_mutator(ObMutator& mutator);
-
-extern void prepare_cell_new_scanner(ObCellNewScanner& scanner);
-extern void prepare_cell_new_scanner(const ObCellNewScanner& scanner, ObCellNewScanner& out_scanner);
-
-extern void dup_mutator(const ObMutator& src, ObMutator& dest);
 

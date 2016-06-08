@@ -1,17 +1,16 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: 0.1: mock_client.cc,v 0.1 2010/10/08 16:55:10 chuanhui Exp $
+ * mock_client.cc for ...
  *
  * Authors:
- *   chuanhui <rizhao.ych@taobao.com>
- *     - some work details if you want
+ *   rizhao <rizhao.ych@taobao.com>
  *
  */
 #include "mock_client.h"
@@ -98,3 +97,4 @@ int main(int argc, char** argv) {
   client.destroy();
   return 0;
 }
+

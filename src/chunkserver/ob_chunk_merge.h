@@ -1,16 +1,18 @@
-/*
- * (C) 2007-2010 TaoBao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- * ob_chunk_merge.h is for what ...
+ * Version: 5567
  *
- * Version: $id$
+ * ob_chunk_merge.h
  *
  * Authors:
- *   MaoQi maoqi@taobao.com
+ *     maoqi <maoqi@taobao.com>
+ * Changes:
+ *     qushan <qushan@taobao.com>
  *
  */
 #ifndef OB_CHUNKSERVER_OB_CHUNK_MERGE_H_
@@ -19,16 +21,26 @@
 #include <Mutex.h>
 #include <Monitor.h>
 #include "common/ob_define.h"
+#include "common/ob_bitmap.h"
 #include "common/ob_schema.h"
 #include "common/ob_vector.h"
 #include "common/thread_buffer.h"
+#include "sstable/ob_sstable_writer.h"
+#include "sstable/ob_sstable_row.h"
+#include "ob_tablet_manager.h"
+#include "ob_file_recycle.h"
 
+#include "common/ob_read_common_data.h"
+#include "common/ob_object.h"
+#include "mergeserver/ob_cell_stream.h"
+#include "mergeserver/ob_merge_join_agent.h"
+#include "ob_merge_reader.h"
+#include "mergeserver/ob_cs_get_cell_stream_wrapper.h"
+#include "ob_chunk_server_merger_proxy.h"
 
 namespace sb {
 namespace chunkserver {
-class ObTabletManager;
-class ObTabletMerger;
-class ObChunkMerge : public tbsys::CDefaultRunnable {
+class ObChunkMerge {
  public:
   ObChunkMerge();
   ~ObChunkMerge() {}
@@ -51,24 +63,29 @@ class ObChunkMerge : public tbsys::CDefaultRunnable {
     return 0 == active_thread_num_;
   }
 
-  inline bool is_merge_reported() const {
-    return (active_thread_num_ <= 1 && round_end_);
-  }
-
   inline void set_newest_frozen_version(const int64_t frozen_version) {
     if (frozen_version > newest_frozen_version_)
       newest_frozen_version_ = frozen_version;
   }
 
+  inline mergeserver::ObMSUpsStreamWrapper& get_ups_stream_wrapper() {
+    return *ups_stream_wrapper_;
+  }
+
+  int fetch_update_server_list();
+
+  // for compatible with nameserver interface;
+  int fetch_update_server_for_merge();
+
   void set_config_param();
 
   bool can_launch_next_round(const int64_t frozen_version);
 
-  int create_merge_threads(const int64_t max_merge_thread);
+  int create_merge_threads(const int32_t max_merge_thread);
 
  private:
-  virtual void run(tbsys::CThread* thread, void* arg);
-  void merge_tablets(const int64_t thread_no);
+  static void* run(void* arg);
+  void merge_tablets();
   int get_tablets(ObTablet*& tablet);
 
   bool have_new_version_in_othercs(const ObTablet* tablet);
@@ -76,21 +93,27 @@ class ObChunkMerge : public tbsys::CDefaultRunnable {
   int start_round(const int64_t frozen_version);
   int finish_round(const int64_t frozen_version);
   int fetch_frozen_time_busy_wait(const int64_t frozen_version, int64_t& frozen_time);
-  int fetch_frozen_schema_busy_wait(
-    const int64_t frozen_version, common::ObSchemaManagerV2& schema);
-  int create_all_tablet_mergers();
-  int destroy_all_tablets_mergers();
-  template <typename Merger>
-  int create_tablet_mergers(ObTabletMerger** mergers, const int64_t size);
-  int destroy_tablet_mergers(ObTabletMerger** mergers, const int64_t size);
-  int get_tablet_merger(const int64_t thread_no, ObTabletMerger*& merger);
 
  public:
+  struct RowKeySwap {
+    RowKeySwap(): last_end_key_buf(NULL), start_key_buf(NULL),
+      last_end_key_buf_len(0), last_end_key_len(0),
+      start_key_buf_len(0), start_key_len(0) {}
+
+    char* last_end_key_buf;
+    char* start_key_buf;
+
+    int32_t last_end_key_buf_len;
+    int32_t last_end_key_len;
+
+    int32_t start_key_buf_len;
+    int32_t start_key_len;
+  };
+
   bool check_load();
  private:
-  friend class ObTabletMergerV1;
-  friend class ObTabletMergerV2;
-  const static int64_t MAX_MERGE_THREAD = 32;
+  friend class ObTabletMerger;
+  const static int32_t MAX_MERGE_THREAD = 16;
   const static int32_t TABLET_COUNT_PER_MERGE = 1024;
   const static uint32_t MAX_MERGE_PER_DISK = 2;
  private:
@@ -98,28 +121,33 @@ class ObChunkMerge : public tbsys::CDefaultRunnable {
   pthread_cond_t cond_;
   pthread_mutex_t mutex_;
 
-  ObTablet* tablet_array_[TABLET_COUNT_PER_MERGE];
-  int64_t tablets_num_;
-  int64_t tablet_index_;
-  int64_t thread_num_;
+  pthread_t tid_[MAX_MERGE_THREAD];
 
-  volatile int64_t tablets_have_got_;
+  ObTablet* tablet_array_[TABLET_COUNT_PER_MERGE];
+  int32_t tablets_num_;
+  int32_t tablet_index_;
+  int32_t thread_num_;
+
+  volatile int32_t tablets_have_got_;
   volatile int64_t active_thread_num_;
 
   volatile int64_t frozen_version_; //frozen_version_ in merge
-  volatile int64_t newest_frozen_version_; //the last frozen version in updateserver
   int64_t frozen_timestamp_; //current frozen_timestamp_ in merge;
-  int64_t write_sstable_version_; // current round write sstable version;
+  volatile int64_t newest_frozen_version_; //the last frozen version in updateserver
 
   volatile int64_t merge_start_time_;    //this version start time
   volatile int64_t merge_last_end_time_;    //this version merged complete time
 
+  ObTabletManager* tablet_manager_;
+
+  common::ThreadSpecificBuffer last_end_key_buffer_;
+  common::ThreadSpecificBuffer cur_row_key_buffer_;
+
+  volatile uint32_t pending_merge_[common::OB_MAX_DISK_NUMBER]; //use atomic op
+
   volatile bool round_start_;
   volatile bool round_end_;
   volatile bool pending_in_upgrade_;
-
-
-  volatile uint32_t pending_merge_[common::OB_MAX_DISK_NUMBER]; //use atomic op
 
   int64_t merge_load_high_;
   int64_t request_count_high_;
@@ -128,41 +156,104 @@ class ObChunkMerge : public tbsys::CDefaultRunnable {
   int64_t merge_pause_row_count_;
   int64_t merge_pause_sleep_time_;
   int64_t merge_highload_sleep_time_;
-  int64_t min_merge_thread_num_;
 
   common::ObSchemaManagerV2 last_schema_;
   common::ObSchemaManagerV2 current_schema_;
-
-  ObTabletManager* tablet_manager_;
-  ObTabletMerger*  mergers_[MAX_MERGE_THREAD * 2];
+  mergeserver::ObMSUpsStreamWrapper* ups_stream_wrapper_;
 };
 
-template <typename Merger>
-int ObChunkMerge::create_tablet_mergers(ObTabletMerger** mergers, const int64_t size) {
-  int ret = OB_SUCCESS;
-  char* ptr = NULL;
 
-  if (NULL == mergers || 0 >= size) {
-    ret = OB_INVALID_ARGUMENT;
-  } else if (NULL == (ptr = reinterpret_cast<char*>(ob_malloc(sizeof(Merger) * size, ObModIds::OB_CS_MERGER)))) {
-    TBSYS_LOG(WARN, "allocate memrory for merger object error.");
-    ret = OB_ALLOCATE_MEMORY_FAILED;
-  } else {
-    for (int64_t i = 0 ; i < size; ++i) {
-      Merger* merger = new(ptr + i * sizeof(Merger)) Merger(*this, *tablet_manager_);
-      if (NULL == merger || OB_SUCCESS != (ret = merger->init())) {
-        TBSYS_LOG(WARN, "init merger object error, merger=%p, ret=%d", merger, ret);
-        ret = OB_ALLOCATE_MEMORY_FAILED;
-        break;
-      } else {
-        mergers[i] = merger;
-      }
-    }
-  }
-  return ret;
-}
+class ObTabletMerger {
+ public:
+  ObTabletMerger(ObChunkMerge& chunk_merge, ObTabletManager& manager);
+  ~ObTabletMerger() {}
+
+  int init(ObChunkMerge::RowKeySwap* swap);
+  int merge(ObTablet* tablet, int64_t frozen_version);
+
+ private:
+  typedef common::ObBitmap<char, common::ModuleArena> ExpireRowFilter;
+
+  void reset();
+
+  DISALLOW_COPY_AND_ASSIGN(ObTabletMerger);
+
+  enum RowStatus {
+    ROW_START = 0,
+    ROW_GROWING = 1,
+    ROW_END = 2
+  };
+
+  struct ExpireColumnInfo {
+    uint64_t column_id_;
+    int64_t column_group_id_;
+    int64_t duration_;
+  };
+
+  int fill_sstable_schema(const ObTableSchema& common_schema, sstable::ObSSTableSchema& sstable_schema);
+  int update_range_start_key();
+  int update_range_end_key();
+  int create_new_sstable();
+  int finish_sstable();
+  int update_meta();
+  int report_tablets(ObTablet* tablet_list[], int32_t tablet_size);
+  bool maybe_change_sstable() const;
+
+  int fill_scan_param(const uint64_t column_group_id);
+  int wait_aio_buffer() const;
+  int merge_column_group(
+    const int64_t column_group_id,
+    const int64_t column_group_num,
+    const ExpireColumnInfo& expire_column_info,
+    const int64_t split_row_pos,
+    const int64_t tablet_after_merge,
+    ExpireRowFilter& expire_row_filter,
+    bool& is_tablet_splited
+  );
+
+  int save_current_row(const bool current_row_expired);
+  int check_row_count_in_column_group();
+  void reset_for_next_column_group();
+  int check_expire_column(const common::ObSchemaManagerV2& schema,
+                          const uint64_t table_id, ExpireColumnInfo& expire_column_info);
+  bool is_expired_cell(const common::ObCellInfo& cell,
+                       const int64_t expire_duration, const int64_t frozen_timestamp);
 
 
+ private:
+  ObChunkMerge&            chunk_merge_;
+  ObTabletManager&         manager_;
+
+  ObChunkMerge::RowKeySwap*   row_key_swap_;
+
+  ObCellInfo*     cell_;
+  ObTablet*       old_tablet_;
+  const ObTableSchema* new_table_schema_;
+
+  sstable::ObSSTableRow    row_;
+  sstable::ObSSTableSchema sstable_schema_;
+  sstable::ObSSTableWriter writer_;
+  common::ObRange new_range_;
+  sstable::ObSSTableId     sstable_id_;
+
+  int64_t max_sstable_size_;
+  int64_t frozen_version_;
+  int64_t current_sstable_size_;
+  int64_t row_num_;
+  int64_t pre_column_group_row_num_;
+
+  char             path_[common::OB_MAX_FILE_NAME_LENGTH];
+  common::ObString path_string_;
+  common::ObString compressor_string_;
+
+  ObChunkServerMergerProxy cs_proxy_;
+  common::ObScanParam      scan_param_;
+
+  mergeserver::ObMSGetCellStreamWrapper  ms_wrapper_;
+  mergeserver::ObMergeJoinAgent          merge_join_agent_;
+  common::ObVector<ObTablet*>           tablet_array_;
+  common::ModuleArena  expire_filter_allocator_;
+};
 } /* chunkserver */
-} /* oceanbase */
+} /* sb */
 #endif

@@ -1,14 +1,16 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_block_index_cache.h for block index cache.
+ * Version: 5567
+ *
+ * ob_block_index_cache.h
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
+ *     huating <huating.zmq@taobao.com>
  *
  */
 #ifndef OCEANBASE_SSTABLE_BLOCK_INDEX_CACHE_H_
@@ -17,7 +19,6 @@
 #include "common/ob_define.h"
 #include "common/ob_kv_storecache.h"
 #include "common/ob_fileinfo_manager.h"
-#include "common/ob_range2.h"
 #include "ob_sstable_block_index_v2.h"
 
 namespace sb {
@@ -38,7 +39,7 @@ inline sstable::ObSSTableBlockIndexV2* do_copy(
 
 inline int32_t do_size(const sstable::ObSSTableBlockIndexV2& data,
                        CSBlockIndexCacheValueDeepCopyTag) {
-  return static_cast<int32_t>((const_cast<sstable::ObSSTableBlockIndexV2&>(data).get_deserialize_size()));
+  return (const_cast<sstable::ObSSTableBlockIndexV2&>(data).get_deserialize_size());
 }
 
 inline void do_destroy(sstable::ObSSTableBlockIndexV2* data,
@@ -49,6 +50,10 @@ inline void do_destroy(sstable::ObSSTableBlockIndexV2* data,
 }
 
 namespace sstable {
+struct ObBlockIndexCacheConf {
+  int64_t cache_mem_size;
+};
+
 class ObBlockIndexCache {
   /**
    * for chunkserver, generately, the sstable file size is about
@@ -77,8 +82,7 @@ class ObBlockIndexCache {
   explicit ObBlockIndexCache(common::IFileInfoMgr& fileinfo_cache);
   ~ObBlockIndexCache();
 
-  int init(const int64_t cache_mem_size);
-  int enlarg_cache_size(const int64_t cache_mem_size);
+  int init(const ObBlockIndexCacheConf& conf);
 
   /**
    * search block position info by key, return block position info
@@ -99,7 +103,7 @@ class ObBlockIndexCache {
   int get_block_position_info(const ObBlockIndexPositionInfo& block_index_info,
                               const uint64_t table_id,
                               const uint64_t column_group_id,
-                              const common::ObRowkey& key,
+                              const common::ObString& key,
                               const SearchMode search_mode,
                               ObBlockPositionInfos& pos_info);
 
@@ -122,7 +126,7 @@ class ObBlockIndexCache {
   int get_block_position_info(const ObBlockIndexPositionInfo& block_index_info,
                               const uint64_t table_id,
                               const uint64_t column_group_id,
-                              const common::ObNewRange& range,
+                              const common::ObRange& range,
                               const bool is_reverse_scan,
                               ObBlockPositionInfos& pos_info);
 
@@ -145,7 +149,7 @@ class ObBlockIndexCache {
   int get_single_block_pos_info(const ObBlockIndexPositionInfo& block_index_info,
                                 const uint64_t table_id,
                                 const uint64_t column_group_id,
-                                const common::ObRowkey& key,
+                                const common::ObString& key,
                                 const SearchMode search_mode,
                                 ObBlockPositionInfo& pos_info);
 
@@ -189,9 +193,6 @@ class ObBlockIndexCache {
   int destroy();
 
   inline int64_t get_cache_mem_size() { return kv_cache_.size(); }
-
-  int get_end_key(const ObBlockIndexPositionInfo& block_index_info,
-                  const uint64_t table_id, common::ObRowkey& row_key);
 
  private:
   int read_record(common::IFileInfoMgr& fileinfo_cache,

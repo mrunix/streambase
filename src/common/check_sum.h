@@ -1,14 +1,16 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * check_sum.h is for what ...
+ * Version: $Id$
+ *
+ * check_sum.h for ...
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
+ *   fanggang <fanggang@taobao.com>
  *
  */
 #ifndef OCEANBASE_COMMON_CHECKSUM_H_
@@ -171,3 +173,4 @@ inline int64_t calc_crc64(const char* data, const int64_t len, int64_t init_crc 
 }
 
 #endif /* OCEANBASE_COMMON_CHECKSUM_H_ */
+

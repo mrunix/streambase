@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,13 +15,10 @@
 #define OCEANBASE_SYSCHECKER_RULE_H_
 
 #include "ob_syschecker_schema.h"
-#include "common/ob_object.h"
-#include "ob_syschecker_param.h"
 
 namespace sb {
 namespace syschecker {
 static const int64_t MAX_SYSCHECKER_ROWKEY_LEN = sizeof(int64_t) * 2;
-static const int64_t MAX_SYSCHECKER_ROWKEY_COLUMN_COUNT =   2;
 static const int64_t MAX_SYSCHECKER_RULE_NAME_LEN = 32;
 static const int64_t MAX_SYSCHECKER_OP_ROW = 1024;
 static const int64_t ROWKEY_PREFIX_SIZE = sizeof(int64_t);
@@ -38,8 +35,7 @@ static const int64_t MAX_GET_ROW_COUNT = 100; //1000;
 static const int64_t SCAN_PARAM_ROW_COUNT = 2;
 static const int64_t MAX_SCAN_ROW_COUNT = 100; //1000;
 static const int64_t MAX_INVALID_ROW_COUNT = 10;
-// static const int64_t MAX_WRITE_ROW_COUNT = 100; //100;
-static const int64_t MAX_WRITE_ROW_COUNT = 3; //5;
+static const int64_t MAX_WRITE_ROW_COUNT = 100; //100;
 
 extern const char* READ_PARAM_FILE;
 extern const char* WRITE_PARAM_FILE;
@@ -56,8 +52,6 @@ enum ObOpType {
   OP_MIX,   //mixed operation with add, update, insert and delete
   OP_GET,
   OP_SCAN,
-  OP_SQL_GET,
-  OP_SQL_SCAN,
   OP_MAX,
 };
 
@@ -71,13 +65,6 @@ enum ObGenMode {
   GEN_VALID_WRITE,
   GEN_INVALID_WRITE,
   GEN_VALID_ADD,
-  GEN_FROM_CONFIG,
-};
-
-enum ObTableType {
-  ALL_TABLE = 0,
-  WIDE_TABLE,
-  JOIN_TABLE,
 };
 
 //how to generate the op param
@@ -107,7 +94,6 @@ struct ObOpCellParam {
   int32_t varchar_len_;
   int64_t key_prefix_;
   common::ObString column_name_;
-  uint64_t column_id_;
   union {
     int64_t int_val_;
     int64_t ext_val_;
@@ -129,7 +115,7 @@ struct ObOpRowParam {
   ObOpType op_type_;
   int32_t cell_count_;
   int32_t rowkey_len_;
-  common::ObObj rowkey_[MAX_SYSCHECKER_ROWKEY_COLUMN_COUNT];
+  char rowkey_[MAX_SYSCHECKER_ROWKEY_LEN];
   ObOpCellParam cell_[common::OB_MAX_COLUMN_NUMBER];
 };
 
@@ -149,7 +135,6 @@ struct ObOpParam {
   ObOpType op_type_;
   int64_t row_count_;
   common::ObString table_name_;
-  uint64_t table_id_;
   ObOpParamGen param_gen_;
   ObOpRowParam row_[MAX_SYSCHECKER_OP_ROW];
 
@@ -170,7 +155,8 @@ class ObSyscheckerRule {
   ObSyscheckerRule(ObSyscheckerSchema& syschecker_schema);
   ~ObSyscheckerRule();
 
-  int init(const ObSyscheckerParam& param);
+  int init(const int64_t syschecker_count, const bool is_specified,
+           const bool is_full_row);
 
   int get_next_write_param(ObOpParam& write_param);
   int get_next_read_param(ObOpParam& read_param);
@@ -181,12 +167,9 @@ class ObSyscheckerRule {
   const int64_t get_cur_max_suffix() const;
   int64_t add_cur_max_suffix(const int64_t suffix);
 
-  const ObSyscheckerSchema& get_schema() const { return syschecker_schema_; }
-
  private:
   int init_random_block();
   ObOpType get_random_read_op(const uint64_t random_num);
-  ObOpType get_config_read_op(const uint64_t random_num);
   ObOpType get_random_write_op(const uint64_t random_num);
   ObOpType get_cell_random_write_op(const uint64_t random_num);
 
@@ -275,13 +258,6 @@ class ObSyscheckerRule {
   int64_t syschecker_no_;
   bool is_specified_read_param_;
   bool operate_full_row_;
-  bool perf_test_;
-  bool is_sql_read_;
-  int read_table_type_;
-  int write_table_type_;
-  int64_t get_row_cnt_;
-  int64_t scan_row_cnt_;
-  int64_t update_row_cnt_;
 };
 
 //utiliy function

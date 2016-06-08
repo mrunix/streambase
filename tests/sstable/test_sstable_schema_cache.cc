@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@ class TestObSSTableSchemaCache: public ::testing::Test {
   }
 
   ObSSTableSchema* create_sstable_schema() {
-    char* schema_buf = static_cast<char*>(ob_malloc(sizeof(ObSSTableSchema), ObModIds::TEST));
+    char* schema_buf = static_cast<char*>(ob_malloc(sizeof(ObSSTableSchema)));
     EXPECT_TRUE(NULL != schema_buf);
 
     ObSSTableSchema* schema = new(schema_buf) ObSSTableSchema();
@@ -176,18 +176,33 @@ TEST_F(TestObSSTableSchemaCache, test_add_max_schemas) {
     version[i] = schema_cnt - i;
     schema[i] = create_sstable_schema();
     ret = schema_cache.add_schema(schema[i], table_id[i], version[i]);
-    EXPECT_EQ(OB_SUCCESS, ret);
+    if (i >= MAX_SCHEMA_VER_COUNT) {
+      EXPECT_EQ(OB_ERROR, ret);
+    } else {
+      EXPECT_EQ(OB_SUCCESS, ret);
+    }
   }
 
   for (int64_t i = 0; i < schema_cnt; ++i) {
-    EXPECT_TRUE(schema[i] == schema_cache.get_schema(table_id[i], version[i]));
+    if (i >= MAX_SCHEMA_VER_COUNT) {
+      EXPECT_TRUE(NULL == schema_cache.get_schema(table_id[i], version[i]));
+    } else {
+      EXPECT_TRUE(schema[i] == schema_cache.get_schema(table_id[i], version[i]));
+    }
   }
 
   for (int64_t i = 0; i < schema_cnt; ++i) {
-    ret = schema_cache.revert_schema(table_id[i], version[i]);
-    EXPECT_EQ(OB_SUCCESS, ret);
-    ret = schema_cache.revert_schema(table_id[i], version[i]);
-    EXPECT_EQ(OB_SUCCESS, ret);
+    if (i >= MAX_SCHEMA_VER_COUNT) {
+      ret = schema_cache.revert_schema(table_id[i], version[i]);
+      EXPECT_EQ(OB_ERROR, ret);
+      ret = schema_cache.revert_schema(table_id[i], version[i]);
+      EXPECT_EQ(OB_ERROR, ret);
+    } else {
+      ret = schema_cache.revert_schema(table_id[i], version[i]);
+      EXPECT_EQ(OB_SUCCESS, ret);
+      ret = schema_cache.revert_schema(table_id[i], version[i]);
+      EXPECT_EQ(OB_SUCCESS, ret);
+    }
   }
 
   ret = schema_cache.destroy();

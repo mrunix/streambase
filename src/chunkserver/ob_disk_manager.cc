@@ -1,16 +1,19 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- * ob_disk_manager.cc is for what ...
+ * Version: 5567
  *
- * Version: $id$
+ * ob_disk_manager.cc
  *
  * Authors:
- *   maoqi <maoqi@taobao.com>
+ *     maoqi <maoqi@taobao.com>
+ * Changes:
+ *     qushan <qushan@taobao.com>
+ *     huating <huating.zmq@taobao.com>
  *
  */
 
@@ -38,12 +41,7 @@ void ObDiskManager::reset() {
   memset(&pending_files_, 0, sizeof(pending_files_));
   memset(&disk_no_array_, 0, sizeof(disk_no_array_));
   memset(&sstable_files_, 0, sizeof(sstable_files_));
-  //not reset disk status
-  for (int i = 0; i < common::OB_MAX_DISK_NUMBER; ++i) {
-    disk_[i].capacity_ = 0;
-    disk_[i].avail_ = 0;
-    disk_[i].disk_no_ = 0;
-  }
+  memset(&disk_, 0, sizeof(disk_));
 }
 
 int ObDiskManager::scan(const char* data_dir, const int64_t max_sstable_size) {
@@ -143,12 +141,12 @@ void ObDiskManager::shrink_space(const int32_t disk_no, const int64_t used) {
 }
 
 int32_t ObDiskManager::get_dest_disk() {
-  tbsys::CWLockGuard guard(lock_);
+  tbsys::CRLockGuard guard(lock_);
   int32_t disk_no = -1;
   if (disk_num_ <= 0) {
     disk_no = -1;
   } else {
-    int64_t avail_index = -1;
+    int32_t avail_index = -1;
     int32_t sstable_num = INT32_MAX;
 
     int64_t avail = 0;
@@ -160,12 +158,13 @@ int32_t ObDiskManager::get_dest_disk() {
     int64_t best_avail = 0;
     int64_t best_index = -1;
 
-    int64_t concurrent_writer = THE_CHUNK_SERVER.get_config().merge_thread_per_disk;
-    int64_t disk_space_threshold = THE_CHUNK_SERVER.get_config().choose_disk_by_space_threshold;
-    bool choose_by_space = false;
+    int32_t concurrent_writer =  ObChunkServerMain::get_instance()->get_chunk_server()
+                                 .get_param().get_merge_thread_per_disk();
 
     if (concurrent_writer <= 0)
       concurrent_writer = 1; //for test
+
+    concurrent_writer <<= 1;
 
     for (int i = 0; i < disk_num_; ++i) {
       if (disk_[i].status_ != DISK_NORMAL) {
@@ -199,28 +198,16 @@ int32_t ObDiskManager::get_dest_disk() {
           sstable_num = sstable_files_[i];
         }
       }
-
-      //check if the disk usage is larger than choose disk by space threshold
-      if (!choose_by_space
-          && (disk_[i].capacity_ - this_avail) * 100 > disk_[i].capacity_ * disk_space_threshold) {
-        choose_by_space = true;
-      }
     }
 
-    /**
-     * if the disk space usage is larger than the choose disk by
-     * space threshold, choose disk by disk space, it's better to
-     * make disk space balance, else select disk by sstable number
-     * first.
-     **/
-    if (!choose_by_space && best_index != -1) {
+    if (best_index != -1) {
       avail_index = best_index;
     } else if (no_pending_index != -1) {
       avail_index = no_pending_index;
     }
 
     if (-1 == avail_index || disk_[avail_index].avail_ < max_sstable_size_) {
-      TBSYS_LOG(ERROR, "disk space not enough,avail_index:%ld,pending_files_ is %d", avail_index,
+      TBSYS_LOG(ERROR, "disk space not enough,avail_index:%d,pending_files_ is %d", avail_index,
                 pending_files_[avail_index]);
     } else {
       disk_no = disk_[avail_index].disk_no_;
@@ -230,36 +217,13 @@ int32_t ObDiskManager::get_dest_disk() {
   return disk_no;
 }
 
-bool ObDiskManager::is_disk_avail(const int32_t disk_no) const {
-  bool ret = false;
-  tbsys::CRLockGuard guard(lock_);
-  if (disk_no > 0 && disk_no <= OB_MAX_DISK_NUMBER) {
-    int32_t index = find_disk(disk_no);
-    if (index != -1) {
-      if (DISK_NORMAL == disk_[index].status_) {
-        ret = true;
-      }
-    }
-  }
-  return ret;
-}
-
-void ObDiskManager::add_used_space(const int32_t disk_no, const int64_t used,
-                                   const bool decr_pending_cnt) {
+void ObDiskManager::add_used_space(const int32_t disk_no, const int64_t used) {
   tbsys::CWLockGuard guard(lock_);
   if (disk_no > 0 && disk_no <= OB_MAX_DISK_NUMBER) {
     int32_t index = find_disk(disk_no);
     if (index != -1) {
-      if (decr_pending_cnt) {
-        //doesn't record disk space usage of hard link
-        disk_[index].avail_ -= used;
-        if (pending_files_[index] > 0) {
-          pending_files_[index] -= 1;
-        } else {
-          TBSYS_LOG(WARN, "disk_no:%d pending_files:%d reset to 0", disk_no, pending_files_[index]);
-          pending_files_[index] = 0;
-        }
-      }
+      disk_[index].avail_ -= used;
+      pending_files_[index] -= 1;
       if (used > 0) {
         sstable_files_[index] += 1;
       }
@@ -279,19 +243,15 @@ void ObDiskManager::add_sstable_num(const int32_t disk_no, const int32_t num) {
   return;
 }
 
-int ObDiskManager::set_disk_status(const int32_t disk_no, const ObDiskStatus stat) {
+void ObDiskManager::set_disk_status(const int32_t disk_no, const ObDiskStatus stat) {
   tbsys::CWLockGuard guard(lock_);
-  int ret = OB_ERROR;
   if (disk_no > 0 && disk_no <= OB_MAX_DISK_NUMBER) {
     int32_t index = find_disk(disk_no);
     if (index != -1) {
       disk_[index].status_ = stat;
-      ret = OB_SUCCESS;
-    } else {
-      TBSYS_LOG(WARN, "not found disk:%d", disk_no);
     }
   }
-  return ret;
+  return;
 }
 
 void ObDiskManager::release_space(const int32_t disk_no, const int64_t size) {
@@ -374,7 +334,7 @@ bool ObDiskManager::is_mount_point(const char* path) const {
   }
 
   if (OB_SUCCESS == err) {
-    char* buf = static_cast<char*>(ob_malloc(PROC_MOUNTS_FILE_SIZE, ObModIds::OB_CS_COMMON));  //st.st_size in proc is 0
+    char* buf = static_cast<char*>(ob_malloc(PROC_MOUNTS_FILE_SIZE));  //st.st_size in proc is 0
     int64_t size = 0;
     if (buf != NULL && (size = read(fileno(fp), buf, PROC_MOUNTS_FILE_SIZE - 1)) <= 0) {
       TBSYS_LOG(WARN, "read %s failed", PROC_MOUNTS_FILE);
@@ -391,7 +351,7 @@ bool ObDiskManager::is_mount_point(const char* path) const {
   return ret;
 }
 
-int32_t ObDiskManager::find_disk(const int32_t disk_no) const {
+int32_t ObDiskManager::find_disk(const int32_t disk_no) {
   int32_t index = disk_no - 1;
   int32_t ret = -1;
   for (; index >= 0; --index) {
@@ -405,9 +365,10 @@ int32_t ObDiskManager::find_disk(const int32_t disk_no) const {
 
 void ObDiskManager::dump() {
   for (int i = 0; i < disk_num_; ++i) {
-    TBSYS_LOG(DEBUG, "DISK %d: capacity:%ld,avail:%ld stat:%d", disk_[i].disk_no_, disk_[i].capacity_, disk_[i].avail_, disk_[i].status_);
+    TBSYS_LOG(DEBUG, "DISK %d: capacity:%ld,avail:%ld", disk_[i].disk_no_, disk_[i].capacity_, disk_[i].avail_);
   }
   return;
 }
 } /* chunkserver */
-} /* oceanbase */
+} /* sb */
+

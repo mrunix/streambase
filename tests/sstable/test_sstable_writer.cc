@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -9,7 +9,7 @@
  *
  * Authors:
  *   huating <huating.zmq@taobao.com>
- *   fangji  <fangji.hcm@taobao.com>
+ *
  */
 
 #include <iostream>
@@ -36,16 +36,10 @@ static char sstable_path[OB_MAX_FILE_NAME_LENGTH];
 static const int64_t table_id = 128;
 static const int64_t column_scheme_def_size = 100;
 static const int64_t sstable_id = 1026;
-static const int64_t TABLE_COUNT = 5;
-static const int32_t COLUMN_GROUP_PER_TABLE = 10;
-static const int32_t COLUMN_NUMBER_PER_GROUP = 3;
+static const int32_t objs_per_row = 3;
+static const int64_t TABLE_COUNT = 4;
 static const int64_t ROWS_PER_TABLE = 5000;
-static const int16_t TABLE_ID_BASE = 1025;
-static const int32_t ROWKEY_COLUMN_START_ID = 2;
-static const int32_t NORMAL_COLUMN_START_ID = 5;
-static const int32_t ROWKEY_COLUMN_NUMBER = 3;
-static const int16_t COLUMN_GROUP_ID_BASE = 2;
-static const int32_t OBJS_PER_ROW = ROWKEY_COLUMN_NUMBER + COLUMN_NUMBER_PER_GROUP;
+static const uint64_t TABLE_ID_BASE = 1025;
 
 class TestObSSTableWriter: public ::testing::Test {
  public:
@@ -58,59 +52,18 @@ class TestObSSTableWriter: public ::testing::Test {
 
   }
 
-
-  void add_schema_column(ObSSTableSchema& schema,
-                         int32_t table_id, int32_t column_group_id, int64_t seq,
-                         int32_t column_id, int32_t column_value_type) {
-    ObSSTableSchemaColumnDef def;
-    def.reserved_ = 0;
-    def.table_id_ = table_id;
-    def.column_group_id_ = static_cast<uint16_t>(column_group_id);
-    def.rowkey_seq_ = static_cast<uint16_t>(seq);
-    def.column_name_id_ = static_cast<uint16_t>(column_id);
-    def.column_value_type_ = column_value_type;
-    schema.add_column_def(def);
-  }
-
-  void add_schema_generic_rowkey(ObSSTableSchema& schema,
-                                 int32_t table_id, int16_t column_group_id) {
-    // seq from 1 ~3
-    // column id from  2 ~ 4
-    int16_t column_id = ROWKEY_COLUMN_START_ID;
-    for (int32_t i = 0; i < ROWKEY_COLUMN_NUMBER; ++i) {
-      add_schema_column(schema, table_id, column_group_id, i + 1, column_id++, ObIntType);
-    }
-  }
-
-  void init_generic_schema(ObSSTableSchema& schema) {
-    int16_t start_id = 0;
-    for (int16_t i = 0; i < TABLE_COUNT; ++i) {
-      add_schema_generic_rowkey(schema, TABLE_ID_BASE + i, 0);
-      for (int16_t j = 0; j < COLUMN_GROUP_PER_TABLE ; ++j) {
-        start_id = static_cast<int16_t>(j * COLUMN_NUMBER_PER_GROUP + NORMAL_COLUMN_START_ID);
-        add_schema_column(schema, TABLE_ID_BASE + i, j + COLUMN_GROUP_ID_BASE, 0,
-                          start_id, ObDoubleType);
-        add_schema_column(schema, TABLE_ID_BASE + i, j + COLUMN_GROUP_ID_BASE, 0,
-                          start_id + 1, ObIntType);
-        add_schema_column(schema, TABLE_ID_BASE + i, j + COLUMN_GROUP_ID_BASE, 0,
-                          start_id + 2, ObVarcharType);
-      }
-    }
-  }
-
-
   void build_row(int64_t index, ObSSTableRow& row, int type, uint64_t table_id, uint64_t column_group_id) {
     ObObj tmp_obj;
     Key tmp_key;
-    ObRowkey key;
+    ObString key;
     row.set_table_id(table_id);
     row.set_column_group_id(column_group_id);
 
     tmp_key.assign(index, 10, 1000);
-    tmp_key.trans_to_rowkey(key);
-    row.set_rowkey(key);
+    key.assign(tmp_key.get_ptr(), tmp_key.key_len());
+    row.set_row_key(key);
 
-    for (int i = ROWKEY_COLUMN_NUMBER; i < OB_MAX_COLUMN_NUMBER; ++i) {
+    for (int i = 0; i < common::OB_MAX_COLUMN_NUMBER; ++i) {
       switch (type) {
       case ObNullType:
         tmp_obj.set_null();
@@ -133,15 +86,15 @@ class TestObSSTableWriter: public ::testing::Test {
     ObObj tmp_obj;
     ObObj id_obj;
     Key tmp_key;
-    ObRowkey key;
+    ObString key;
 
     row.set_table_id(table_id);
     row.set_column_group_id(column_group_id);
     tmp_key.assign(index, 10, 1000);
-    tmp_key.trans_to_rowkey(key);
-    row.set_rowkey(key);
+    key.assign(tmp_key.get_ptr(), tmp_key.key_len());
+    row.set_row_key(key);
 
-    for (int i = ROWKEY_COLUMN_NUMBER; i < column_count; ++i) {
+    for (int i = 0; i < column_count; ++i) {
       switch (type) {
       case ObNullType:
         tmp_obj.set_null();
@@ -163,7 +116,7 @@ class TestObSSTableWriter: public ::testing::Test {
   void build_large_row(int64_t index, ObSSTableRow& row,
                        uint64_t table_id, uint64_t column_group_id, int64_t size_in_kb) {
     ObObj tmp_obj;
-    int32_t value_size = static_cast<int32_t>(1024 * size_in_kb + 1);
+    int64_t value_size = 1024 * size_in_kb + 1;
     char value_data[value_size];
     char* ptr;
 
@@ -176,13 +129,12 @@ class TestObSSTableWriter: public ::testing::Test {
     ObString value_str(value_size, value_size, value_data);
 
     Key tmp_key(index, 10, 1000);
-    ObRowkey key;
-    tmp_key.trans_to_rowkey(key);
-    row.set_rowkey(key);
+    ObString key(tmp_key.key_len(), tmp_key.key_len(), tmp_key.get_ptr());
+    row.set_row_key(key);
     row.set_table_id(table_id);
     row.set_column_group_id(column_group_id);
 
-    for (int i = ROWKEY_COLUMN_NUMBER; i < OB_MAX_COLUMN_NUMBER; ++i) {
+    for (int i = 0; i < common::OB_MAX_COLUMN_NUMBER; ++i) {
       tmp_obj.set_varchar(value_str);
       row.add_obj(tmp_obj);
     }
@@ -195,7 +147,7 @@ class TestObSSTableWriter: public ::testing::Test {
     char* file_buf = NULL;
     int64_t file_len = FileDirectoryUtils::get_size(file_name);
     int64_t read_len = 0;
-    char* compressor_name = (char*)COMPRESSOR_NAME;
+    char* compressor_name = COMPRESSOR_NAME;
     ObCompressor* compressor = NULL;
     int64_t uncompressed_size = 0;
     ObTrailerOffset trailer_offset;
@@ -208,7 +160,7 @@ class TestObSSTableWriter: public ::testing::Test {
     char* schema_data = NULL;
     int64_t schema_len = 0;
     int64_t block_count = 0;
-    ObBloomFilterV1 bloom_filter;
+    BloomFilter bloom_filter;
     int64_t filter_offset = 0;
     int64_t filter_len = 0;
     ObSSTableBlockIndexHeader index_header;
@@ -229,10 +181,10 @@ class TestObSSTableWriter: public ::testing::Test {
     int64_t row_data_len = 0;
     int64_t row_count = 0;
     ObSSTableRow new_row;
-    ObRowkey row_key(NULL, ROWKEY_COLUMN_NUMBER);
+    ObString row_key;
     const ObObj* obj = NULL;
     Key tmp_key;
-    ObRowkey key;
+    ObString key;
     ObString string_value;
     int64_t index = 0;
     double val = 0.0;
@@ -289,7 +241,7 @@ class TestObSSTableWriter: public ::testing::Test {
     EXPECT_TRUE(record_header.magic_ == ObSSTableWriter::SCHEMA_MAGIC);
     schema_data = file_buf + schema_offset + sizeof(ObRecordHeader);
     if (record_header.data_length_ > record_header.data_zlength_) {
-      schema_buf = (char*)ob_malloc(record_header.data_length_, ObModIds::TEST);
+      schema_buf = (char*)ob_malloc(record_header.data_length_);
       EXPECT_TRUE(schema_buf != NULL);
       ret = compressor->decompress(schema_data, record_header.data_zlength_,
                                    schema_buf, record_header.data_length_,
@@ -309,24 +261,13 @@ class TestObSSTableWriter: public ::testing::Test {
     }
     EXPECT_TRUE(OB_SUCCESS == ret);
 
-    const int32_t columns_per_row = ROWKEY_COLUMN_NUMBER + COLUMN_GROUP_PER_TABLE * COLUMN_NUMBER_PER_GROUP;
-    const int32_t total_column_count = TABLE_COUNT * columns_per_row;
-    int32_t row_num = 0;
-    int32_t col_num = 0;
-
-    EXPECT_EQ(total_column_count, schema.get_column_count());
-    for (int i = 0; i < total_column_count; ++i) {
+    EXPECT_EQ(150, schema.get_column_count());
+    for (int i = 0; i < 150; ++i) {
       column = schema.get_column_def(i);
-
-      row_num = i / columns_per_row;
-      col_num = i % columns_per_row;
-
-      ASSERT_EQ(col_num + ROWKEY_COLUMN_START_ID, (int32_t)column->column_name_id_) << i << "," << row_num << "," << col_num;
-      ASSERT_EQ(row_num + TABLE_ID_BASE, (int32_t)column->table_id_);
-      if (col_num > ROWKEY_COLUMN_NUMBER) {
-        ASSERT_EQ((col_num - ROWKEY_COLUMN_NUMBER) / 3 + COLUMN_GROUP_ID_BASE , (int32_t)column->column_group_id_);
-        ASSERT_EQ(types[(col_num - ROWKEY_COLUMN_NUMBER) % 3], column->column_value_type_);
-      }
+      EXPECT_EQ(2 + i % 3, (int32_t)column->column_name_id_);
+      EXPECT_EQ(i / 30 + 1025, (int32_t)column->table_id_);
+      EXPECT_EQ(i % 30 / 3, (int32_t)column->column_group_id_);
+      EXPECT_EQ(types[i % 3], column->column_value_type_);
     }
 
     //read bloom filter
@@ -354,7 +295,7 @@ class TestObSSTableWriter: public ::testing::Test {
     index_block = file_buf + index_offset + sizeof(ObRecordHeader);
     index_block_len = index_len - sizeof(ObRecordHeader);
     if (record_header.data_length_ > record_header.data_zlength_) {
-      index_buf = (char*)ob_malloc(record_header.data_length_, ObModIds::TEST);
+      index_buf = (char*)ob_malloc(record_header.data_length_);
       EXPECT_TRUE(index_buf != NULL);
       ret = compressor->decompress(index_block, record_header.data_zlength_,
                                    index_buf, record_header.data_length_,
@@ -389,7 +330,7 @@ class TestObSSTableWriter: public ::testing::Test {
         EXPECT_TRUE(record_header.magic_ == ObSSTableWriter::DATA_BLOCK_MAGIC);
         block_data = file_buf + block_offset + sizeof(ObRecordHeader);
         if (record_header.data_length_ > record_header.data_zlength_) {
-          block_buf = (char*)ob_malloc(record_header.data_length_, ObModIds::TEST);
+          block_buf = (char*)ob_malloc(record_header.data_length_);
           EXPECT_TRUE(block_buf != NULL);
           ret = compressor->decompress(block_data, record_header.data_zlength_,
                                        block_buf, record_header.data_length_,
@@ -412,25 +353,26 @@ class TestObSSTableWriter: public ::testing::Test {
         pos = 0;
         for (int j = 0; j < row_count; ++j) {
           new_row.clear();
-          new_row.set_obj_count(OBJS_PER_ROW);
+          new_row.set_obj_count(objs_per_row);
           ret = new_row.deserialize(row_data, row_data_len, pos);
           EXPECT_TRUE(OB_SUCCESS == ret);
-          new_row.get_rowkey(row_key);
+          row_key = new_row.get_row_key();
 
           //check row key
           tmp_key.assign(index, 0, 0);
-          tmp_key.trans_to_rowkey(key);
+          key.assign(tmp_key.get_ptr(), tmp_key.key_len());
+          EXPECT_EQ(tmp_key.key_len(), row_key.length());
           EXPECT_TRUE(key == row_key);
 
           //check objs of row
-          for (int k = ROWKEY_COLUMN_NUMBER; k < OBJS_PER_ROW; ++k) {
+          for (int k = 0; k < objs_per_row; ++k) {
             obj = new_row.get_obj(k);
             EXPECT_TRUE(NULL != obj);
             type = obj->get_type();
             switch (type) {
             case ObDoubleType:
               obj->get_double(val);
-              EXPECT_DOUBLE_EQ(static_cast<double>(index), val);
+              EXPECT_DOUBLE_EQ(index, val);
               break;
             case ObIntType:
               obj->get_int(val64);
@@ -478,7 +420,6 @@ TEST_F(TestObSSTableWriter, test_create_sstable) {
   int ret;
   ObSSTableSchemaColumnDef column_def;
   int64_t trailer_offset = 0;
-  int64_t sstable_size = 0;
 
   char cmd[256];
   sprintf(cmd, "mkdir -p %s", sstable_path);
@@ -488,14 +429,14 @@ TEST_F(TestObSSTableWriter, test_create_sstable) {
   ret = writer.create_sstable(schema, file_name, compressor, 0);
   EXPECT_TRUE(OB_ERROR == ret);
 
-  file_name.assign(sstable_path, static_cast<int32_t>(strlen(sstable_path)));
+  file_name.assign(sstable_path, strlen(sstable_path));
   remove(sstable_path);
   //not null path, null compressor, null schema, table version 0
   ret = writer.create_sstable(schema, file_name, compressor, 0);
   EXPECT_TRUE(OB_ERROR == ret);
 
-  char* compressor_name = (char*)COMPRESSOR_NAME;
-  compressor.assign(compressor_name, static_cast<int32_t>(strlen(compressor_name) + 1));
+  char* compressor_name = COMPRESSOR_NAME;
+  compressor.assign(compressor_name, strlen(compressor_name) + 1);
   //not null path, not null compressor, null schema, table version 0
   ret = writer.create_sstable(schema, file_name, compressor, 0);
   EXPECT_TRUE(OB_ERROR == ret);
@@ -511,7 +452,7 @@ TEST_F(TestObSSTableWriter, test_create_sstable) {
 
   ret = writer.close_sstable(trailer_offset);
   EXPECT_TRUE(OB_SUCCESS == ret);
-  EXPECT_TRUE(trailer_offset > 0);
+  EXPECT_TRUE(trailer_offset == -1);
   remove(sstable_path);
 
   column_def.table_id_ = 1025;
@@ -536,17 +477,7 @@ TEST_F(TestObSSTableWriter, test_create_sstable) {
 
   ret = writer.close_sstable(trailer_offset);
   EXPECT_TRUE(OB_SUCCESS == ret);
-  EXPECT_TRUE(trailer_offset > 0);
-  remove(sstable_path);
-
-  //create empty sstable
-  ret = writer.create_sstable(schema, file_name, compressor, 0);
-  EXPECT_TRUE(OB_SUCCESS == ret);
-
-  ret = writer.close_sstable(trailer_offset, sstable_size);
-  EXPECT_TRUE(OB_SUCCESS == ret);
-  EXPECT_TRUE(trailer_offset > 0);
-  EXPECT_TRUE(sstable_size > 0);
+  EXPECT_TRUE(trailer_offset == -1);
   remove(sstable_path);
 }
 
@@ -557,19 +488,19 @@ TEST_F(TestObSSTableWriter, test_close_null_sstable) {
   int64_t sstable_size = 0;
 
   ret = writer.close_sstable(trailer_offset);
-  EXPECT_TRUE(OB_SUCCESS != ret);
+  EXPECT_TRUE(OB_SUCCESS == ret);
   EXPECT_TRUE(trailer_offset == -1);
 
   //close ssatble again
   ret = writer.close_sstable(trailer_offset);
-  EXPECT_TRUE(OB_SUCCESS != ret);
+  EXPECT_TRUE(OB_SUCCESS == ret);
   EXPECT_TRUE(trailer_offset == -1);
 
   //close ssatble again
   ret = writer.close_sstable(trailer_offset, sstable_size);
-  EXPECT_TRUE(OB_SUCCESS != ret);
+  EXPECT_TRUE(OB_SUCCESS == ret);
   EXPECT_TRUE(trailer_offset == -1);
-  EXPECT_TRUE(sstable_size == -1);
+  EXPECT_TRUE(sstable_size == 0);
 }
 
 TEST_F(TestObSSTableWriter, test_append_row) {
@@ -579,22 +510,23 @@ TEST_F(TestObSSTableWriter, test_append_row) {
   ObString file_name;
   ObString compressor;
   int ret;
+  ObSSTableSchemaColumnDef column_def;
   int64_t trailer_offset = 0;
   int64_t space_usage = 0;
   ObObj tmp_obj;
   ObString row_key;
   Key tmp_key;
-  ObRowkey key;
+  ObString key;
 
-  file_name.assign(sstable_path, static_cast<int32_t>(strlen(sstable_path)));
-  char* compressor_name = (char*)COMPRESSOR_NAME;
-  compressor.assign(compressor_name, static_cast<int32_t>(strlen(compressor_name) + 1));
-
-  // rowkey column;
-  add_schema_generic_rowkey(schema, TABLE_ID_BASE, COLUMN_GROUP_ID_BASE);
-  // column 1;
-  add_schema_column(schema, TABLE_ID_BASE, COLUMN_GROUP_ID_BASE, 0,
-                    NORMAL_COLUMN_START_ID, ObDoubleType);
+  file_name.assign(sstable_path, strlen(sstable_path));
+  char* compressor_name = COMPRESSOR_NAME;
+  compressor.assign(compressor_name, strlen(compressor_name) + 1);
+  column_def.reserved_ = 0;
+  column_def.table_id_ = 10086;
+  column_def.column_group_id_ = 2;
+  column_def.column_name_id_ = 2;
+  column_def.column_value_type_ = ObDoubleType;
+  schema.add_column_def(column_def);
 
   ret = writer.create_sstable(schema, file_name, compressor, 0x200);
   EXPECT_TRUE(OB_SUCCESS == ret);
@@ -614,34 +546,32 @@ TEST_F(TestObSSTableWriter, test_append_row) {
   EXPECT_TRUE(OB_ERROR == ret);
   EXPECT_TRUE(space_usage > 0);
 
-  row.clear();
   tmp_key.assign(12345, 10, 1000);
-  tmp_key.trans_to_rowkey(key);
-  row.set_rowkey(key);
-  tmp_obj.set_double(10.0);
-  row.add_obj(tmp_obj);
+  key.assign(tmp_key.get_ptr(), tmp_key.key_len());
+  row.set_row_key(key);
 
   //can not set table id with  invalid table id
   ret = row.set_table_id(OB_INVALID_ID);
   EXPECT_TRUE(OB_ERROR == ret);
 
   //can not set column group id with invalid column group id
-  row.set_table_id(TABLE_ID_BASE);
+  row.set_table_id(10086);
   ret = row.set_column_group_id(OB_INVALID_ID);
   EXPECT_TRUE(OB_ERROR == ret);
 
+
   //append legal row
-  row.set_column_group_id(COLUMN_GROUP_ID_BASE);
+  row.set_column_group_id(2);
   ret = writer.append_row(row, space_usage);
   EXPECT_TRUE(OB_SUCCESS == ret);
   EXPECT_TRUE(space_usage > 0);
 
   row.clear();
-  row.set_table_id(TABLE_ID_BASE);
-  row.set_column_group_id(COLUMN_GROUP_ID_BASE);
+  row.set_table_id(10086);
+  row.set_column_group_id(2);
   tmp_key.assign(12346, 10, 1000);
-  tmp_key.trans_to_rowkey(key);
-  row.set_rowkey(key);
+  key.assign(tmp_key.get_ptr(), tmp_key.key_len());
+  row.set_row_key(key);
   tmp_obj.set_double(1000.0);
   row.add_obj(tmp_obj);
   //append second legal row  in order (table_id, column_group_id, rowkey)
@@ -652,16 +582,16 @@ TEST_F(TestObSSTableWriter, test_append_row) {
   //row is not consistent with schema, row has 2 objs, but schema has 1 column
   tmp_obj.set_int(100);
   row.add_obj(tmp_obj);
-  EXPECT_EQ(2 + ROWKEY_COLUMN_NUMBER, row.get_obj_count());
+  EXPECT_EQ(2, row.get_obj_count());
   ret = writer.append_row(row, space_usage);
-  EXPECT_TRUE(OB_SUCCESS != ret);
+  EXPECT_TRUE(OB_ERROR == ret);
   EXPECT_TRUE(space_usage > 0);
 
   //row with inconsistent type with schema
   row.clear();
   tmp_key.assign(12347, 10, 1000);
-  tmp_key.trans_to_rowkey(key);
-  row.set_rowkey(key);
+  key.assign(tmp_key.get_ptr(), tmp_key.key_len());
+  row.set_row_key(key);
   tmp_obj.set_int(100);
   row.add_obj(tmp_obj);
 
@@ -673,8 +603,8 @@ TEST_F(TestObSSTableWriter, test_append_row) {
   //table id not in order
   row.clear();
   tmp_key.assign(12348, 10, 1000);
-  tmp_key.trans_to_rowkey(key);
-  row.set_rowkey(key);
+  key.assign(tmp_key.get_ptr(), tmp_key.key_len());
+  row.set_row_key(key);
   row.set_table_id(1000);
   row.set_column_group_id(2);
   tmp_obj.set_double(100.0);
@@ -686,8 +616,8 @@ TEST_F(TestObSSTableWriter, test_append_row) {
   //column group id not in order
   row.clear();
   tmp_key.assign(12348, 10, 1000);
-  tmp_key.trans_to_rowkey(key);
-  row.set_rowkey(key);
+  key.assign(tmp_key.get_ptr(), tmp_key.key_len());
+  row.set_row_key(key);
   row.set_table_id(10086);
   row.set_column_group_id(1);
   tmp_obj.set_double(100.0);
@@ -699,8 +629,8 @@ TEST_F(TestObSSTableWriter, test_append_row) {
   //rowkey not in order
   row.clear();
   tmp_key.assign(12340, 10, 1000);
-  tmp_key.trans_to_rowkey(key);
-  row.set_rowkey(key);
+  key.assign(tmp_key.get_ptr(), tmp_key.key_len());
+  row.set_row_key(key);
   row.set_table_id(10086);
   row.set_column_group_id(2);
   tmp_obj.set_double(100.0);
@@ -724,36 +654,39 @@ TEST_F(TestObSSTableWriter, test_append_many_rows_null_objs) {
   ObString file_name;
   ObString compressor;
   int ret;
+  ObSSTableSchemaColumnDef column_def;
   int64_t trailer_offset = 0;
   int64_t space_usage = 0;
   ObObj tmp_obj;
   ObString row_key;
+  Key tmp_key;
+  ObString key;
   int j = 0;
 
-  file_name.assign(sstable_path, static_cast<int32_t>(strlen(sstable_path)));
-  char* compressor_name = (char*)COMPRESSOR_NAME;
-  compressor.assign(compressor_name, static_cast<int32_t>(strlen(compressor_name) + 1));
+  file_name.assign(sstable_path, strlen(sstable_path));
+  char* compressor_name = COMPRESSOR_NAME;
+  compressor.assign(compressor_name, strlen(compressor_name) + 1);
 
-  add_schema_generic_rowkey(schema, TABLE_ID_BASE, COLUMN_GROUP_ID_BASE);
-  for (int i = ROWKEY_COLUMN_NUMBER; i < OB_MAX_COLUMN_NUMBER; ++i) {
-    add_schema_column(schema, TABLE_ID_BASE, COLUMN_GROUP_ID_BASE, 0,
-                      ROWKEY_COLUMN_START_ID + i, ObNullType);
+  for (int i = 0; i < common::OB_MAX_COLUMN_NUMBER; ++i) {
+    column_def.table_id_ = 1025;
+    column_def.column_group_id_ = 2;
+    column_def.column_name_id_ = i + 2;
+    column_def.column_value_type_ = ObNullType;
+    schema.add_column_def(column_def);
   }
-  EXPECT_EQ(OB_MAX_COLUMN_NUMBER, schema.get_column_count());
+  EXPECT_EQ(common::OB_MAX_COLUMN_NUMBER, schema.get_column_count());
 
   ret = writer.create_sstable(schema, file_name, compressor, 2);
   EXPECT_TRUE(OB_SUCCESS == ret);
 
   while (true) {
     row.clear();
-    build_row(j, row, ObNullType, TABLE_ID_BASE, COLUMN_GROUP_ID_BASE);
-    EXPECT_EQ(OB_MAX_COLUMN_NUMBER, row.get_obj_count());
+    build_row(j, row, ObNullType, 1025, 2);
+    EXPECT_EQ(common::OB_MAX_COLUMN_NUMBER, row.get_obj_count());
     ret = writer.append_row(row, space_usage);
     EXPECT_TRUE(OB_SUCCESS == ret);
     EXPECT_TRUE(space_usage > 0);
     if (space_usage > 1024 * 1024) {
-      break;
-    } else if (OB_SUCCESS != ret) {
       break;
     }
     j++;
@@ -772,33 +705,37 @@ TEST_F(TestObSSTableWriter, test_append_many_rows_double_objs) {
   ObString file_name;
   ObString compressor;
   int ret;
+  ObSSTableSchemaColumnDef column_def;
   int64_t trailer_offset = 0;
   int64_t space_usage = 0;
+  ObObj tmp_obj;
+  ObString row_key;
+  Key tmp_key;
+  ObString key;
   int j = 0;
 
-  file_name.assign(sstable_path, static_cast<int32_t>(strlen(sstable_path)));
-  char* compressor_name = (char*)COMPRESSOR_NAME;
-  compressor.assign(compressor_name, static_cast<int32_t>(strlen(compressor_name) + 1));
+  file_name.assign(sstable_path, strlen(sstable_path));
+  char* compressor_name = COMPRESSOR_NAME;
+  compressor.assign(compressor_name, strlen(compressor_name) + 1);
 
-  add_schema_generic_rowkey(schema, TABLE_ID_BASE, COLUMN_GROUP_ID_BASE);
-  for (int i = ROWKEY_COLUMN_NUMBER; i < OB_MAX_COLUMN_NUMBER; ++i) {
-    add_schema_column(schema, TABLE_ID_BASE, COLUMN_GROUP_ID_BASE, 0,
-                      ROWKEY_COLUMN_START_ID + i, ObDoubleType);
+  for (int i = 0; i < common::OB_MAX_COLUMN_NUMBER; ++i) {
+    column_def.table_id_ = 1025;
+    column_def.column_group_id_ = 2;
+    column_def.column_name_id_ = i + 2;
+    column_def.column_value_type_ = ObDoubleType;
+    schema.add_column_def(column_def);
   }
-
-  EXPECT_EQ(OB_MAX_COLUMN_NUMBER, schema.get_column_count());
+  EXPECT_EQ(common::OB_MAX_COLUMN_NUMBER, schema.get_column_count());
   ret = writer.create_sstable(schema, file_name, compressor, 0);
   EXPECT_TRUE(OB_SUCCESS == ret);
 
   while (true) {
     row.clear();
-    build_row(j, row, ObDoubleType, TABLE_ID_BASE, COLUMN_GROUP_ID_BASE);
+    build_row(j, row, ObDoubleType, 1025, 2);
     ret = writer.append_row(row, space_usage);
     EXPECT_TRUE(OB_SUCCESS == ret);
     EXPECT_TRUE(space_usage > 0);
     if (space_usage > 1024 * 1024) {
-      break;
-    } else if (OB_SUCCESS != ret) {
       break;
     }
     j++;
@@ -816,24 +753,31 @@ TEST_F(TestObSSTableWriter, test_append_many_rows_double_objs2) {
   ObSSTableRow row;
   ObString file_name;
   ObString compressor;
-  int ret = 0;
+  int ret;
+  ObSSTableSchemaColumnDef column_def;
   int64_t trailer_offset = 0;
   int64_t sstable_size = 0;
   int64_t space_usage = 0;
   uint64_t table_id = 0;
   uint64_t column_group_id = 0;
+  ObObj tmp_obj;
+  ObString row_key;
+  Key tmp_key;
+  ObString key;
   int j = 0;
 
-  file_name.assign(sstable_path, static_cast<int32_t>(strlen(sstable_path)));
-  char* compressor_name = (char*)COMPRESSOR_NAME;
-  compressor.assign(compressor_name, static_cast<int32_t>(strlen(compressor_name) + 1));
-
+  file_name.assign(sstable_path, strlen(sstable_path));
+  char* compressor_name = COMPRESSOR_NAME;
+  compressor.assign(compressor_name, strlen(compressor_name) + 1);
   for (int t = 0; t < 5; ++t) {
-    add_schema_generic_rowkey(schema, TABLE_ID_BASE + t, 0);
-    for (int c = COLUMN_GROUP_ID_BASE; c < 10; ++c) {
-      for (int i = ROWKEY_COLUMN_NUMBER; i < 12 /*OB_MAX_COLUMN_NUMBER*/; ++i) {
-        add_schema_column(schema, TABLE_ID_BASE + t, c, 0,
-                          i + ROWKEY_COLUMN_START_ID , ObDoubleType);
+    column_def.table_id_ = TABLE_ID_BASE + t;
+    for (int c = 0; c < 10; ++c) {
+      column_def.column_group_id_ = c;
+      for (int i = 0; i < 12 /*common::OB_MAX_COLUMN_NUMBER*/; ++i) {
+        column_def.column_name_id_ = i + 2;
+        column_def.column_value_type_ = ObDoubleType;
+        column_def.reserved_ = 0;
+        schema.add_column_def(column_def);
       }
     }
   }
@@ -841,16 +785,15 @@ TEST_F(TestObSSTableWriter, test_append_many_rows_double_objs2) {
   ret = writer.create_sstable(schema, file_name, compressor, 1);
   EXPECT_TRUE(OB_SUCCESS == ret);
 
-  for (int t = 0; t < 5; ++t) {
-    for (int c = COLUMN_GROUP_ID_BASE; c < 10; ++c) {
-      table_id = t + TABLE_ID_BASE;
-      column_group_id = c;
-      row.clear();
-      build_row(j++, row, ObDoubleType, 12, table_id, column_group_id);
-      ret = writer.append_row(row, space_usage);
-      ASSERT_TRUE(OB_SUCCESS == ret) << "j:" << j << ",table_id:" << table_id << ",column_group_id:" << column_group_id;
-      EXPECT_TRUE(space_usage > 0);
-    }
+  while (100000 > j) {
+    row.clear();
+    table_id = j / 20000 + TABLE_ID_BASE;
+    column_group_id = j % 20000 / 2000;
+    build_row(j, row, ObDoubleType, 12, table_id, column_group_id);
+    ret = writer.append_row(row, space_usage);
+    EXPECT_TRUE(OB_SUCCESS == ret);
+    EXPECT_TRUE(space_usage > 0);
+    j++;
   }
 
   ret = writer.close_sstable(trailer_offset, sstable_size);
@@ -862,14 +805,15 @@ TEST_F(TestObSSTableWriter, test_append_many_rows_double_objs2) {
 }
 
 TEST_F(TestObSSTableWriter, test_write_one_file) {
+  ObSSTableSchemaColumnDef column_def;
   ObSSTableSchema schema;
   ObSSTableRow row;
-  char* compressor_name = (char*)COMPRESSOR_NAME;
+  char* compressor_name = COMPRESSOR_NAME;
   ObSSTableWriter writer;
-  ObString file_name(static_cast<int32_t>(strlen(sstable_path) + 1),
-                     static_cast<int32_t>(strlen(sstable_path) + 1), sstable_path);
-  ObString compressor(static_cast<int32_t>(strlen(compressor_name) + 1),
-                      static_cast<int32_t>(strlen(compressor_name) + 1), compressor_name);
+  ObString file_name(strlen(sstable_path) + 1,
+                     strlen(sstable_path) + 1, sstable_path);
+  ObString compressor(strlen(compressor_name) + 1,
+                      strlen(compressor_name) + 1, compressor_name);
   int64_t disk_usage = 0;
   int64_t trailer_offset = 0;
   ObObj obj;
@@ -880,8 +824,23 @@ TEST_F(TestObSSTableWriter, test_write_one_file) {
   int ret;
 
   // init schema
-  init_generic_schema(schema);
+  for (int i = 0; i < 5; ++i) {
+    column_def.table_id_ = 1025 + i;
+    for (int j = 0; j < 10 ; ++j) {
+      column_def.column_group_id_ = j;
+      column_def.column_name_id_ = 2;
+      column_def.column_value_type_ = ObDoubleType;
+      schema.add_column_def(column_def);
 
+      column_def.column_name_id_ = 3;
+      column_def.column_value_type_ = ObIntType;
+      schema.add_column_def(column_def);
+
+      column_def.column_name_id_ = 4;
+      column_def.column_value_type_ = ObVarcharType;
+      schema.add_column_def(column_def);
+    }
+  }
   // create sstable file
   if (OB_ERROR == (ret = writer.create_sstable(schema, file_name,
                                                compressor, 2))) {
@@ -896,17 +855,16 @@ TEST_F(TestObSSTableWriter, test_write_one_file) {
     ptr += 8;
   }
   ObString value_str(1025, 1025, value_data);
-  ObRowkey row_key;
 
   for (int i = 0; i < 500000; ++i) {
     row.clear();
-    table_id = i / 100000 + TABLE_ID_BASE;
-    column_group_id = i % 100000 / 10000 + COLUMN_GROUP_ID_BASE;
+    table_id = i / 100000 + 1025;
+    column_group_id = i % 100000 / 10000;
     row.set_table_id(table_id);
     row.set_column_group_id(column_group_id);
     Key tmp_key(i, 0, 0);
-    tmp_key.trans_to_rowkey(row_key);
-    row.set_rowkey(row_key);
+    ObString row_key(tmp_key.key_len(), tmp_key.key_len(), tmp_key.get_ptr());
+    row.set_row_key(row_key);
 
     obj.set_double(i);
     row.add_obj(obj);
@@ -919,13 +877,13 @@ TEST_F(TestObSSTableWriter, test_write_one_file) {
       cout << "add row failed" << endl;
       return;
     }
-    ASSERT_TRUE(OB_SUCCESS == ret) << i << "," << table_id << "," << column_group_id;
+    EXPECT_TRUE(OB_SUCCESS == ret);
   }
 
   if (OB_ERROR == (ret = writer.close_sstable(trailer_offset))) {
     cout << "close sstable failed ------------------" << endl;
   }
-  ASSERT_TRUE(OB_SUCCESS == ret);
+  EXPECT_TRUE(OB_SUCCESS == ret);
   remove(sstable_path);
 }
 
@@ -936,24 +894,41 @@ TEST_F(TestObSSTableWriter, test_write_patch_file_with_check) {
   ObString file_name;
   ObString compressor;
   int ret;
+  ObSSTableSchemaColumnDef column_def;
   int64_t trailer_offset = 0;
   int64_t space_usage = 0;
   int64_t sstable_size = 0;
   uint64_t table_id = 0;
   uint64_t column_group_id = 0;
   ObObj tmp_obj;
-  ObRowkey row_key;
+  ObString row_key;
   Key tmp_key;
   ObString key;
   ObObj obj;
   char value_data[1024 + 1];
   char* ptr;
-  file_name.assign(sstable_path, static_cast<int32_t>(strlen(sstable_path)));
-  char* compressor_name = (char*)COMPRESSOR_NAME;
-  compressor.assign(compressor_name, static_cast<int32_t>(strlen(compressor_name) + 1));
+  file_name.assign(sstable_path, strlen(sstable_path));
+  char* compressor_name = COMPRESSOR_NAME;
+  compressor.assign(compressor_name, strlen(compressor_name) + 1);
 
   //init schema
-  init_generic_schema(schema);
+  for (int i = 0; i < 5; ++i) {
+    column_def.table_id_ = 1025 + i;
+    for (int j = 0; j < 10 ; ++j) {
+      column_def.column_group_id_ = j;
+      column_def.column_name_id_ = 2;
+      column_def.column_value_type_ = ObDoubleType;
+      schema.add_column_def(column_def);
+
+      column_def.column_name_id_ = 3;
+      column_def.column_value_type_ = ObIntType;
+      schema.add_column_def(column_def);
+
+      column_def.column_name_id_ = 4;
+      column_def.column_value_type_ = ObVarcharType;
+      schema.add_column_def(column_def);
+    }
+  }
 
   ret = writer.create_sstable(schema, file_name, compressor, 2,
                               OB_SSTABLE_STORE_SPARSE);
@@ -969,13 +944,13 @@ TEST_F(TestObSSTableWriter, test_write_patch_file_with_check) {
 
   for (int i = 0; i < 500000; ++i) {
     row.clear();
-    table_id = i / 100000 + TABLE_ID_BASE;
-    column_group_id = i % 100000 / 10000 + COLUMN_GROUP_ID_BASE;
+    table_id = i / 100000 + 1025;
+    column_group_id = i % 100000 / 10000;
     row.set_table_id(table_id);
     row.set_column_group_id(column_group_id);
     Key tmp_key(i, 0, 0);
-    tmp_key.trans_to_rowkey(row_key);
-    row.set_rowkey(row_key);
+    ObString row_key(tmp_key.key_len(), tmp_key.key_len(), tmp_key.get_ptr());
+    row.set_row_key(row_key);
 
     obj.set_double(i);
     row.add_obj(obj);
@@ -999,7 +974,7 @@ TEST_F(TestObSSTableWriter, test_write_patch_file_with_check) {
   EXPECT_TRUE(sstable_size > 0);
 
   read_sstable_and_check(sstable_path, trailer_offset, true);
-  remove(sstable_path);
+  //remove(sstable_path);
 }
 
 TEST_F(TestObSSTableWriter, test_write_two_file_with_check) {
@@ -1009,24 +984,41 @@ TEST_F(TestObSSTableWriter, test_write_two_file_with_check) {
   ObString file_name;
   ObString compressor;
   int ret;
+  ObSSTableSchemaColumnDef column_def;
   int64_t trailer_offset = 0;
   int64_t space_usage = 0;
   int64_t sstable_size = 0;
   uint64_t table_id = 0;
   uint64_t column_group_id = 0;
   ObObj tmp_obj;
-  ObRowkey row_key;
+  ObString row_key;
   Key tmp_key;
   ObString key;
   ObObj obj;
   char value_data[1024 + 1];
   char* ptr;
-  file_name.assign(sstable_path, static_cast<int32_t>(strlen(sstable_path)));
-  char* compressor_name = (char*)COMPRESSOR_NAME;
-  compressor.assign(compressor_name, static_cast<int32_t>(strlen(compressor_name) + 1));
+  file_name.assign(sstable_path, strlen(sstable_path));
+  char* compressor_name = COMPRESSOR_NAME;
+  compressor.assign(compressor_name, strlen(compressor_name) + 1);
 
   //init schema
-  init_generic_schema(schema);
+  for (int i = 0; i < 5; ++i) {
+    column_def.table_id_ = 1025 + i;
+    for (int j = 0; j < 10 ; ++j) {
+      column_def.column_group_id_ = j;
+      column_def.column_name_id_ = 2;
+      column_def.column_value_type_ = ObDoubleType;
+      schema.add_column_def(column_def);
+
+      column_def.column_name_id_ = 3;
+      column_def.column_value_type_ = ObIntType;
+      schema.add_column_def(column_def);
+
+      column_def.column_name_id_ = 4;
+      column_def.column_value_type_ = ObVarcharType;
+      schema.add_column_def(column_def);
+    }
+  }
 
   ret = writer.create_sstable(schema, file_name, compressor, 2);
   EXPECT_TRUE(OB_SUCCESS == ret);
@@ -1041,13 +1033,13 @@ TEST_F(TestObSSTableWriter, test_write_two_file_with_check) {
 
   for (int i = 0; i < 500000; ++i) {
     row.clear();
-    table_id = i / 100000 + TABLE_ID_BASE;
-    column_group_id = i % 100000 / 10000 + COLUMN_GROUP_ID_BASE;
+    table_id = i / 100000 + 1025;
+    column_group_id = i % 100000 / 10000;
     row.set_table_id(table_id);
     row.set_column_group_id(column_group_id);
     Key tmp_key(i, 0, 0);
-    tmp_key.trans_to_rowkey(row_key);
-    row.set_rowkey(row_key);
+    ObString row_key(tmp_key.key_len(), tmp_key.key_len(), tmp_key.get_ptr());
+    row.set_row_key(row_key);
 
     obj.set_double(i);
     row.add_obj(obj);
@@ -1077,21 +1069,36 @@ TEST_F(TestObSSTableWriter, test_write_two_file_with_check) {
   //write second file
 
   //init schema
-  init_generic_schema(schema);
+  for (int i = 0; i < 5; ++i) {
+    column_def.table_id_ = 1025 + i;
+    for (int j = 0; j < 10 ; ++j) {
+      column_def.column_group_id_ = j;
+      column_def.column_name_id_ = 2;
+      column_def.column_value_type_ = ObDoubleType;
+      schema.add_column_def(column_def);
+
+      column_def.column_name_id_ = 3;
+      column_def.column_value_type_ = ObIntType;
+      schema.add_column_def(column_def);
+
+      column_def.column_name_id_ = 4;
+      column_def.column_value_type_ = ObVarcharType;
+      schema.add_column_def(column_def);
+    }
+  }
 
   ret = writer.create_sstable(schema, file_name, compressor, 2);
   EXPECT_TRUE(OB_SUCCESS == ret);
 
-
   for (int i = 0; i < 500000; ++i) {
     row.clear();
-    table_id = i / 100000 + TABLE_ID_BASE;
-    column_group_id = i % 100000 / 10000 + COLUMN_GROUP_ID_BASE;
+    table_id = i / 100000 + 1025;
+    column_group_id = i % 100000 / 10000;
     row.set_table_id(table_id);
     row.set_column_group_id(column_group_id);
     Key tmp_key(i, 0, 0);
-    tmp_key.trans_to_rowkey(row_key);
-    row.set_rowkey(row_key);
+    ObString row_key(tmp_key.key_len(), tmp_key.key_len(), tmp_key.get_ptr());
+    row.set_row_key(row_key);
 
     obj.set_double(i);
     row.add_obj(obj);
@@ -1115,7 +1122,14 @@ TEST_F(TestObSSTableWriter, test_write_two_file_with_check) {
   EXPECT_TRUE(sstable_size > 0);
 
   read_sstable_and_check(sstable_path, trailer_offset, true);
-  remove(sstable_path);
+  //remove(sstable_path);
+}
+
+TEST_F(TestObSSTableWriter, read_sstable_and_check) {
+  ObString file_name;
+
+  //read_sstable_and_check(sstable_path, trailer_offset, true);
+
 }
 
 TEST_F(TestObSSTableWriter, append_large_row) {
@@ -1134,23 +1148,19 @@ TEST_F(TestObSSTableWriter, append_large_row) {
   ObString key;
   int j = 0;
 
-  file_name.assign(sstable_path, static_cast<int32_t>(strlen(sstable_path)));
-  char* compressor_name = (char*)COMPRESSOR_NAME;
-  compressor.assign(compressor_name, static_cast<int32_t>(strlen(compressor_name) + 1));
+  file_name.assign(sstable_path, strlen(sstable_path));
+  char* compressor_name = COMPRESSOR_NAME;
+  compressor.assign(compressor_name, strlen(compressor_name) + 1);
 
-  add_schema_generic_rowkey(schema, TABLE_ID_BASE, 0);
-  column_def.rowkey_seq_ = 0;
-  for (int i = ROWKEY_COLUMN_NUMBER; i < OB_MAX_COLUMN_NUMBER; ++i) {
-    column_def.table_id_ = TABLE_ID_BASE;
-    column_def.column_group_id_ = COLUMN_GROUP_ID_BASE;
-    column_def.column_name_id_ = static_cast<uint16_t>(i + ROWKEY_COLUMN_START_ID);
+  for (int i = 0; i < common::OB_MAX_COLUMN_NUMBER; ++i) {
+    column_def.table_id_ = 1025;
+    column_def.column_group_id_ = 2;
+    column_def.column_name_id_ = i + 2;
     column_def.column_value_type_ = ObVarcharType;
-    ret = schema.add_column_def(column_def);
-    EXPECT_EQ(OB_SUCCESS, ret);
+    schema.add_column_def(column_def);
   }
-  EXPECT_EQ(OB_MAX_COLUMN_NUMBER, schema.get_column_count());
+  EXPECT_EQ(common::OB_MAX_COLUMN_NUMBER, schema.get_column_count());
 
-  remove(sstable_path);
   ret = writer.create_sstable(schema, file_name, compressor, 2);
   EXPECT_TRUE(OB_SUCCESS == ret);
 
@@ -1160,16 +1170,14 @@ TEST_F(TestObSSTableWriter, append_large_row) {
     }
     row.clear();
     //build row row size form 1M--5M
-    build_large_row(j, row, TABLE_ID_BASE, COLUMN_GROUP_ID_BASE, 8 * (j % 8 + 1));
-    //EXPECT_EQ(OB_MAX_COLUMN_NUMBER, row.get_obj_count());
+    build_large_row(j, row, 1025, 2, 8 * (j % 8 + 1));
+    EXPECT_EQ(common::OB_MAX_COLUMN_NUMBER, row.get_obj_count());
     //fprintf(stderr, "row serialize size is %ld\n", row.get_serialize_size());
     ret = writer.append_row(row, space_usage);
     EXPECT_TRUE(OB_SUCCESS == ret);
     EXPECT_TRUE(space_usage > 0);
     //   fprintf(stderr, "space_usage=%ld\n", space_usage);
     if (space_usage > 32 * 1024 * 1024) {
-      break;
-    } else if (OB_SUCCESS != ret) {
       break;
     }
     j++;

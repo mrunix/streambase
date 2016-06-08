@@ -1,28 +1,29 @@
 /*
- * src/nameserver/main.cc
+ * src/nameserver/.cc
  *
  * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
 
 #include <malloc.h>
-#include "tbsys.h"
+#include "nameserver_main.h"
 #include "common/ob_malloc.h"
-#include "name_server_main.h"
-
 using namespace sb::nameserver;
 using namespace sb::common;
+namespace {
+static const int DEFAULT_MMAP_MAX_VAL = 1024 * 1024 * 1024;
+};
+
 
 int main(int argc, char* argv[]) {
-  static const int DEFAULT_MMAP_MAX_VAL = 1024 * 1024 * 1024;
   mallopt(M_MMAP_MAX, DEFAULT_MMAP_MAX_VAL);
   ob_init_memory_pool();
-  tbsys::WarningBuffer::set_warn_log_on(true);
-  BaseMain* pmain = sb::nameserver::NameServerMain::get_instance();
+  BaseMain* pmain = NameServerMain::get_instance();
   if (pmain == NULL) {
     perror("not enought mem, exit \n");
   } else {
-    pmain->start(argc, argv);
+    pmain->start(argc, argv, "name_server");
     pmain->destroy();
   }
   return 0;
 }
+

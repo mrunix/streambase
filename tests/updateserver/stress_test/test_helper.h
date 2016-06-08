@@ -1,17 +1,16 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2007-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: 0.1: test_helper.h,v 0.1 2010/08/23 19:28:39 chuanhui Exp $
+ * test_helper.h for ...
  *
  * Authors:
- *   chuanhui <rizhao.ych@taobao.com>
- *     - some work details if you want
+ *   yanran <yanran.hfs@taobao.com>
  *
  */
 #ifndef __OCEANBASE_UPDATESERVER_TEST_HELPER_H__
@@ -65,4 +64,5 @@ void check_cell_with_name(const ObCellInfo& expected, const ObCellInfo& real) {
 }
 
 #endif //__TEST_HELPER_H__
+
 

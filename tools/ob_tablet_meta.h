@@ -122,7 +122,7 @@ class ObTabletMeta {
 
 } /* chunkserver */
 }
-} /* oceanbase */
+} /* sb */
 
 #endif /*OB_CHUNKSERVER_TABLET_META_H*/
 

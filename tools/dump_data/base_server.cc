@@ -4,11 +4,17 @@ using namespace sb::common;
 using namespace sb::tools;
 
 int BaseServer::initialize() {
-  int ret = client_manager_.initialize(eio_, &server_handler_);
-  if (ret != OB_SUCCESS) {
-    TBSYS_LOG(WARN, "init client manager failed:ret[%d]", ret);
-  } else {
-    TBSYS_LOG(INFO, "init client manager succ");
+  int ret = set_packet_factory(&factory_);
+  if (OB_SUCCESS == ret) {
+    ret = client_manager_.initialize(get_transport(), get_packet_streamer());
+    if (OB_SUCCESS == ret) {
+      ret = ObSingleServer::initialize();
+      if (ret != OB_SUCCESS) {
+        TBSYS_LOG(ERROR, "check single server init failed:ret[%d]", ret);
+      }
+    } else {
+      TBSYS_LOG(ERROR, "check client manager init failed:ret[%d]", ret);
+    }
   }
   return ret;
 }

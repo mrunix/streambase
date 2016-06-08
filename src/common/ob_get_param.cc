@@ -1,71 +1,64 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_get_param.cc for define get param
+ * Version: $Id$
+ *
+ * ob_get_param.cc for ...
  *
  * Authors:
  *   huating <huating.zmq@taobao.com>
  *
  */
-#include "utility.h"
 #include "ob_action_flag.h"
 #include "ob_malloc.h"
 #include "ob_get_param.h"
-#include "ob_rowkey_helper.h"
-#include "ob_schema.h"
 
 namespace sb {
 namespace common {
-const char* ObGetParam::OB_GET_ALL_COLUMN_NAME_CSTR = "*";
-const ObString ObGetParam::OB_GET_ALL_COLUMN_NAME(static_cast<int32_t>(strlen(OB_GET_ALL_COLUMN_NAME_CSTR)),
-                                                  static_cast<int32_t>(strlen(OB_GET_ALL_COLUMN_NAME_CSTR)),
-                                                  const_cast<char*>(OB_GET_ALL_COLUMN_NAME_CSTR));
-ObGetParam::ObGetParam(const bool deep_copy_args)
-  : deep_copy_args_(deep_copy_args), single_cell_(false),
-    cell_list_(NULL), cell_size_(0), cell_capacity_(DEFAULT_CELL_CAPACITY),
+ObGetParam::ObGetParam()
+  : single_cell_(false), cell_list_(NULL), cell_size_(0), cell_capacity_(0),
     prev_table_id_(OB_INVALID_ID), row_index_(NULL),
-    row_size_(0), id_only_(true), is_binary_rowkey_format_(false), schema_manager_(NULL),
-    mod_(ObModIds::OB_GET_PARAM), allocator_(DEFAULT_CELLS_BUF_SIZE , mod_) {
+    row_size_(0), id_only_(true) {
   prev_rowkey_.assign(NULL, 0);
   prev_table_name_.assign(NULL, 0);
 }
 
-ObGetParam::ObGetParam(const ObCellInfo& cell_info, const bool deep_copy_args)
-  : deep_copy_args_(deep_copy_args) {
+ObGetParam::ObGetParam(const ObCellInfo& cell_info) {
   add_only_one_cell(cell_info);
 }
 
 ObGetParam::~ObGetParam() {
-  destroy();
-}
+  if (NULL != cell_list_ && cell_list_ != &fixed_cell_) {
+    ob_free(cell_list_);
+    cell_list_ = NULL;
+  }
 
-void ObGetParam::set_deep_copy_args(const bool deep_copy_args) {
-  deep_copy_args_ = deep_copy_args;
+  if (NULL != row_index_ && row_index_ != &fixed_row_index_) {
+    ob_free(row_index_);
+    row_index_ = NULL;
+  }
 }
 
 int ObGetParam::init() {
   int ret = OB_SUCCESS;
 
-
-  // allocate 128 ObCellInfo for first use.
-  cell_capacity_ = DEFAULT_CELL_CAPACITY;
-  int64_t cells_buf_size = cell_capacity_ * sizeof(ObCellInfo);
-
   if (NULL == cell_list_) {
-    cell_list_ = reinterpret_cast<ObCellInfo*>(allocator_.alloc(cells_buf_size));
-    if (NULL == cell_list_) {
+    cell_list_ = static_cast<ObCellInfo*>(ob_malloc(DEFAULT_CELLS_BUF_SIZE));
+    if (NULL != cell_list_) {
+      cell_capacity_ = DEFAULT_CELLS_BUF_SIZE / sizeof(ObCellInfo);
+    } else {
       TBSYS_LOG(ERROR, "failed to allocate memory for cell buffer of get param");
       ret = OB_ERROR;
     }
   }
 
   if (OB_SUCCESS == ret && NULL == row_index_ && cell_capacity_ > 0) {
-    row_index_ = reinterpret_cast<ObRowIndex*>
-                 (allocator_.alloc(cell_capacity_ * sizeof(ObRowIndex)));
+    row_index_ = static_cast<ObRowIndex*>
+                 (ob_malloc(cell_capacity_ * sizeof(ObRowIndex)));
     if (NULL == row_index_) {
       TBSYS_LOG(ERROR, "failed to allocate memory for row index of get param");
       ret = OB_ERROR;
@@ -73,66 +66,6 @@ int ObGetParam::init() {
   }
 
   return ret;
-}
-
-int ObGetParam::expand() {
-  int ret = OB_SUCCESS;
-  if (OB_SUCCESS != (ret = double_expand_storage(
-                             row_index_, cell_size_, MAX_CELL_CAPACITY, cell_capacity_, allocator_))) {
-    TBSYS_LOG(WARN, "expand rowindex storage error, cell_size_=%ld, "
-              "cell_capacity_=%ld, max=%ld", cell_size_, cell_capacity_, MAX_CELL_CAPACITY);
-  } else if (OB_SUCCESS != (ret = double_expand_storage(
-                                    cell_list_, cell_size_, MAX_CELL_CAPACITY, cell_capacity_, allocator_))) {
-    TBSYS_LOG(WARN, "expand cell storage error, cell_size_=%ld, "
-              "cell_capacity_=%ld, max=%ld", cell_size_, cell_capacity_, MAX_CELL_CAPACITY);
-  }
-  return ret;
-}
-
-
-int64_t ObGetParam::to_string(char* buf, int64_t buf_size) const {
-  int64_t pos = 0;
-  int64_t used_len = 0;
-  if (NULL != buf && buf_size > 0) {
-    if ((used_len =  snprintf(buf + pos, (buf_size - pos > 0) ? (buf_size - pos) : 0, "[Get CellNum:%ld]:\n", cell_size_)) > 0) {
-      pos += used_len;
-    }
-    databuff_printf(buf, buf_size, pos, "\t[VersionRange:%s]\n", to_cstring(version_range_));
-    /*
-    for (int64_t i = 0; i < cell_size_ && pos < buf_size; ++i)
-    {
-      used_len = snprintf(buf + pos, (buf_size-pos>0)?(buf_size-pos):0,
-          "\tcell:%ld,(%s)\n", i, print_cellinfo(&cell_list_[i]));
-      pos += used_len;
-    }
-    */
-    int32_t offset = 0;
-    int32_t size = 0;
-    for (int64_t i = 0; i < row_size_ && pos < buf_size; ++i) {
-      offset = row_index_[i].offset_;
-      size   = row_index_[i].size_;
-      used_len = snprintf(buf + pos, (buf_size - pos > 0) ? (buf_size - pos) : 0,
-                          "\trow:%ld,(%s)::", i, to_cstring(cell_list_[offset].row_key_));
-      pos += used_len;
-      if (pos + 1 > buf_size) break;
-      for (int32_t j = 0; j < size; ++j) {
-        used_len = snprintf(buf + pos, (buf_size - pos > 0) ? (buf_size - pos) : 0,
-                            "column:[%ld][%.*s]:value[%s]%s",
-                            cell_list_[j + offset].column_id_,
-                            cell_list_[j + offset].column_name_.length(),
-                            cell_list_[j + offset].column_name_.ptr(),
-                            to_cstring(cell_list_[j + offset].value_), j < size - 1 ? "|" : "\n");
-        pos += used_len;
-        if (pos + 1 > buf_size) break;
-      }
-    }
-  }
-  return pos;
-}
-
-void ObGetParam::print_memory_usage(const char* msg) const {
-  TBSYS_LOG(INFO, "ObGetParam use memory:%s, allocator:pages:%ld,used:%ld,total:%ld,",
-            msg, allocator_.pages(), allocator_.used(), allocator_.total());
 }
 
 int ObGetParam::check_name_and_id(const ObCellInfo& cell_info, bool is_first) {
@@ -224,35 +157,14 @@ int ObGetParam::check_name_and_id(const ObCellInfo& cell_info, bool is_first) {
   return ret;
 }
 
-int ObGetParam::copy(const ObGetParam& other) {
-  int err = OB_SUCCESS;
-  ObCellInfo* cell = NULL;
-  reset();
-  for (int64_t i = 0; OB_SUCCESS == err && i < other.get_cell_size(); i++) {
-    if (NULL == (cell = other[i])) {
-      err = OB_INVALID_ARGUMENT;
-      TBSYS_LOG(ERROR, "other[%ld] = NULL", i);
-    } else if (OB_SUCCESS != (err = add_cell(*cell))) {
-      TBSYS_LOG(ERROR, "add_cell()=>%d", err);
-    }
-  }
-  return err;
-}
-
 int ObGetParam::add_cell(const ObCellInfo& cell_info) {
   int ret = OB_SUCCESS;
-  ObCellInfo stored_cell = cell_info;
-  if (deep_copy_args_) {
-    ret = copy_cell_info(cell_info, stored_cell);
-  }
 
-  if (OB_SUCCESS == ret) {
-    //cell info must include legal row key
-    if (stored_cell.row_key_.length() <= 0 || NULL == stored_cell.row_key_.ptr()) {
-      TBSYS_LOG(WARN, "invalid row key of cell info, key_len=%ld, key_ptr=%p",
-                stored_cell.row_key_.length(), stored_cell.row_key_.ptr());
-      ret = OB_INVALID_ARGUMENT;
-    }
+  //cell info must include legal row key
+  if (cell_info.row_key_.length() <= 0 || NULL == cell_info.row_key_.ptr()) {
+    TBSYS_LOG(WARN, "invalid row key of cell info, key_len=%d, key_ptr=%p",
+              cell_info.row_key_.length(), cell_info.row_key_.ptr());
+    ret = OB_INVALID_ARGUMENT;
   }
 
   //allocate memory for cell list and row index is necessary
@@ -261,50 +173,42 @@ int ObGetParam::add_cell(const ObCellInfo& cell_info) {
   }
 
   if (OB_SUCCESS == ret) {
-    if (cell_size_ >= cell_capacity_) {
-      ret = expand();
-    }
-  }
-
-  if (OB_SUCCESS == ret) {
     //ensure there are enough space to store this cell
     if (cell_size_ < cell_capacity_ && row_size_ < cell_capacity_) {
-      ret = check_name_and_id(stored_cell, (0 == cell_size_));
+      ret = check_name_and_id(cell_info, (0 == cell_size_));
       if (OB_SUCCESS == ret) {
         if (0 == cell_size_) {
           //the first cell
-          prev_table_name_ = stored_cell.table_name_;
-          prev_table_id_ = stored_cell.table_id_;
-          prev_rowkey_ = stored_cell.row_key_;
-          row_index_[row_size_].offset_ = static_cast<int32_t>(cell_size_);
+          prev_table_name_ = cell_info.table_name_;
+          prev_table_id_ = cell_info.table_id_;
+          prev_rowkey_ = cell_info.row_key_;
+          row_index_[row_size_].offset_ = cell_size_;
           row_index_[row_size_].size_ = 1;
           ++row_size_;
         } else {
-          if (((id_only_ && prev_table_id_ == stored_cell.table_id_)
-               || (!id_only_ && prev_table_name_ == stored_cell.table_name_))
-              && prev_rowkey_ == stored_cell.row_key_ && row_size_ > 0
-              && row_index_[row_size_ - 1].size_ < MAX_CELLS_PER_ROW) {
+          if (((id_only_ && prev_table_id_ == cell_info.table_id_)
+               || (!id_only_ && prev_table_name_ == cell_info.table_name_))
+              && prev_rowkey_ == cell_info.row_key_ && row_size_ > 0) {
             //the same row, increase the counter
             row_index_[row_size_ - 1].size_++;
           } else {
             //different row, switch row
-            prev_table_name_ = stored_cell.table_name_;
-            prev_table_id_ = stored_cell.table_id_;
-            prev_rowkey_ = stored_cell.row_key_;
-            row_index_[row_size_].offset_ = static_cast<int32_t>(cell_size_);
+            prev_table_name_ = cell_info.table_name_;
+            prev_table_id_ = cell_info.table_id_;
+            prev_rowkey_ = cell_info.row_key_;
+            row_index_[row_size_].offset_ = cell_size_;
             row_index_[row_size_].size_ = 1;
             ++row_size_;
           }
         }
 
         //store cell info and increase cell counter
-        cell_list_[cell_size_] = stored_cell;
+        cell_list_[cell_size_] = cell_info;
         ++cell_size_;
       }
     } else {
-      TBSYS_LOG(INFO, "get param is full, can't add cell anymore, "
-                "cell_size=%ld row_size=%d, capacity=%ld, max=%ld",
-                cell_size_, row_size_, cell_capacity_, MAX_CELL_CAPACITY);
+      TBSYS_LOG(DEBUG, "get param is full, can't add cell anymore, "
+                "cell_size=%ld row_size=%d", cell_size_, row_size_);
       ret = OB_SIZE_OVERFLOW;
     }
   }
@@ -312,48 +216,28 @@ int ObGetParam::add_cell(const ObCellInfo& cell_info) {
   return ret;
 }
 
-int ObGetParam::copy_cell_info(const ObCellInfo& cell_info, ObCellInfo& stored_cell) {
-  int err = OB_SUCCESS;
-  if (OB_SUCCESS != (err = deep_copy_ob_string(allocator_, cell_info.table_name_, stored_cell.table_name_))) {
-    TBSYS_LOG(WARN, "fail to copy table name to local buffer [err:%d]", err);
-  } else if (OB_SUCCESS != (err = deep_copy_ob_string(allocator_, cell_info.column_name_, stored_cell.column_name_))) {
-    TBSYS_LOG(WARN, "fail to copy column name to local buffer [err:%d]", err);
-  } else if (OB_SUCCESS != (err = cell_info.row_key_.deep_copy(stored_cell.row_key_, allocator_))) {
-    TBSYS_LOG(WARN, "fail to copy rowkey to local buffer [err:%d]", err);
-  } else if (OB_SUCCESS != (err = deep_copy_ob_obj(allocator_, cell_info.value_, stored_cell.value_))) {
-    TBSYS_LOG(WARN, "fail to copy value to local buffer [err:%d]", err);
-  }
-  return err;
-}
-
 int ObGetParam::add_only_one_cell(const ObCellInfo& cell_info) {
   int ret = OB_SUCCESS;
-  ObCellInfo stored_cell = cell_info;
-  if (deep_copy_args_) {
-    ret = copy_cell_info(cell_info, stored_cell);
-  }
 
-  if (OB_SUCCESS == ret) {
-    //cell info must include legal row key
-    if (stored_cell.row_key_.length() <= 0 || NULL == stored_cell.row_key_.ptr()) {
-      TBSYS_LOG(WARN, "invalid row key of cell info, key_len=%ld, key_ptr=%p",
-                stored_cell.row_key_.length(), stored_cell.row_key_.ptr());
-      ret = OB_INVALID_ARGUMENT;
-    } else {
-      single_cell_ = true;
-      fixed_cell_ = stored_cell;
-      fixed_row_index_.offset_ = 0;
-      fixed_row_index_.size_ = 1;
-      cell_list_ = &fixed_cell_;
-      cell_size_ = 1;
-      cell_capacity_ = 1;
-      prev_table_id_ = OB_INVALID_ID;
-      row_index_ = &fixed_row_index_;
-      row_size_ = 1;
-      id_only_ = true;
-      prev_rowkey_.assign(NULL, 0);
-      prev_table_name_.assign(NULL, 0);
-    }
+  //cell info must include legal row key
+  if (cell_info.row_key_.length() <= 0 || NULL == cell_info.row_key_.ptr()) {
+    TBSYS_LOG(WARN, "invalid row key of cell info, key_len=%d, key_ptr=%p",
+              cell_info.row_key_.length(), cell_info.row_key_.ptr());
+    ret = OB_INVALID_ARGUMENT;
+  } else {
+    single_cell_ = true;
+    fixed_cell_ = cell_info;
+    fixed_row_index_.offset_ = 0;
+    fixed_row_index_.size_ = 1;
+    cell_list_ = &fixed_cell_;
+    cell_size_ = 1;
+    cell_capacity_ = 1;
+    prev_table_id_ = OB_INVALID_ID;
+    row_index_ = &fixed_row_index_;
+    row_size_ = 1;
+    id_only_ = true;
+    prev_rowkey_.assign(NULL, 0);
+    prev_table_name_.assign(NULL, 0);
   }
 
   return ret;
@@ -427,7 +311,7 @@ int ObGetParam::rollback(const int64_t count) {
        * decreate the row count and cell count to rollback
        */
       cell_size_ -= count;
-      row_size_ = static_cast<int32_t>(index);
+      row_size_ = index;
     } else { //index == 0
       TBSYS_LOG(WARN, "after rollback there is no row"
                 "rollback count=%ld cell_size=%ld row_size=%d",
@@ -439,21 +323,12 @@ int ObGetParam::rollback(const int64_t count) {
   return ret;
 }
 
-void ObGetParam::reset(bool deep_copy_args) {
+void ObGetParam::reset() {
   cell_size_ = 0;
   row_size_ = 0;
   prev_rowkey_.assign(NULL, 0);
   id_only_ = true;
-  row_index_ = NULL;
-  cell_list_ = NULL;
   ObReadParam::reset(); //call parent reset()
-  // if memory inflates too large, free.
-  if (allocator_.total() > DEFAULT_CELLS_BUF_SIZE) {
-    allocator_.free();
-  } else {
-    allocator_.reuse();
-  }
-  deep_copy_args_ = deep_copy_args;
 }
 
 int ObGetParam::serialize_flag(char* buf, const int64_t buf_len, int64_t& pos,
@@ -537,8 +412,8 @@ int ObGetParam::serialize_basic_field(char* buf,
   if (OB_SUCCESS == ret) {
     ret = ObReadParam::serialize(buf, buf_len, pos);
   }
-  return ret;
 
+  return ret;
 }
 
 int ObGetParam::deserialize_basic_field(const char* buf,
@@ -705,55 +580,54 @@ int64_t ObGetParam::get_serialize_column_info_size(const ObString column_name,
 }
 
 int ObGetParam::serialize_rowkey(char* buf, const int64_t buf_len,
-                                 int64_t& pos, const ObRowkey& row_key) const {
+                                 int64_t& pos, const ObString row_key) const {
   int ret = OB_SUCCESS;
+  ObObj obj;
 
   if (NULL == buf || buf_len <= 0 || pos > buf_len
       || NULL == row_key.ptr() || row_key.length() <= 0) {
     TBSYS_LOG(WARN, "invalid param, buf=%p, buf_len=%ld, pos=%ld"
-              "rowkey ptr=%p rowkey length=%ld",
+              "rowkey ptr=%p rowkey length=%d",
               buf, buf_len, pos, row_key.ptr(), row_key.length());
     ret = OB_INVALID_ARGUMENT;
   }
 
   if (OB_SUCCESS == ret) {
     //serialize row key
-    ret = serialize_flag(buf, buf_len, pos, ObActionFlag::FORMED_ROW_KEY_FIELD);
-  }
-
-  if (OB_SUCCESS == ret) {
-    ret = set_rowkey_obj_array(buf, buf_len, pos,
-                               row_key.get_obj_ptr(), row_key.get_obj_cnt());
+    ret = serialize_flag(buf, buf_len, pos, ObActionFlag::ROW_KEY_FIELD);
+    if (OB_SUCCESS == ret) {
+      obj.reset();
+      obj.set_varchar(row_key);
+      ret = obj.serialize(buf, buf_len, pos);
+    }
   }
 
   return ret;
 }
 
 int ObGetParam::deserialize_rowkey(const char* buf, const int64_t data_len,
-                                   int64_t& pos, ObRowkey& row_key) {
+                                   int64_t& pos, ObString& row_key) {
   int ret         = OB_SUCCESS;
-  int64_t size    = OB_MAX_ROWKEY_COLUMN_NUMBER;
+  ObObjType type  = ObNullType;
+  ObObj obj;
 
   if (NULL == buf || data_len <= 0 || pos > data_len) {
     TBSYS_LOG(WARN, "invalid param, buf=%p, data_len=%ld, pos=%ld",
               buf, data_len, pos);
     ret = OB_INVALID_ARGUMENT;
-  } else {
-    //deserialize rowkey
-    ObObj* array = NULL;
-    char* obj_buf = allocator_.alloc(sizeof(ObObj) * size);
-    if (NULL == obj_buf) {
-      ret = OB_ALLOCATE_MEMORY_FAILED;
-      TBSYS_LOG(WARN, "allocate mem for obj array fail");
-    } else {
-      array = new(obj_buf)ObObj[size];
-    }
+  }
 
+  if (OB_SUCCESS == ret) {
+    //deserialize rowkey
+    ret = obj.deserialize(buf, data_len, pos);
     if (OB_SUCCESS == ret) {
-      if (OB_SUCCESS != (ret = get_rowkey_obj_array(buf, data_len, pos, array, size))) {
-        TBSYS_LOG(WARN, "get rowkey obj array fail:ret[%d]", ret);
+      type = obj.get_type();
+      if (ObVarcharType == type) {
+        obj.get_varchar(row_key);
       } else {
-        row_key.assign(array, size);
+        TBSYS_LOG(WARN, "invalid object type for deserialize rowkey,"
+                  "expect ObVarcharType, but get type=%d", type);
+        ret = OB_ERROR;
       }
     }
   }
@@ -761,36 +635,14 @@ int ObGetParam::deserialize_rowkey(const char* buf, const int64_t data_len,
   return ret;
 }
 
-int ObGetParam::deserialize_binary_rowkey(const char* buf, const int64_t data_len,
-                                          int64_t& pos, const ObRowkeyInfo& rowkey_info, ObRowkey& row_key) {
-  int ret = OB_SUCCESS;
-  int64_t size = rowkey_info.get_size();
-  ObObj* array = NULL;
-  bool is_binary_rowkey = false;
-
-  if (NULL == (array = reinterpret_cast<ObObj*>(allocator_.alloc(sizeof(ObObj) * size)))) {
-    TBSYS_LOG(WARN, "allocate memory for rowkey's object array failed, size=%ld", size);
-    ret = OB_ALLOCATE_MEMORY_FAILED;
-  } else if (OB_SUCCESS != (ret = get_rowkey_compatible(buf, data_len, pos,
-                                                        rowkey_info, array, size, is_binary_rowkey))) {
-    TBSYS_LOG(WARN, "get binary rowkey and translate to ObRowkey failed=%d", ret);
-  } else if (!is_binary_rowkey) {
-    TBSYS_LOG(WARN, "unexpect rowkey format, not binary rowkey?");
-    ret = OB_ERR_UNEXPECTED;
-  } else {
-    row_key.assign(array, size);
-  }
-  return ret;
-}
-
-int64_t ObGetParam::get_serialize_rowkey_size(const ObRowkey& row_key) const {
+int64_t ObGetParam::get_serialize_rowkey_size(const ObString row_key) const {
   int64_t total_size = 0;
 
   if (row_key.length() > 0 && NULL != row_key.ptr()) {
     total_size += get_obj_serialize_size(ObActionFlag::ROW_KEY_FIELD, true);
-    total_size += get_rowkey_obj_array_size(row_key.get_obj_ptr(), row_key.get_obj_cnt());
+    total_size += get_obj_serialize_size(row_key);
   } else {
-    TBSYS_LOG(WARN, "row key and id is invalid, row key length=%ld",
+    TBSYS_LOG(WARN, "row key and id is invalid, row key length=%d",
               row_key.length());
   }
 
@@ -827,7 +679,7 @@ bool ObGetParam::is_table_change(ObCellInfo& cell, ObString& table_name,
   return table_change;
 }
 
-bool ObGetParam::is_rowkey_change(ObCellInfo& cell, ObRowkey& row_key) const {
+bool ObGetParam::is_rowkey_change(ObCellInfo& cell, ObString& row_key) const {
   bool row_change = false;
 
   /**
@@ -850,7 +702,7 @@ int ObGetParam::serialize_cells(char* buf, const int64_t buf_len, int64_t& pos) 
   uint64_t last_table_id  = OB_INVALID_ID;
   bool table_change       = false;
   ObString last_table_name;
-  ObRowkey last_row_key;
+  ObString last_row_key;
   last_table_name.assign(NULL, 0);
   last_row_key.assign(NULL, 0);
 
@@ -896,7 +748,7 @@ int64_t ObGetParam::get_cells_serialize_size(void) const {
   uint64_t last_table_id  = OB_INVALID_ID;
   bool table_change       = false;
   ObString last_table_name;
-  ObRowkey last_row_key;
+  ObString last_row_key;
   last_table_name.assign(NULL, 0);
   last_row_key.assign(NULL, 0);
 
@@ -972,9 +824,7 @@ DEFINE_DESERIALIZE(ObGetParam) {
   ObCellInfo cell;
   ObObj obj;
   ObString last_table_name;
-  ObString last_binary_rowkey;
-  ObRowkeyInfo rowkey_info;
-  ObRowkey last_row_key;
+  ObString last_row_key;
   last_table_name.assign(NULL, 0);
   last_row_key.assign(NULL, 0);
 
@@ -1035,22 +885,6 @@ DEFINE_DESERIALIZE(ObGetParam) {
           break;
         case ObActionFlag::ROW_KEY_FIELD:
           if (read_table_param) {
-            get_rowkey_info_from_sm(schema_manager_, last_table_id, last_table_name, rowkey_info);
-            /**
-             * NOTE: this function will read the next one obj, and the obj
-             * must be existent and it's row key, if the following obj is
-             * column name not row key, we can't know this division
-             */
-            ret = deserialize_binary_rowkey(buf, data_len, pos, rowkey_info, last_row_key);
-            if (OB_SUCCESS == ret) {
-              //only after rowkey can read column info
-              read_column = true;
-              is_binary_rowkey_format_ = true;
-            }
-          }
-          break;
-        case ObActionFlag::FORMED_ROW_KEY_FIELD:
-          if (read_table_param) {
             /**
              * NOTE: this function will read the next one obj, and the obj
              * must be existent and it's row key, if the following obj is
@@ -1060,7 +894,6 @@ DEFINE_DESERIALIZE(ObGetParam) {
             if (OB_SUCCESS == ret) {
               //only after rowkey can read column info
               read_column = true;
-              is_binary_rowkey_format_ = false;
             }
           }
           break;
@@ -1118,4 +951,5 @@ DEFINE_GET_SERIALIZE_SIZE(ObGetParam) {
   return total_size;
 }
 } /* common */
-} /* oceanbase */
+} /* sb */
+

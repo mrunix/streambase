@@ -1,17 +1,19 @@
-/**
- * (C) 2010-2011 Taobao Inc.
+/*
+ * (C) 2007-2010 TaoBao Inc.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
  *
  * gen_sstable.cc is for what ...
  *
+ * Version: $id$
+ *
  * Authors:
  *   MaoQi maoqi@taobao.com
- *   huating <huating.zmq@taobao.com>
  *
  */
+
 #include <iostream>
 #include <stdio.h>
 #include <sstream>
@@ -37,13 +39,11 @@
 #include <getopt.h>
 #include <vector>
 
-const char* g_sstable_directory = NULL;
 namespace sb {
 namespace chunkserver {
 using namespace std;
 using namespace sb::common;
 using namespace sb::sstable;
-using namespace sb::compactsstablev2;
 const int64_t MICRO_PER_SEC = 1000000;
 const int64_t FIR_MULTI = 256;
 const int64_t SEC_MULTI = 100;
@@ -51,6 +51,42 @@ const int32_t ARR_SIZE = 62;
 const int32_t JOIN_DIFF = 9;
 const int64_t crtime = 1289915563;
 
+static char item_type_[62] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                              'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+                              'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+                             };
+
+
+int fill_sstable_schema(const ObSchemaManagerV2& schema, uint64_t table_id, ObSSTableSchema& sstable_schema) {
+  int ret = OB_SUCCESS;
+  ObSSTableSchemaColumnDef column_def;
+  //memset(&sstable_schema,0,sizeof(sstable_schema));
+
+  int cols = 0;
+  int32_t size = 0;
+
+  const ObColumnSchemaV2* col = schema.get_table_schema(table_id, size);
+
+  if (NULL == col || size <= 0) {
+    TBSYS_LOG(ERROR, "cann't find this table:%lu", table_id);
+    ret = OB_ERROR;
+  } else {
+    for (int col_index = 0; col_index < size; ++col_index) {
+      memset(&column_def, 0, sizeof(column_def));
+      column_def.table_id_ = table_id;
+      column_def.column_group_id_ = (col + col_index)->get_column_group_id();
+      column_def.column_name_id_ = (col + col_index)->get_id();
+      column_def.column_value_type_ = (col + col_index)->get_type();
+      ret = sstable_schema.add_column_def(column_def);
+      ++cols;
+    }
+  }
+
+  if (0 == cols) { //this table has moved to updateserver
+    ret = OB_CS_TABLE_HAS_DELETED;
+  }
+  return ret;
+}
 
 ObGenSSTable::ObGenSSTable():
   file_no_(-1),
@@ -71,8 +107,7 @@ ObGenSSTable::ObGenSSTable():
   curr_tid_(0),
   curr_itype_(0),
   config_file_(NULL),
-  comp_name_(NULL),
-  sstable_version_(0) {
+  comp_name_(NULL) {
   memset(&table_id_list_, 0, sizeof(table_id_list_));
 }
 
@@ -94,7 +129,7 @@ void ObGenSSTable::init(ObGenSSTableArgs& args) {
   set_min_ = args.set_min_;
   set_max_ = args.set_max_;
   gen_join_table_ = args.gen_join_table_;
-  binary_rowkey_format_ = args.binary_rowkey_format_;
+  data_type_ = args.data_type_;
   block_size_ = args.block_size_;
   curr_uid_ = args.c_uid_;
   current_sstable_id_ = SSTABLE_ID_BASE;
@@ -108,8 +143,8 @@ void ObGenSSTable::init(ObGenSSTableArgs& args) {
   }
   strncpy(compressor_name_, comp_name_, strlen(comp_name_));
   compressor_name_[strlen(comp_name_)] = '\0';
-  compressor_string_.assign(compressor_name_, static_cast<int32_t>(strlen(compressor_name_)));
-  sstable_version_ = args.sstable_version_;
+  compressor_string_.assign(compressor_name_, strlen(compressor_name_));
+
 }
 
 int ObGenSSTable::start_builder() {
@@ -118,8 +153,8 @@ int ObGenSSTable::start_builder() {
 
   tablet_image_.set_data_version(1);
 
-  for (int table = 0; OB_SUCCESS == ret && table_id_list_[table] != 0; ++table) {
-    fprintf(stderr, "start build data of table[%d]\n", table_id_list_[table]);
+  for (int table = 0; table_id_list_[table] != 0; ++table) {
+    TBSYS_LOG(INFO, "start build data of table[%d]", table_id_list_[table]);
 
     TableGen gen(*this);
     if (gen_join_table_ && 1 == table) {
@@ -127,58 +162,20 @@ int ObGenSSTable::start_builder() {
     }
 
     if ((ret = gen.init(table_id_list_[table], is_join_table)) != OB_SUCCESS) {
-      fprintf(stderr, "init tablegen failed:[%d]\n", ret);
+      TBSYS_LOG(ERROR, "init tablegen failed:[%d]", ret);
       continue; //ignore this table
     }
 
     if ((ret = gen.generate()) != OB_SUCCESS) {
-      fprintf(stderr, "generate data failed:[%d]\n", ret);
+      TBSYS_LOG(ERROR, "generate data failed:[%d]", ret);
       continue;
     }
   }
 
   snprintf(dest_file_, sizeof(dest_file_), "%s/idx_1_%d", dest_dir_, disk_no_);
-  snprintf(dest_path_, sizeof(dest_path_), "%s", dest_dir_);
-  g_sstable_directory = dest_path_;
 
   if (OB_SUCCESS == ret && (ret = tablet_image_.write(dest_file_, disk_no_)) != OB_SUCCESS) {
-    fprintf(stderr, "write meta file failed: [%d]\n", ret);
-  }
-  return ret;
-}
-
-int ObGenSSTable::start_builder2() {
-  int ret = OB_SUCCESS;
-  bool is_join_table = false;
-
-  tablet_image_.set_data_version(1);
-
-  for (int table = 0; OB_SUCCESS == ret && table_id_list_[table] != 0; ++table) {
-    fprintf(stderr, "start build data of table[%d]\n", table_id_list_[table]);
-
-    TableGen gen(*this);
-    if (gen_join_table_ && 1 == table) {
-      is_join_table = true;
-    }
-
-    if ((ret = gen.init(table_id_list_[table], is_join_table)) != OB_SUCCESS) {
-      fprintf(stderr, "init tablegen failed:[%d]\n", ret);
-      continue; //ignore this table
-    }
-
-
-    if ((ret = gen.generate2()) != OB_SUCCESS) {
-      fprintf(stderr, "generate data failed:[%d]\n", ret);
-      continue;
-    }
-  }
-
-  snprintf(dest_file_, sizeof(dest_file_), "%s/idx_1_%d", dest_dir_, disk_no_);
-  snprintf(dest_path_, sizeof(dest_path_), "%s", dest_dir_);
-  g_sstable_directory = dest_path_;
-
-  if (OB_SUCCESS == ret && (ret = tablet_image_.write(dest_file_, disk_no_)) != OB_SUCCESS) {
-    fprintf(stderr, "write meta file failed: [%d]\n", ret);
+    TBSYS_LOG(ERROR, "write meta file failed: [%d]", ret);
   }
   return ret;
 }
@@ -201,6 +198,7 @@ const common::ObString& ObGenSSTable::get_compressor() const {
  *-----------------------------------------------------------------------------*/
 
 ObGenSSTable::TableGen::TableGen(ObGenSSTable& gen_sstable) :
+  data_type_(1),
   row_key_prefix_(-1),
   row_key_suffix_(-1),
   step_length_(0),
@@ -216,14 +214,14 @@ ObGenSSTable::TableGen::TableGen(ObGenSSTable& gen_sstable) :
   table_id_(0),
   total_rows_(0),
   disk_no_(1),
+  row_key_cmp_size_(0),
   current_sstable_size_(0),
   tablet_image_(gen_sstable.tablet_image_),
   curr_uid_(0),
   curr_tid_(0),
   curr_itype_(0),
   config_file_(NULL),
-  comp_name_(NULL),
-  sstable_version_(gen_sstable.sstable_version_)
+  comp_name_(NULL)
 {}
 
 int ObGenSSTable::TableGen::init(uint64_t table_id, const bool is_join_table) {
@@ -242,17 +240,13 @@ int ObGenSSTable::TableGen::init(uint64_t table_id, const bool is_join_table) {
       set_max_        = gen_sstable_.set_max_;
       is_join_table_  = is_join_table;
       disk_no_        = gen_sstable_.disk_no_;
+      data_type_      = gen_sstable_.data_type_;
       max_sstable_num_ = gen_sstable_.max_sstable_num_;
       if (is_join_table_) {
         //join table only has 1/10 rows count of wide table
         max_rows_     = gen_sstable_.max_rows_ / ITEMS_PER_USER;
         row_key_prefix_ = (disk_no_ - 1) *
                           (gen_sstable_.max_rows_ * max_sstable_num_ / ITEMS_PER_USER) - 1;
-        if (max_rows_ <= 0) {
-          TBSYS_LOG(ERROR, "max_rows_(=%ld/%ld) of join_table must larger than 0!",
-                    gen_sstable_.max_rows_, ITEMS_PER_USER);
-          ret = OB_INVALID_ARGUMENT;
-        }
       } else {
         max_rows_     = gen_sstable_.max_rows_;
         row_key_prefix_ = (disk_no_ - 1) *
@@ -261,6 +255,8 @@ int ObGenSSTable::TableGen::init(uint64_t table_id, const bool is_join_table) {
     } else {
       char table_name[100];
       snprintf(table_name, 100, "%ld", table_id);
+      //TBSYS_LOG(INFO,"%s",table_name);
+      //TBSYS_LOG(INFO,"%s",TBSYS_CONFIG.getString(table_name,"data_type",0));
 
       row_key_prefix_   = TBSYS_CONFIG.getInt(table_name, "rowkey_prefix", 0) - 1;
       row_key_suffix_   = TBSYS_CONFIG.getInt(table_name, "rowkey_suffix", 0) - 1;
@@ -273,6 +269,7 @@ int ObGenSSTable::TableGen::init(uint64_t table_id, const bool is_join_table) {
       set_max_       = 1 == smax ? true : false;
       set_min_       = 1 == smin ? true : false;
 
+      data_type_      = TBSYS_CONFIG.getInt(table_name, "data_type", 1);
       curr_uid_       = TBSYS_CONFIG.getInt(table_name, "start_uid", 0);
       curr_tid_       = TBSYS_CONFIG.getInt(table_name, "start_tid", 0);
       curr_itype_     = TBSYS_CONFIG.getInt(table_name, "start_type", 0);
@@ -284,245 +281,107 @@ int ObGenSSTable::TableGen::init(uint64_t table_id, const bool is_join_table) {
     schema_mgr_ = gen_sstable_.schema_mgr_;
     table_schema_ = gen_sstable_.schema_mgr_->get_table_schema(table_id);
     if (NULL == table_schema_) {
-      fprintf(stderr, "can't find the schema of table [%lu]\n", table_id);
+      TBSYS_LOG(ERROR, "can't find the schema of table [%lu]", table_id);
       ret = OB_ERROR;
+    } else {
+      row_key_cmp_size_ = table_schema_->get_split_pos();
     }
 
-    if (3 == sstable_version_) {
-      schema2_.reset();
-      if (OB_SUCCESS == ret && compactsstablev2::build_sstable_schema(table_id_,
-          *gen_sstable_.schema_mgr_, schema2_)) {
-        fprintf(stderr, "convert schema failed\n");
-        ret = OB_ERROR;
-      }
-    } else {
-      if (OB_SUCCESS == ret && sstable::build_sstable_schema(table_id_,
-                                                             *gen_sstable_.schema_mgr_, schema_, gen_sstable_.binary_rowkey_format_) != OB_SUCCESS) {
-        fprintf(stderr, "convert schema failed\n");
-        ret = OB_ERROR;
-      }
+    if (OB_SUCCESS == ret && fill_sstable_schema(*gen_sstable_.schema_mgr_, table_schema_->get_table_id(), schema_) != OB_SUCCESS) {
+      TBSYS_LOG(ERROR, "convert schema failed");
+      ret = OB_ERROR;
     }
 
     if (OB_SUCCESS == ret) {
       inited_  = true;
     }
 
-    fprintf(stderr, "gen init, table_id:=%ld,prefix=%ld,suffix=%ld,"
-            "max_rows=%ld,max_sstable_num_=%ld,disk_no_=%d,"
-            "is_join_table_=%d, min=%d,max=%d",
-            table_id_, row_key_prefix_, row_key_suffix_,
-            max_rows_, max_sstable_num_, disk_no_,
-            is_join_table_, set_min_, set_max_);
-
+    func_table_[0] = &ObGenSSTable::TableGen::fill_row_common;
+    func_table_[1] = &ObGenSSTable::TableGen::fill_row_chunk;
+    func_table_[2] = &ObGenSSTable::TableGen::fill_row_with_aux_column;
+    //func_table_[5] = &ObGenSSTable::TableGen::fill_row_item;
+    func_table_[6] = &ObGenSSTable::TableGen::fill_row_common_item;
+    //func_table_[7] = &ObGenSSTable::TableGen::fill_row_consistency_test;
+    //func_table_[8] = &ObGenSSTable::TableGen::fill_row_consistency_test_item;
   }
   return ret;
 }
 
+int ObGenSSTable::TableGen::deal_first_range() {
+  int ret = OB_SUCCESS;
+  if (first_key_) {
+    int64_t pos = 0;
+    serialization::encode_i64(start_key_, sizeof(start_key_), pos,
+                              row_key_prefix_ - 1 < 0 ? 0 : row_key_prefix_ - 1);
+    if (!is_join_table_) {
+      serialization::encode_i64(start_key_, sizeof(start_key_), pos,
+                                row_key_suffix_ - 1 < 0 ? 0 : row_key_suffix_ - 1);
+    }
+    if (0 == row_key_prefix_)
+      memset(start_key_ + row_key_cmp_size_, 0, pos - row_key_cmp_size_);
+    else
+      memset(start_key_ + row_key_cmp_size_, 0xFF, pos - row_key_cmp_size_);
 
-int ObGenSSTable::TableGen::generate_range_by_prefix(ObNewRange& range, int64_t prefix, int64_t suffix) {
-  UNUSED(suffix);
-  range.table_id_ = table_id_;
-  int64_t start_prefix = prefix;
-  int64_t end_prefix = start_prefix + max_rows_ / ObGenSSTable::ITEMS_PER_USER;
-  if (is_join_table_) end_prefix = start_prefix + max_rows_;
-  if (start_prefix < 0) start_prefix = 0;
-
-  ObObj obj_array[2];
-  int32_t rowkey_column_count = is_join_table_ ? 1 : 2;
-  ObRowkey row_key(obj_array, rowkey_column_count);
-
-  obj_array[0].set_int(start_prefix);
-  obj_array[1].set_int(INT64_MAX);
-
-  row_key.deep_copy(range.start_key_, allocator_);
-
-  obj_array[0].set_int(end_prefix);
-  obj_array[1].set_int(INT64_MAX);
-  row_key.deep_copy(range.end_key_, allocator_);
-
-  return OB_SUCCESS;
-
+    last_end_key_.assign_ptr(start_key_, pos);
+    range_.start_key_ = last_end_key_;
+    first_key_ = false;
+  }
+  return ret;
 }
+
 
 int ObGenSSTable::TableGen::generate() {
   int ret = OB_SUCCESS;
   int64_t prev_row_key_prefix = 0;
   int64_t prev_row_key_suffix = 0;
-  static int64_t total_time = 0;
-
 
   if ((ret = create_new_sstable(table_id_)) != OB_SUCCESS) {
-    fprintf(stderr, "create sstable failed.\n");
+    TBSYS_LOG(ERROR, "create sstable failed.");
   }
 
   uint64_t column_group_ids[OB_MAX_COLUMN_GROUP_NUMBER];
-  int32_t column_group_num = (int32_t)(sizeof(column_group_ids) / sizeof(column_group_ids[0]));
+  int32_t column_group_num = sizeof(column_group_ids) / sizeof(column_group_ids[0]);
 
   if ((ret = schema_mgr_->get_column_groups(table_id_, column_group_ids, column_group_num)) != OB_SUCCESS) {
-    fprintf(stderr, "get column groups failed : [%d]", ret);
+    TBSYS_LOG(ERROR, "get column groups failed : [%d]", ret);
   }
 
-  for (int32_t sstable_num = 0; OB_SUCCESS == ret && sstable_num < max_sstable_num_; ++sstable_num) {
-    generate_range_by_prefix(range_, row_key_prefix_, row_key_suffix_);
-    prev_row_key_prefix = row_key_prefix_;
-    prev_row_key_suffix = row_key_suffix_;
-
-    struct timezone zone;
-    struct timeval start;
-    struct timeval end;
-
-    for (int32_t group_index = 0; OB_SUCCESS == ret && group_index < column_group_num; ++group_index) {
-      srandom(static_cast<unsigned int>(prev_row_key_prefix));
-      row_key_prefix_ = prev_row_key_prefix;
-      row_key_suffix_ = prev_row_key_suffix;
-
-      fprintf(stderr, "add column group %lu max_rows_ %ld\n", column_group_ids[group_index], max_rows_);
-
-
+  for (int32_t sstable_num = 0; sstable_num < max_sstable_num_; ++sstable_num) {
+    if (2 == data_type_) {
+      prev_row_key_prefix = row_key_prefix_;
+      prev_row_key_suffix = row_key_suffix_;
+    }
+    for (int32_t group_index = 0; group_index < column_group_num; ++group_index) {
+      if (2 == data_type_) {
+        srandom(prev_row_key_prefix);
+        row_key_prefix_ = prev_row_key_prefix;
+        row_key_suffix_ = prev_row_key_suffix;
+      }
+      TBSYS_LOG(DEBUG, "add column group %lu", column_group_ids[group_index]);
       for (int i = 0; (i < max_rows_) && (OB_SUCCESS == ret); ++i) {
-        if ((ret = fill_row_with_aux_column(column_group_ids[group_index])) != OB_SUCCESS) {
+        if ((ret = (this->*(func_table_[data_type_]))(column_group_ids[group_index])) != OB_SUCCESS) {
           TBSYS_LOG(ERROR, "fill row error: [%d]", ret);
         }
 
-        gettimeofday(&start, &zone);
         if (OB_SUCCESS == ret &&
             (ret = writer_.append_row(sstable_row_, current_sstable_size_)) != OB_SUCCESS) {
           TBSYS_LOG(ERROR, "append row failed: [%d]", ret);
         }
-        gettimeofday(&end, &zone);
-        total_time = total_time + (end.tv_sec - start.tv_sec) * 1000000
-                     + (end.tv_usec - start.tv_usec);
       }
     }
 
     bool set_max = sstable_num == max_sstable_num_ - 1 ? set_max_ : false;
-    int tmp_ret = finish_sstable(set_max);
 
-    if (OB_SUCCESS != tmp_ret) {
-      TBSYS_LOG(ERROR, "finish_sstable failed: [%d]", tmp_ret);
-      if (OB_SUCCESS == ret) {
-        ret = tmp_ret;
-      }
-    }
-    if (OB_SUCCESS == ret && sstable_num < max_sstable_num_ - 1) {
+    if ((ret = finish_sstable(set_max)) != OB_SUCCESS) {
+      TBSYS_LOG(ERROR, "finish_sstable failed: [%d]", ret);
+    } else if (sstable_num < max_sstable_num_ - 1) {
       ret = create_new_sstable(table_id_);
     }
   }
-
-  printf("time:::%ld\n", total_time);
-  return ret;
-}
-
-int ObGenSSTable::TableGen::generate2() {
-  int ret = OB_SUCCESS;
-  int64_t prev_row_key_prefix = 0;
-  int64_t prev_row_key_suffix = 0;
-  static int64_t total_time = 0;
-
-  const compactsstablev2::ObSSTableSchemaColumnDef* def_array = NULL;
-  int64_t row_size = 0;
-  row_desc_.reset();
-  if (NULL == (def_array = schema2_.get_table_schema(
-                             table_id_, true, row_size))) {
-    TBSYS_LOG(ERROR, "schem2_ get table schema error");
-  } else {
-    for (int64_t i = 0; i < row_size; i ++) {
-      if (OB_SUCCESS != (ret = row_desc_.add_column_desc(
-                                 table_id_, def_array[i].column_id_))) {
-        TBSYS_LOG(ERROR, "row_desc_ add column desc error:"
-                  "ret=%d", ret);
-        break;
-      }
-    }
-    row_desc_.set_rowkey_cell_count(row_size);
-  }
-
-  if (NULL == (def_array = schema2_.get_table_schema(
-                             table_id_, false, row_size))) {
-    TBSYS_LOG(ERROR, "schema2_ get table schema error");
-  } else {
-    for (int64_t i = 0; i < row_size; i ++) {
-      if (OB_SUCCESS != (ret = row_desc_.add_column_desc(
-                                 table_id_, def_array[i].column_id_))) {
-        TBSYS_LOG(ERROR, "row_desc_ add column desc error:"
-                  "ret=%d", ret);
-        break;
-      }
-    }
-  }
-
-  row_.set_row_desc(row_desc_);
-
-  if ((ret = create_new_sstable2(table_id_)) != OB_SUCCESS) {
-    fprintf(stderr, "create sstable failed.\n");
-  }
-
-  uint64_t column_group_ids[OB_MAX_COLUMN_GROUP_NUMBER];
-  int32_t column_group_num = (int32_t)(sizeof(column_group_ids) / sizeof(column_group_ids[0]));
-
-  if ((ret = schema_mgr_->get_column_groups(table_id_, column_group_ids, column_group_num)) != OB_SUCCESS) {
-    fprintf(stderr, "get column groups failed : [%d]", ret);
-  }
-
-  for (int32_t sstable_num = 0; OB_SUCCESS == ret && sstable_num < max_sstable_num_; ++sstable_num) {
-    generate_range_by_prefix(range_, row_key_prefix_, row_key_suffix_);
-    prev_row_key_prefix = row_key_prefix_;
-    prev_row_key_suffix = row_key_suffix_;
-
-    struct timezone zone;
-    struct timeval start;
-    struct timeval end;
-
-    if (OB_SUCCESS != (ret = writer2_.set_table_info(table_id_,
-                                                     schema2_, range_))) {
-      fprintf(stderr, "writer2 set table info eror");
-    } else if (OB_SUCCESS != (ret = writer2_.set_sstable_filepath(
-                                      dest_file_string_))) {
-      fprintf(stderr, "writer2 set sstable filepath");
-    }
-
-    for (int32_t group_index = 0; OB_SUCCESS == ret && group_index < column_group_num; ++group_index) {
-      srandom(static_cast<unsigned int>(prev_row_key_prefix));
-      row_key_prefix_ = prev_row_key_prefix;
-      row_key_suffix_ = prev_row_key_suffix;
-
-      fprintf(stderr, "add column group %lu max_rows_ %ld\n", column_group_ids[group_index], max_rows_);
-
-      for (int i = 0; (i < max_rows_) && (OB_SUCCESS == ret); ++i) {
-        if ((ret = fill_row_with_aux_column2(column_group_ids[group_index])) != OB_SUCCESS) {
-          TBSYS_LOG(ERROR, "fill row error: [%d]", ret);
-        }
-
-        bool is_split = false;
-
-        gettimeofday(&start, &zone);
-        if (OB_SUCCESS == ret &&
-            (ret = writer2_.append_row(row_, is_split)) != OB_SUCCESS) {
-          TBSYS_LOG(ERROR, "append row failed: [%d]", ret);
-        }
-        gettimeofday(&end, &zone);
-        total_time = total_time + (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
-      }
-    }
-
-    int tmp_ret = writer2_.finish();
-
-    if (OB_SUCCESS != tmp_ret) {
-      TBSYS_LOG(ERROR, "finish_sstable failed: [%d]", tmp_ret);
-      if (OB_SUCCESS == ret) {
-        ret = tmp_ret;
-      }
-    }
-    if (OB_SUCCESS == ret && sstable_num < max_sstable_num_ - 1) {
-      ret = create_new_sstable2(table_id_);
-    }
-  }
-  printf("time:::%ld\n", total_time);
   return ret;
 }
 
 int ObGenSSTable::TableGen::create_new_sstable(int64_t table_id) {
-  UNUSED(table_id);
   int ret = OB_SUCCESS;
   sstable::ObSSTableId sst_id;
 
@@ -533,52 +392,20 @@ int ObGenSSTable::TableGen::create_new_sstable(int64_t table_id) {
 
   //ret = get_sstable_path(sst_id, dest_file_, sizeof(dest_file_));
   if (OB_SUCCESS != ret) {
-    fprintf(stderr, "get sstable file path failed\n");
+    TBSYS_LOG(ERROR, "get sstable file path failed");
   } else {
     snprintf(dest_file_, sizeof(dest_file_), "%s/%ld", dest_dir_, real_id);
-    dest_file_string_.assign(dest_file_, static_cast<int32_t>(strlen(dest_file_)));
+    dest_file_string_.assign(dest_file_, strlen(dest_file_));
 
     sstable_id_.sstable_file_id_ = real_id;
     sstable_id_.sstable_file_offset_ = 0;
 
-    writer_.set_dio(true);
+    range_.table_id_ = table_id;
+    range_.start_key_ = last_end_key_;
 
     if ((ret = writer_.create_sstable(schema_, dest_file_string_, gen_sstable_.get_compressor(),
-                                      0, OB_SSTABLE_STORE_DENSE, gen_sstable_.block_size_, max_rows_)) != OB_SUCCESS) {
-      fprintf(stderr, "create sstable failed\n");
-    }
-  }
-
-  return ret;
-}
-
-int ObGenSSTable::TableGen::create_new_sstable2(int64_t table_id) {
-  (void) table_id;
-  int ret = OB_SUCCESS;
-  sstable::ObSSTableId sst_id;
-
-  uint64_t real_id = (gen_sstable_.get_sstable_id() << 8) | ((disk_no_ & 0xff));
-
-  sst_id.sstable_file_id_ = real_id;
-  sst_id.sstable_file_offset_ = 0;
-
-  //ret = get_sstable_path(sst_id, dest_file_, sizeof(dest_file_));
-  if (OB_SUCCESS != ret) {
-    fprintf(stderr, "get sstable file path failed\n");
-  } else {
-    snprintf(dest_file_, sizeof(dest_file_), "%s/%ld", dest_dir_, real_id);
-    dest_file_string_.assign(dest_file_, static_cast<int32_t>(strlen(dest_file_)));
-
-    sstable_id_.sstable_file_id_ = real_id;
-    sstable_id_.sstable_file_offset_ = 0;
-
-    ObFrozenMinorVersionRange version_range;
-    version_range.major_version_ = 2;
-    writer2_.reset();
-    if (OB_SUCCESS != (ret = writer2_.set_sstable_param(
-                               version_range, DENSE_DENSE, 1, gen_sstable_.block_size_,
-                               gen_sstable_.get_compressor(), 0, 0))) {
-      fprintf(stderr, "create sstable failed\n");
+                                      0, OB_SSTABLE_STORE_DENSE, gen_sstable_.block_size_)) != OB_SUCCESS) {
+      TBSYS_LOG(ERROR, "create sstable failed");
     }
   }
 
@@ -586,91 +413,269 @@ int ObGenSSTable::TableGen::create_new_sstable2(int64_t table_id) {
 }
 
 int ObGenSSTable::TableGen::finish_sstable(bool set_max /*=false*/) {
-  int64_t trailer_offset = 0;
-  int64_t sstable_size = 0;
+  int64_t t = 0;
+  int64_t size = 0;
   int ret = OB_SUCCESS;
-  //update end key
-  range_.border_flag_.unset_inclusive_start();
-  range_.border_flag_.set_inclusive_end();
-
-  if (set_min_) {
-    fprintf(stderr, "set_min\n");
-    range_.start_key_.set_min_row();
-    set_min_ = false;
+  //close this sstable
+  if ((ret = writer_.close_sstable(t, size)) != OB_SUCCESS || size < 0) {
+    TBSYS_LOG(ERROR, "close_sstable failed,offset %ld,ret: [%d]\n", t, ret);
   }
 
-  if (set_max) {
-    fprintf(stderr, "set_max\n");
-    range_.end_key_.set_max_row();
-  }
+  if (size > 0) {
+    //update end key
+    range_.border_flag_.unset_inclusive_start();
+    range_.border_flag_.set_inclusive_end();
+    range_.end_key_ = row_key_;
 
-  if (OB_SUCCESS != (ret = writer_.set_tablet_range(range_))) {
-    fprintf(stderr, "failed to set range of sstable, ret=%d\n", ret);
-  } else if (OB_SUCCESS != (ret =
-                              writer_.close_sstable(trailer_offset, sstable_size)) || sstable_size < 0) {
-    fprintf(stderr, "close_sstable failed,offset %ld,ret: [%d]\n\n", trailer_offset, ret);
-  }
-
-  //load the tablet
-  ObTablet* tablet = NULL;
-  const ObSSTableTrailer& trailer = writer_.get_trailer();
-  ObTabletExtendInfo extend_info;
-#ifdef GEN_SSTABLE_DEBUG
-  range_.dump();
-  range_.hex_dump(TBSYS_LOG_LEVEL_DEBUG);
-#endif
-  if (OB_SUCCESS == ret) {
-    if (OB_SUCCESS != (ret = tablet_image_.alloc_tablet_object(range_, tablet))) {
-      fprintf(stderr, "alloc_tablet_object failed.\n");
-    } else {
-      int64_t pos = 0;
-      const int64_t checksum_len = sizeof(uint64_t);
-      char checksum_buf[checksum_len];
-      const int64_t frozen_version = 1;
-      tablet->add_sstable_by_id(sstable_id_);
-      tablet->set_data_version(frozen_version);
-      tablet->set_disk_no(disk_no_);
-
-      extend_info.last_do_expire_version_ = frozen_version;
-      extend_info.occupy_size_ = sstable_size;
-      extend_info.row_count_ = trailer.get_row_count();
-      if (OB_SUCCESS == (ret = serialization::encode_i64(checksum_buf,
-                                                         checksum_len, pos, trailer.get_sstable_checksum()))) {
-        extend_info.check_sum_ = ob_crc64(checksum_buf, checksum_len);
-      } else {
-        TBSYS_LOG(ERROR, "failed to serialization chunksum, ret=%d", ret);
-      }
-      if (0 == extend_info.row_count_ || 0 == extend_info.check_sum_) {
-        TBSYS_LOG(WARN, "extend_info.row_count_ %ld and extend_info.check_sum_ %ld"
-                  " should not be 0", extend_info.row_count_, extend_info.check_sum_);
-      }
-
-      if (OB_SUCCESS == ret) {
-        tablet->set_extend_info(extend_info);
-      }
+    if (table_schema_->get_split_pos() != 0) {
+      if (range_.end_key_.length() - row_key_cmp_size_ > 0)
+        memset(range_.end_key_.ptr() + row_key_cmp_size_, 0xff, range_.end_key_.length() - row_key_cmp_size_);
     }
+
+    if (set_min_) {
+      TBSYS_LOG(INFO, "set_min");
+      range_.border_flag_.set_min_value();
+      set_min_ = false;
+    } else {
+      range_.border_flag_.unset_min_value();
+    }
+
+    if (set_max) {
+      TBSYS_LOG(INFO, "set_max");
+      range_.border_flag_.set_max_value();
+    } else {
+      range_.border_flag_.unset_max_value();
+    }
+
+    //load the tablet
+    ObTablet* tablet = NULL;
+#ifdef GEN_SSTABLE_DEBUG
+    range_.dump();
+    range_.hex_dump(TBSYS_LOG_LEVEL_DEBUG);
+#endif
+    if ((ret = tablet_image_.alloc_tablet_object(range_, tablet)) != OB_SUCCESS) {
+      TBSYS_LOG(ERROR, "alloc_tablet_object failed.\n");
+    } else {
+      tablet->add_sstable_by_id(sstable_id_);
+      tablet->set_data_version(1);
+      tablet->set_disk_no(disk_no_);
+    }
+
+    if (OB_SUCCESS == ret && (ret = tablet_image_.add_tablet(tablet)) != OB_SUCCESS) {
+      TBSYS_LOG(ERROR, "add table failed,ret:[%d]", ret);
+    }
+
+    //prepare the start key for the next sstable
+    memcpy(start_key_, range_.end_key_.ptr(), range_.end_key_.length());
+    last_end_key_.assign_ptr(start_key_, range_.end_key_.length());
+
   }
-  //  char range_buf[1024];
-  //  range_.to_string(range_buf, 1024);
-  //  fprintf(stderr, "range_: %s\n", range_buf);
-
-  if (OB_SUCCESS == ret && (OB_SUCCESS != (ret = tablet_image_.add_tablet(tablet)))) {
-    fprintf(stderr, "add table failed,ret:[%d]\n", ret);
-  }
-
-  //prepare the start key for the next sstable
-  range_.end_key_.deep_copy(last_end_key_, allocator_);
-
   return ret;
 }
 
+int ObGenSSTable::TableGen::fill_row_common(uint64_t group_id) {
+  int ret = OB_SUCCESS;
+  const common::ObColumnSchemaV2* column = NULL;
+  //const common::ObColumnSchemaV2* end = NULL;
+  int64_t column_value = 0;
+  float float_val = 0.0;
+  double double_val = 0.0;
+  ObObj obj;
+  ObString str;
+  sstable_row_.clear();
 
+  if ((ret = create_rowkey_common()) != OB_SUCCESS) {
+    TBSYS_LOG(ERROR, "create rowkey failed: [%d]", ret);
+  } else {
+    ret = deal_first_range();
+  }
+
+  if ((OB_SUCCESS == ret) && (ret = sstable_row_.set_row_key(row_key_)) != OB_SUCCESS) {
+    TBSYS_LOG(ERROR, "set row key failed: [%d]", ret);
+  } else {
+    sstable_row_.set_table_id(table_id_);
+    sstable_row_.set_column_group_id(group_id);
+  }
+
+  if (OB_SUCCESS == ret) {
+    int32_t size = 0;
+    column = gen_sstable_.schema_mgr_->get_group_schema(table_schema_->get_table_id(), group_id, size);
+
+    for (int32_t i = 0; i < size && (OB_SUCCESS == ret); ++i, ++column) {
+      obj.reset();
+      column_value = row_key_prefix_ * column->get_id() * column->get_type();
+      switch (column->get_type()) {
+      case ObIntType:
+        obj.set_int(column_value);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [int],value [%ld],", column->get_id(), column_value);
+#endif
+        break;
+      case ObFloatType:
+        float_val = static_cast<float>(column_value);
+        obj.set_float(float_val);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [float],value [%f],", column->get_id(), float_val);
+#endif
+        break;
+      case ObDoubleType:
+        double_val = static_cast<double>(column_value);
+        obj.set_double(double_val);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [double],value [%f],", column->get_id(), double_val);
+#endif
+
+        break;
+      case ObDateTimeType:
+        obj.set_datetime(column_value);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [datetime],value [%ld],", column->get_id(), column_value);
+#endif
+
+        break;
+      case ObPreciseDateTimeType:
+        obj.set_precise_datetime(column_value);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [pdatetime],value [%ld],", column->get_id(), column_value);
+#endif
+        break;
+      case ObModifyTimeType:
+        obj.set_modifytime(labs(column_value));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [cdatetime],value [%ld],", column->get_id(), labs(column_value));
+#endif
+        break;
+      case ObCreateTimeType:
+        obj.set_createtime(labs(column_value));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [mdatetime],value [%ld],", column->get_id(), labs(column_value));
+#endif
+        break;
+      case ObVarcharType:
+        snprintf(varchar_buf_, sizeof(varchar_buf_), "%ld", column_value);
+        str.assign_ptr(varchar_buf_, strlen(varchar_buf_)); //todo len
+        obj.set_varchar(str);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [varchar:%d],", column->get_id(), obj.get_type());
+#endif
+        break;
+      default:
+        TBSYS_LOG(ERROR, "unexpect type : %d", column->get_type());
+        ret = OB_ERROR;
+        break;
+      }
+
+      if (OB_SUCCESS == ret) {
+        ret = sstable_row_.add_obj(obj);
+      }
+    }
+  }
+  return ret;
+}
+
+int ObGenSSTable::TableGen::fill_row_common_item(uint64_t group_id) {
+  int ret = OB_SUCCESS;
+  const common::ObColumnSchemaV2* column = NULL;
+  int64_t column_value = 0;
+  float float_val = 0.0;
+  double double_val = 0.0;
+  ObObj obj;
+  ObString str;
+  sstable_row_.clear();
+
+  if ((ret = create_rowkey_common_item()) != OB_SUCCESS) {
+    TBSYS_LOG(ERROR, "create rowkey failed: [%d]", ret);
+  } else {
+    ret = deal_first_range();
+  }
+
+  if ((OB_SUCCESS == ret) && (ret = sstable_row_.set_row_key(row_key_)) != OB_SUCCESS) {
+    TBSYS_LOG(ERROR, "set row key failed: [%d]", ret);
+  } else {
+    sstable_row_.set_table_id(table_id_);
+    sstable_row_.set_column_group_id(0);
+  }
+
+  if (OB_SUCCESS == ret) {
+    int32_t size = 0;
+    column = gen_sstable_.schema_mgr_->get_group_schema(table_schema_->get_table_id(), group_id, size);
+
+    for (int32_t i = 0; i < size && (OB_SUCCESS == ret); ++i, ++column) {
+      obj.reset();
+      column_value = row_key_prefix_ * column->get_id() * column->get_type();
+      switch (column->get_type()) {
+      case ObIntType:
+        obj.set_int(column_value);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [int],value [%ld],", column->get_id(), column_value);
+#endif
+        break;
+      case ObFloatType:
+        float_val = static_cast<float>(column_value);
+        obj.set_float(float_val);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [float],value [%f],", column->get_id(), float_val);
+#endif
+        break;
+      case ObDoubleType:
+        double_val = static_cast<double>(column_value);
+        obj.set_double(double_val);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [double],value [%f],", column->get_id(), double_val);
+#endif
+
+        break;
+      case ObDateTimeType:
+        obj.set_datetime(column_value);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [datetime],value [%ld],", column->get_id(), column_value);
+#endif
+
+        break;
+      case ObPreciseDateTimeType:
+        obj.set_precise_datetime(column_value);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [pdatetime],value [%ld],", column->get_id(), column_value);
+#endif
+        break;
+      case ObModifyTimeType:
+        obj.set_modifytime(labs(column_value));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [cdatetime],value [%ld],", column->get_id(), labs(column_value));
+#endif
+        break;
+      case ObCreateTimeType:
+        obj.set_createtime(labs(column_value));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [mdatetime],value [%ld],", column->get_id(), labs(column_value));
+#endif
+        break;
+      case ObVarcharType:
+        snprintf(varchar_buf_, sizeof(varchar_buf_), "%ld", column_value);
+        str.assign_ptr(varchar_buf_, strlen(varchar_buf_)); //todo len
+        obj.set_varchar(str);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [varchar:%d],", column->get_id(), obj.get_type());
+#endif
+        break;
+      default:
+        TBSYS_LOG(ERROR, "unexpect type : %d", column->get_type());
+        ret = OB_ERROR;
+        break;
+      }
+
+      if (OB_SUCCESS == ret) {
+        ret = sstable_row_.add_obj(obj);
+      }
+    }
+  }
+  return ret;
+}
 
 int ObGenSSTable::TableGen::fill_row_with_aux_column(uint64_t group_id) {
   int ret = OB_SUCCESS;
-
   const common::ObColumnSchemaV2* column = NULL;
-  const common::ObColumnSchemaV2* __attribute__((unused)) column_end = NULL;
+  const common::ObColumnSchemaV2* column_end = NULL;
   int64_t column_value = 0;
   int64_t hash_value = 0;
   float float_val = 0.0;
@@ -680,39 +685,39 @@ int ObGenSSTable::TableGen::fill_row_with_aux_column(uint64_t group_id) {
   ObObj obj;
   ObString str;
 
-  const ObRowkeyInfo& rowkey_info = schema_mgr_->get_table_schema(table_id_)->get_rowkey_info();
-
   std::map<uint64_t, int64_t> aux_value;
   std::map<uint64_t, float> aux_float_value;
   std::map<uint64_t, double> aux_double_value;
   sstable_row_.clear();
 
-  bool special_key = false;
-  int id = 1;
+  static bool special_key = false;
+  static int id = 1;
 
   if ((ret = create_rowkey_aux()) != OB_SUCCESS) {
-    fprintf(stderr, "create rowkey failed: [%d]\n", ret);
+    TBSYS_LOG(ERROR, "create rowkey failed: [%d]", ret);
+  } else {
+    ret = deal_first_range();
   }
 
   if (!is_join_table_ && 0 == row_key_prefix_ && 0 == row_key_suffix_) {
     special_key = true;
   }
 
-  if ((OB_SUCCESS == ret) && (ret = sstable_row_.set_rowkey(row_key_)) != OB_SUCCESS) {
-    fprintf(stderr, "set row key failed: [%d]\n", ret);
+  if ((OB_SUCCESS == ret) && (ret = sstable_row_.set_row_key(row_key_)) != OB_SUCCESS) {
+    TBSYS_LOG(ERROR, "set row key failed: [%d]", ret);
   }
 
   if (OB_SUCCESS == ret) {
     ret = sstable_row_.set_table_id(table_id_);
     if (OB_SUCCESS != ret) {
-      fprintf(stderr, "set row table id failed: [%d]\n", ret);
+      TBSYS_LOG(ERROR, "set row table id failed: [%d]", ret);
     }
   }
 
   if (OB_SUCCESS == ret) {
     ret = sstable_row_.set_column_group_id(group_id);
     if (OB_SUCCESS != ret) {
-      fprintf(stderr, "set row column group id failed: [%d]\n", ret);
+      TBSYS_LOG(ERROR, "set row column group id failed: [%d]", ret);
     }
   }
 
@@ -722,10 +727,6 @@ int ObGenSSTable::TableGen::fill_row_with_aux_column(uint64_t group_id) {
                                                         group_id, size);
     column_end = column + size;
     for (int32_t i = 0; i < size && (OB_SUCCESS == ret); ++i, ++column) {
-      if (rowkey_info.is_rowkey_column(column->get_id())) {
-        continue;
-      }
-
       if (0 == strncmp(column->get_name(), "aux_", 4)) {
         aux_column = true;
       } else {
@@ -733,25 +734,26 @@ int ObGenSSTable::TableGen::fill_row_with_aux_column(uint64_t group_id) {
       }
 
       obj.reset();
-      if (special_key && id < 2) {
+      if (special_key && id <= 2) {
         column_value = max_rows_ * max_sstable_num_ / ITEMS_PER_USER * DISK_NUM; //assume there are 10 disks
       } else if (!aux_column) {
         column_value = row_key_prefix_ * column->get_id() * column->get_type() * 991;
-        if (column_value < 0) {
-          //              fprintf(stderr,"column_value[%ld] < 0\n", column_value);
-          column_value = -column_value;
-        }
       }
 
-      if (id++ > 2) special_key = false;
+      if (!aux_column || id <= 2) {
+        if (id <= 2) {
+          ++id;
+          if (2 == id) {
+            special_key = false;
+          }
+        }
 
-      if (!aux_column || special_key) {
         switch (column->get_type()) {
         case ObIntType:
           obj.set_int(column_value);
           aux_value.insert(make_pair(column->get_id(), 0 - column_value));
 #ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [int],value [%ld]\n", column->get_id(), column_value);
+          TBSYS_LOG(DEBUG, "[%d]type [int],value [%ld]", column->get_id(), column_value);
 #endif
           break;
         case ObFloatType:
@@ -759,7 +761,7 @@ int ObGenSSTable::TableGen::fill_row_with_aux_column(uint64_t group_id) {
           obj.set_float(float_val);
           aux_float_value.insert(make_pair(column->get_id(), float_val));
 #ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [float],value [%f]\n", column->get_id(), float_val);
+          TBSYS_LOG(DEBUG, "[%d]type [float],value [%f]", column->get_id(), float_val);
 #endif
           break;
         case ObDoubleType:
@@ -767,53 +769,52 @@ int ObGenSSTable::TableGen::fill_row_with_aux_column(uint64_t group_id) {
           obj.set_double(double_val);
           aux_double_value.insert(make_pair(column->get_id(), double_val));
 #ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [double],value [%f]\n", column->get_id(), double_val);
+          TBSYS_LOG(DEBUG, "[%d]type [double],value [%f]", column->get_id(), double_val);
 #endif
           break;
         case ObDateTimeType:
           obj.set_datetime(column_value);
           aux_value.insert(make_pair(column->get_id(), 0 - column_value));
 #ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [datetime],value [%ld]\n", column->get_id(), column_value);
+          TBSYS_LOG(DEBUG, "[%d]type [datetime],value [%ld]", column->get_id(), column_value);
 #endif
           break;
         case ObPreciseDateTimeType:
           obj.set_precise_datetime(column_value);
           aux_value.insert(make_pair(column->get_id(), 0 - column_value));
 #ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [pdatetime],value [%ld]\n", column->get_id(), column_value);
+          TBSYS_LOG(DEBUG, "[%d]type [pdatetime],value [%ld]", column->get_id(), column_value);
 #endif
           break;
         case ObModifyTimeType:
           obj.set_modifytime(column_value);
           aux_value.insert(make_pair(column->get_id(), 0 - column_value));
 #ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [cdatetime],value [%ld]\n", column->get_id(), column_value);
+          TBSYS_LOG(DEBUG, "[%d]type [cdatetime],value [%ld]", column->get_id(), column_value);
 #endif
           break;
         case ObCreateTimeType:
           obj.set_createtime(column_value);
           aux_value.insert(make_pair(column->get_id(), 0 - column_value));
 #ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [mdatetime],value [%ld]\n", column->get_id(), column_value);
+          TBSYS_LOG(DEBUG, "[%d]type [mdatetime],value [%ld]", column->get_id(), column_value);
 #endif
           break;
         case ObVarcharType:
           snprintf(varchar_buf_, sizeof(varchar_buf_), "%ld", column_value);
           hash_value = mur_hash(varchar_buf_);
-          str.assign_ptr(varchar_buf_, static_cast<int32_t>(strlen(varchar_buf_))); //todo len
+          str.assign_ptr(varchar_buf_, strlen(varchar_buf_)); //todo len
           obj.set_varchar(str);
           aux_value.insert(make_pair(column->get_id(), 0 - hash_value));
 #ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [varchar:%d],value [%s]\n", column->get_id(), obj.get_type(), varchar_buf_);
+          TBSYS_LOG(DEBUG, "[%d]type [varchar:%d],value [%s]", column->get_id(), obj.get_type(), varchar_buf_);
 #endif
           break;
         default:
-          fprintf(stderr, "unexpect type : %d\n", column->get_type());
+          TBSYS_LOG(ERROR, "unexpect type : %d", column->get_type());
           ret = OB_ERROR;
           break;
         }
-
       } else {
         switch (column->get_type()) {
         case ObIntType: {
@@ -822,7 +823,7 @@ int ObGenSSTable::TableGen::fill_row_with_aux_column(uint64_t group_id) {
             obj.set_int(it->second);
           }
 #ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [int],value [%ld]\n", column->get_id(), it->second);
+          TBSYS_LOG(DEBUG, "[%d]type [int],value [%ld]", column->get_id(), it->second);
 #endif
         }
         break;
@@ -832,7 +833,7 @@ int ObGenSSTable::TableGen::fill_row_with_aux_column(uint64_t group_id) {
             obj.set_float(it->second);
           }
 #ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [float],value [%f]\n", column->get_id(), it->second);
+          TBSYS_LOG(DEBUG, "[%d]type [float],value [%f]", column->get_id(), it->second);
 #endif
         }
         break;
@@ -842,7 +843,7 @@ int ObGenSSTable::TableGen::fill_row_with_aux_column(uint64_t group_id) {
             obj.set_double(it->second);
           }
 #ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [double],value [%f]\n", column->get_id(), it->second);
+          TBSYS_LOG(DEBUG, "[%d]type [double],value [%f]", column->get_id(), it->second);
 #endif
         }
         break;
@@ -858,289 +859,655 @@ int ObGenSSTable::TableGen::fill_row_with_aux_column(uint64_t group_id) {
       }
     }
   }
+  return ret;
+}
 
-  if (OB_SUCCESS == ret && gen_sstable_.binary_rowkey_format_) {
-    sstable_row_.set_rowkey_info(&rowkey_info);
+int ObGenSSTable::TableGen::fill_row_chunk(uint64_t group_id) {
+  int ret = OB_SUCCESS;
+  const common::ObColumnSchemaV2* column = NULL;
+  int64_t column_value = 0;
+  int64_t hash_value = 0;
+  int64_t rowkey_hash_value = 0;
+  float float_val = 0.0;
+  double double_val = 0.0;
+  MurmurHash2 mur_hash;
+  ObObj obj;
+  ObString str;
+  sstable_row_.clear();
+
+  if ((ret = create_rowkey_chunk()) != OB_SUCCESS) {
+    TBSYS_LOG(ERROR, "create rowkey failed: [%d]", ret);
+  } else {
+    ret = deal_first_range();
+  }
+
+  if ((OB_SUCCESS == ret) && (ret = sstable_row_.set_row_key(row_key_)) != OB_SUCCESS) {
+    TBSYS_LOG(ERROR, "set row key failed: [%d]", ret);
+  } else {
+    sstable_row_.set_table_id(table_id_);
+    sstable_row_.set_column_group_id(0);
+  }
+
+  if (OB_SUCCESS == ret) {
+    int32_t size = 0;
+    column = gen_sstable_.schema_mgr_->get_group_schema(table_schema_->get_table_id(), group_id, size);
+
+    for (int32_t i = 0; i < size - 1 && (OB_SUCCESS == ret); ++i, ++column) {
+      obj.reset();
+      column_value = row_key_prefix_ * column->get_id() * column->get_type() * 991;
+      switch (column->get_type()) {
+      case ObIntType:
+        obj.set_int(column_value);
+        hash_value += mur_hash((void*)&column_value, sizeof(column_value));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [int],value [%ld],hash [%ld]", column->get_id(), column_value, hash_value);
+#endif
+        break;
+      case ObFloatType:
+        float_val = static_cast<float>(column_value);
+        obj.set_float(float_val);
+        hash_value += mur_hash((void*)&float_val, sizeof(float_val));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [float],value [%f],hash [%ld]", column->get_id(), float_val, hash_value);
+#endif
+        break;
+      case ObDoubleType:
+        double_val = static_cast<double>(column_value);
+        obj.set_double(double_val);
+        hash_value += mur_hash((void*)&double_val, sizeof(double_val));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [double],value [%f],hash [%ld]", column->get_id(), double_val, hash_value);
+#endif
+
+        break;
+      case ObDateTimeType:
+        obj.set_datetime(column_value);
+        hash_value += mur_hash((void*)&column_value, sizeof(column_value));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [datetime],value [%ld],hash [%ld]", column->get_id(), column_value, hash_value);
+#endif
+
+        break;
+      case ObPreciseDateTimeType:
+        obj.set_precise_datetime(column_value);
+        hash_value += mur_hash((void*)&column_value, sizeof(column_value));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [pdatetime],value [%ld],hash [%ld]", column->get_id(), column_value, hash_value);
+#endif
+        break;
+      case ObModifyTimeType:
+        obj.set_modifytime(column_value);
+        hash_value += mur_hash((void*)&column_value, sizeof(column_value));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [cdatetime],value [%ld],hash [%ld]", column->get_id(), column_value, hash_value);
+#endif
+        break;
+      case ObCreateTimeType:
+        obj.set_createtime(column_value);
+        hash_value += mur_hash((void*)&column_value, sizeof(column_value));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [mdatetime],value [%ld],hash [%ld]", column->get_id(), column_value, hash_value);
+#endif
+        break;
+      case ObVarcharType:
+        snprintf(varchar_buf_, sizeof(varchar_buf_), "%ld", column_value);
+        hash_value += mur_hash(varchar_buf_);
+        str.assign_ptr(varchar_buf_, strlen(varchar_buf_)); //todo len
+        obj.set_varchar(str);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [varchar:%d],hash [%ld]", column->get_id(), obj.get_type(), hash_value);
+#endif
+        break;
+      default:
+        TBSYS_LOG(ERROR, "unexpect type : %d", column->get_type());
+        ret = OB_ERROR;
+        break;
+      }
+
+      if (OB_SUCCESS == ret) {
+        ret = sstable_row_.add_obj(obj);
+      }
+    }
+
+    if (OB_SUCCESS == ret) {
+      //the last column
+      if (column->get_type() != ObIntType) {
+        TBSYS_LOG(ERROR, "this schema is illigal");
+        ret = OB_ERROR;
+      } else {
+        rowkey_hash_value = mur_hash(row_key_.ptr(), row_key_.length());
+        obj.reset();
+        obj.set_int(rowkey_hash_value - hash_value);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "last col type [int],value [%ld],rowkey_hash_value:[%ld]", rowkey_hash_value - hash_value, rowkey_hash_value);
+#endif
+        sstable_row_.add_obj(obj);
+      }
+    }
+  }
+  return ret;
+}
+
+int ObGenSSTable::TableGen::fill_row_null() {
+  int ret = OB_SUCCESS;
+  const common::ObColumnSchemaV2* column = NULL;
+  int64_t column_value = 0;
+  int64_t hash_value = 0;
+  float float_val = 0.0;
+  double double_val = 0.0;
+  MurmurHash2 mur_hash;
+  ObObj obj;
+  ObString str;
+  sstable_row_.clear();
+
+  if ((ret = create_rowkey_null()) != OB_SUCCESS) {
+    TBSYS_LOG(ERROR, "create rowkey failed: [%d]", ret);
+  }
+
+  if ((OB_SUCCESS == ret) && (ret = sstable_row_.set_row_key(row_key_)) != OB_SUCCESS) {
+    TBSYS_LOG(ERROR, "set row key failed: [%d]", ret);
+  } else {
+    sstable_row_.set_table_id(table_id_);
+    sstable_row_.set_column_group_id(0);
+  }
+
+  if (OB_SUCCESS == ret) {
+    int32_t size = 0;
+    column = gen_sstable_.schema_mgr_->get_table_schema(table_schema_->get_table_id(), size);
+
+    for (int32_t i = 0; i < size && (OB_SUCCESS == ret); ++i, ++column) {
+      obj.reset();
+      column_value = row_key_prefix_ * column->get_id() * column->get_type() * 991;
+      switch (column->get_type()) {
+      case ObIntType:
+        obj.set_int(column_value);
+        hash_value += mur_hash((void*)&column_value, sizeof(column_value));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [int],value [%ld],hash [%ld]", column->get_id(), column_value, hash_value);
+#endif
+        break;
+      case ObFloatType:
+        float_val = static_cast<float>(column_value);
+        obj.set_float(float_val);
+        hash_value += mur_hash((void*)&float_val, sizeof(float_val));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [float],value [%f],hash [%ld]", column->get_id(), float_val, hash_value);
+#endif
+        break;
+      case ObDoubleType:
+        double_val = static_cast<double>(column_value);
+        obj.set_double(double_val);
+        hash_value += mur_hash((void*)&double_val, sizeof(double_val));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [double],value [%f],hash [%ld]", column->get_id(), double_val, hash_value);
+#endif
+
+        break;
+      case ObDateTimeType:
+        obj.set_datetime(column_value);
+        hash_value += mur_hash((void*)&column_value, sizeof(column_value));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [datetime],value [%ld],hash [%ld]", column->get_id(), column_value, hash_value);
+#endif
+
+        break;
+      case ObPreciseDateTimeType:
+        obj.set_precise_datetime(column_value);
+        hash_value += mur_hash((void*)&column_value, sizeof(column_value));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [pdatetime],value [%ld],hash [%ld]", column->get_id(), column_value, hash_value);
+#endif
+        break;
+      case ObModifyTimeType:
+        obj.set_modifytime(column_value);
+        hash_value += mur_hash((void*)&column_value, sizeof(column_value));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [cdatetime],value [%ld],hash [%ld]", column->get_id(), column_value, hash_value);
+#endif
+        break;
+      case ObCreateTimeType:
+        obj.set_createtime(column_value);
+        hash_value += mur_hash((void*)&column_value, sizeof(column_value));
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [mdatetime],value [%ld],hash [%ld]", column->get_id(), column_value, hash_value);
+#endif
+        break;
+      case ObVarcharType:
+        snprintf(varchar_buf_, sizeof(varchar_buf_), "%ld", column_value);
+        hash_value += mur_hash(varchar_buf_);
+        str.assign_ptr(varchar_buf_, strlen(varchar_buf_)); //todo len
+        obj.set_varchar(str);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "[%d]type [varchar:%d],hash [%ld]", column->get_id(), obj.get_type(), hash_value);
+#endif
+        break;
+      default:
+        TBSYS_LOG(ERROR, "unexpect type : %d", column->get_type());
+        ret = OB_ERROR;
+        break;
+      }
+
+      if (OB_SUCCESS == ret) {
+        ret = sstable_row_.add_obj(obj);
+      }
+    }
+  }
+  return ret;
+}
+
+int ObGenSSTable::TableGen::fill_row_item() {
+  int ret = OB_SUCCESS;
+  const common::ObColumnSchemaV2* column = NULL;
+  int64_t column_value = 0;
+  float float_val = 0.0;
+  double double_val = 0.0;
+  ObObj obj;
+  ObString str;
+  sstable_row_.clear();
+  if ((ret = create_rowkey_item()) != OB_SUCCESS) {
+    TBSYS_LOG(ERROR, "create rowkey failed: [%d]", ret);
+  }
+
+  if ((OB_SUCCESS == ret) && (ret = sstable_row_.set_row_key(row_key_)) != OB_SUCCESS) {
+    TBSYS_LOG(ERROR, "set row key failed: [%d]", ret);
+  } else {
+    sstable_row_.set_table_id(table_id_);
+    sstable_row_.set_column_group_id(0);
+  }
+
+  if (OB_SUCCESS == ret) {
+    int32_t size = 0;
+    column = gen_sstable_.schema_mgr_->get_table_schema(table_schema_->get_table_id(), size);
+
+    for (int32_t i = 0; i < size && (OB_SUCCESS == ret); ++i, ++column) {
+      obj.reset();
+      column_value = (curr_uid_ * FIR_MULTI + curr_tid_) * SEC_MULTI + column->get_id();
+      switch (column->get_type()) {
+      case ObIntType:
+        column_value = curr_tid_ * SEC_MULTI + column->get_id();
+        obj.set_int(column_value);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "%ld | ", column_value);
+#endif
+        break;
+      case ObFloatType:
+        float_val = static_cast<float>(curr_tid_ * SEC_MULTI + column->get_id());
+        obj.set_float(float_val);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "%f | ", float_val);
+#endif
+        break;
+      case ObDoubleType:
+        double_val = static_cast<double>(curr_tid_ * SEC_MULTI + column->get_id());
+        obj.set_double(double_val);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "%f | ", double_val);
+#endif
+
+        break;
+      case ObDateTimeType:
+        column_value = crtime - curr_tid_ - column->get_id();
+        obj.set_datetime(column_value);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "%ld | ", column_value);
+#endif
+        break;
+      case ObPreciseDateTimeType:
+        column_value = (crtime - curr_tid_ - column->get_id()) * MICRO_PER_SEC;
+        obj.set_precise_datetime(column_value);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "%ld | ", column_value);
+#endif
+        break;
+      case ObModifyTimeType:
+        column_value = (crtime - curr_tid_ - column->get_id()) * MICRO_PER_SEC;
+        obj.set_modifytime(column_value);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "%ld | ", column_value);
+#endif
+        break;
+      case ObCreateTimeType:
+        column_value = (crtime - curr_tid_ - column->get_id()) * MICRO_PER_SEC;
+        obj.set_createtime(column_value);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "%ld | ", column_value);
+#endif
+        break;
+      case ObVarcharType:
+        snprintf(varchar_buf_, sizeof(varchar_buf_), "%08ld-%ld", curr_tid_, column->get_id());
+        str.assign_ptr(varchar_buf_, strlen(varchar_buf_)); //todo len
+        obj.set_varchar(str);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "%s | ", varchar_buf_);
+#endif
+        break;
+      default:
+        TBSYS_LOG(ERROR, "unexpect type : %d", column->get_type());
+        ret = OB_ERROR;
+        break;
+      }
+
+      if (OB_SUCCESS == ret) {
+        ret = sstable_row_.add_obj(obj);
+      }
+    }
+    //change tid uid itype
+    curr_tid_++;
+    curr_itype_++;
+    if (ARR_SIZE * SEC_MULTI == curr_tid_) {
+      curr_tid_ = 0;
+      curr_itype_ = 0;
+      curr_uid_++;
+    }
+  }
+  return ret;
+}
+
+int ObGenSSTable::TableGen::fill_row_consistency_test() {
+  int ret = OB_SUCCESS;
+  const common::ObColumnSchemaV2* column = NULL;
+  int64_t column_value = 0;
+  ObObj obj;
+  sstable_row_.clear();
+  if ((ret = create_rowkey_consistency_test()) != OB_SUCCESS) {
+    TBSYS_LOG(ERROR, "create rowkey failed: [%d]", ret);
+  }
+
+  if ((OB_SUCCESS == ret) && (ret = sstable_row_.set_row_key(row_key_)) != OB_SUCCESS) {
+    TBSYS_LOG(ERROR, "set row key failed: [%d]", ret);
+  } else {
+    sstable_row_.set_table_id(table_id_);
+    sstable_row_.set_column_group_id(0);
+  }
+
+  if (OB_SUCCESS == ret) {
+    int32_t size = 0;
+    column = gen_sstable_.schema_mgr_->get_table_schema(table_schema_->get_table_id(), size);
+
+    for (int32_t i = 0; i < size && (OB_SUCCESS == ret); ++i, ++column) {
+      obj.reset();
+      column_value = (row_key_suffix_ << 24 | column->get_id() << 16 | 1);
+      switch (column->get_type()) {
+      case ObIntType:
+        obj.set_int(column_value);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "%ld | ", column_value);
+#endif
+        break;
+      default:
+        TBSYS_LOG(ERROR, "unexpect type : %d", column->get_type());
+        ret = OB_ERROR;
+        break;
+      }
+
+      if (OB_SUCCESS == ret) {
+        ret = sstable_row_.add_obj(obj);
+      }
+    }
+  }
+  return ret;
+}
+
+int ObGenSSTable::TableGen::fill_row_consistency_test_item() {
+  int ret = OB_SUCCESS;
+  const common::ObColumnSchemaV2* column = NULL;
+  int64_t column_value = 0;
+  ObObj obj;
+  sstable_row_.clear();
+  if ((ret = create_rowkey_consistency_test_item()) != OB_SUCCESS) {
+    TBSYS_LOG(ERROR, "create rowkey failed: [%d]", ret);
+  }
+
+  if ((OB_SUCCESS == ret) && (ret = sstable_row_.set_row_key(row_key_)) != OB_SUCCESS) {
+    TBSYS_LOG(ERROR, "set row key failed: [%d]", ret);
+  } else {
+    sstable_row_.set_table_id(table_id_);
+    sstable_row_.set_column_group_id(0);
+  }
+
+  if (OB_SUCCESS == ret) {
+    int32_t size = 0;
+    column = gen_sstable_.schema_mgr_->get_table_schema(table_schema_->get_table_id(), size);
+
+    for (int32_t i = 0; i < size && (OB_SUCCESS == ret); ++i, ++column) {
+      obj.reset();
+      column_value = (row_key_suffix_ << 24 | column->get_id() << 16 | 1);
+      switch (column->get_type()) {
+      case ObIntType:
+        obj.set_int(column_value);
+#ifdef GEN_SSTABLE_DEBUG
+        TBSYS_LOG(DEBUG, "%ld | ", column_value);
+#endif
+        break;
+      default:
+        TBSYS_LOG(ERROR, "unexpect type : %d", column->get_type());
+        ret = OB_ERROR;
+        break;
+      }
+
+      if (OB_SUCCESS == ret) {
+        ret = sstable_row_.add_obj(obj);
+      }
+    }
+  }
+  return ret;
+}
+
+int ObGenSSTable::TableGen::create_rowkey_item() {
+  int ret = OB_SUCCESS;
+  int64_t pos = 0;
+  sprintf(row_key_buf_, "%c%08ld", item_type_[(curr_itype_ / SEC_MULTI) % ARR_SIZE], curr_tid_);
+  row_key_.assign(row_key_buf_, strlen(row_key_buf_));
+  pos = strlen(row_key_buf_);
+#ifdef GEN_SSTABLE_DEBUG
+  TBSYS_LOG(DEBUG, "tid is %ld  itype is %d\n", curr_tid_, curr_itype_);
+  TBSYS_LOG(DEBUG, "row_key_buf_ is %s\n", row_key_buf_);
+  common::hex_dump(row_key_buf_, pos, false);
+#endif
+  if (first_key_) {
+    sprintf(start_key_, "%c%08d", '0', 0);
+    last_end_key_.assign_ptr(start_key_, pos);
+    range_.start_key_ = last_end_key_;
+    first_key_ = false;
+  }
+  return ret;
+}
+
+int ObGenSSTable::TableGen::create_rowkey_common_item() {
+  int ret = OB_SUCCESS;
+  int64_t pos = 0;
+  // ++row_key_prefix_;
+  ++row_key_suffix_;
+
+  serialization::encode_i8(row_key_buf_, sizeof(row_key_buf_), pos, 0);
+  serialization::encode_i64(row_key_buf_, sizeof(row_key_buf_), pos, row_key_suffix_);
+
+  row_key_.assign(row_key_buf_, pos);
+#ifdef GEN_SSTABLE_DEBUG
+  TBSYS_LOG(DEBUG, "row key, prefix :%ld,suffix:%ld", row_key_prefix_, row_key_suffix_);
+  common::hex_dump(row_key_buf_, pos, false);
+#endif
+  if (first_key_) {
+    int64_t pos = 0;
+    serialization::encode_i8(start_key_, sizeof(start_key_), pos, 0);
+    serialization::encode_i64(start_key_, sizeof(start_key_), pos,
+                              row_key_suffix_ - 1 < 0 ? 0 : row_key_suffix_ - 1);
+
+    last_end_key_.assign_ptr(start_key_, table_schema_->get_rowkey_max_length());
+    range_.start_key_ = last_end_key_;
+    first_key_ = false;
+  }
+  return ret;
+}
+
+
+int ObGenSSTable::TableGen::create_rowkey_common() {
+  int ret = OB_SUCCESS;
+  int64_t pos = 0;
+  ++row_key_prefix_;
+  ++row_key_suffix_;
+
+  serialization::encode_i64(row_key_buf_, sizeof(row_key_buf_), pos, row_key_prefix_);
+  serialization::encode_i8(row_key_buf_, sizeof(row_key_buf_), pos, 0);
+  serialization::encode_i64(row_key_buf_, sizeof(row_key_buf_), pos, row_key_suffix_);
+
+  row_key_.assign(row_key_buf_, pos);
+#ifdef GEN_SSTABLE_DEBUG
+  TBSYS_LOG(DEBUG, "row key, prefix :%ld,suffix:%ld", row_key_prefix_, row_key_suffix_);
+  common::hex_dump(row_key_buf_, pos, false);
+#endif
+
+  if (first_key_) {
+    int64_t pos = 0;
+    serialization::encode_i64(start_key_, sizeof(start_key_), pos,
+                              row_key_prefix_ - 1 < 0 ? 0 : row_key_prefix_ - 1);
+    if (0 == row_key_prefix_)
+      memset(start_key_ + row_key_cmp_size_, 0, table_schema_->get_rowkey_max_length() - row_key_cmp_size_);
+    else
+      memset(start_key_ + row_key_cmp_size_, 0xFF, table_schema_->get_rowkey_max_length() - row_key_cmp_size_);
+
+    last_end_key_.assign_ptr(start_key_, table_schema_->get_rowkey_max_length());
+    range_.start_key_ = last_end_key_;
+    first_key_ = false;
   }
 
   return ret;
 }
 
-int ObGenSSTable::TableGen::fill_row_with_aux_column2(uint64_t group_id) {
+int ObGenSSTable::TableGen::create_rowkey_consistency_test() {
   int ret = OB_SUCCESS;
+  int64_t pos = 0;
+  static int64_t  member = -1;
+  //++row_key_prefix_;
+  ++row_key_suffix_;
 
-  const common::ObColumnSchemaV2* column = NULL;
-  const common::ObColumnSchemaV2* __attribute__((unused)) column_end = NULL;
-
-  int64_t column_value = 0;
-  int64_t hash_value = 0;
-  float float_val = 0.0;
-  double double_val = 0.0;
-  bool aux_column = false;
-  MurmurHash2 mur_hash;
-  ObObj obj;
-  ObString str;
-
-  const ObRowkeyInfo& rowkey_info = schema_mgr_->get_table_schema(table_id_)->get_rowkey_info();
-
-  std::map<uint64_t, int64_t> aux_value;
-  std::map<uint64_t, float> aux_float_value;
-  std::map<uint64_t, double> aux_double_value;
-
-  bool special_key = false;
-  int id = 1;
-  int64_t obj_count = 0;
-
-  row_.reset(false, ObRow::DEFAULT_NULL);
-
-  if ((ret = create_rowkey_aux()) != OB_SUCCESS) {
-    fprintf(stderr, "create rowkey failed: [%d]\n", ret);
+  if (-1 == member) {
+    ++row_key_prefix_;
+    ++row_key_suffix_;
   }
 
-  const ObObj* ptr = row_key_.ptr();
-  for (int64_t i = 0; i < row_key_.length(); i ++) {
-    row_.raw_set_cell(i, ptr[i]);
-    obj_count ++;
+  if (++member >= 10000) {
+    ++row_key_prefix_;
+    row_key_suffix_ = 0;
+    member = 0;
+  }
+  int64_t suffix = row_key_suffix_;
+
+  serialization::encode_i64(row_key_buf_, sizeof(row_key_buf_), pos, row_key_prefix_);
+  serialization::encode_i8(row_key_buf_, sizeof(row_key_buf_), pos, 0);
+  serialization::encode_i64(row_key_buf_, sizeof(row_key_buf_), pos, suffix);
+
+  row_key_.assign(row_key_buf_, pos);
+#ifdef GEN_SSTABLE_DEBUG
+  TBSYS_LOG(DEBUG, "row key, prefix :%ld,suffix:%ld", row_key_prefix_, suffix);
+  common::hex_dump(row_key_buf_, pos, false);
+#endif
+
+  if (first_key_) {
+    int64_t pos = 0;
+    serialization::encode_i64(start_key_, sizeof(start_key_), pos,
+                              row_key_prefix_ - 1 < 0 ? 0 : row_key_prefix_ - 1);
+    if (0 == row_key_prefix_)
+      memset(start_key_ + row_key_cmp_size_, 0, table_schema_->get_rowkey_max_length() - row_key_cmp_size_);
+    else
+      memset(start_key_ + row_key_cmp_size_, 0xFF, table_schema_->get_rowkey_max_length() - row_key_cmp_size_);
+
+    last_end_key_.assign_ptr(start_key_, table_schema_->get_rowkey_max_length());
+    range_.start_key_ = last_end_key_;
+    first_key_ = false;
   }
 
-  if (!is_join_table_ && 0 == row_key_prefix_ && 0 == row_key_suffix_) {
-    special_key = true;
+  return ret;
+}
+
+int ObGenSSTable::TableGen::create_rowkey_consistency_test_item() {
+  int ret = OB_SUCCESS;
+  int64_t pos = 0;
+  // ++row_key_prefix_;
+  ++row_key_suffix_;
+
+  //serialization::encode_i8(row_key_buf_,sizeof(row_key_buf_),pos,0);
+  serialization::encode_i64(row_key_buf_, sizeof(row_key_buf_), pos, row_key_suffix_);
+
+  row_key_.assign(row_key_buf_, pos);
+#ifdef GEN_SSTABLE_DEBUG
+  TBSYS_LOG(DEBUG, "row key, prefix :%ld,suffix:%ld", row_key_prefix_, row_key_suffix_);
+  common::hex_dump(row_key_buf_, pos, false);
+#endif
+  if (first_key_) {
+    int64_t pos = 0;
+    //serialization::encode_i8(start_key_,sizeof(start_key_),pos,0);
+    serialization::encode_i64(start_key_, sizeof(start_key_), pos,
+                              row_key_suffix_ - 1 < 0 ? 0 : row_key_suffix_ - 1);
+
+    last_end_key_.assign_ptr(start_key_, table_schema_->get_rowkey_max_length());
+    range_.start_key_ = last_end_key_;
+    first_key_ = false;
   }
+  return ret;
+}
 
-  if (OB_SUCCESS == ret) {
-    int32_t size = 0;
-    column = gen_sstable_.schema_mgr_->get_group_schema(table_schema_->get_table_id(),
-                                                        group_id, size);
-    column_end = column + size;
-
-    for (int32_t i = 0; i < size && (OB_SUCCESS == ret); ++i, ++column) {
-      if (rowkey_info.is_rowkey_column(column->get_id())) {
-        continue;
-      }
-
-      if (0 == strncmp(column->get_name(), "aux_", 4)) {
-        aux_column = true;
-      } else {
-        aux_column = false;
-      }
-
-      obj.reset();
-      if (special_key && id < 2) {
-        column_value = max_rows_ * max_sstable_num_ / ITEMS_PER_USER * DISK_NUM; //assume there are 10 disks
-      } else if (!aux_column) {
-        column_value = row_key_prefix_ * column->get_id() * column->get_type() * 991;
-        if (column_value < 0) {
-          column_value = -column_value;
-        }
-      }
-
-      if (id++ > 2) special_key = false;
-
-      if (!aux_column || special_key) {
-        switch (column->get_type()) {
-        case ObIntType:
-          obj.set_int(column_value);
-          aux_value.insert(make_pair(column->get_id(), 0 - column_value));
+int ObGenSSTable::TableGen::create_rowkey_chunk() {
+  int ret = OB_SUCCESS;
+  int64_t pos = 0;
+  ++row_key_prefix_;
+  serialization::encode_i64(row_key_buf_, sizeof(row_key_buf_), pos, row_key_prefix_);
+  int64_t postfix = (row_key_prefix_ * 12911) % 15485863;
+  char postfix_buf[20];
+  snprintf(postfix_buf, sizeof(postfix_buf), "%ld", postfix);
+  memcpy(row_key_buf_ + pos, postfix_buf, strlen(postfix_buf));
+  pos += strlen(postfix_buf);
+  row_key_.assign(row_key_buf_, pos);
 #ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [int],value [%ld]\n", column->get_id(), column_value);
+  TBSYS_LOG(DEBUG, "row key, prefix :%ld,postfix:%ld", row_key_prefix_, postfix);
+  common::hex_dump(row_key_buf_, pos, false);
 #endif
-          break;
-        case ObFloatType:
-          float_val = static_cast<float>(column_value);
-          obj.set_float(float_val);
-          aux_float_value.insert(make_pair(column->get_id(), float_val));
-#ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [float],value [%f]\n", column->get_id(), float_val);
-#endif
-          break;
-        case ObDoubleType:
-          double_val = static_cast<double>(column_value);
-          obj.set_double(double_val);
-          aux_double_value.insert(make_pair(column->get_id(), double_val));
-#ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [double],value [%f]\n", column->get_id(), double_val);
-#endif
-          break;
-        case ObDateTimeType:
-          obj.set_datetime(column_value);
-          aux_value.insert(make_pair(column->get_id(), 0 - column_value));
-#ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [datetime],value [%ld]\n", column->get_id(), column_value);
-#endif
-          break;
-        case ObPreciseDateTimeType:
-          obj.set_precise_datetime(column_value);
-          aux_value.insert(make_pair(column->get_id(), 0 - column_value));
-#ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [pdatetime],value [%ld]\n", column->get_id(), column_value);
-#endif
-          break;
-        case ObModifyTimeType:
-          obj.set_modifytime(column_value);
-          aux_value.insert(make_pair(column->get_id(), 0 - column_value));
-#ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [cdatetime],value [%ld]\n", column->get_id(), column_value);
-#endif
-          break;
-        case ObCreateTimeType:
-          obj.set_createtime(column_value);
-          aux_value.insert(make_pair(column->get_id(), 0 - column_value));
-#ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [mdatetime],value [%ld]\n", column->get_id(), column_value);
-#endif
-          break;
-        case ObVarcharType:
-          snprintf(varchar_buf_, sizeof(varchar_buf_), "%ld", column_value);
-          hash_value = mur_hash(varchar_buf_);
-          str.assign_ptr(varchar_buf_, static_cast<int32_t>(strlen(varchar_buf_))); //todo len
-          obj.set_varchar(str);
-          aux_value.insert(make_pair(column->get_id(), 0 - hash_value));
-#ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [varchar:%d],value [%s]\n", column->get_id(), obj.get_type(), varchar_buf_);
-#endif
-          break;
-        default:
-          fprintf(stderr, "unexpect type : %d\n", column->get_type());
-          ret = OB_ERROR;
-          break;
-        }
-
-      } else {
-        switch (column->get_type()) {
-        case ObIntType: {
-          map<uint64_t, int64_t>::iterator it = aux_value.find(column->get_id() - 1);
-          if (it != aux_value.end()) {
-            obj.set_int(it->second);
-          }
-#ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [int],value [%ld]\n", column->get_id(), it->second);
-#endif
-        }
-        break;
-        case ObFloatType: {
-          map<uint64_t, float>::iterator it = aux_float_value.find(column->get_id() - 1);
-          if (it != aux_float_value.end()) {
-            obj.set_float(it->second);
-          }
-#ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [float],value [%f]\n", column->get_id(), it->second);
-#endif
-        }
-        break;
-        case ObDoubleType: {
-          map<uint64_t, double>::iterator it = aux_double_value.find(column->get_id() - 1);
-          if (it != aux_double_value.end()) {
-            obj.set_double(it->second);
-          }
-#ifdef GEN_SSTABLE_DEBUG
-          fprintf(stderr, "[%d]type [double],value [%f]\n", column->get_id(), it->second);
-#endif
-        }
-        break;
-        default:
-          TBSYS_LOG(ERROR, "unexpect type : %d", column->get_type());
-          ret = OB_ERROR;
-          break;
-        }
-      }
-
-      if (OB_SUCCESS == ret) {
-        ret = row_.raw_set_cell(obj_count, obj);
-        obj_count ++;
-      }
-    }
-  }
-
   return ret;
 }
 
 int ObGenSSTable::TableGen::create_rowkey_aux() {
   int ret = OB_SUCCESS;
-
+  int64_t pos = 0;
   int64_t suffix = 0;
   static int64_t row_count = 0;
 
-  // is_join_table_ of collect_item table is true
-  // is_join_table_ of collect_info table is false
   if (is_join_table_ || (!is_join_table_ && row_count % ITEMS_PER_USER == 0)) {
     ++row_key_prefix_;
   }
-
-  rowkey_object_array_[0].set_int(row_key_prefix_);
+  serialization::encode_i64(row_key_buf_, sizeof(row_key_buf_), pos, row_key_prefix_);
   if (!is_join_table_) {
-    // only for collect_info table
     ++row_key_suffix_;
 
     if (row_key_prefix_ == 0 && row_key_suffix_ == 0) {
       suffix = 0;
-      row_count ++;
+      row_count++;
     } else {
       /**
        * each perfix combine with  10 suffix
-       * item count = max_rows_ * max_sstable_num_ / ITEMS_PER_USER * DISK_NUM
-       * user count = max_rows_ * max_sstable_num_ * DISK_NUM
        */
-      int64_t item_step = (max_rows_ * max_sstable_num_ / ITEMS_PER_USER * DISK_NUM) / ITEMS_PER_USER;
-      //fprintf(stderr, "item_step %ld\n", item_step);
-      if (item_step <= 0) {
-        ret = OB_INVALID_ARGUMENT;
-        TBSYS_LOG(ERROR, "item step[%ld] must larger than 0\n", item_step);
-      } else {
-        suffix = random() % item_step + (row_count++ % ITEMS_PER_USER) * item_step;
-      }
+      suffix = random() % ((max_rows_ * max_sstable_num_ / ITEMS_PER_USER * DISK_NUM) / ITEMS_PER_USER)
+               + (row_count++ % ITEMS_PER_USER) * ((max_rows_ * max_sstable_num_ / ITEMS_PER_USER * DISK_NUM) / ITEMS_PER_USER);
     }
-    rowkey_object_array_[1].set_int(suffix);
+    serialization::encode_i64(row_key_buf_, sizeof(row_key_buf_), pos, suffix);
   }
-
-  int32_t rowkey_column_count = is_join_table_ ? 1 : 2;
-  row_key_.assign(rowkey_object_array_, rowkey_column_count);
-  //char row_key_buf[64];
-  //row_key_.to_string(row_key_buf, 64);
-  //fprintf(stderr, "row key, prefix :%ld, row_key_suffix_:%ld suffix:%ld, rowkey_string_buf:%s row_count %ld\n",
-  //    row_key_prefix_,row_key_suffix_, suffix, row_key_buf, row_count);
+  row_key_.assign(row_key_buf_, pos);
+#ifdef GEN_SSTABLE_DEBUG
+  TBSYS_LOG(DEBUG, "row key, prefix :%ld,suffix:%ld", row_key_prefix_, row_key_suffix_);
+  common::hex_dump(row_key_buf_, pos, false);
+#endif
   return ret;
 }
 
-int ObGenSSTable::TableGen::create_rowkey_aux2() {
+int ObGenSSTable::TableGen::create_rowkey_null() {
   int ret = OB_SUCCESS;
-
-  int64_t suffix = 0;
-  static int64_t row_count = 0;
-
-  // is_join_table_ of collect_item table is true
-  // is_join_table_ of collect_info table is false
-  if (is_join_table_ || (!is_join_table_ && row_count % ITEMS_PER_USER == 0)) {
-    ++row_key_prefix_;
-  }
-
-  rowkey_object_array_[0].set_int(row_key_prefix_);
-  if (!is_join_table_) {
-    // only for collect_info table
-    ++row_key_suffix_;
-
-    if (row_key_prefix_ == 0 && row_key_suffix_ == 0) {
-      suffix = 0;
-      row_count ++;
-    } else {
-      /**
-       * each perfix combine with  10 suffix
-       * item count = max_rows_ * max_sstable_num_ / ITEMS_PER_USER * DISK_NUM
-       * user count = max_rows_ * max_sstable_num_ * DISK_NUM
-       */
-      int64_t item_step = (max_rows_ * max_sstable_num_ / ITEMS_PER_USER * DISK_NUM) / ITEMS_PER_USER;
-      //fprintf(stderr, "item_step %ld\n", item_step);
-      if (item_step <= 0) {
-        ret = OB_INVALID_ARGUMENT;
-        TBSYS_LOG(ERROR, "item step[%ld] must larger than 0\n", item_step);
-      } else {
-        suffix = random() % item_step + (row_count++ % ITEMS_PER_USER) * item_step;
-      }
-    }
-    rowkey_object_array_[1].set_int(suffix);
-  }
-
-  int32_t rowkey_column_count = is_join_table_ ? 1 : 2;
-  row_key_.assign(rowkey_object_array_, rowkey_column_count);
+  int64_t rowkey_len = table_schema_->get_rowkey_max_length();
+  memset(start_key_, 0, rowkey_len);
+  ++row_key_prefix_;
+  ++row_key_suffix_;
+  last_end_key_.assign_ptr(start_key_, rowkey_len);
+  range_.start_key_ = last_end_key_;
+  memset(row_key_buf_, 0xff, rowkey_len);
+  row_key_.assign(row_key_buf_, rowkey_len);
   return ret;
 }
 }
@@ -1160,12 +1527,11 @@ void usage(const char* program_name) {
          "\t\t-a set min range\n"
          "\t\t-z set max range\n"
          "\t\t-j whether create join table data\n"
-         "\t\t-r binary rowkey sstable, compatible with old fashion\n"
+         "\t\t-u huating's data format\n"
          "\t\t-x suffix\n"
          "\t\t-f config file\n"
          "\t\t-c compress lib name\n"
-         "\t\t-V version\n"
-         "\t\t-v sstable version (3:compactsstablev2)\n",
+         "\t\t-V version\n",
          program_name);
   exit(0);
 }
@@ -1174,49 +1540,46 @@ using namespace std;
 using namespace sb;
 using namespace sb::chunkserver;
 
-
 int main(int argc, char* argv[]) {
   ObGenSSTable::ObGenSSTableArgs args;
   const char* schema_file = NULL;
   int ret = 0;
   int32_t table_num = 2;
-  int quiet = 0;
 
-  while (-1 != (ret = getopt(argc, argv, "qrs:t:l:e:d:i:b:m:f:nazjhVx:B:c:N:v:"))) {
+  while ((ret = getopt(argc, argv, "s:t:l:e:d:i:b:m:f:nazjhVx:uB:c:N:")) != -1) {
     switch (ret) {
-    case 'q'://only printf ERROR
-      quiet = 1;
-      break;
-    case 's'://schema file path
+    case 's':
       schema_file = optarg;
       break;
-    case 't'://table id
+    case 't':
+      TBSYS_LOG(INFO, "table array:%s", optarg);
       parse_string_to_int_array(optarg, ',', args.table_id_list_, table_num);
       break;
-    case 'l'://seed
+    case 'l':
       args.seed_ = strtoll(optarg, NULL, 10);
       break;
-    case 'e'://step length
+    case 'e':
       args.step_length_ = atoi(optarg);
       break;
-    case 'd'://dest dir
+    case 'd':
       args.dest_dir_ = optarg;
       break;
-    case 'i'://disk num
+    case 'i':
       args.disk_no_ = atoi(optarg);
       break;
-    case 'b'://file num
+    case 'b':
       args.file_no_ = atoi(optarg);
       break;
-    case 'm'://max row count
+    case 'm':
       args.max_rows_ = atoi(optarg);
       break;
-    case 'N'://max sstable num
+    case 'N':
       args.max_sstable_num_ = atoi(optarg);
       break;
-    case 'n'://range
+    case 'n':
       args.set_min_ = true;
       args.set_max_ = true;
+      args.data_type_ = 3;
       break;
     case 'a':
       args.set_min_ = true;
@@ -1230,6 +1593,9 @@ int main(int argc, char* argv[]) {
     case 'x':
       args.suffix_ = strtoll(optarg, NULL, 10);
       break;
+    case 'u':
+      args.data_type_ = 2;
+      break;
     case 'B':
       args.block_size_ = strtoll(optarg, NULL, 10);
       break;
@@ -1239,25 +1605,17 @@ int main(int argc, char* argv[]) {
     case 'c':
       args.comp_name_ = optarg;
       break;
-    case 'r':
-      args.binary_rowkey_format_ = true;
-      break;
     case 'h':
       usage(argv[0]);
-      break;
-    case 'v':
-      args.sstable_version_ = atoi(optarg);
       break;
     case 'V':
       fprintf(stderr, "BUILD_TIME: %s %s\n\n", __DATE__, __TIME__);
       exit(1);
     default:
-      fprintf(stderr, "%s is not identified\n", optarg);
+      fprintf(stderr, "%s is not identified", optarg);
       exit(1);
     };
   }
-
-  if (quiet) TBSYS_LOGGER.setLogLevel("ERROR");
 
   if (NULL != args.config_file_) {
     if (TBSYS_CONFIG.load(args.config_file_)) {
@@ -1266,7 +1624,7 @@ int main(int argc, char* argv[]) {
     }
 
     schema_file = TBSYS_CONFIG.getString("config", "schema", "schema.ini");
-    fprintf(stderr, "schema is %s\n", schema_file);
+    TBSYS_LOG(INFO, "schema is %s", schema_file);
 
     vector<int> tableids = TBSYS_CONFIG.getIntList("config", "table");
     int i = 0;
@@ -1281,7 +1639,7 @@ int main(int argc, char* argv[]) {
     args.dest_dir_    = TBSYS_CONFIG.getString("config", "dest_dir", "data");
     args.file_no_     = TBSYS_CONFIG.getInt("config", "sstable_id_base", 1);
     args.disk_no_     = TBSYS_CONFIG.getInt("config", "disk_no", 1);
-    args.block_size_ = TBSYS_CONFIG.getInt("config", "block_size", sstable::ObSSTableBlockBuilder::SSTABLE_BLOCK_SIZE);
+    args.block_size_ = TBSYS_CONFIG.getInt("config", "block_size", ObSSTableBlockBuilder::SSTABLE_BLOCK_SIZE);
     args.comp_name_ = TBSYS_CONFIG.getString("config", "comp_name", "lzo_1.0");
   } else {
     if (argc < 6) {
@@ -1294,7 +1652,7 @@ int main(int argc, char* argv[]) {
         || args.step_length_ < 0 || args.max_rows_ < 0 || args.max_sstable_num_ <= 0) {
       usage(argv[0]);
     }
-    srandom(static_cast<unsigned int>(args.seed_));
+    srandom(args.seed_);
   }
 
   ob_init_crc64_table(OB_DEFAULT_CRC64_POLYNOM);
@@ -1302,7 +1660,7 @@ int main(int argc, char* argv[]) {
   tbsys::CConfig c1;
   ObSchemaManagerV2* mm = new ObSchemaManagerV2(tbsys::CTimeUtil::getTime());
   if (!mm->parse_from_file(schema_file, c1)) {
-    fprintf(stderr, "parse schema failed\n");
+    TBSYS_LOG(ERROR, "parse schema failed");
     exit(0);
   }
 
@@ -1310,9 +1668,6 @@ int main(int argc, char* argv[]) {
 
   ObGenSSTable data_builder;
   data_builder.init(args);
-  if (3 == args.sstable_version_) {
-    return data_builder.start_builder2();
-  } else {
-    return data_builder.start_builder();
-  }
+  data_builder.start_builder();
+  return 0;
 }

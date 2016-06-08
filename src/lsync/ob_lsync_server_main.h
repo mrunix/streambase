@@ -23,17 +23,15 @@
 
 namespace sb {
 namespace lsync {
-const static int SIG_INC_LOG_LEVEL = SIGUSR1;
-const static int SIG_DEC_LOG_LEVEL = SIGUSR2;
 class ObLsyncServerMain : public common::BaseMain {
  protected:
-  ObLsyncServerMain() : common::BaseMain(), app_name_(NULL) {}
+  ObLsyncServerMain() {}
   ~ObLsyncServerMain() {}
 
  protected:
   virtual int do_work();
   virtual void do_signal(const int sig);
-  virtual void parse_cmd_line(const int argc,  char* const argv[]);
+  virtual const char* parse_cmd_line(const int argc,  char* const argv[]);
   virtual void print_usage(const char* prog_name);
   virtual void print_version();
 
@@ -50,6 +48,7 @@ class ObLsyncServerMain : public common::BaseMain {
 
  private:
   const char* app_name_;
+  int log_level_;
   ObLsyncServerParam cmd_line_param_;
   ObLsyncServerParam param_;
   ObLsyncServer server_;

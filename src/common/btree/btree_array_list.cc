@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./btree_array_list.cc for ...
+ *
+ * Authors:
+ *   duolong <duolong@taobao.com>
+ *
+ */
 #include "btree_define.h"
 #include "btree_alloc.h"
 #include "btree_array_list.h"
@@ -5,8 +20,8 @@
 
 namespace sb {
 namespace common {
-const int32_t BtreeArrayList::NODE_SIZE = (int32_t)(CONST_NODE_OBJECT_COUNT* sizeof(BtreeKeyValuePair) + sizeof(BtreeNode));
-const int32_t BtreeArrayList::NODE_COUNT_PRE_PAGE = (int32_t)(NODE_SIZE / sizeof(void*) - 1);
+const int32_t BtreeArrayList::NODE_SIZE = (CONST_NODE_OBJECT_COUNT* sizeof(BtreeKeyValuePair) + sizeof(BtreeNode));
+const int32_t BtreeArrayList::NODE_COUNT_PRE_PAGE = (NODE_SIZE / sizeof(void*) - 1);
 
 BtreeArrayList::BtreeArrayList() {
   init(NODE_SIZE);
@@ -17,7 +32,7 @@ BtreeArrayList::BtreeArrayList() {
  */
 void BtreeArrayList::init(int32_t struct_size) {
   assert(struct_size <= NODE_SIZE);
-  max_copy_node_count_ = static_cast<int32_t>((NODE_SIZE - struct_size) / sizeof(void*));
+  max_copy_node_count_ = (NODE_SIZE - struct_size) / sizeof(void*);
 
   copy_node_count_ = 0;
   copy_list_start_ = NULL;
@@ -41,7 +56,7 @@ void BtreeArrayList::add_node_list(BtreeAlloc* node_allocator, int32_t
   OCEAN_BTREE_CHECK_TRUE(node_allocator, "node is null.");
   OCEAN_BTREE_CHECK_TRUE(copy_node_count_ >= 0, "copy_node_count_: %d", copy_node_count_);
 
-  if (NULL != node && copy_node_count_ >= 0 && node_allocator) {
+  if (NULL != node && node_allocator) {
 #ifdef OCEAN_BTREE_CHECK
     if (unique && bf.exist(node)) {
       void* tn = NULL;
@@ -102,7 +117,7 @@ void BtreeArrayList::add_node_list(BtreeAlloc* node_allocator, int32_t
  */
 void BtreeArrayList::node_list_first(BtreeNodeList& list) {
   list.pos = 0;
-  list.node_count = copy_node_count_;
+  list.node_count = static_cast<int32_t>(copy_node_count_);
   list.start = copy_list_start_;
   list.end = copy_list_current_;
   if (list.start)
@@ -120,14 +135,12 @@ void BtreeArrayList::node_list_first(BtreeNodeList& list) {
 void* BtreeArrayList::node_list_next(BtreeNodeList& list) {
   void* node = NULL;
   // 如果还RootPointer块上
-  if (list.pos >= 0 && list.pos < list.node_count && list.pos < max_copy_node_count_) {
+  if (list.pos < list.node_count && list.pos < max_copy_node_count_) {
     node = copy_node_[list.pos];
     list.pos ++;
     // 下一个链
-  } else if (list.pos >= 0 && NULL != list.start &&
-             NULL != list.current && list.current > list.start) {
-    OCEAN_BTREE_CHECK_TRUE(list.pos < list.node_count,
-                           "cnt: %d %d", list.pos, list.node_count);
+  } else if (NULL != list.start && NULL != list.current && list.current > list.start) {
+    OCEAN_BTREE_CHECK_TRUE(list.pos < list.node_count, "cnt: %d %d", list.pos, list.node_count);
     node = (*list.current);
     OCEAN_BTREE_CHECK_TRUE(node, "node is null.");
     list.current --;
@@ -219,8 +232,9 @@ void BtreeArrayList::delete_bf(void* node) {
 /**
  * copy node数量
  */
-int32_t BtreeArrayList::get_copy_node_count() {
+size_t BtreeArrayList::get_copy_node_count() {
   return copy_node_count_;
 }
 } // end namespace common
 } // end namespace sb
+

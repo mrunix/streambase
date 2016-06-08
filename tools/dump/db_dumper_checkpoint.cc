@@ -45,7 +45,7 @@ int DbCheckpoint::load_checkpoint() {
     get_from_rpc = true;
   } else {
     char buff[kCheckpointLen];
-    int len = static_cast<int32_t>(file.read(buff, kCheckpointLen));
+    int len = file.read(buff, kCheckpointLen);
     if (len <= 0) {
       TBSYS_LOG(ERROR, "read %s error", ckp_name_.c_str());
       ret = OB_ERROR;
@@ -64,8 +64,6 @@ int DbCheckpoint::load_checkpoint() {
 }
 
 void DbCheckpoint::run(CThread* thr, void* arg) {
-  UNUSED(thr);
-  UNUSED(arg);
 }
 
 int DbCheckpoint::do_checkpoint_local(int64_t log_id) {
@@ -105,7 +103,6 @@ int DbCheckpoint::do_checkpoint_local(int64_t log_id) {
 
 
 int DbCheckpoint::do_checkpoint_remote(int64_t log_id) {
-  UNUSED(log_id);
   int ret = OB_SUCCESS;
   //TODO:add thrift support
   return ret;

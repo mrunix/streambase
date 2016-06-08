@@ -1,14 +1,16 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_blockcache.h for block cache.
+ * Version: 5567
+ *
+ * ob_blockcache.h
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
+ *     huating <huating.zmq@taobao.com>
  *
  */
 #ifndef  OCEANBASE_SSTABLE_BLOCKCACHE_H_
@@ -64,7 +66,7 @@ inline sstable::BlockCacheValue* do_copy(const sstable::BlockCacheValue& other,
 
 inline int32_t do_size(const sstable::BlockCacheValue& data,
                        CSBlockCacheValueDeepCopyTag) {
-  return static_cast<int32_t>(sizeof(sstable::BlockCacheValue) + data.nbyte);
+  return (sizeof(sstable::BlockCacheValue) + data.nbyte);
 }
 
 inline void do_destroy(sstable::BlockCacheValue* data,
@@ -77,11 +79,16 @@ inline void do_destroy(sstable::BlockCacheValue* data,
 namespace sstable {
 class ObBufferHandle;
 
+struct ObBlockCacheConf {
+  int64_t block_cache_memsize_mb;   // ObMemBlockCache total memory size in MB
+  int64_t ficache_max_num;          // FileInfoCache max file descriptor
+};
+
 class ObBlockCache {
   friend class ObBufferHandle;
-  static const int64_t KVCACHE_ITEM_SIZE = 16 * 1024;      //16K
-  static const int64_t KVCACHE_BLOCK_SIZE = 2 * 1024 * 1024L;  //2M
-  static const int64_t MAX_READ_AHEAD_SIZE = 1024 * 1024L; //1M
+  static const int64_t KVCACHE_ITEM_SIZE = 1 * 1024;      //1K
+  static const int64_t KVCACHE_BLOCK_SIZE = 1024 * 1024L;  //1M
+  static const int64_t MAX_READ_AHEAD_SIZE = 1024 * 1024L;  //1M
 
  public:
   typedef common::KeyValueCache<ObDataIndexKey, BlockCacheValue,
@@ -93,8 +100,7 @@ class ObBlockCache {
   explicit ObBlockCache(common::IFileInfoMgr& fileinfo_cache);
   ~ObBlockCache();
 
-  int init(const int64_t cache_mem_size);
-  int enlarg_cache_size(const int64_t cache_mem_size);
+  int init(const ObBlockCacheConf& conf);
   int destroy();
   const int64_t size() const;
   int clear();
@@ -110,7 +116,6 @@ class ObBlockCache {
    * @param buffer_handle store the return block data buffer, and
    *                      it will revert buffer handle automaticly
    * @param table_id table id
-   * @param check_crc whether check the block data record
    *
    * @return int32_t if success, return the read block data size,
    *         else return -1
@@ -119,8 +124,7 @@ class ObBlockCache {
                     const int64_t offset,
                     const int64_t nbyte,
                     ObBufferHandle& buffer_handle,
-                    const uint64_t table_id,
-                    const bool check_crc = true);
+                    const uint64_t table_id);
 
   /**
    * first try to get block data at %cursor from cache,
@@ -135,7 +139,6 @@ class ObBlockCache {
    *                   from down to top.
    * @param buffer_handle store the return block data buffer, and
    *                      it will revert buffer handle automaticly
-   * @param check_crc whether check the block data record
    *
    * @return int32_t if success, return the read block data size,
    *         else return -1
@@ -146,8 +149,7 @@ class ObBlockCache {
     const ObBlockPositionInfos& block_infos,
     const int64_t cursor,
     const bool is_reverse,
-    ObBufferHandle& buffer_handle,
-    const bool check_crc = true);
+    ObBufferHandle& buffer_handle);
 
   /**
    * try to get block data from cache, if success, return the
@@ -213,7 +215,6 @@ class ObBlockCache {
    * @param timeout_us timeout in us
    * @param table_id table id of block to read
    * @param column_group_id column group id of block to read
-   * @param check_crc whether check the block data record
    *
    * @return int32_t if success, return the block data size, else
    *         return -1
@@ -224,19 +225,7 @@ class ObBlockCache {
                         ObBufferHandle& buffer_handle,
                         const int64_t timeout_us,
                         const uint64_t table_id,
-                        const uint64_t column_group_id,
-                        const bool check_crc = true);
-
-
-  /**
-   * read block data from disk, and donot put into cache;
-   */
-  int32_t get_block_sync_io(const uint64_t sstable_id,
-                            const int64_t offset,
-                            const int64_t nbyte,
-                            ObBufferHandle& buffer_handle,
-                            const uint64_t table_id,
-                            const bool check_crc = true);
+                        const uint64_t column_group_id);
 
   /**
    * get next block in block cache, it's used to traverse the

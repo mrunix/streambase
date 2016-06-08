@@ -1,22 +1,18 @@
-////===================================================================
-//
-// ob_lrucache.cc / hash / common / Oceanbase
-//
-// Copyright (C) 2010, 2013 Taobao.com, Inc.
-//
-// Created on 2010-08-04 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_lrucache.h for ...
+ *
+ * Authors:
+ *   huating <huating.zmq@taobao.com>
+ *
+ */
 #ifndef  OCEANBASE_COMMON_LRUCACHE_H_
 #define  OCEANBASE_COMMON_LRUCACHE_H_
 #include <stdlib.h>
@@ -271,17 +267,17 @@ class ObLruCache {
       if (max_cache_num_ <= hashmap_.size()) {
         HASH_WRITE_LOG(HASH_WARNING, "no more cache item num");
         ret = OB_ERROR;
-      } else if (NULL == (lrunode = allocer_.alloc())) {
+      } else if (NULL == (lrunode = allocer_.allocate())) {
         HASH_WRITE_LOG(HASH_WARNING, "allocate lrunode fail cache_value=%p", cache_value);
         ret = OB_ERROR;
       } else if (!lru_list_.add_last(lrunode)) {
         HASH_WRITE_LOG(HASH_WARNING, "add lrunode to lrulist fail cache_value=%p", cache_value);
-        allocer_.free(lrunode);
+        allocer_.deallocate(lrunode);
         ret = OB_ERROR;
       } else if (HASH_INSERT_SUCC != hashmap_.set(cache_key, lrunode)) {
         HASH_WRITE_LOG(HASH_WARNING, "add lrunode to hashmap fail cache_value=%p", cache_value);
         lru_list_.remove(lrunode);
-        allocer_.free(lrunode);
+        allocer_.deallocate(lrunode);
         ret = OB_ERROR;
       } else {
         lrunode->init(cache_key, cache_value);
@@ -423,7 +419,7 @@ class ObLruCache {
   void erase_lrunode_(lrunode_t* lrunode) {
     hashmap_.erase(lrunode->get_key());
     lru_list_.remove(lrunode);
-    allocer_.free(lrunode);
+    allocer_.deallocate(lrunode);
   };
 
   lrunode_t* get_lrunode_(const _key& cache_key) {
@@ -470,3 +466,5 @@ class ObLruCache {
 }
 
 #endif //OCEANBASE_COMMON_LRUCACHE_H_
+
+

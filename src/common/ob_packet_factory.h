@@ -1,5 +1,22 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_packet_factory.h for ...
+ *
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
+ */
 #ifndef OCEANBASE_COMMON_PACKET_FACTORY_H_
 #define OCEANBASE_COMMON_PACKET_FACTORY_H_
+
+#include <tbnet.h>
 
 #include "ob_define.h"
 #include "ob_packet.h"
@@ -7,7 +24,7 @@
 
 namespace sb {
 namespace common {
-class ObPacketFactory {
+class ObPacketFactory : public tbnet::IPacketFactory {
  public:
   ObPacketFactory() {
     packet_buffer_ = new ThreadSpecificBuffer(THREAD_BUFFER_SIZE);
@@ -20,8 +37,7 @@ class ObPacketFactory {
     }
   }
 
-  //这里的pcode没有用， 有这个参数是为了兼容
-  ObPacket* createPacket(int pcode = 0) {
+  tbnet::Packet* createPacket(int pcode) {
     UNUSED(pcode);
     ObPacket* packet = NULL;
     ThreadSpecificBuffer::Buffer* tb = packet_buffer_->get_buffer();
@@ -32,14 +48,13 @@ class ObPacketFactory {
       packet = new(buf) ObPacket();
       buf += sizeof(ObPacket);
       packet->set_packet_buffer(buf, OB_MAX_PACKET_LENGTH);
-      packet->set_no_free();
     }
     return packet;
   }
 
-  void destroyPacket(ObPacket* packet) {
+  void destroyPacket(tbnet::Packet* packet) {
     UNUSED(packet);
-    //do nothing
+    // does nothing
   }
 
  private:
@@ -49,6 +64,7 @@ class ObPacketFactory {
   ThreadSpecificBuffer* packet_buffer_;
 };
 } /* common */
-} /* oceanbase */
+} /* sb */
 
 #endif /* end of include guard: OCEANBASE_COMMON_PACKET_FACTORY_H_ */
+

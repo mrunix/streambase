@@ -3,24 +3,17 @@
 
 #include "common/ob_server.h"
 #include "common/ob_scan_param.h"
-#include "common/ob_new_scanner.h"
-#include "common/ob_range2.h"
-#include "common/page_arena.h"
+#include "common/ob_scanner.h"
 
 #include "base_client.h"
 #include "rpc_stub.h"
 #include "task_info.h"
-#include "task_env.h"
-#include "task_stats.h"
-#include "task_output_file.h"
-#include "task_worker_param.h"
 
 namespace sb {
 namespace tools {
 class TaskWorker: public BaseClient {
  public:
-  TaskWorker(Env* env, const common::ObServer& server, const int64_t timeout,
-             const uint64_t retry_times, const TaskWorkerParam* param);
+  TaskWorker(const common::ObServer& server, const int64_t timeout, const uint64_t retry_times);
   virtual ~TaskWorker();
 
  public:
@@ -58,20 +51,18 @@ class TaskWorker: public BaseClient {
   int check_result(const common::ObScanParam& param, const common::ObScanner& result);
 
   /// modify param
-  int modify_param(const common::ObScanner& result, common::ModuleArena& allocator,
-                   common::ObNewRange& new_range, common::ObScanParam& param);
+  int modify_param(const common::ObScanner& result, common::ObMemBuffer& buffer,
+                   common::ObScanParam& param);
 
  protected:
   /// output scan result
-  virtual int output(TaskOutputFile* file, common::ObScanner& result) const;
+  virtual int output(FILE* file, common::ObScanner& result) const;
 
   /// do the task output file or stdout
-  virtual int do_task(TaskOutputFile* file, const TaskInfo& task);
+  virtual int do_task(FILE* file, const TaskInfo& task);
 
   /// do task output file
   virtual int do_task(const char* file, const TaskInfo& task);
-
-  virtual int make_file_name(const TaskInfo& task, char file_name[], const int64_t len);
 
  private:
   RpcStub* rpc_;
@@ -80,9 +71,6 @@ class TaskWorker: public BaseClient {
   int64_t retry_times_;
   int64_t timeout_;
   common::ObServer server_;
-  Env* env_;
-  const TaskWorkerParam* param_;
-  TaskStats stat_;
 };
 
 inline bool TaskWorker::check_inner_stat(void) const {

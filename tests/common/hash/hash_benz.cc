@@ -38,7 +38,6 @@ class allocer_t {
     cur_buffer_ = new char[BLOCK_SIZE];
   };
   void deallocate(void* buffer) {
-    UNUSED(buffer);
   };
   void* allocate() {
     char* ret = NULL;
@@ -224,7 +223,6 @@ void benz_sht_get(value_t* values) {
 }
 
 int main(int argc, char** argv) {
-  UNUSED(argc);
   ob_init_memory_pool();
   rd_thread_num = atoi(argv[1]);
   wr_thread_num = atoi(argv[2]);
@@ -236,8 +234,7 @@ int main(int argc, char** argv) {
   sght = new StdHashTable(ITEM_NUM);
   //allocer_t allocer;
   SimpleAllocer<HashTableTypes<value_t>::AllocType> allocer;
-  ObMalloc ballocer;
-  ght->create(cal_next_prime(ITEM_NUM), &allocer, &ballocer);
+  ght->create(cal_next_prime(ITEM_NUM), &allocer);
 
   benz_sht_set(values);
   benz_sht_get(values);
@@ -266,3 +263,4 @@ int main(int argc, char** argv) {
   delete ght;
   delete[] values;
 }
+

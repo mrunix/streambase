@@ -53,7 +53,7 @@ class TestObLogWriter: public ::testing::Test {
 
 TEST_F(TestObLogWriter, test_appender) {
   ObFileAppender ap;
-  ASSERT_EQ(ap.open(ObString(5, 5, (char*)"00000"), true, true), OB_SUCCESS);
+  ASSERT_EQ(ap.open(ObString(5, 5, "00000"), true, true), OB_SUCCESS);
   //int fd  = open("00000", O_WRONLY | O_CREAT, S_IRWXU);
   char buf[BUFSIZ];
   memset(buf, 0x0A, BUFSIZ);
@@ -89,7 +89,7 @@ TEST_F(TestObLogWriter, test_init) {
   for (int i = 0; i < BUFSIZ; i++) {
     log_dir[i] = '0';
   }
-  log_dir[BUFSIZ - 1] = '\0';
+  log_dir[BUFSIZ] = '\0';
   EXPECT_EQ(OB_INVALID_ARGUMENT, log_writer.init(log_dir, log_file_max_size, &slave_mgr, 0));
 
   strcpy(log_dir, "tmp1234");
@@ -127,11 +127,11 @@ TEST_F(TestObLogWriter, test_write_log) {
   EXPECT_EQ(OB_SUCCESS, entry.deserialize(log_writer.log_buffer_.get_data(),
                                           log_writer.log_buffer_.get_position(), pos));
   EXPECT_EQ(BUFSIZ, entry.get_log_data_len());
-  EXPECT_EQ(log_max_seq, entry.seq_);
+  EXPECT_EQ(log_max_seq + 1, entry.seq_);
 
   EXPECT_EQ(OB_SUCCESS, log_writer.flush_log());
 
-  int t = static_cast<int32_t>((ObLogWriter::LOG_BUFFER_SIZE - ObLogWriter::LOG_FILE_ALIGN_SIZE) / (BUFSIZ + entry.get_serialize_size()));
+  int t = (ObLogWriter::LOG_BUFFER_SIZE - ObLogWriter::LOG_FILE_ALIGN_SIZE) / (BUFSIZ + entry.get_serialize_size());
   for (int i = 0; i < t; i++) {
     EXPECT_EQ(OB_SUCCESS, log_writer.write_log(OB_LOG_UPS_MUTATOR, buf, BUFSIZ));
   }
@@ -162,7 +162,7 @@ TEST_F(TestObLogWriter, test_write_log) {
   uint64_t log_seq = log_writer.cur_log_seq_;
   uint64_t file_id = 0;
   EXPECT_EQ(OB_SUCCESS, log_writer.write_checkpoint_log(file_id));
-  EXPECT_EQ(log_seq + 3, log_writer.cur_log_seq_);
+  EXPECT_EQ(log_seq + 2, log_writer.cur_log_seq_);
   EXPECT_EQ(file_id + 1, log_writer.cur_log_file_id_);
 
   system("rm -r tmp1234");
@@ -190,7 +190,7 @@ TEST_F(TestObLogWriter, test_write_and_flush_log) {
 
   EXPECT_EQ(log_writer.cur_log_size_, get_write_size(BUFSIZ + entry.get_serialize_size()));
 
-  int t = static_cast<int32_t>(ObLogWriter::LOG_BUFFER_SIZE / get_write_size(BUFSIZ + entry.get_serialize_size()));
+  int t = ObLogWriter::LOG_BUFFER_SIZE / get_write_size(BUFSIZ + entry.get_serialize_size());
   for (int i = 0; i < t; i++) {
     EXPECT_EQ(OB_SUCCESS, log_writer.write_and_flush_log(OB_LOG_UPS_MUTATOR, buf, BUFSIZ));
   }

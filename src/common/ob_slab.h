@@ -1,19 +1,18 @@
-/*
- * (C) 2007-2010 TaoBao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- * ob_slab.h is for what ...
+ * Version: $Id$
  *
- * Version: $id$
+ * ob_slab.h for ...
  *
  * Authors:
- *   MaoQi maoqi@taobao.com
+ *   maoqi <maoqi@taobao.com>
  *
  */
-
 #ifndef OCEANBASE_COMMON_OB_SLAB_H_
 #define OCEANBASE_COMMON_OB_SLAB_H_
 
@@ -139,7 +138,8 @@ const int64_t OB_SLAB_ITEM_SIZE = sizeof(ObSlabItem) - sizeof(ObSlabItem*);
 #endif
 
 } /* common */
-} /* oceanbase */
+} /* sb */
 
 #endif
+
 

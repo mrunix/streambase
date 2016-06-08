@@ -1,15 +1,17 @@
 /**
- * (C) 2007-2010 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
  * Version: $Id$
  *
+ * ob_common_param.cc for ...
+ *
  * Authors:
- *   yanran <yanran.hfs@taobao.com>
- *     - some work details if you want
+ *    yanran <yanran.hfs@taobao.com>
+ *
  */
 
 #include "ob_log_replay_runnable.h"
@@ -22,7 +24,7 @@
 using namespace sb::common;
 
 ObLogReplayRunnable::ObLogReplayRunnable() {
-  replay_wait_time_ = DEFAULT_REPLAY_WAIT_TIME_US;
+  replay_wait_time_ = 100000;
   role_mgr_ = NULL;
   obi_role_ = NULL;
   is_initialized_ = false;
@@ -46,37 +48,19 @@ int ObLogReplayRunnable::init(const char* log_dir, const uint64_t log_file_id_st
   }
 
   if (OB_SUCCESS == ret) {
-    ret = log_reader_.init(&single_log_reader_, log_dir, log_file_id_start,
-                           log_seq_start, true);
+    ret = log_reader_.init(log_dir, log_file_id_start, log_seq_start, true);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(ERROR, "ObLogReader init error[ret=%d], ObLogReplayRunnable init failed", ret);
     } else {
       role_mgr_ = role_mgr;
       obi_role_ = obi_role;
       replay_wait_time_ = replay_wait_time;
-      max_log_seq_ = log_seq_start;
       is_initialized_ = true;
     }
   }
 
   return ret;
 }
-
-int ObLogReplayRunnable::reset_file_id(const uint64_t log_id_start, const uint64_t log_seq_start) {
-  if (0 != log_seq_start) {
-    max_log_seq_ = log_seq_start;
-  }
-  return log_reader_.reset_file_id(log_id_start, log_seq_start);
-}
-
-void ObLogReplayRunnable::clear() {
-  if (NULL != _thread) {
-    delete[] _thread;
-    _thread = NULL;
-  }
-  _stop = false;
-}
-
 
 void ObLogReplayRunnable::run(tbsys::CThread* thread, void* arg) {
   int ret = OB_SUCCESS;
@@ -100,7 +84,7 @@ void ObLogReplayRunnable::run(tbsys::CThread* thread, void* arg) {
             && (NULL == obi_role_ || ObiRole::MASTER == obi_role_->get_role())) {
           stop();
         } else {
-          usleep(static_cast<useconds_t>(replay_wait_time_));
+          usleep(replay_wait_time_);
         }
         continue;
       } else if (OB_SUCCESS != ret) {
@@ -111,7 +95,7 @@ void ObLogReplayRunnable::run(tbsys::CThread* thread, void* arg) {
           ret = replay(cmd, seq, log_data, data_len);
           if (OB_SUCCESS != ret) {
             TBSYS_LOG(ERROR, "replay log error[ret=%d]", ret);
-            hex_dump(log_data, static_cast<int32_t>(data_len), false, TBSYS_LOG_LEVEL_ERROR);
+            hex_dump(log_data, data_len, false, TBSYS_LOG_LEVEL_ERROR);
             break;
           }
         }
@@ -121,24 +105,15 @@ void ObLogReplayRunnable::run(tbsys::CThread* thread, void* arg) {
 
   // stop server
   if (NULL != role_mgr_) { // double check
-    if (OB_SUCCESS != ret && OB_READ_NOTHING != ret) {
-      TBSYS_LOG(WARN, "role_mgr_=%p", role_mgr_);
+    if (OB_SUCCESS != ret) {
       role_mgr_->set_state(ObRoleMgr::ERROR);
     }
   }
   TBSYS_LOG(INFO, "ObLogReplayRunnable finished[stop=%d ret=%d]", _stop, ret);
 }
 
-void ObLogReplayRunnable::get_cur_replay_point(int64_t& log_file_id, int64_t& log_seq_id) {
-  log_file_id = log_reader_.get_cur_log_file_id();
-  log_seq_id = log_reader_.get_last_log_seq_id() + 1;
-}
 void ObLogReplayRunnable::get_cur_replay_point(int64_t& log_file_id, int64_t& log_seq_id, int64_t& log_offset) {
   log_file_id = log_reader_.get_cur_log_file_id();
-  log_seq_id = log_reader_.get_last_log_seq_id() + 1;
+  log_seq_id = log_reader_.get_last_log_seq_id();
   log_offset = log_reader_.get_last_log_offset();
-}
-
-int ObLogReplayRunnable::get_replayed_cursor(ObLogCursor& replay_cursor) {
-  return log_reader_.get_next_cursor(replay_cursor);
 }

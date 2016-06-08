@@ -16,7 +16,7 @@
 
 #ifndef  OB_API_DB_DUMPER_MGR_INC
 #define  OB_API_DB_DUMPER_MGR_INC
-#include "oceanbase_db.h"
+#include "sb_db.h"
 #include "db_record_set.h"
 #include "db_parse_log.h"
 #include "db_dumper_config.h"
@@ -54,7 +54,7 @@ class DbDumperMgr {
 
   int64_t get_start_log();
 
-  //    ObSchemaManager schema_mgr_;
+  ObSchemaManager schema_mgr_;
   OceanbaseDb* db_;
   CRWLock mutex_;
 

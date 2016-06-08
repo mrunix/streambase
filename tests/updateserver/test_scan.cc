@@ -1,17 +1,16 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: 0.1: test_scan.cc,v 0.1 2010/09/25 09:14:14 chuanhui Exp $
+ * test_scan.cc for ...
  *
  * Authors:
- *   chuanhui <rizhao.ych@taobao.com>
- *     - some work details if you want
+ *   rizhao <rizhao.ych@taobao.com>
  *
  */
 #include <iostream>
@@ -20,19 +19,15 @@
 #include <gtest/gtest.h>
 #include "tblog.h"
 #include "test_helper.h"
-#include "test_utils.h"
 #include "test_init.h"
 #include "updateserver/ob_ups_table_mgr.h"
 #include "test_ups_table_mgr_helper.h"
 #include "updateserver/ob_update_server_main.h"
-#include <bitset>
-#include "../common/test_rowkey_helper.h"
 
 using namespace std;
 using namespace sb::common;
 using namespace sb::updateserver;
 
-static CharArena allocator_;
 
 namespace sb {
 namespace tests {
@@ -73,7 +68,6 @@ TEST_F(TestScan, test_scan) {
   static const int64_t COL_NUM = 1;
 
   ObCellInfo cell_infos[ROW_NUM][COL_NUM];
-  std::bitset<COL_NUM> check_flags[ROW_NUM];
   char row_key_strs[ROW_NUM][50];
   uint64_t table_id = 10;
   // init cell infos
@@ -81,10 +75,10 @@ TEST_F(TestScan, test_scan) {
     sprintf(row_key_strs[i], "row_key_%08ld", i);
     for (int64_t j = 0; j < COL_NUM; ++j) {
       cell_infos[i][j].table_id_ = table_id;
-      cell_infos[i][j].row_key_ = make_rowkey(row_key_strs[i], &allocator_);
+      cell_infos[i][j].row_key_.assign(row_key_strs[i], strlen(row_key_strs[i]));
       //cell_infos[i][j].op_info_.set_sem_ob();
 
-      cell_infos[i][j].column_id_ = j + 10;
+      cell_infos[i][j].column_id_ = j + 1;
 
       cell_infos[i][j].value_.set_int(1000 + i * COL_NUM + j);
     }
@@ -103,19 +97,16 @@ TEST_F(TestScan, test_scan) {
       EXPECT_EQ(0, err);
     }
   }
-  prepare_mutator(mutator);
 
   // write row to active memtable
-  uint64_t trans_descriptor = 0;
-  err = active_memtable.start_transaction(WRITE_TRANSACTION, trans_descriptor);
+  MemTableTransHandle write_handle;
+  err = active_memtable.start_transaction(WRITE_TRANSACTION, write_handle);
   ASSERT_EQ(0, err);
-  err = active_memtable.start_mutation(trans_descriptor);
-  ASSERT_EQ(0, err);
-  err = active_memtable.set(trans_descriptor, ups_mutator);
+  int64_t mutate_timestamp = 0;
+  ups_mutator.set_mutate_timestamp(mutate_timestamp);
+  err = active_memtable.set(write_handle, ups_mutator);
   EXPECT_EQ(0, err);
-  err = active_memtable.end_mutation(trans_descriptor, false);
-  ASSERT_EQ(0, err);
-  err = active_memtable.end_transaction(trans_descriptor, false);
+  err = active_memtable.end_transaction(write_handle);
   ASSERT_EQ(0, err);
 
   // scan memtable
@@ -123,7 +114,7 @@ TEST_F(TestScan, test_scan) {
   ObScanParam scan_param;
   //ObOperateInfo op_info;
   ObString table_name;
-  ObNewRange range;
+  ObRange range;
   range.start_key_ = cell_infos[0][0].row_key_;
   range.end_key_ = cell_infos[ROW_NUM - 1][0].row_key_;
   range.border_flag_.set_inclusive_start();
@@ -134,15 +125,13 @@ TEST_F(TestScan, test_scan) {
   //scan_param.set_is_read_frozen_only(false);
   ObVersionRange version_range;
   version_range.start_version_ = 2;
-  //version_range.end_version_ = 2;
+  version_range.end_version_ = 2;
   version_range.border_flag_.set_inclusive_start();
-  //version_range.border_flag_.set_inclusive_end();
-  version_range.border_flag_.set_max_value();
+  version_range.border_flag_.set_inclusive_end();
   scan_param.set_version_range(version_range);
   for (int64_t i = 0; i < COL_NUM; ++i) {
     scan_param.add_column(cell_infos[0][i].column_id_);
   }
-  active_memtable.dump2text(ObString(2, 2, const_cast<char*>("./")));
 
   err = mgr.scan(scan_param, scanner, tbsys::CTimeUtil::getTime(), 2 * 1000L * 1000L);
   EXPECT_EQ(0, err);
@@ -151,16 +140,12 @@ TEST_F(TestScan, test_scan) {
   ObScannerIterator iter;
   for (iter = scanner.begin(); iter != scanner.end(); iter++) {
     ObCellInfo ci;
+    ObCellInfo expected = cell_infos[count / COL_NUM][count % COL_NUM];
     EXPECT_EQ(OB_SUCCESS, iter.get_cell(ci));
-    ObCellInfo expected = cell_infos[count / COL_NUM][ci.column_id_ - 10];
     check_cell(expected, ci);
-    check_flags[count / COL_NUM].set(ci.column_id_ - 10);
     ++count;
   }
   EXPECT_EQ(ROW_NUM * COL_NUM, count);
-  for (int64_t i = 0; i < ROW_NUM; i++) {
-    EXPECT_EQ(COL_NUM, (int64_t)check_flags[i].size());
-  }
 }
 
 } // end namespace updateserver
@@ -172,3 +157,6 @@ int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+
+
+

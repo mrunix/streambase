@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -54,9 +54,7 @@ TEST(TestFileInfoCache, get_fileinfo) {
 
   get_succ() = false;
   EXPECT_EQ(nil, fic.get_fileinfo(handle));
-  fic.destroy();
 
-  fic.init(1024);
   EXPECT_NE(nil, (ret = fic.get_fileinfo(handle)));
   EXPECT_NE(invalid_fd, ret->get_fd());
   EXPECT_EQ(ret, fic.get_fileinfo(handle));

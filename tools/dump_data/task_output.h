@@ -15,13 +15,13 @@ class TaskOutput {
 
  protected:
   struct OutputInfo {
-    string peer_ip_;
+    uint64_t peer_id_;
     string file_;
   };
 
  public:
   int64_t size(void) const;
-  int add(const uint64_t task_id, const string& peer_ip, const string& file);
+  int add(const uint64_t task_id, const int64_t peer_id, const string& file);
   int print(FILE* output_file);
 
  private:

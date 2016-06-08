@@ -1,17 +1,16 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- * ob_link.h is for what ...
+ * Version: $Id$
  *
- * Version: $id: ob_link.h,v 0.1 8/19/2010 9:56a wushi Exp $
+ * ob_link.h for ...
  *
  * Authors:
  *   wushi <wushi.ly@taobao.com>
- *     - some work details if you want
  *
  */
 #ifndef OCEANBASE_COMMON_LINK_H_
@@ -187,3 +186,4 @@ class ObDLink {
 }
 }
 #endif
+

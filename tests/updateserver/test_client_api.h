@@ -1,17 +1,16 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: 0.1: mock_client.h,v 0.1 2010/10/08 16:09:06 chuanhui Exp $
+ * test_client_api.h for ...
  *
  * Authors:
- *   chuanhui <rizhao.ych@taobao.com>
- *     - some work details if you want
+ *   qushan <qushan@taobao.com>
  *
  */
 #ifndef __OCEANBASE_CHUNKSERVER_MOCK_CLIENT_H__
@@ -173,4 +172,6 @@ class MockClient : public BaseClient {
 
 
 #endif //__MOCK_CLIENT_H__
+
+
 

@@ -34,25 +34,7 @@ class DbCheckpoint;
 class RowkeyHandler {
  public:
   virtual ~RowkeyHandler() { }
-
-  virtual bool need_seq() { return false; }
-  virtual int64_t get_next_seq() { return 0; }
-
-  virtual int process_rowkey(const ObCellInfo& cell, int op, uint64_t timestamp) {
-    UNUSED(cell);
-    UNUSED(op);
-    UNUSED(timestamp);
-    return 0;
-  }
-
-  virtual int process_rowkey(const ObCellInfo& cell, int op, uint64_t timestamp, int64_t seq) {
-    UNUSED(cell);
-    UNUSED(op);
-    UNUSED(timestamp);
-    UNUSED(seq);
-    return 0;
-  }
-
+  virtual int process_rowkey(const ObCellInfo& cell, int op, const char* timestamp) = 0;
   virtual int start_process() { return OB_SUCCESS; }
   virtual int end_process() { return OB_SUCCESS; }
   virtual int get_id() { return 0; }

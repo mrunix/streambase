@@ -6,8 +6,6 @@
 using namespace sb::common;
 
 int main(int argc, char** argv) {
-  UNUSED(argc);
-  UNUSED(argv);
   int ret = OB_SUCCESS;
   //char * test = "00596331192663719";
   char* test = "00912219024438372";

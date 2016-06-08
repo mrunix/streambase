@@ -23,8 +23,6 @@
 #include "common/ob_define.h"
 #include "common/ob_string.h"
 #include "common/ob_schema.h"
-#include "common/ob_range2.h"
-#include "common/page_arena.h"
 #include "chunkserver/ob_tablet.h"
 #include "chunkserver/ob_tablet_image.h"
 #include "sstable/ob_sstable_row.h"
@@ -44,11 +42,10 @@ struct TableArgs {
   int64_t block_size_;
   int64_t start_uid_;
   int64_t start_item_id_;
-  const char* schema_file_;
-  const char* data_dest_;
-  const char* data_file_;
   bool    set_max_;
   bool    set_min_;
+  const char* schema_file_;
+  const char* data_dest_;
 };
 
 class GenDataTest {
@@ -83,7 +80,6 @@ class GenDataTest {
   int fill_row_recovery_info(uint64_t group_id);
   int fill_row_press_item(uint64_t group_id);
   int fill_row_recovery_item(uint64_t group_id);
-  int fill_row_with_data_file(uint64_t group_id, char* line);
 
   int gen_rowkey_press_info();
   int gen_rowkey_press_item();
@@ -100,25 +96,25 @@ class GenDataTest {
   bool first_row_sstable_;
   int32_t table_index_;
   int64_t curr_sstable_id_;
-  int64_t curr_sstable_size_;
   ObSSTableId sstable_id_;
   ObSSTableSchema table_schema_;
+  const common::ObSchema* schema_;
   ObSSTableWriter writer_;
   ObSSTableRow sstable_row_;
   ObTabletImage tablet_image_;
-  common::ObNewRange range_;
+  common::ObRange range_;
   TableArgs* table_args_;
   int32_t table_num_;
   const common::ObSchemaManagerV2* schema_mgr_;
 
-  common::ObRowkey curr_rowkey_;
-  common::ObRowkey last_sstable_end_key_;
-  common::CharArena rowkey_allocator_;
-  common::ObObj rowkey_object_array_[common::OB_MAX_ROWKEY_COLUMN_NUMBER];
-  common::ObObj start_key_object_array_[common::OB_MAX_ROWKEY_COLUMN_NUMBER];
+  common::ObString curr_rowkey_;
+  common::ObString last_sstable_end_key_;
+  int64_t curr_sstable_size_;
+  char row_key_buf_[MAX_KEY_LEN];
+  char start_key_buf_[MAX_KEY_LEN];
   char varchar_buf_[MAX_KEY_LEN];
 
-  std:: map<int32_t, fill_row_func> func_table_;
+  std:: map<int32_t, fill_row_func>func_table_;
   common::ObString sstable_file_name_;
   char dest_file_[MAX_PATH];
   char compressor_name_[MAX_PATH];

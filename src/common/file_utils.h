@@ -1,21 +1,18 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: $Id: file_utils.h,v 0.1 2010/07/22 16:57:07 duanfei Exp $
+ * file_utils.h for ...
  *
  * Authors:
- *   duanfei <duanfei@taobao.com>
- *     - some work details if you want
- *   Author Name ...
+ *   qushan <qushan@taobao.com>
  *
  */
-
 #ifndef OCEANBASE_COMMON_FILE_UTILS_H_
 #define OCEANBASE_COMMON_FILE_UTILS_H_
 
@@ -41,7 +38,6 @@ class FileUtils {
   int64_t pread(char* data, const int64_t size, const int64_t offset);
   int64_t pwrite(const char* data, const int64_t size, const int64_t offfset,
                  bool sync = false);
-  int64_t get_size();
   virtual int ftruncate(int64_t length);
  private:
   bool own_fd_;
@@ -50,3 +46,4 @@ class FileUtils {
 }       //end namespace common
 }       //end namespace sb
 #endif
+

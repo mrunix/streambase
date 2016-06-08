@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./btree_array_list.h for ...
+ *
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
+ */
 #ifndef OCEANBASE_COMMON_BTREE_BTREE_ARRAY_LIST_H_
 #define OCEANBASE_COMMON_BTREE_BTREE_ARRAY_LIST_H_
 
@@ -10,8 +25,8 @@ namespace common {
  */
 class BtreeAlloc;
 typedef struct BtreeNodeList {
-  int32_t pos;
-  int32_t node_count;
+  size_t pos;
+  size_t node_count;
   void** start;
   void** current;
   void** end;
@@ -112,7 +127,7 @@ class BtreeArrayList {
   /**
    * copy node数量
    */
-  int32_t get_copy_node_count();
+  size_t get_copy_node_count();
 
   /**
    * reset copy list
@@ -143,9 +158,9 @@ class BtreeArrayList {
 #ifdef OCEAN_BTREE_CHECK
   BtreeBloomFilter bf;
 #endif
-  int32_t max_copy_node_count_;
+  size_t max_copy_node_count_;
   // 复制的节点数, copy_node的节点数
-  int32_t copy_node_count_;
+  size_t copy_node_count_;
   // 当copy_node_不够用的时候用.
   void** copy_list_start_;
   void** copy_list_current_;
@@ -158,4 +173,5 @@ class BtreeArrayList {
 } // end namespace sb
 
 #endif
+
 

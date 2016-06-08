@@ -1,25 +1,29 @@
-/*
- *   (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- *   Version: 0.1 2010-8-12
+ * Version: 5567
  *
- *   Authors:
- *      qushan <qushan@taobao.com>
+ * ob_chunk_server_main.h
+ *
+ * Authors:
+ *     qushan <qushan@taobao.com>
+ * Changes:
+ *     huating <huating.zmq@taobao.com>
  *
  */
 #ifndef OCEANBASE_CHUNKSERVER_CHUNKSERVERMAIN_H_
 #define OCEANBASE_CHUNKSERVER_CHUNKSERVERMAIN_H_
 
 #include "common/base_main.h"
-#include "common/ob_version.h"
-#include "common/ob_config_manager.h"
 #include "ob_chunk_server.h"
-#include "ob_chunk_server_config.h"
-#include "ob_chunk_reload_config.h"
 
 namespace sb {
 namespace chunkserver {
+
 
 class ObChunkServerMain : public common::BaseMain {
  protected:
@@ -32,13 +36,8 @@ class ObChunkServerMain : public common::BaseMain {
  public:
   const ObChunkServer& get_chunk_server() const { return server_ ; }
   ObChunkServer& get_chunk_server() { return server_ ; }
- protected:
-  virtual void print_version();
  private:
-  ObChunkReloadConfig cs_reload_config_;
-  ObChunkServerConfig cs_config_;
   ObChunkServer server_;
-  ObConfigManager config_mgr_;
 };
 
 

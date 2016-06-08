@@ -15,8 +15,6 @@ using namespace common;
 using namespace hash;
 
 int main(int argc, char** argv) {
-  UNUSED(argc);
-  UNUSED(argv);
   ob_init_memory_pool();
   ObHashSet<int64_t> set;
   ObHashSet<int64_t>::iterator iter;

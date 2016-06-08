@@ -1,14 +1,27 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * test_read_param_modifier.cc for ...
+ *
+ * Authors:
+ *   wushi <wushi.ly@taobao.com>
+ *
+ */
 #include <tblog.h>
 #include <gtest/gtest.h>
 
 #include "common/ob_range.h"
 #include "common/ob_scan_param.h"
 #include "ob_read_param_modifier.h"
-#include "../common/test_rowkey_helper.h"
 
 using namespace sb::common;
 using namespace sb::mergeserver;
-static CharArena allocator_;
 
 int main(int argc, char** argv) {
   ob_init_memory_pool();
@@ -21,17 +34,17 @@ class TestReadParamModifier: public ::testing::Test {
   virtual void SetUp() {
   }
 
-  static bool inner_check_finish(const ObScanParam& param, const ObNewRange& result_range) {
+  static bool inner_check_finish(const ObScanParam& param, const ObRange& result_range) {
     bool ret = false;
     if (0 == param.get_scan_direction()) {
-      if (result_range.end_key_.is_max_row()
-          || ((!param.get_range()->end_key_.is_max_row())
+      if (result_range.border_flag_.is_max_value()
+          || ((!param.get_range()->border_flag_.is_max_value())
               && (result_range.end_key_ >= param.get_range()->end_key_))) {
         ret = true;
       }
     } else {
-      if (result_range.start_key_.is_min_row()
-          || ((!param.get_range()->start_key_.is_min_row())
+      if (result_range.border_flag_.is_min_value()
+          || ((!param.get_range()->border_flag_.is_min_value())
               && ((param.get_range()->border_flag_.inclusive_start()
                    && result_range.start_key_ < param.get_range()->start_key_)
                   || (!param.get_range()->border_flag_.inclusive_start()
@@ -56,72 +69,76 @@ class TestReadParamModifier: public ::testing::Test {
 TEST_F(TestReadParamModifier, test_check_finish) {
   ObScanParam param;
   param.set_scan_direction(ObScanParam::FORWARD);
-  char* key1 = (char*)"cdef";
+  char* key1 = "cdef";
+  ObString sk1(0, 4, key1);
   uint64_t table_id = 110;
   ObString table_name(0, 4, key1);
-  ObNewRange result;
-  result.start_key_ = make_rowkey(key1, &allocator_);
-  result.end_key_ = make_rowkey(key1, &allocator_);
+  ObRange result;
+  result.start_key_ = sk1;
+  result.end_key_ = sk1;
   result.border_flag_.unset_inclusive_start();
   result.border_flag_.set_inclusive_end();
 
   // normal sequence
   BLOCK_FUNC() {
     // lt
-    ObNewRange request;
-    char* key2 = (char*)"adef";
-    request.end_key_ = make_rowkey(key2, &allocator_);;
+    ObRange request;
+    char* key2 = "adef";
+    ObString sk2(0, 4, key2);
+    request.end_key_ = sk2;
 
     // inclusive
     request.border_flag_.set_inclusive_end();
     param.set(table_id, table_name, request);
-    EXPECT_TRUE(is_finish_scan(param.get_scan_direction(), *param.get_range(), result) == true);
+    EXPECT_TRUE(is_finish_scan(param, result) == true);
     EXPECT_TRUE(TestReadParamModifier::inner_check_finish(param, result) == true);
 
     // not inclusive
     request.border_flag_.unset_inclusive_end();
     param.set(table_id, table_name, request);
-    EXPECT_TRUE(is_finish_scan(param.get_scan_direction(), *param.get_range(), result) == true);
+    EXPECT_TRUE(is_finish_scan(param, result) == true);
     EXPECT_TRUE(TestReadParamModifier::inner_check_finish(param, result) == true);
   }
 
   // normal sequence
   BLOCK_FUNC() {
     // eq
-    ObNewRange request;
-    char* key2 = (char*)"cdef";
-    request.end_key_ = make_rowkey(key2, &allocator_);;
+    ObRange request;
+    char* key2 = "cdef";
+    ObString sk2(0, 4, key2);
+    request.end_key_ = sk2;
 
     // inclusive
     request.border_flag_.set_inclusive_end();
     param.set(table_id, table_name, request);
-    EXPECT_TRUE(is_finish_scan(param.get_scan_direction(), *param.get_range(), result) == true);
+    EXPECT_TRUE(is_finish_scan(param, result) == true);
     EXPECT_TRUE(TestReadParamModifier::inner_check_finish(param, result) == true);
 
     // not inclusive
     request.border_flag_.unset_inclusive_end();
     param.set(table_id, table_name, request);
-    EXPECT_TRUE(is_finish_scan(param.get_scan_direction(), *param.get_range(), result) == true);
+    EXPECT_TRUE(is_finish_scan(param, result) == true);
     EXPECT_TRUE(TestReadParamModifier::inner_check_finish(param, result) == true);
   }
 
   // normal sequence
   BLOCK_FUNC() {
     // gt
-    ObNewRange request;
-    char* key2 = (char*)"ddef";
-    request.end_key_ = make_rowkey(key2, &allocator_);;
+    ObRange request;
+    char* key2 = "ddef";
+    ObString sk2(0, 4, key2);
+    request.end_key_ = sk2;
 
     // inclusive
     request.border_flag_.set_inclusive_end();
     param.set(table_id, table_name, request);
-    EXPECT_TRUE(is_finish_scan(param.get_scan_direction(), *param.get_range(), result) == false);
+    EXPECT_TRUE(is_finish_scan(param, result) == false);
     EXPECT_TRUE(TestReadParamModifier::inner_check_finish(param, result) == false);
 
     // not inclusive
     request.border_flag_.unset_inclusive_end();
     param.set(table_id, table_name, request);
-    EXPECT_TRUE(is_finish_scan(param.get_scan_direction(), *param.get_range(), result) == false);
+    EXPECT_TRUE(is_finish_scan(param, result) == false);
     EXPECT_TRUE(TestReadParamModifier::inner_check_finish(param, result) == false);
   }
 
@@ -129,62 +146,67 @@ TEST_F(TestReadParamModifier, test_check_finish) {
   param.set_scan_direction(ObScanParam::BACKWARD);
   BLOCK_FUNC() {
     // lt
-    ObNewRange request;
-    char* key2 = (char*)"adef";
-    request.end_key_ = make_rowkey(key2, &allocator_);;
+    ObRange request;
+    char* key2 = "adef";
+    ObString sk2(0, 4, key2);
+    request.start_key_ = sk2;
 
     // inclusive
     request.border_flag_.set_inclusive_start();
     param.set(table_id, table_name, request);
-    EXPECT_TRUE(is_finish_scan(param.get_scan_direction(), *param.get_range(), result) == false);
+    EXPECT_TRUE(is_finish_scan(param, result) == false);
     EXPECT_TRUE(TestReadParamModifier::inner_check_finish(param, result) == false);
 
     // not inclusive
     request.border_flag_.unset_inclusive_start();
     param.set(table_id, table_name, request);
-    EXPECT_TRUE(is_finish_scan(param.get_scan_direction(), *param.get_range(), result) == false);
+    EXPECT_TRUE(is_finish_scan(param, result) == false);
     EXPECT_TRUE(TestReadParamModifier::inner_check_finish(param, result) == false);
   }
 
   // invert sequence
   BLOCK_FUNC() {
     // eq
-    ObNewRange request;
-    char* key2 = (char*)"cdef";
-    request.start_key_ = make_rowkey(key2, &allocator_);;
+    ObRange request;
+    char* key2 = "cdef";
+    ObString sk2(0, 4, key2);
+    request.start_key_ = sk2;
 
     // inclusive
     request.border_flag_.set_inclusive_start();
     param.set(table_id, table_name, request);
-    EXPECT_TRUE(is_finish_scan(param.get_scan_direction(), *param.get_range(), result) == false);
+    EXPECT_TRUE(is_finish_scan(param, result) == false);
     EXPECT_TRUE(TestReadParamModifier::inner_check_finish(param, result) == false);
 
     // not inclusive
     request.border_flag_.unset_inclusive_start();
     param.set(table_id, table_name, request);
-    EXPECT_TRUE(is_finish_scan(param.get_scan_direction(), *param.get_range(), result) == true);
+    EXPECT_TRUE(is_finish_scan(param, result) == true);
     EXPECT_TRUE(TestReadParamModifier::inner_check_finish(param, result) == true);
   }
 
   // invert sequence
   BLOCK_FUNC() {
     // gt
-    ObNewRange request;
-    char* key2 = (char*)"ddef";
-    request.start_key_ = make_rowkey(key2, &allocator_);;
+    ObRange request;
+    char* key2 = "ddef";
+    ObString sk2(0, 4, key2);
+    request.start_key_ = sk2;
 
     // inclusive
     request.border_flag_.set_inclusive_start();
     param.set(table_id, table_name, request);
-    EXPECT_TRUE(is_finish_scan(param.get_scan_direction(), *param.get_range(), result) == true);
+    EXPECT_TRUE(is_finish_scan(param, result) == true);
     EXPECT_TRUE(TestReadParamModifier::inner_check_finish(param, result) == true);
 
     // not inclusive
     request.border_flag_.unset_inclusive_start();
     param.set(table_id, table_name, request);
-    EXPECT_TRUE(is_finish_scan(param.get_scan_direction(), *param.get_range(), result) == true);
+    EXPECT_TRUE(is_finish_scan(param, result) == true);
     EXPECT_TRUE(TestReadParamModifier::inner_check_finish(param, result) == true);
   }
 }
+
+
 
 

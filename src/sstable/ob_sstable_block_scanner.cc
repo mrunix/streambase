@@ -1,15 +1,18 @@
 /**
- *  (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- *  This program is free software; you can redistribute it
- *  and/or modify it under the terms of the GNU General Public
- *  License version 2 as published by the Free Software
- *  Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- *  ob_sstable_block_scanner.cc is for what ...
+ * Version: 5567
  *
- *  Authors:
+ * ob_sstable_block_scanner.cc
+ *
+ * Authors:
  *     qushan <qushan@taobao.com>
+ * Changes:
+ *     huating <huating.zmq@taobao.com>
  *
  */
 #include "ob_sstable_block_scanner.h"
@@ -17,11 +20,9 @@
 #include "common/ob_define.h"
 #include "common/ob_malloc.h"
 #include "common/ob_action_flag.h"
-#include "common/ob_rowkey_helper.h"
 #include "ob_sstable_scanner.h"
-#include "ob_sstable_reader.h"
-#include "ob_sstable_scan_param.h"
 #include "ob_sstable_block_index_v2.h"
+#include "ob_scan_column_indexes.h"
 #include "ob_sstable_trailer.h"
 
 using namespace sb::common;
@@ -30,17 +31,17 @@ namespace sb {
 namespace sstable {
 ObSSTableBlockScanner::ObSSTableBlockScanner(const ObScanColumnIndexes& column_indexes)
   : initialize_status_(OB_NOT_INIT), sstable_data_store_style_(OB_SSTABLE_STORE_DENSE),
-    is_reverse_scan_(false), is_row_changed_(false), is_row_finished_(false),
-    handled_del_row_(false), not_exit_col_ret_nop_(false),
-    column_cursor_(0), current_column_count_(0), query_column_indexes_(column_indexes),
-    row_cursor_(NULL), row_start_index_(NULL), row_last_index_(NULL) {
+    is_reverse_scan_(false), is_row_changed_(false), handled_del_row_(false),
+    column_cursor_(0), current_column_count_(0),
+    row_cursor_(NULL), row_start_index_(NULL), row_last_index_(NULL),
+    query_column_indexes_(column_indexes) {
   memset(current_columns_, 0 , sizeof(current_columns_));
 }
 
 ObSSTableBlockScanner::~ObSSTableBlockScanner() {
 }
 
-inline void ObSSTableBlockScanner::next_row() {
+void ObSSTableBlockScanner::next_row() {
   handled_del_row_ = false;
   if (!is_reverse_scan_) {
     ++row_cursor_;
@@ -49,7 +50,7 @@ inline void ObSSTableBlockScanner::next_row() {
   }
 }
 
-inline bool ObSSTableBlockScanner::start_of_block() {
+bool ObSSTableBlockScanner::start_of_block() {
   bool ret = false;
   if (0 == column_cursor_ && !handled_del_row_) {
     if ((!is_reverse_scan_) && row_cursor_ == row_start_index_) {
@@ -61,7 +62,7 @@ inline bool ObSSTableBlockScanner::start_of_block() {
   return ret;
 }
 
-inline bool ObSSTableBlockScanner::end_of_block() {
+bool ObSSTableBlockScanner::end_of_block() {
   bool ret = false;
   if ((!is_reverse_scan_) && row_cursor_ > row_last_index_) {
     ret = true;
@@ -73,14 +74,18 @@ inline bool ObSSTableBlockScanner::end_of_block() {
 
 int ObSSTableBlockScanner::store_and_advance_column() {
   int ret = OB_SUCCESS;
-  ObScanColumnIndexes::Column column;
+  int64_t column_index = ObScanColumnIndexes::INVALID_COLUMN;
+  int64_t column_id = common::OB_INVALID_ID;
 
-  if (OB_SUCCESS != (ret = get_current_column_index(column_cursor_, column))) {
-    TBSYS_LOG(ERROR, "get column index error, ret = %d, cursor=%ld, id= %lu, index=%d",
-              ret, column_cursor_, column.id_, column.index_);
-  } else if (OB_SUCCESS != (ret = store_current_cell(column))) {
-    TBSYS_LOG(ERROR, "store current cell error, ret = %d, cursor=%ld, type=%d, index=%d, id=%lu",
-              ret, column_cursor_, column.type_, column.index_, column.id_);
+  if (OB_SUCCESS != (ret = get_current_column_index(
+                             column_cursor_, column_id, column_index))) {
+    TBSYS_LOG(ERROR, "get column index error, ret = %d, cursor=%ld, id= %ld, index=%ld",
+              ret, column_cursor_, column_id, column_index);
+  } else if (OB_SUCCESS != (ret = store_current_cell(column_id, column_index))) {
+    TBSYS_LOG(ERROR, "store current cell error, ret = %d, cursor=%ld, id=%ld, index=%ld",
+              ret, column_cursor_, column_id, column_index);
+  } else if (sstable_data_store_style_ == OB_SSTABLE_STORE_DENSE) {
+    ++column_cursor_;
   }
   return ret;
 }
@@ -88,7 +93,7 @@ int ObSSTableBlockScanner::store_and_advance_column() {
 int ObSSTableBlockScanner::next_cell() {
   int ret = OB_SUCCESS;
   if (OB_SUCCESS != initialize_status_) {
-    ret = static_cast<int>(initialize_status_);
+    ret = initialize_status_;
   } else if (NULL == row_cursor_
              || NULL == row_start_index_
              || NULL == row_last_index_
@@ -97,11 +102,12 @@ int ObSSTableBlockScanner::next_cell() {
     TBSYS_LOG(ERROR, "not initialized, cursor=%p, start=%p, last=%p",
               row_cursor_, row_start_index_, row_last_index_);
     ret = OB_NOT_INIT;
-  } else if (query_column_indexes_.get_column_count() == 0 || end_of_block()) {
+  } else if (query_column_indexes_.get_column_count() == 0) {
+    ret = OB_BEYOND_THE_RANGE;
+  } else if (end_of_block()) {
     ret = OB_BEYOND_THE_RANGE;
   } else {
     is_row_changed_ = start_of_block();
-    is_row_finished_ = false;
     if (column_cursor_ < query_column_indexes_.get_column_count()) {
       ret = store_and_advance_column();
     } else {
@@ -110,7 +116,7 @@ int ObSSTableBlockScanner::next_cell() {
       if (end_of_block()) {
         ret = OB_BEYOND_THE_RANGE;
       } else if (OB_SUCCESS != (ret = load_current_row(row_cursor_))) {
-        TBSYS_LOG(ERROR, "load current row error, ret=%d , cursor=%d,%d",
+        TBSYS_LOG(ERROR, "load current row error, ret=%d , cursor=%ld,%ld",
                   ret, row_cursor_->offset_, row_cursor_->size_);
       }
       // if we load next row successfully, reset %column_cursor_
@@ -121,31 +127,25 @@ int ObSSTableBlockScanner::next_cell() {
         ret = store_and_advance_column();
       }
     }
-
-    if (OB_SUCCESS == ret
-        && column_cursor_ >= query_column_indexes_.get_column_count()) {
-      is_row_finished_ = true;
-    }
   }
 
   return ret;
 }
 
-inline int ObSSTableBlockScanner::get_current_column_index(
-  const int64_t cursor, ObScanColumnIndexes::Column& column) const {
-  int ret = query_column_indexes_.get_column(cursor, column);
-  if (OB_SUCCESS != ret) {
-    TBSYS_LOG(ERROR, "query_column_indexes_ cursor=%ld not exist.", cursor);
-  } else if (sstable_data_store_style_ == OB_SSTABLE_STORE_SPARSE && column.type_ == ObScanColumnIndexes::Normal) {
-    // for sparse sstable, column offset search at current_ids_
-    uint64_t data_column_id = OB_INVALID_ID;
-    column.type_ =  ObScanColumnIndexes::NotExist;
+int ObSSTableBlockScanner::get_current_column_index(
+  const int64_t cursor, int64_t& column_id, int64_t& column_index) const {
+  int ret = OB_SUCCESS;
+  if (sstable_data_store_style_ == OB_SSTABLE_STORE_DENSE) {
+    ret = query_column_indexes_.get_column(cursor, column_id, column_index);
+  } else if (sstable_data_store_style_ == OB_SSTABLE_STORE_SPARSE) {
+    column_id = ObScanColumnIndexes::INVALID_COLUMN;
+    int64_t data_column_id = ObScanColumnIndexes::INVALID_COLUMN;
+    column_index = ObScanColumnIndexes::NOT_EXIST_COLUMN;
+    ret = query_column_indexes_.get_column_id(cursor, column_id);
     for (int64_t i = 0; i < current_column_count_ && OB_SUCCESS == ret; ++i) {
-      ret = current_ids_[i].get_int(reinterpret_cast<int64_t&>(data_column_id));
-      if (OB_SUCCESS == ret && data_column_id == column.id_) {
-        column.type_ = ObScanColumnIndexes::Normal;
-        column.index_ = static_cast<int32_t>(i);
-        break;
+      ret = current_ids_[i].get_int(data_column_id);
+      if (OB_SUCCESS == ret && data_column_id == column_id) {
+        column_index = i;
       }
     }
   }
@@ -161,23 +161,23 @@ int ObSSTableBlockScanner::load_current_row(const_iterator row_index) {
               row_index, row_start_index_, row_last_index_);
     ret = OB_ERROR;
   } else if (OB_SUCCESS != (ret =
-                              reader_.get_row(static_cast<int>(sstable_data_store_style_), row_index,
-                                              current_rowkey_, current_ids_, current_columns_, current_column_count_))) {
-    TBSYS_LOG(ERROR, "read current row error, store style=%ld, current row cursor=%d,%d",
+                              reader_.get_row(sstable_data_store_style_, row_index,
+                                              current_row_key_, current_ids_, current_columns_, current_column_count_))) {
+    TBSYS_LOG(ERROR, "read current row error, store style=%ld, current row cursor=%ld,%ld",
               sstable_data_store_style_, row_index->offset_, row_index->size_);
   }
   return ret;
 }
 
-int ObSSTableBlockScanner::store_sparse_column(const ObScanColumnIndexes::Column& column) {
+int ObSSTableBlockScanner::store_sparse_column(const int64_t column_index) {
   int ret                 = OB_SUCCESS;
   bool is_del_row         = false;
-  uint64_t data_column_id = OB_INVALID_ID;
+  int64_t data_column_id  = OB_INVALID_ID;
 
   if (0 == column_cursor_ && !handled_del_row_) {
-    ret = current_ids_[column_cursor_].get_int(reinterpret_cast<int64_t&>(data_column_id));
+    ret = current_ids_[column_cursor_].get_int(data_column_id);
     if (OB_SUCCESS == ret) {
-      if (OB_DELETE_ROW_COLUMN_ID == data_column_id) {
+      if (OB_DELETE_ROW_COLUMN_ID == static_cast<uint64_t>(data_column_id)) {
         is_del_row = true;
       }
     } else {
@@ -208,12 +208,10 @@ int ObSSTableBlockScanner::store_sparse_column(const ObScanColumnIndexes::Column
     } else {
       ++column_cursor_;
       handled_del_row_ = true;
-      if (column.type_ == ObScanColumnIndexes::Rowkey) {
-        current_cell_info_.value_ = *(current_rowkey_.ptr() + column.index_);
-      } else if (column.type_ == ObScanColumnIndexes::NotExist) {
+      if (column_index == ObScanColumnIndexes::NOT_EXIST_COLUMN) {
         current_cell_info_.value_.set_ext(ObActionFlag::OP_NOP);
       } else {
-        current_cell_info_.value_ = current_columns_[column.index_];
+        current_cell_info_.value_ = current_columns_[column_index];
       }
     }
   }
@@ -221,61 +219,67 @@ int ObSSTableBlockScanner::store_sparse_column(const ObScanColumnIndexes::Column
   return ret;
 }
 
-int ObSSTableBlockScanner::store_dense_column(const ObScanColumnIndexes::Column& column) {
+int ObSSTableBlockScanner::store_current_cell(const int64_t column_id, const int64_t column_index) {
   int ret = OB_SUCCESS;
-  if (column.type_ == ObScanColumnIndexes::Rowkey) {
-    current_cell_info_.value_ = *(current_rowkey_.ptr() + column.index_);
-  } else if (column.type_ == ObScanColumnIndexes::NotExist) {
+
+  current_cell_info_.table_id_ = 0;
+  current_cell_info_.row_key_ = current_row_key_;
+  current_cell_info_.column_id_ = column_id;
+
+  if (column_index == ObScanColumnIndexes::ROWKEY_COLUMN) {
+    // TODO store row key
+    current_cell_info_.value_.set_varchar(current_row_key_);
+  } else if (column_index == ObScanColumnIndexes::NOT_EXIST_COLUMN) {
     //only dense format return null cell if column non-existent
-    if (not_exit_col_ret_nop_) {
-      current_cell_info_.value_.set_ext(ObActionFlag::OP_NOP);
-    } else {
+    if (sstable_data_store_style_ == OB_SSTABLE_STORE_DENSE) {
       current_cell_info_.value_.set_null();
+    } else {
+      ret = store_sparse_column(column_index);
     }
-  } else if (column.index_ >= current_column_count_) {
-    TBSYS_LOG(ERROR, "column_index=%d > current_column_count_=%ld",
-              column.index_, current_column_count_);
-    ret = OB_ERROR;
   } else {
-    current_cell_info_.value_ = current_columns_[column.index_];
-  }
-
-  TBSYS_LOG(DEBUG, "store dense column:(type:%d, index:%d, value:%s)",
-            column.type_, column.index_, to_cstring(current_cell_info_.value_));
-
-  if (OB_SUCCESS == ret) {
-    ++column_cursor_;
+    if (column_index >= current_column_count_) {
+      TBSYS_LOG(ERROR, "column_index=%ld > current_column_count_=%ld",
+                column_index, current_column_count_);
+      ret = OB_ERROR;
+    } else {
+      if (sstable_data_store_style_ == OB_SSTABLE_STORE_DENSE) {
+        current_cell_info_.value_ = current_columns_[column_index];
+      } else {
+        ret = store_sparse_column(column_index);
+      }
+    }
   }
 
   return ret;
 }
 
-int ObSSTableBlockScanner::store_current_cell(const ObScanColumnIndexes::Column& column) {
+int ObSSTableBlockScanner::get_cell(ObCellInfo** cell) {
+  return get_cell(cell, NULL);
+}
+
+int ObSSTableBlockScanner::get_cell(ObCellInfo** cell, bool* is_row_changed) {
   int ret = OB_SUCCESS;
-
-  if (OB_SUCCESS == ret) {
-    current_cell_info_.table_id_ = 0;
-    current_cell_info_.row_key_ = current_rowkey_;
-    current_cell_info_.column_id_ = column.id_;
-  }
-
-  if (sstable_data_store_style_ == OB_SSTABLE_STORE_DENSE) {
-    ret = store_dense_column(column);
+  if (cell) *cell = NULL;
+  if (NULL == cell) {
+    TBSYS_LOG(ERROR, "invalid argument, cell=%p", cell);
+    ret = OB_INVALID_ARGUMENT;
+  } else if (OB_SUCCESS != initialize_status_) {
+    TBSYS_LOG(ERROR, "initialize status error=%d", initialize_status_);
+    ret = initialize_status_;
   } else {
-    ret = store_sparse_column(column);
+    *cell = &current_cell_info_;
+    if (NULL != is_row_changed) {
+      *is_row_changed = is_row_changed_;
+    }
   }
-
   return ret;
 }
 
-int ObSSTableBlockScanner::initialize(const bool is_reverse_scan,
-                                      const int64_t store_style, const bool not_exit_col_ret_nop) {
+int ObSSTableBlockScanner::initialize(const bool is_reverse_scan, const int64_t store_style) {
   sstable_data_store_style_ = store_style;
   is_reverse_scan_ = is_reverse_scan;
   is_row_changed_ = false;
-  is_row_finished_ = false;
   handled_del_row_ = false;
-  not_exit_col_ret_nop_ = not_exit_col_ret_nop;
 
   row_cursor_ = NULL;
   row_start_index_ = NULL;
@@ -302,29 +306,25 @@ int ObSSTableBlockScanner::initialize(const bool is_reverse_scan,
  *    others, internal error code.
  */
 int ObSSTableBlockScanner::set_scan_param(
-  const common::ObNewRange& range,
-  const bool is_reverse_scan,
-  const ObSSTableBlockReader::BlockDataDesc& data_desc,
-  const ObSSTableBlockReader::BlockData& block_data,
-  bool& need_looking_forward,
-  bool not_exit_col_ret_nop) {
+  const ObRange& range, const bool is_reverse_scan,
+  const BlockData& block_data, bool& need_looking_forward) {
   int32_t ret = OB_SUCCESS;
+  int64_t pos = 0;
 
   need_looking_forward = true;
   reader_.reset();  //reset reader before assign start_iterator and last_iterator
   const_iterator start_iterator = reader_.end();
   const_iterator last_iterator = reader_.end();
 
-
-  if (!block_data.available() || !data_desc.available()) {
-    TBSYS_LOG(ERROR, "block_data,desc invalid, bd=(%p,%ld, %p, %ld), desc=(%p,%ld,%ld) ",
-              block_data.data_buffer_, block_data.data_bufsiz_, block_data.internal_buffer_, block_data.internal_bufsiz_,
-              data_desc.rowkey_info_, data_desc.rowkey_column_count_, data_desc.store_style_);
+  if (!block_data.available()) {
+    TBSYS_LOG(ERROR, "block_data invalid, bd=%p,bdsz=%ld, store=%ld",
+              block_data.data_buffer_, block_data.data_bufsiz_, block_data.store_style_);
     ret = OB_INVALID_ARGUMENT;
-  } else if (OB_SUCCESS != (ret = initialize(is_reverse_scan,
-                                             data_desc.store_style_, not_exit_col_ret_nop))) {
+  } else if (OB_SUCCESS != (ret = initialize(is_reverse_scan, block_data.store_style_))) {
     // cannot happen
-  } else if (OB_SUCCESS != (ret =  reader_.deserialize(data_desc, block_data))) {
+  } else if (OB_SUCCESS != (ret =  reader_.deserialize(
+                                     block_data.internal_buffer_, block_data.internal_bufsiz_,
+                                     block_data.data_buffer_, block_data.data_bufsiz_, pos))) {
     TBSYS_LOG(ERROR, "deserialize error, ret=%d, data bufsiz=%ld",
               ret, block_data.data_bufsiz_);
   } else if (OB_SUCCESS != (ret =
@@ -335,8 +335,9 @@ int ObSSTableBlockScanner::set_scan_param(
     TBSYS_LOG(DEBUG, "locate end key out of range or error=%d", ret);
   } else  if (start_iterator > last_iterator) {
     TBSYS_LOG(DEBUG, "query key not exist in this block, start_iterator > last_iterator."
-              " pls check input parameters, start_key(%s) and end_key(%s).",
-              to_cstring(range.start_key_), to_cstring(range.end_key_));
+              " pls check input parameters, start_key and end_key.");
+    common::hex_dump(range.start_key_.ptr(), range.start_key_.length(), TBSYS_LOG_LEVEL_INFO);
+    common::hex_dump(range.end_key_.ptr(), range.end_key_.length(), TBSYS_LOG_LEVEL_INFO);
     ret = OB_BEYOND_THE_RANGE;
     need_looking_forward = false;
   } else {
@@ -367,14 +368,14 @@ int ObSSTableBlockScanner::set_scan_param(
 }
 
 
-int ObSSTableBlockScanner::locate_start_pos(const common::ObNewRange& range,
+int ObSSTableBlockScanner::locate_start_pos(const common::ObRange& range,
                                             const_iterator& start_iterator, bool& need_looking_forward) {
   int ret = OB_SUCCESS;
   start_iterator = reader_.end();
-  ObRowkey query_start_key = range.start_key_;
-  ObRowkey find_start_key;
+  ObString query_start_key = range.start_key_;
+  ObString find_start_key;
 
-  if (range.start_key_.is_min_row()) {
+  if (range.border_flag_.is_min_value()) {
     start_iterator = reader_.begin();
   } else {
     // lookup scan %start_key_ in block
@@ -386,7 +387,7 @@ int ObSSTableBlockScanner::locate_start_pos(const common::ObNewRange& range,
       if (is_reverse_scan_) need_looking_forward = false;
     } else if (OB_SUCCESS != (ret =
                                 reader_.get_row_key(start_iterator, find_start_key))) {
-      TBSYS_LOG(ERROR, "get start key of block error, start_iterator=%d,%d",
+      TBSYS_LOG(ERROR, "get start key of block error, start_iterator=%ld,%ld",
                 start_iterator->offset_, start_iterator->size_);
     } else {
       if (query_start_key.compare(find_start_key) == 0
@@ -417,13 +418,13 @@ int ObSSTableBlockScanner::locate_start_pos(const common::ObNewRange& range,
   return ret;
 }
 
-int ObSSTableBlockScanner::locate_end_pos(const common::ObNewRange& range,
+int ObSSTableBlockScanner::locate_end_pos(const common::ObRange& range,
                                           const_iterator& last_iterator, bool& need_looking_forward) {
   int ret = OB_SUCCESS;
   last_iterator = reader_.end();
-  ObRowkey query_end_key = range.end_key_;
+  ObString query_end_key = range.end_key_;
 
-  if (range.end_key_.is_max_row()) {
+  if (range.border_flag_.is_max_value()) {
     last_iterator = reader_.end();
     --last_iterator;
     if (last_iterator < reader_.begin()) {
@@ -445,7 +446,7 @@ int ObSSTableBlockScanner::locate_end_pos(const common::ObNewRange& range,
 
     // now %last_iterator >= begin() && %last_iterator < end();
     // check if scan %end_key_ less than %last_iterator.row_key
-    ObRowkey find_end_key;
+    ObString find_end_key;
     ret = reader_.get_row_key(last_iterator, find_end_key);
     if (OB_SUCCESS == ret) {
       if (last_iterator == reader_.begin()) {
@@ -475,7 +476,7 @@ int ObSSTableBlockScanner::locate_end_pos(const common::ObNewRange& range,
         }
       }
     } else {
-      TBSYS_LOG(ERROR, "get last key of block error, last_iterator=%d,%d",
+      TBSYS_LOG(ERROR, "get last key of block error, last_iterator=%ld,%ld",
                 last_iterator->offset_, last_iterator->size_);
     }
   }

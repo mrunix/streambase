@@ -1,18 +1,16 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- * ob_memory_pool.h is for what ...
+ * Version: $Id$
  *
- * Version: $id: ob_memory_pool.h,v 0.1 8/19/2010 9:56a wushi Exp $
+ * ob_memory_pool.h for ...
  *
  * Authors:
  *   wushi <wushi.ly@taobao.com>
- *   为了便于调试内存错误的bug，如果定义了名为__OB_MALLOC_DIRECT__的环境变量，
- *   内存池将直接调用new和delete分配和释放内存
  *
  */
 #ifndef OCEANBASE_COMMON_OB_MEMORY_POOL_H_
@@ -23,7 +21,6 @@
 #include "tbsys.h"
 #include "ob_define.h"
 #include "ob_link.h"
-#include "ob_tsi_utils.h"
 
 namespace sb {
 namespace common {
@@ -50,9 +47,9 @@ class ObBaseMemPool {
   virtual ~ObBaseMemPool();
 
   /// @fn init mod set
-  int init(const ObMemPoolModSet* mod_set);
+  int init(const ObMemPoolModSet* mod_set, const bool numa_enabled = false);
 
-  /// @fn void* oceanbase/common/ObBaseMemPool::malloc(const int64_t nbyte)
+  /// @fn void* sb/common/ObBaseMemPool::malloc(const int64_t nbyte)
   ///   malloc nbyte memory buffer
   ///
   /// @param nbyte bytes needed
@@ -61,7 +58,7 @@ class ObBaseMemPool {
   void* malloc(const int64_t nbyte, const int32_t mod_id = 0, int64_t* got_size = NULL);
   void* malloc_emergency(const int64_t nbyte, const int32_t mod_id = 0, int64_t* got_size = NULL);
 
-  /// @fn int oceanbase/common/ObBaseMemPool::free(const void *ptr)
+  /// @fn int sb/common/ObBaseMemPool::free(const void *ptr)
   ///
   /// @param ptr pointer to buffer allocated by calling malloc
   ///
@@ -71,17 +68,6 @@ class ObBaseMemPool {
   virtual void print_mod_memory_usage(bool print_to_std = false);
 
   int64_t get_mod_memory_usage(int32_t mod_id);
-  inline void mod_usage_update(const int64_t delta, const int32_t mod_id) {
-    int32_t real_mod_id = mod_id;
-    if ((NULL == mod_set_)  || (NULL == mem_size_each_mod_)) {
-      mem_size_default_mod_.inc(delta);
-    } else {
-      if (mod_id <= 0 || mod_id >= mod_set_->get_max_mod_num()) {
-        real_mod_id = 0;
-      }
-      mem_size_each_mod_[real_mod_id].inc(delta);
-    }
-  }
 
   /// @fn free all memory allocated from system
   virtual void clear() = 0;
@@ -93,7 +79,7 @@ class ObBaseMemPool {
   /// @fn get memory size handled by this pool
   virtual int64_t get_memory_size_handled();
   virtual int64_t set_memory_size_limit(const int64_t mem_size_limit);
-  virtual int64_t get_memory_size_limit() const;
+  virtual int64_t get_memory_size_limit();
 
   inline int64_t get_memory_size_direct_allocated() {
     return direct_allocated_mem_size_;
@@ -111,13 +97,15 @@ class ObBaseMemPool {
  protected:
   virtual void mod_malloc(const int64_t size, const int32_t mod_id);
   virtual void mod_free(const int64_t size, const int32_t mod_id);
-  TCCounter mem_size_default_mod_;
-  TCCounter* mem_size_each_mod_;
+  int64_t             mem_size_default_mod_;
+  int64_t*             mem_size_each_mod_;
   const ObMemPoolModSet*     mod_set_;
   /// @property number of block directly allocated
   int64_t   direct_allocated_block_num_;
   /// @property size of memory allocated directly
   int64_t   direct_allocated_mem_size_;
+  /// whether using numa_alloc_interleaved
+  bool      numa_enabled_;
 };
 
 /// @class  ObFixedMemPool fixed size memory pool
@@ -138,14 +126,14 @@ class ObFixedMemPool : public ObBaseMemPool {
   /// @param fixed_item_size   the minimum size of buffer returned by calling malloc
   /// @param item_num_each_block   memory size each time allocate from system
   int init(const int64_t fixed_item_size, const int64_t item_num_each_block,
-           const ObMemPoolModSet* mod_set = NULL);
+           const ObMemPoolModSet* mod_set = NULL, const bool numa_enabled = false);
 
   /// @fn return the number of blocks hold by the pool
   int64_t get_block_num() const;
 
   /// @fn return the number of blocks in using hold by the pool
   int64_t get_used_block_num() const;
-  int64_t get_free_block_num() const {return free_mem_block_num_;};
+
   /// @fn get memory block size
   int64_t get_block_size() const;
 
@@ -156,7 +144,6 @@ class ObFixedMemPool : public ObBaseMemPool {
  private:
   virtual void* malloc_(const int64_t nbyte, const int32_t mod_id = 0, int64_t* got_size = NULL);
   virtual void free_(const void* ptr);
-  int64_t get_free_block_limit_() const;
  private:
   /// @fn clear all allocated memory
   void clear(bool check_unfreed_mem);
@@ -193,7 +180,7 @@ class ObVarMemPool : public ObBaseMemPool {
   ObVarMemPool();
   DISALLOW_COPY_AND_ASSIGN(ObVarMemPool);
  public:
-  /// @fn explicit oceanbase/ObVarMemPool::ObVarMemPool(const int64_t item_size)
+  /// @fn explicit sb/ObVarMemPool::ObVarMemPool(const int64_t item_size)
   ///   constructor
   ///
   /// @param block_size sizeof memory block each allocated from system
@@ -243,3 +230,4 @@ class ObVarMemPool : public ObBaseMemPool {
 
 
 #endif /* OCEANBASE_SRC_COMMON_OB_MEMORY_POOL_H_ */
+

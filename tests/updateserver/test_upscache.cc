@@ -1,17 +1,18 @@
 /**
- * (C) 2010 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * test_upscache.cc for test ups cache
+ * Version: $Id$
+ *
+ * test_upscache.cc for ...
  *
  * Authors:
- *   rongxuan< rongxuan.lc@taobao.com>
+ *   rongxuan <rongxuan.lc@taobao.com>
  *
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -440,5 +441,7 @@ int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+
+
 
 

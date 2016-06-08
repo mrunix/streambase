@@ -1,17 +1,18 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_sstable_scanner.h for what ...
+ * Version: 5567
+ *
+ * ob_sstable_scanner.h
  *
  * Authors:
- *   duanfei <duanfei@taobao.com>
- *   qushan <qushan@taobao.com>
- *     modified at 2010/10/8
- *     use new ObSSTableBlockScanner.
+ *     qushan <qushan@taobao.com>
+ * Changes:
+ *     huating <huating.zmq@taobao.com>
  *
  */
 #ifndef OCEANBASE_SSTABLE_OB_SSTABLE_SCANNER_H_
@@ -25,19 +26,16 @@
 #include "ob_column_group_scanner.h"
 
 namespace sb {
-namespace common {
-class ObRowkeyInfo;
-}
 namespace sstable {
 class ObSSTableReader;
 class ObBlockIndexCache;
 class ObBlockCache;
 class ObSSTableSchema;
 
-class ObSSTableScanner : public common::ObIterator {
+class ObSSTableScanner : public common::ObMerger {
  public:
   ObSSTableScanner();
-  ~ObSSTableScanner();
+  virtual ~ObSSTableScanner();
 
   /**
    * move cursor to next cell, if no cell remain, return OB_ITER_END
@@ -45,10 +43,7 @@ class ObSSTableScanner : public common::ObIterator {
    * @return OB_SUCCESS on success, OB_ITER_END on success and end of data
    * otherwise on failure and error code.
    */
-  inline int next_cell() {
-    return (!end_of_data_ ? ((1 == column_group_size_) ? column_group_scanner_.next_cell()
-                             : merger_.next_cell()) : common::OB_ITER_END);
-  }
+  int next_cell();
 
   /**
    * get current cell of iterator
@@ -61,23 +56,8 @@ class ObSSTableScanner : public common::ObIterator {
    *  OB_ITER_END on success and end of data
    *  OB_ERROR on failure.
    */
-  inline int get_cell(sb::common::ObCellInfo** cell) {
-    return (1 == column_group_size_) ?
-           column_group_scanner_.get_cell(cell, NULL)
-           : merger_.get_cell(cell, NULL);
-  }
-
-  inline int get_cell(sb::common::ObCellInfo** cell, bool* is_row_changed) {
-    return (1 == column_group_size_) ?
-           column_group_scanner_.get_cell(cell, is_row_changed)
-           : merger_.get_cell(cell, is_row_changed);
-  }
-
-  inline int is_row_finished(bool* is_row_finished) {
-    return (1 == column_group_size_) ?
-           column_group_scanner_.is_row_finished(is_row_finished)
-           : merger_.is_row_finished(is_row_finished);
-  }
+  int get_cell(sb::common::ObCellInfo** cell);
+  int get_cell(sb::common::ObCellInfo** cell, bool* is_row_changed);
 
   /**
    * set scan parameters like input query range, sstable object.
@@ -86,8 +66,6 @@ class ObSSTableScanner : public common::ObIterator {
    * @param sstable_reader corresponds sstable for scanning.
    * @param block_cache block cache
    * @param block_index_cache block index cache
-   * @param not_exit_col_ret_nop whether return nop if column
-   *                             doesn't exit
    *
    * @return
    *  OB_SUCCESS on success otherwise on failure.
@@ -96,8 +74,7 @@ class ObSSTableScanner : public common::ObIterator {
     const sb::common::ObScanParam& scan_param,
     const ObSSTableReader* const sstable_reader,
     ObBlockCache& block_cache,
-    ObBlockIndexCache& block_index_cache,
-    bool not_exit_col_ret_nop = false);
+    ObBlockIndexCache& block_index_cache);
 
   /**
    * cleanup internal objects, this method must be
@@ -109,8 +86,6 @@ class ObSSTableScanner : public common::ObIterator {
  private:
   bool column_group_exists(const uint64_t* group_array,
                            const int64_t group_size, const uint64_t group_id) const;
-  bool is_columns_in_one_group(const common::ObScanParam& scan_param,
-                               const sstable::ObSSTableSchema* schema, const uint64_t group_id);
 
   /**
    * translate column ids in %ObScanParam to
@@ -138,8 +113,7 @@ class ObSSTableScanner : public common::ObIterator {
    * ObScanParam to ObSSTableScanParam.
    * check some border flags like min , max value.
    */
-  int trans_input_scan_range(const common::ObScanParam& scan_param,
-                             bool not_exit_col_ret_nop) ;
+  int trans_input_scan_range(const common::ObScanParam& scan_param) ;
 
   /**
    * call by set_scan_param, before next_cell or get_cell
@@ -148,11 +122,7 @@ class ObSSTableScanner : public common::ObIterator {
   int initialize(ObBlockCache& block_cache, ObBlockIndexCache& block_index_cache);
 
   int set_column_group_scanner(const uint64_t* group_array, const int64_t group_size,
-                               const ObSSTableReader* const sstable_reader, const common::ObRowkeyInfo* rowkey_info);
-  int set_mult_column_group_scanner(const uint64_t* group_array, const int64_t group_size,
-                                    const ObSSTableReader* const sstable_reader, const common::ObRowkeyInfo* rowkey_info);
-  int set_single_column_group_scanner(const uint64_t column_group_id,
-                                      const ObSSTableReader* const sstable_reader, const common::ObRowkeyInfo* rowkey_info);
+                               const ObSSTableReader* const sstable_reader);
 
   /**
    * reset all members of scanner.
@@ -166,19 +136,12 @@ class ObSSTableScanner : public common::ObIterator {
   // hold cache reference
   ObBlockIndexCache* block_index_cache_;
   ObBlockCache* block_cache_;
-  common::ObRowkeyInfo rowkey_info_;
 
   ObSSTableScanParam scan_param_;
   char* internal_scanner_obj_ptr_;
   int64_t internal_scanner_obj_count_;
-  int64_t column_group_size_;
-  bool end_of_data_;
 
-  common::ObMerger merger_;
-  ObColumnGroupScanner column_group_scanner_;
 };
-
-int reset_query_thread_local_buffer();
 }//end namespace sstable
 }//end namespace sb
 

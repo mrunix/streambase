@@ -21,7 +21,7 @@ RS_CONF=rootserver.conf
 
 set_env()
 {
-	export LD_LIBRARY_PATH=$LIB_DIR:/usr/local/lib:/usr/local/lib64:$LD_LIBRARY_PATH
+	export LD_LIBRARY_PATH=$LIB_DIR:/usr/local/lib:$LD_LIBRARY_PATH
 	ulimit -n 65535 >/dev/null 2>&1
 	ulimit -c unlimited
 }

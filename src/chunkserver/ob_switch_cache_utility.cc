@@ -1,15 +1,18 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_switch_cache_utility.cc for switch block cache and block
- * index cache.
+ * Version: 5567
+ *
+ * ob_switch_cache_utility.cc
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
+ *     huating <huating.zmq@taobao.com>
+ * Changes:
+ *     qushan <qushan@taobao.com>
  *
  */
 #include "tblog.h"
@@ -50,7 +53,7 @@ int ObSwitchCacheUtility::switch_cache(ObMultiVersionTabletImage& tablet_image,
   int status                = OB_SUCCESS;
   uint64_t table_id         = OB_INVALID_ID;
   uint64_t column_group_id  = OB_INVALID_ID;
-  ObRowkey start_key;
+  ObString start_key;
 
   if (src_tablet_version < 0 || dst_tablet_version < 0) {
     TBSYS_LOG(WARN, "invalid param, src_tablet_version=%ld, dst_tablet_version=%ld",

@@ -1,20 +1,18 @@
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: 0.1: ob_merger.cc,v 0.1 2010/09/20 14:11:41 chuanhui Exp $
+ * ob_merger.cc for ...
  *
  * Authors:
- *   chuanhui <rizhao.ych@taobao.com>
- *     - some work details if you want
+ *   rizhao <rizhao.ych@taobao.com>
  *
  */
-
 #include "ob_merger.h"
 #include "ob_action_flag.h"
 
@@ -30,10 +28,10 @@ ObMerger :: ~ObMerger() {
 
 void ObMerger :: reset() {
   iter_num_ = 0;
-  //memset(iters_, 0x00, sizeof(iters_));
-  //memset(iter_status_, 0x00, sizeof(iter_status_));
+  memset(iters_, 0x00, sizeof(iters_));
+  memset(iter_status_, 0x00, sizeof(iter_status_));
 
-  //memset(cur_iter_arr_, 0x00, sizeof(cur_iter_arr_));
+  memset(cur_iter_arr_, 0x00, sizeof(cur_iter_arr_));
   cur_iter_arr_idx_ = 0;
   cur_iter_arr_num_ = 0;
   cur_iter_cell_ = NULL;
@@ -257,7 +255,7 @@ int ObMerger :: cmp_row_key_(const ObCellInfo* first_cell, const ObCellInfo* sec
     err = OB_INVALID_ARGUMENT;
   } else {
     if (first_cell->table_id_ != second_cell->table_id_) {
-      cmp_val = static_cast<int32_t>(first_cell->table_id_ - second_cell->table_id_);
+      cmp_val = first_cell->table_id_ - second_cell->table_id_;
     } else {
       cmp_val = first_cell->row_key_.compare(second_cell->row_key_);
     }
@@ -356,3 +354,4 @@ int ObMerger :: get_cell_(const int64_t iter_idx, ObCellInfo** cell, bool* is_ro
 }
 }
 }
+

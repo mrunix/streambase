@@ -1,25 +1,20 @@
-////===================================================================
-//
-// ob_atomic.h updateserver / Oceanbase
-//
-// Copyright (C) 2010 Taobao.com, Inc.
-//
-// Created on 2010-09-20 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_atomic.h for ...
+ *
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
+ */
 #ifndef  OCEANBASE_COMMON_ATOMIC_H_
 #define  OCEANBASE_COMMON_ATOMIC_H_
-#include <stdint.h>
 
 namespace sb {
 namespace common {
@@ -309,4 +304,5 @@ static __inline__ pvoid atomic_compare_exchange_pointer(volatile pvoid* pv,
 }
 
 #endif // OCEANBASE_COMMON_ATOMIC_H_
+
 

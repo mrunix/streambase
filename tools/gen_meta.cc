@@ -22,15 +22,11 @@
 #include <getopt.h>
 #include "common/ob_define.h"
 #include "common_func.h"
-#include "sstable/ob_disk_path.h"
 #include "chunkserver/ob_tablet_image.h"
 
 
 using namespace sb::common;
-using namespace sb::sstable;
 using namespace sb::chunkserver;
-
-const char* g_sstable_directory = NULL;
 
 struct CmdLineParam {
   const char* range_file;
@@ -51,7 +47,7 @@ int sstable_file_filter(const struct dirent* d) {
   return ret;
 }
 
-int add_tablet(ObTabletImage& image, const ObNewRange& range,
+int add_tablet(ObTabletImage& image, const ObRange& range,
                const int64_t version, const int32_t disk_no) {
   ObTablet* tablet;
   int ret = image.alloc_tablet_object(range, tablet);
@@ -60,7 +56,7 @@ int add_tablet(ObTabletImage& image, const ObNewRange& range,
   tablet->set_data_version(version);
   tablet->set_disk_no(disk_no);
 
-  ret = image.add_tablet(tablet);
+  ret = image.add_tablet(tablet, false);
   return ret;
 }
 
@@ -72,7 +68,7 @@ int scan_file(const CmdLineParam& cmd_line_param) {
 
   ObTabletImage image;
   char range_str[256];
-  ObNewRange range;
+  ObRange range;
 
   int64_t table_id = 0;
   int32_t disk_no = 0;
@@ -111,10 +107,9 @@ int scan_file(const CmdLineParam& cmd_line_param) {
   //image.dump();
   const int32_t MAX_IDX_FILE_LEN = 256;
   char idx_file[MAX_IDX_FILE_LEN];
-  g_sstable_directory = "./"; //current directory.
 
   for (int i = 0; i < disk_cnt; ++i) {
-    get_meta_path(cmd_line_param.version, disk_no_array[i], true, idx_file, MAX_IDX_FILE_LEN);
+    snprintf(idx_file, MAX_IDX_FILE_LEN, "idx_%ld_%d", cmd_line_param.version, disk_no_array[i]);
     image.write(idx_file, disk_no_array[i]);
   }
 
@@ -122,17 +117,18 @@ int scan_file(const CmdLineParam& cmd_line_param) {
 }
 
 void usage() {
-  fprintf(stderr, "./gen_meta -r, --range_file [-v, --version] [-x, --hex_format=0/1/2]\n");
+  fprintf(stderr, "./gen_meta -r, --range_file -l, --disk_no_list [-v, --version]\n");
   fprintf(stderr, "./gen_meta --\n");
 }
 
 
 void parse_cmd_line(int argc, char** argv, CmdLineParam& clp) {
   int opt = 0;
-  const char* opt_string = "r:v:x:";
+  const char* opt_string = "r:l:v:";
   struct option longopts[] = {
     {"help", 0, NULL, 'h'},
     {"range_file", 1, NULL, 'r'},
+    {"disk_no_list", 1, NULL, 'l'},
     {"version", 1, NULL, 'v'},
     {"hex_format", 1, NULL, 'x'},
     {0, 0, 0, 0}
@@ -153,7 +149,7 @@ void parse_cmd_line(int argc, char** argv, CmdLineParam& clp) {
       clp.version = strtoll(optarg, NULL, 10);
       break;
     case 'x':
-      clp.hex_format = static_cast<int32_t>(strtoll(optarg, NULL, 10));
+      clp.hex_format = strtoll(optarg, NULL, 10);
       break;
     default:
       usage();
@@ -181,4 +177,4 @@ int main(int argc, char* argv[]) {
   scan_file(clp);
 
   return EXIT_SUCCESS;
-}       /* ----------  end of function main  ---------- */
+}				/* ----------  end of function main  ---------- */

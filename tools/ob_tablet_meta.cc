@@ -380,5 +380,5 @@ int64_t ObTabletMeta::ObMetaHead::get_serialize_size() const {
 
 } /* chunkserver */
 }
-} /* oceanbase */
+} /* sb */
 

@@ -23,10 +23,8 @@ class TaskServer: public BaseServer {
   int init(const int64_t thread, const int64_t queue, RpcStub* rpc,
            const char* dev, const int32_t port);
 
-  // init task server
-  virtual int initialize(void);
   // init service
-  virtual int start_service(void);
+  virtual int init_service(void);
 
   // dispatcher process
   int do_request(common::ObPacket* base_packet);
@@ -36,12 +34,7 @@ class TaskServer: public BaseServer {
 
   TaskFactory& get_task_factory(void);
 
-  //dump_tablets
-  void dump_task_info(const char* file);
  private:
-  //signal handler
-  void signal_handler(int sig);
-
   // check inner stat
   bool check_inner_stat(void) const;
 
@@ -50,6 +43,7 @@ class TaskServer: public BaseServer {
 
   // finish task
   int handle_finish_task(common::ObPacket* packet);
+
  private:
   enum STAT {
     INVALID_STAT = 0,   // not init

@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,7 +12,6 @@
  *
  */
 #include <math.h>
-#include <set>
 #include "common/ob_malloc.h"
 #include "common/utility.h"
 #include "common/murmur_hash.h"
@@ -27,8 +26,8 @@ using namespace serialization;
 using namespace client;
 
 ObReadWorker::ObReadWorker(ObClient& client, ObSyscheckerRule& rule,
-                           ObSyscheckerStat& stat, ObSyscheckerParam& param)
-  : client_(client), read_rule_(rule), stat_(stat), param_(param) {
+                           ObSyscheckerStat& stat)
+  : client_(client), read_rule_(rule), stat_(stat) {
 
 }
 
@@ -40,7 +39,7 @@ int ObReadWorker::init(ObOpParam** read_param) {
   int ret = OB_SUCCESS;
 
   if (NULL != read_param && NULL == *read_param) {
-    *read_param = reinterpret_cast<ObOpParam*>(ob_malloc(sizeof(ObOpParam), ObModIds::TEST));
+    *read_param = reinterpret_cast<ObOpParam*>(ob_malloc(sizeof(ObOpParam)));
     if (NULL == *read_param) {
       TBSYS_LOG(ERROR, "failed to allocate memory for read param");
       ret = OB_ERROR;
@@ -295,10 +294,7 @@ int ObReadWorker::check_cell(const ObOpCellParam& cell_param,
     case ObVarcharType:
       if (aux_cell_type != ObIntType) {
         TBSYS_LOG(WARN, "expect auxiliary cell type is ObIntType, "
-                  "but it's %s, column_name=%.*s",
-                  OBJ_TYPE_STR[aux_cell_type],
-                  cell_info.column_name_.length(),
-                  cell_info.column_name_.ptr());
+                  "but it's %s", OBJ_TYPE_STR[aux_cell_type]);
         ret = OB_ERROR;
         break;
       }
@@ -306,14 +302,12 @@ int ObReadWorker::check_cell(const ObOpCellParam& cell_param,
       aux_cell_info.value_.get_int(aux_varcharv);
       varchar_hash = hash(varcharv.ptr(), varcharv.length());
       if (varchar_hash != prefix - aux_varcharv) {
-        TBSYS_LOG(WARN, "check ObVarchar value failed, table=%ld, rowkey=%s, column name=%.*s, "
-                  "actual hash value=%ld,"
-                  "origin varchar=%.*s, prefix=%ld, aux_varcharv=%ld",
-                  cell_info.table_id_,
-                  to_cstring(cell_info.row_key_),
+        TBSYS_LOG(WARN, "check ObVarchar value failed, column name=%.*s, "
+                  "expected varchar hash=%ld, actual value=%ld,"
+                  "actual varchar=%.*s, prefix=%ld, aux_varcharv=%ld",
                   cell_info.column_name_.length(),
                   cell_info.column_name_.ptr(),
-                  varchar_hash,
+                  prefix - aux_varcharv, varchar_hash,
                   varcharv.length(), varcharv.ptr(), prefix, aux_varcharv);
         ret = OB_ERROR;
       }
@@ -368,7 +362,8 @@ int ObReadWorker::check_cell(const ObOpCellParam& cell_param,
   }
 
   if (OB_SUCCESS != ret) {
-    TBSYS_LOG(WARN, "%s", to_cstring(cell_info.row_key_));
+    hex_dump(cell_info.row_key_.ptr(), cell_info.row_key_.length(),
+             true, TBSYS_LOG_LEVEL_WARN);
   }
 
   //ret = OB_SUCCESS; //for debug
@@ -403,7 +398,8 @@ int ObReadWorker::display_scanner(const ObScanner& scanner) const {
     } else if (is_row_changed) {
       column_index = 0;
       fprintf(stderr, "row[%ld]: ", row_index++);
-      fprintf(stderr, "%s", to_cstring(cell_info->row_key_));
+      hex_dump_rowkey(cell_info->row_key_.ptr(),
+                      cell_info->row_key_.length(), true);
     }
 
     fprintf(stderr, "  cell[%ld]: \n"
@@ -494,7 +490,7 @@ int ObReadWorker::check_scanner_result(const ObOpParam& read_param,
   const ObOpCellParam* cell_param     = NULL;
   const ObOpCellParam* aux_cell_param = NULL;
   ObScannerIterator iter;
-  ObRowkey row_key;
+  ObString row_key;
   ObCellInfo cell_info;
 
   for (iter = scanner.begin();
@@ -511,13 +507,15 @@ int ObReadWorker::check_scanner_result(const ObOpParam& read_param,
         row_non_existent = false;
         if (OP_GET == read_param.op_type_) {
           row_param = &read_param.row_[row_count++];
-          row_key.assign(const_cast<ObObj*>(row_param->rowkey_),
+          row_key.assign(const_cast<char*>(row_param->rowkey_),
                          row_param->rowkey_len_);
 
           if (row_key != pcell->row_key_) {
             TBSYS_LOG(WARN, "row key isn't consistent");
-            TBSYS_LOG(WARN, "%s", to_cstring(row_key));
-            TBSYS_LOG(WARN, "%s", to_cstring(pcell->row_key_));
+            hex_dump(row_key.ptr(), row_key.length(),
+                     true, TBSYS_LOG_LEVEL_WARN);
+            hex_dump(pcell->row_key_.ptr(),
+                     pcell->row_key_.length(), true, TBSYS_LOG_LEVEL_WARN);
             ret = OB_ERROR;
             break;
           }
@@ -532,7 +530,8 @@ int ObReadWorker::check_scanner_result(const ObOpParam& read_param,
                   pcell->column_name_.length(), pcell->column_name_.ptr(),
                   OBJ_TYPE_STR[pcell->value_.get_type()],
                   pcell->value_.get_ext());
-        TBSYS_LOG(WARN, "%s", to_cstring(pcell->row_key_));
+        hex_dump(pcell->row_key_.ptr(), pcell->row_key_.length(),
+                 true, TBSYS_LOG_LEVEL_WARN);
         ret = OB_ERROR;
         break;  //ignore all the illegal column
       }
@@ -550,7 +549,8 @@ int ObReadWorker::check_scanner_result(const ObOpParam& read_param,
                     pcell->column_name_.length(), pcell->column_name_.ptr(),
                     OBJ_TYPE_STR[pcell->value_.get_type()],
                     pcell->value_.get_ext());
-          TBSYS_LOG(WARN, "%s", to_cstring(pcell->row_key_));
+          hex_dump(pcell->row_key_.ptr(), pcell->row_key_.length(),
+                   true, TBSYS_LOG_LEVEL_WARN);
           ret = OB_ERROR;
           break;
         }
@@ -574,8 +574,7 @@ int ObReadWorker::check_scanner_result(const ObOpParam& read_param,
     } else {
       iter.get_cell(&paux_cell, &is_row_changed);
       if (NULL == paux_cell || is_row_changed) {
-        TBSYS_LOG(WARN, "get null aux_cell_info or row change:%p,%d, %s",
-                  paux_cell, is_row_changed, print_cellinfo(paux_cell));
+        TBSYS_LOG(WARN, "get null aux_cell_info or row change");
         ret = OB_ERROR;
         break;
       }
@@ -598,6 +597,16 @@ int ObReadWorker::check_scanner_result(const ObOpParam& read_param,
       total_cell_count++;
     }
 
+    //check table name after reading the first cell successfully
+    if (1 == row_count && 1 == column_index) {
+      if (pcell->table_name_ != read_param.table_name_) {
+        TBSYS_LOG(WARN, "check table name failed, "
+                  "expected table_name=%s, actual table_name=%s",
+                  read_param.table_name_.ptr(), pcell->table_name_.ptr());
+        ret = OB_ERROR;
+        break;
+      }
+    }
   }
 
   if (OB_SUCCESS != ret) {
@@ -621,19 +630,16 @@ int ObReadWorker::check_scanner_result(const ObOpParam& read_param,
   return ret;
 }
 
-
 int ObReadWorker::run_get(ObOpParam& read_param, ObGetParam& get_param,
                           ObScanner& scanner) {
   int ret                 = OB_SUCCESS;
   ObOpRowParam* row_param = NULL;
   ObCellInfo cell_info;
   ObVersionRange ver_range;
-  int64_t start_time = 0;
-  int64_t consume_time = 0;
 
   get_param.reset();
   scanner.clear();
-  get_param.set_is_result_cached(false);
+  get_param.set_is_result_cached(true);
 
   //build get_param
   for (int64_t i = 0; i < read_param.row_count_ && OB_SUCCESS == ret; ++i) {
@@ -652,28 +658,19 @@ int ObReadWorker::run_get(ObOpParam& read_param, ObGetParam& get_param,
 
   if (OB_SUCCESS == ret) {
     ver_range.start_version_ = 0;
+    ver_range.end_version_ = INT64_MAX - 1;
     ver_range.border_flag_.set_inclusive_start();
-    ver_range.border_flag_.set_max_value();
+    ver_range.border_flag_.set_inclusive_end();
     get_param.set_version_range(ver_range);
-
-    start_time = tbsys::CTimeUtil::getTime();
     ret = client_.ms_get(get_param, scanner);
-    consume_time = tbsys::CTimeUtil::getTime() - start_time;
-    stat_.record_resp_event(CMD_GET, consume_time, (OB_SUCCESS != ret));
   }
 
   //check the get result
-  if (OB_SUCCESS == ret && param_.is_check_result()) {
+  if (OB_SUCCESS == ret) {
     ret = check_scanner_result(read_param, scanner, true);
-    if (OB_SUCCESS != ret) {
-      TBSYS_LOG(WARN, "get error, ret=%d, \nget_param:%s", ret, to_cstring(get_param));
-      dump_scanner(scanner, TBSYS_LOG_LEVEL_WARN);
-    }
   } else if (OB_DATA_NOT_SERVE == ret || OB_RESPONSE_TIME_OUT == ret) {
     //read a key in hole of key range or timeout,skip it
     ret = OB_SUCCESS;
-  } else {
-    TBSYS_LOG(WARN, "get error, ret=%d, \nget_param:%s", ret, to_cstring(get_param));
   }
 
   return ret;
@@ -683,10 +680,8 @@ int ObReadWorker::run_scan(ObOpParam& read_param, ObScanParam& scan_param,
                            ObScanner& scanner) {
   int ret                 = OB_SUCCESS;
   ObOpRowParam* row_param = NULL;
-  ObNewRange range;
+  ObRange range;
   ObVersionRange ver_range;
-  int64_t start_time = 0;
-  int64_t consume_time = 0;
 
   scan_param.reset();
   scanner.clear();
@@ -715,28 +710,22 @@ int ObReadWorker::run_scan(ObOpParam& read_param, ObScanParam& scan_param,
 
   if (OB_SUCCESS == ret) {
     ver_range.start_version_ = 0;
+    ver_range.end_version_ = INT64_MAX - 1;
     ver_range.border_flag_.set_inclusive_start();
-    ver_range.border_flag_.set_max_value();
+    ver_range.border_flag_.set_inclusive_end();
     scan_param.set_version_range(ver_range);
     scan_param.set(OB_INVALID_ID, read_param.table_name_, range);
     scan_param.set_scan_size(OB_MAX_PACKET_LENGTH);
-    scan_param.set_is_result_cached(false);
-
-    start_time = tbsys::CTimeUtil::getTime();
+    scan_param.set_is_result_cached(true);
     ret = client_.ms_scan(scan_param, scanner);
-    consume_time = tbsys::CTimeUtil::getTime() - start_time;
-    stat_.record_resp_event(CMD_SCAN, consume_time, (OB_SUCCESS != ret));
   }
 
   //check the scan result
-  if (OB_SUCCESS == ret && param_.is_check_result()) {
+  if (OB_SUCCESS == ret) {
     ret = check_scanner_result(read_param, scanner, false);
   } else if (OB_DATA_NOT_SERVE == ret || OB_RESPONSE_TIME_OUT == ret) {
     //read a key in hole of key range or timeout,skip it
     ret = OB_SUCCESS;
-  } else {
-    TBSYS_LOG(WARN, "scan err=%d dump content of scan param:", ret);
-    scan_param.dump();
   }
 
   return ret;
@@ -748,11 +737,6 @@ void ObReadWorker::run(CThread* thread, void* arg) {
   ObGetParam get_param;
   ObScanParam scan_param;
   ObScanner scanner;
-  ObSqlScanParam sql_scan_param;
-  ObSqlGetParam sql_get_param;
-  ObNewScanner new_scanner;
-  UNUSED(thread);
-  UNUSED(arg);
 
   if (OB_SUCCESS == init(&read_param) && NULL != read_param) {
     while (!_stop) {
@@ -762,28 +746,22 @@ void ObReadWorker::run(CThread* thread, void* arg) {
           continue;
         }
 
-        switch (read_param->op_type_) {
-        case OP_GET:
+        if (OP_GET == read_param->op_type_) {
           err = run_get(*read_param, get_param, scanner);
-          break;
-        case OP_SQL_GET:
-          err = run_get(*read_param, sql_get_param, new_scanner);
-          break;
-        case OP_SCAN:
+          if (OB_SUCCESS != err) {
+            TBSYS_LOG(WARN, "failed to run get operation");
+            read_param->display();
+            read_param->write_param_to_file(READ_PARAM_FILE);
+            break;
+          }
+        } else if (OP_SCAN == read_param->op_type_) {
           err = run_scan(*read_param, scan_param, scanner);
-          break;
-        case OP_SQL_SCAN:
-          err = run_scan(*read_param, sql_scan_param, new_scanner);
-          break;
-        default:
-          TBSYS_LOG(WARN, "wrong op type :%d", read_param->op_type_);
-          err = OB_ERROR;
-        }
-        if (OB_SUCCESS != err) {
-          TBSYS_LOG(WARN, "failed to run read operation, err=%d", err);
-          read_param->display();
-          read_param->write_param_to_file(READ_PARAM_FILE);
-          break;
+          if (OB_SUCCESS != err) {
+            TBSYS_LOG(WARN, "failed to run scan operation");
+            read_param->display();
+            read_param->write_param_to_file(READ_PARAM_FILE);
+            break;
+          }
         }
       } else {
         TBSYS_LOG(WARN, "get next read param failed");
@@ -796,314 +774,5 @@ void ObReadWorker::run(CThread* thread, void* arg) {
     read_param = NULL;
   }
 }
-
-int ObReadWorker::fill_project(int64_t table_id, int64_t column_id, sql::ObProject& project) {
-  int ret = OB_SUCCESS;
-  sql::ObSqlExpression sql_expression;
-  sql::ExprItem item;
-
-  item.value_.cell_.tid = table_id;
-  item.value_.cell_.cid = column_id;
-  item.type_ = T_REF_COLUMN;
-  sql_expression.set_tid_cid(table_id, column_id);
-
-  if (OB_SUCCESS != (ret = sql_expression.add_expr_item(item))) {
-    TBSYS_LOG(WARN, "add_expr_item ret=%d, tid=%ld, cid=%ld", ret, table_id, column_id);
-  } else if (OB_SUCCESS != (ret = sql_expression.add_expr_item_end())) {
-    TBSYS_LOG(WARN, "add_expr_item_end ret=%d, tid=%ld, cid=%ld", ret, table_id, column_id);
-  } else if (OB_SUCCESS != (ret = project.add_output_column(sql_expression))) {
-    TBSYS_LOG(WARN, "add_output_column ret=%d, tid=%ld, cid=%ld", ret, table_id, column_id);
-  }
-  return ret;
-}
-
-int ObReadWorker::fill_rowkey_project(const int64_t table_id, sql::ObProject& project, common::ObRowDesc& row_desc) {
-  int ret = OB_SUCCESS;
-  const ObRowkeyInfo& rowkey_info = read_rule_.get_schema().get_rowkey_info(table_id);
-  row_desc.set_rowkey_cell_count(rowkey_info.get_size());
-  uint64_t column_id = 0;
-  // fill rowkey columns first;
-  for (int64_t i = 0; i < rowkey_info.get_size() && OB_SUCCESS == ret; ++i) {
-    column_id = rowkey_info.get_column(i)->column_id_;
-    if (OB_SUCCESS != (ret = fill_project(table_id, column_id, project))) {
-      TBSYS_LOG(ERROR, "fill_project tid:[%ld],cid:[%ld]", table_id, column_id);
-    } else if (OB_SUCCESS != (ret = row_desc.add_column_desc(table_id, column_id))) {
-      TBSYS_LOG(ERROR, "add_column_desc tid:[%ld],cid:[%ld]", table_id, column_id);
-    }
-  }
-  return ret;
-}
-
-int ObReadWorker::fill_sql_scan_param(ObOpParam& read_param, sql::ObSqlScanParam& scan_param, common::ObRowDesc& row_desc) {
-  int ret = OB_SUCCESS;
-  ObNewRange range;
-  ObProject project;
-  ObOpRowParam* row_param = NULL;
-  int64_t last_frozen_version = 0;
-  std::set<uint64_t> column_id_set;
-  uint64_t column_id = 0;
-
-  scan_param.reset();
-
-  if (2 != read_param.row_count_) {
-    TBSYS_LOG(WARN, "wrong row count for scan, expect 2 row, but row_count=%ld",
-              read_param.row_count_);
-    ret = OB_ERROR;
-  } else if (OB_SUCCESS != (ret = client_.get_last_frozen_version(last_frozen_version))) {
-    TBSYS_LOG(WARN, "get_last_frozen_version ret=%d", ret);
-  } else {
-    fill_rowkey_project(read_param.table_id_, project, row_desc);
-    for (int64_t i = 0; i < read_param.row_count_ && OB_SUCCESS == ret; ++i) {
-      row_param = &read_param.row_[i];
-      if (0 == i) {
-        for (int64_t j = 0; j < row_param->cell_count_ && OB_SUCCESS == ret; ++j) {
-          column_id = row_param->cell_[j].column_id_;
-          if (column_id_set.find(column_id) == column_id_set.end()) {
-            fill_project(read_param.table_id_, column_id, project);
-            row_desc.add_column_desc(read_param.table_id_, column_id);
-            column_id_set.insert(column_id);
-          }
-        }
-        range.start_key_.assign(row_param->rowkey_, row_param->rowkey_len_);
-        range.border_flag_.set_inclusive_start();
-      } else {
-        range.end_key_.assign(row_param->rowkey_, row_param->rowkey_len_);
-        range.border_flag_.set_inclusive_end();
-      }
-    }
-    range.table_id_ = read_param.table_id_;
-  }
-
-
-  if (OB_SUCCESS == ret) {
-    //TBSYS_LOG(INFO, "scan range=%s, project=%s", to_cstring(range), to_cstring(project));
-    scan_param.set_table_id(read_param.table_id_, read_param.table_id_);
-    scan_param.set_data_version(last_frozen_version);
-    scan_param.set_range(range);
-    scan_param.set_is_result_cached(false);
-    scan_param.set_project(project);
-  }
-  return ret;
-}
-
-int ObReadWorker::fill_sql_get_param(ObOpParam& read_param, sql::ObSqlGetParam& get_param, common::ObRowDesc& row_desc) {
-  int ret = OB_SUCCESS;
-  ObProject project;
-  ObOpRowParam* row_param = NULL;
-  int64_t last_frozen_version = 0;
-  ObRowkey rowkey;
-
-  get_param.reset();
-
-  if (OB_SUCCESS != (ret = client_.get_last_frozen_version(last_frozen_version))) {
-    TBSYS_LOG(WARN, "get_last_frozen_version ret=%d", ret);
-  } else {
-    fill_rowkey_project(read_param.table_id_, project, row_desc);
-    for (int64_t i = 0; i < read_param.row_count_ && OB_SUCCESS == ret; ++i) {
-      row_param = &read_param.row_[i];
-      rowkey.assign(row_param->rowkey_, row_param->rowkey_len_);
-      get_param.add_rowkey(rowkey, false);
-      if (i == 0) {
-        ret = fill_row_project(read_param.table_id_, *row_param, project, row_desc);
-      }
-    }
-  }
-
-
-  if (OB_SUCCESS == ret) {
-    get_param.set_table_id(read_param.table_id_, read_param.table_id_);
-    get_param.set_data_version(last_frozen_version);
-    get_param.set_is_result_cached(false);
-    get_param.set_project(project);
-  }
-  //TBSYS_LOG(INFO, "get_param tid=%ld, rename tid=%ld", get_param.get_table_id(), get_param.get_renamed_table_id());
-  return ret;
-}
-
-int ObReadWorker::fill_row_project(const int64_t table_id, const ObOpRowParam& row_param,
-                                   sql::ObProject& project, common::ObRowDesc& row_desc) {
-  int ret = OB_SUCCESS;
-  std::set<uint64_t> column_id_set;
-  int64_t column_id = 0;
-  for (int64_t j = 0; j < row_param.cell_count_ && OB_SUCCESS == ret; ++j) {
-    column_id = row_param.cell_[j].column_id_;
-    if (column_id_set.find(column_id) == column_id_set.end()) {
-      fill_project(table_id, column_id, project);
-      row_desc.add_column_desc(table_id, column_id);
-      column_id_set.insert(column_id);
-    }
-  }
-  return ret;
-}
-
-int ObReadWorker::run_scan(ObOpParam& read_param, ObSqlScanParam& scan_param, ObNewScanner& scanner) {
-  int ret                 = OB_SUCCESS;
-  int64_t start_time = 0;
-  int64_t consume_time = 0;
-
-  scanner.clear();
-  ObRowDesc row_desc;
-
-  if (2 != read_param.row_count_) {
-    TBSYS_LOG(WARN, "wrong row count for scan, expect 2 row, but row_count=%ld",
-              read_param.row_count_);
-    ret = OB_ERROR;
-  }
-
-  if (OB_SUCCESS == ret) {
-    ret = fill_sql_scan_param(read_param, scan_param, row_desc);
-  }
-
-  if (OB_SUCCESS == ret) {
-    start_time = tbsys::CTimeUtil::getTime();
-    ret = client_.cs_sql_scan(scan_param, scanner);
-    consume_time = tbsys::CTimeUtil::getTime() - start_time;
-    stat_.record_resp_event(CMD_SCAN, consume_time, (OB_SUCCESS != ret));
-  }
-
-  //check the scan result
-  if (OB_SUCCESS == ret && param_.is_check_result()) {
-    ret = check_scanner_result(read_param, row_desc, scanner, false);
-  } else if (OB_DATA_NOT_SERVE == ret || OB_RESPONSE_TIME_OUT == ret) {
-    //read a key in hole of key range or timeout,skip it
-    ret = OB_SUCCESS;
-  } else {
-    TBSYS_LOG(WARN, "scan err=%d dump content of scan param:", ret);
-    scan_param.dump();
-  }
-
-  return ret;
-}
-
-int ObReadWorker::run_get(ObOpParam& read_param, ObSqlGetParam& get_param, ObNewScanner& scanner) {
-  int ret                 = OB_SUCCESS;
-  ObCellInfo cell_info;
-  int64_t start_time = 0;
-  int64_t consume_time = 0;
-
-  get_param.reset();
-  scanner.clear();
-  ObRowDesc row_desc;
-
-  //build get_param
-  if (OB_SUCCESS == ret) {
-    ret = fill_sql_get_param(read_param, get_param, row_desc);
-  }
-
-  if (OB_SUCCESS == ret) {
-    start_time = tbsys::CTimeUtil::getTime();
-    ret = client_.cs_sql_get(get_param, scanner);
-    consume_time = tbsys::CTimeUtil::getTime() - start_time;
-    stat_.record_resp_event(CMD_SCAN, consume_time, (OB_SUCCESS != ret));
-  }
-
-  //check the scan result
-  if (OB_SUCCESS == ret && param_.is_check_result()) {
-    //ret = check_scanner_result(read_param, row_desc, scanner, false);
-  } else if (OB_DATA_NOT_SERVE == ret || OB_RESPONSE_TIME_OUT == ret) {
-    //read a key in hole of key range or timeout,skip it
-    ret = OB_SUCCESS;
-  } else {
-    TBSYS_LOG(WARN, "scan err=%d dump content of scan param:", ret);
-  }
-
-  return ret;
-}
-
-int ObReadWorker::check_scanner_result(const ObOpParam& read_param,
-                                       const ObRowDesc& row_desc,
-                                       const ObNewScanner& scanner,
-                                       const bool is_get) {
-  int ret                   = OB_SUCCESS;
-  int64_t prefix            = 0;
-  int64_t row_count         = 0;
-  int64_t column_index      = 0;
-  int64_t total_cell_count  = 0;
-  int64_t read_cell_fail    = 0;
-  ObObj* pcell              = NULL;
-  ObObj* aux_pcell          = NULL;
-  const ObRowkey* row_key   = NULL;
-  const ObOpRowParam* row_param       = NULL;
-  const ObOpCellParam* cell_param     = NULL;
-  const ObOpCellParam* aux_cell_param = NULL;
-
-  ObCellInfo cell_info;
-  ObCellInfo aux_cell_info;
-  common::ObRow current_row;
-
-  current_row.set_row_desc(row_desc);
-  while (OB_SUCCESS == ret &&
-         OB_SUCCESS == const_cast<ObNewScanner&>(scanner).get_next_row(current_row)) {
-    if (OP_GET == read_param.op_type_) {
-      row_param = &read_param.row_[row_count++];
-    } else {
-      //scan opeation only the first row store cell info
-      row_param = &read_param.row_[0];
-      row_count++;
-    }
-
-    if (OB_SUCCESS != (ret = current_row.get_rowkey(row_key))
-        || NULL == row_key || row_key->get_obj_cnt() <= 0) {
-      TBSYS_LOG(ERROR, "rowkey not correct=%d", ret);
-    } else if (row_key->get_obj_ptr()[0].get_type() != ObIntType) {
-      TBSYS_LOG(ERROR, "rowkey(%s) prefix not int type", to_cstring(*row_key));
-    } else if (OB_SUCCESS != (ret = row_key->get_obj_ptr()[0].get_int(prefix))) {
-      TBSYS_LOG(ERROR, "rowkey(%s) prefix error,ret=%d", to_cstring(*row_key), ret);
-    } else {
-      for (column_index = 0; column_index < row_param->cell_count_ && OB_SUCCESS == ret; column_index += MIN_OP_CELL_COUNT) {
-        cell_param = &row_param->cell_[column_index];
-        aux_cell_param = &row_param->cell_[column_index + 1];
-        if (OB_SUCCESS != (ret = current_row.get_cell(read_param.table_id_, cell_param->column_id_, pcell))) {
-          TBSYS_LOG(ERROR, "get org cell ,tid=[%ld], cid=[%ld], ret=%d",
-                    read_param.table_id_, cell_param->column_id_, ret);
-        } else if (OB_SUCCESS != (ret = current_row.get_cell(read_param.table_id_, aux_cell_param->column_id_, aux_pcell))) {
-          TBSYS_LOG(ERROR, "get aux cell ,tid=[%ld], cid=[%ld], ret=%d",
-                    read_param.table_id_, cell_param->column_id_, ret);
-        } else {
-          cell_info.table_id_ = read_param.table_id_;
-          cell_info.column_name_ = cell_param->column_name_;
-          cell_info.column_id_ = cell_param->column_id_;
-          cell_info.value_ = *pcell;
-
-          aux_cell_info.table_id_ = read_param.table_id_;
-          aux_cell_info.column_name_ = aux_cell_param->column_name_;
-          aux_cell_info.column_id_ = aux_cell_param->column_id_;
-          aux_cell_info.value_ = *aux_pcell;
-
-          if (OB_SUCCESS != (ret = check_cell(*cell_param, *aux_cell_param, cell_info, aux_cell_info))) {
-            TBSYS_LOG(ERROR, "check_cell error, prefix=%ld, cid=%ld, cell=%s",
-                      prefix, cell_param->column_id_, to_cstring(*pcell));
-          }
-        }
-
-
-        /*
-        TBSYS_LOG(INFO, "check_scanner_result, rowkey:%s,idx:%ld,tid:%ld,cid:%ld, pcell:%s",
-            to_cstring(*row_key), column_index, read_param.table_id_, cell_param->column_id_, to_cstring(*pcell));
-        */
-      }
-    }
-
-    total_cell_count += row_param->cell_count_;
-
-  }
-
-  if (OB_SUCCESS == ret) {
-    stat_.add_read_cell(total_cell_count);
-    stat_.add_read_cell_fail(read_cell_fail);
-    if (is_get) {
-      stat_.add_get_opt(1);
-      stat_.add_get_cell(total_cell_count);
-      stat_.add_get_cell_fail(read_cell_fail);
-    } else {
-      stat_.add_scan_opt(1);
-      stat_.add_scan_cell(total_cell_count);
-      stat_.add_scan_cell_fail(read_cell_fail);
-    }
-  }
-
-  return ret;
-}
-
 } // end namespace syschecker
 } // end namespace sb

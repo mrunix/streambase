@@ -17,15 +17,12 @@
 
 #include <iostream>
 #include "common/ob_endian.h"
-#include "common/ob_rowkey.h"
-#include "common/ob_object.h"
 
 namespace sb {
 namespace sstable {
 class Key {
  public:
   static const int32_t FIXED_KEY_LEN = 17;
-  static const int32_t FIXED_ROWKEY_COL_NUM = 3;
 
   /**
    * Constructor (for implicit construction).
@@ -50,13 +47,6 @@ class Key {
     memcpy(ptr_ + sizeof(int64_t), &flag, sizeof(char));
     suffix_ = ptr_ + sizeof(int64_t) + sizeof(char);
     encode_ts64(suffix_, suffix);
-  }
-
-  void trans_to_rowkey(common::ObRowkey& rowkey) {
-    objs_[0].set_int(decode_ts64(prefix_));
-    objs_[1].set_int(flag_);
-    objs_[2].set_int(decode_ts64(suffix_));
-    rowkey.assign(objs_, FIXED_ROWKEY_COL_NUM);
   }
 
   inline void encode_ts64(char* bufp, int64_t val) {
@@ -115,7 +105,7 @@ class Key {
   }
 
   int32_t key_len() const {
-    return FIXED_ROWKEY_COL_NUM;
+    return FIXED_KEY_LEN;
   }
 
   void display(std::ostream& os) {
@@ -129,7 +119,6 @@ class Key {
   char*           prefix_;
   char            flag_;
   char*           suffix_;
-  common::ObObj   objs_[FIXED_ROWKEY_COL_NUM];
 };
 
 

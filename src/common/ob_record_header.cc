@@ -1,26 +1,22 @@
 /**
- * (C) 2010 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_record_header.cc for record header.
+ * Version: $Id$
+ *
+ * ob_record_header.cc for ...
  *
  * Authors:
- *    fanggang <fanggang@taobao.com>
- *    huating <huating.zmq@taobao.com>
+ *   huating <huating.zmq@taobao.com>
  *
  */
-
 #include "ob_record_header.h"
 
 namespace sb {
 namespace common {
-ObRecordHeader::ObRecordHeader()
-  : magic_(0), header_length_(0), version_(0), header_checksum_(0)
-  , reserved_(0), data_length_(0), data_zlength_(0), data_checksum_(0) {
-}
 void ObRecordHeader::set_header_checksum() {
   header_checksum_ = 0;
   int16_t checksum = 0;
@@ -29,7 +25,7 @@ void ObRecordHeader::set_header_checksum() {
   checksum = checksum ^ header_length_;
   checksum = checksum ^ version_;
   checksum = checksum ^ header_checksum_;
-  checksum = static_cast<int16_t>(checksum ^ reserved_);
+  checksum = checksum ^ reserved_;
   format_i32(data_length_, checksum);
   format_i32(data_zlength_, checksum);
   format_i64(data_checksum_, checksum);
@@ -44,7 +40,7 @@ int ObRecordHeader::check_header_checksum() const {
   checksum = checksum ^ header_length_;
   checksum = checksum ^ version_;
   checksum = checksum ^ header_checksum_;
-  checksum = static_cast<int16_t>(checksum ^ reserved_);
+  checksum = checksum ^ reserved_;
   format_i32(data_length_, checksum);
   format_i32(data_zlength_, checksum);
   format_i64(data_checksum_, checksum);
@@ -94,38 +90,12 @@ int ObRecordHeader::check_record(const char* buf, const int64_t len,
   ObRecordHeader record_header;
   int64_t pos = 0;
   ret = record_header.deserialize(buf, len, pos);
-  int record_len = static_cast<int32_t>(len - pos);
+  int record_len = len - pos;
 
   if ((OB_SUCCESS == ret) && (record_len > 0)
       && (OB_SUCCESS == record_header.check_header_checksum())
       && (OB_SUCCESS == record_header.check_magic_num(magic))
       && (OB_SUCCESS == record_header.check_data_zlength_(record_len))
-      && (OB_SUCCESS == record_header.check_check_sum(buf + pos, record_len))) {
-    ret = OB_SUCCESS;
-  } else {
-    ret = OB_ERROR;
-  }
-
-  return ret;
-}
-
-int ObRecordHeader::nonstd_check_record(const char* buf, const int64_t len,
-                                        const int16_t magic) {
-  int ret = OB_SUCCESS;
-  ObRecordHeader record_header;
-  int64_t pos = 0;
-  ret = record_header.deserialize(buf, len, pos);
-  int record_len = static_cast<int32_t>(len - pos);
-
-  if (record_len <= 0 || record_len < record_header.data_zlength_) {
-    ret = OB_ERROR;
-  } else {
-    record_len = record_header.data_zlength_;
-  }
-
-  if ((OB_SUCCESS == ret) && (record_len > 0)
-      && (OB_SUCCESS == record_header.check_header_checksum())
-      && (OB_SUCCESS == record_header.check_magic_num(magic))
       && (OB_SUCCESS == record_header.check_check_sum(buf + pos, record_len))) {
     ret = OB_SUCCESS;
   } else {
@@ -144,7 +114,7 @@ int ObRecordHeader::check_record(const ObRecordHeader& record_header,
   if ((payload_len > 0) && (NULL != payload_buf)
       && (OB_SUCCESS == record_header.check_header_checksum())
       && (OB_SUCCESS == record_header.check_magic_num(magic))
-      && (OB_SUCCESS == record_header.check_data_zlength_(static_cast<int32_t>(payload_len)))
+      && (OB_SUCCESS == record_header.check_data_zlength_(payload_len))
       && (OB_SUCCESS == record_header.check_check_sum(payload_buf, payload_len))) {
     ret = OB_SUCCESS;
   } else {
@@ -176,37 +146,11 @@ int ObRecordHeader::check_record(const char* ptr, const int64_t size,
     } else {
       bool check = ((payload_size > 0)
                     && (OB_SUCCESS == header.check_magic_num(magic))
-                    && (OB_SUCCESS == header.check_data_zlength_(static_cast<int32_t>(payload_size)))
+                    && (OB_SUCCESS == header.check_data_zlength_(payload_size))
                     && (OB_SUCCESS == header.check_header_checksum())
                     && (OB_SUCCESS == header.check_check_sum(payload_ptr, payload_size))
                    );
       if (!check) ret = OB_ERROR;
-    }
-  }
-
-  return ret;
-}
-
-int ObRecordHeader::get_record_header(const char* ptr, const int64_t size,
-                                      ObRecordHeader& header,
-                                      const char*& payload_ptr,
-                                      int64_t& payload_size) {
-  int ret             = OB_SUCCESS;
-  int64_t payload_pos = 0;
-
-  if (NULL == ptr || size < OB_RECORD_HEADER_LENGTH) {
-    ret = OB_INVALID_ARGUMENT;
-  }
-
-  if (OB_SUCCESS == ret) {
-    ret = header.deserialize(ptr, size, payload_pos);
-  }
-
-  if (OB_SUCCESS == ret) {
-    payload_ptr = ptr + payload_pos;
-    payload_size = size - payload_pos;
-    if (header.header_length_ != payload_pos) {
-      ret = OB_ERROR;
     }
   }
 
@@ -275,3 +219,4 @@ DEFINE_GET_SERIALIZE_SIZE(ObRecordHeader) {
 }
 } // end namespace common
 } // end namespace sb
+

@@ -32,12 +32,6 @@ class TaskManager {
   // fetch task
   int fetch_task(TaskCounter& counter, TaskInfo& task);
 
-  // search for a available tablet version
-  bool get_tablet_version(int64_t memtable_version, int64_t& version);
-
-  // setup all tasks version
-  void setup_all_tasks_vesion(int64_t version);
-
   // check all task finished
   bool check_finish(void) const;
 
@@ -47,7 +41,6 @@ class TaskManager {
   // print info
   int print_info(void) const;
 
-  void dump_tablets(const char* file);
  private:
   // get server task count
   int64_t get_server_task_count(const common::ObServer& server) const;
@@ -57,6 +50,7 @@ class TaskManager {
 
   //
   void print_access_server();
+
  private:
   // serve max count for simultaneously visit every server
   int64_t max_count_;
@@ -71,8 +65,6 @@ class TaskManager {
   int64_t avg_times_;
   int64_t total_finish_time_;
   int64_t total_finish_count_;
-
-  int64_t tablet_version_;
 
   // task queues
   std::map<uint64_t, TaskInfo> wait_queue_;

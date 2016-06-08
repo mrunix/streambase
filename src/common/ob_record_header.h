@@ -1,34 +1,33 @@
 /**
- * (C) 2010 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_record_header.h for record header.
+ * Version: $Id$
+ *
+ * ob_record_header.h for ...
  *
  * Authors:
- *    fanggang <fanggang@taobao.com>
- *    huating <huating.zmq@taobao.com>
+ *   huating <huating.zmq@taobao.com>
  *
  */
-
 #ifndef OCEANBASE_CHUNKSERVER_RECORD_HEADER_H_
 #define OCEANBASE_CHUNKSERVER_RECORD_HEADER_H_
 
 #include "ob_define.h"
 #include "serialization.h"
 #include "ob_crc64.h"
-#include "utility.h"
 
 namespace sb {
 namespace common {
-static const int16_t MAGIC_NUMER = static_cast<int16_t>(0xB0CC);
+static const int16_t MAGIC_NUMER = 0xB0CC;
 
 inline void format_i64(const int64_t value, int16_t& check_sum) {
   int i = 0;
   while (i < 4) {
-    check_sum =  static_cast<int16_t>(check_sum ^ ((value >> i * 16) & 0xFFFF));
+    check_sum =  check_sum ^ ((value >> i * 16) & 0xFFFF);
     ++i;
   }
 }
@@ -36,7 +35,7 @@ inline void format_i64(const int64_t value, int16_t& check_sum) {
 inline void format_i32(const int32_t value, int16_t& check_sum) {
   int i = 0;
   while (i < 2) {
-    check_sum =  static_cast<int16_t>(check_sum ^ ((value >> i * 16) & 0xFFFF));
+    check_sum =  check_sum ^ ((value >> i * 16) & 0xFFFF);
     ++i;
   }
 }
@@ -51,16 +50,6 @@ struct ObRecordHeader {
   int32_t data_zlength_;   // length after compress, if without compresssion
   // data_length_= data_zlength_
   int64_t data_checksum_;  // record checksum
-  ObRecordHeader();
-
-  int64_t to_string(char* buf, const int64_t buf_len) const {
-    int64_t pos = 0;
-    databuff_printf(buf, buf_len, pos, "[RecordHeader] magic=%hd header_length=%hd version=%hd "
-                    "header_checksum=%hd reserved=%ld data_length=%d data_zlength=%d",
-                    magic_, header_length_, version_,
-                    header_checksum_, reserved_, data_length_, data_zlength_);
-    return pos;
-  }
 
   /**
    * sert magic number of record header
@@ -69,9 +58,6 @@ struct ObRecordHeader {
    */
   inline void set_magic_num(const int16_t magic = MAGIC_NUMER) {
     magic_ = magic;
-  }
-  int64_t get_reserved() {
-    return reserved_;
   }
 
   /**
@@ -175,22 +161,6 @@ struct ObRecordHeader {
   static int check_record(const char* buf, const int64_t len, const int16_t magic);
 
   /**
-   * non-standard check record, the buffer size maybe is larger
-   * than expected buffer size, but the buffer include the data we
-   * need, we also pass this case check.
-   *
-   * @param buf record and record_header byte string which is read
-   *            from disk
-   * @param len total length of record and record_header
-   * @param magic magic number to check
-   *
-   * @return int if success, return OB_SUCCESS, else return
-   *         OB_ERROR
-   */
-  static int nonstd_check_record(const char* buf, const int64_t len,
-                                 const int16_t magic);
-
-  /**
    * if user deserializes record header, he can use this fucntion
    * to check record
    *
@@ -226,24 +196,6 @@ struct ObRecordHeader {
                           const int16_t magic, ObRecordHeader& header,
                           const char*& payload_ptr, int64_t& payload_size);
 
-  /**
-   * give the buffer of record and record size, doesn't check
-   * whether the record is ok, return the record header, payload
-   * buffer, and payload buffer size
-   *
-   * @param ptr pointer of record buffer
-   * @param size size of record buffer
-   * @param header [out] record header to return
-   * @param payload_ptr [out] payload pointer to return
-   * @param payload_size [out] payload data size
-   *
-   * @return int if success, return OB_SUCCESS, else return
-   *         OB_ERROR or OB_INVALID_ARGUMENT
-   */
-  static int get_record_header(const char* ptr, const int64_t size,
-                               ObRecordHeader& header,
-                               const char*& payload_ptr, int64_t& payload_size);
-
   NEED_SERIALIZE_AND_DESERIALIZE;
 };
 
@@ -251,3 +203,4 @@ static const int OB_RECORD_HEADER_LENGTH = sizeof(ObRecordHeader);
 } // namespace Oceanbase::common
 }// namespace Oceanbase
 #endif
+

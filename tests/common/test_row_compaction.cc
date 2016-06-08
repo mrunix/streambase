@@ -8,16 +8,13 @@
 #include "ob_scanner.h"
 #include "ob_action_flag.h"
 #include "ob_row_compaction.h"
-#include "utility.h"
-#include "test_rowkey_helper.h"
+
 #include "gtest/gtest.h"
 
 using namespace sb;
 using namespace common;
 
 ObRowCompaction* rc = NULL;;
-
-static CharArena allocator_;
 
 class MockIterator : public ObIterator {
   struct CellNode {
@@ -94,13 +91,13 @@ TEST(TestObRowCompaction, single_row_single_column) {
   int64_t num = 0;
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = 2;
   ci.value_.set_int(1000);
   mock.add_cell(ci, true);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = 2;
   ci.value_.set_int(1000, true);
   mock.add_cell(ci, false);
@@ -110,20 +107,15 @@ TEST(TestObRowCompaction, single_row_single_column) {
   while (OB_SUCCESS == rc->next_cell()) {
     ObCellInfo* tmp_ci = NULL;
     bool tmp_irc = false;
-    bool irf_check = false;
     if (OB_SUCCESS == rc->get_cell(&tmp_ci, &tmp_irc)) {
       num += 1;
-      EXPECT_EQ(tmp_ci->table_id_, (uint64_t)1001);
-      EXPECT_EQ(0 , tmp_ci->row_key_.compare(make_rowkey("row1", &allocator_)));
-      EXPECT_EQ(tmp_ci->column_id_, (uint64_t)2);
+      EXPECT_EQ(tmp_ci->table_id_, 1001);
+      EXPECT_EQ(tmp_ci->row_key_.ptr(), "row1");
+      EXPECT_EQ(tmp_ci->column_id_, 2);
       int64_t tmp_value;
       tmp_ci->value_.get_int(tmp_value);
       EXPECT_EQ(tmp_value, 2000);
-      irf_check = true;
     }
-    bool is_row_finished = false;
-    EXPECT_EQ(OB_SUCCESS, rc->is_row_finished(&is_row_finished));
-    EXPECT_EQ(irf_check, is_row_finished);
   }
   EXPECT_EQ(1, num);
 }
@@ -134,25 +126,25 @@ TEST(TestObRowCompaction, single_row_multi_column) {
   int64_t num = 0;
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = 2;
   ci.value_.set_int(1000);
   mock.add_cell(ci, true);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = 3;
   ci.value_.set_int(2000);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = 2;
   ci.value_.set_int(1000, true);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = 3;
   ci.value_.set_int(2000, true);
   mock.add_cell(ci, false);
@@ -164,22 +156,17 @@ TEST(TestObRowCompaction, single_row_multi_column) {
     bool tmp_irc = false;
     if (OB_SUCCESS == rc->get_cell(&tmp_ci, &tmp_irc)) {
       num += 1;
-      EXPECT_EQ(tmp_ci->table_id_, (uint64_t)1001);
-      EXPECT_EQ(0 , tmp_ci->row_key_.compare(make_rowkey("row1", &allocator_)));
+      EXPECT_EQ(tmp_ci->table_id_, 1001);
+      EXPECT_EQ(tmp_ci->row_key_.ptr(), "row1");
       int64_t tmp_value;
       tmp_ci->value_.get_int(tmp_value);
-      bool irf_check = false;
       if (2 == tmp_ci->column_id_) {
         EXPECT_EQ(tmp_value, 2000);
       } else if (3 == tmp_ci->column_id_) {
         EXPECT_EQ(tmp_value, 4000);
-        irf_check = true;
       } else {
-        EXPECT_FALSE(true);
+        EXPECT_EQ(false, true);
       }
-      bool is_row_finished = false;
-      EXPECT_EQ(OB_SUCCESS, rc->is_row_finished(&is_row_finished));
-      EXPECT_EQ(irf_check, is_row_finished);
     }
   }
   EXPECT_EQ(2, num);
@@ -191,25 +178,25 @@ TEST(TestObRowCompaction, multi_row_single_column) {
   int64_t num = 0;
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = 2;
   ci.value_.set_int(1000);
   mock.add_cell(ci, true);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = 2;
   ci.value_.set_int(1000, true);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row2", &allocator_);
+  ci.row_key_.assign_ptr("row2", 4);
   ci.column_id_ = 2;
   ci.value_.set_int(2000);
   mock.add_cell(ci, true);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row2", &allocator_);
+  ci.row_key_.assign_ptr("row2", 4);
   ci.column_id_ = 2;
   ci.value_.set_int(2000, true);
   mock.add_cell(ci, false);
@@ -221,23 +208,17 @@ TEST(TestObRowCompaction, multi_row_single_column) {
     bool tmp_irc = false;
     if (OB_SUCCESS == rc->get_cell(&tmp_ci, &tmp_irc)) {
       num += 1;
-      EXPECT_EQ(tmp_ci->table_id_, (uint64_t)1001);
-      EXPECT_EQ((uint64_t)2, tmp_ci->column_id_);
+      EXPECT_EQ(tmp_ci->table_id_, 1001);
+      EXPECT_EQ(2, tmp_ci->column_id_);
       int64_t tmp_value;
       tmp_ci->value_.get_int(tmp_value);
-      bool irf_check = false;
-      if (0 == tmp_ci->row_key_.compare(make_rowkey("row1", &allocator_))) {
+      if (0 == strcmp(tmp_ci->row_key_.ptr(), "row1")) {
         EXPECT_EQ(tmp_value, 2000);
-        irf_check = true;
-      } else if (0 == tmp_ci->row_key_.compare(make_rowkey("row2", &allocator_))) {
+      } else if (0 == strcmp(tmp_ci->row_key_.ptr(), "row2")) {
         EXPECT_EQ(tmp_value, 4000);
-        irf_check = true;
       } else {
-        EXPECT_FALSE(true);
+        EXPECT_EQ(false, true);
       }
-      bool is_row_finished = false;
-      EXPECT_EQ(OB_SUCCESS, rc->is_row_finished(&is_row_finished));
-      EXPECT_EQ(irf_check, is_row_finished);
     }
   }
   EXPECT_EQ(2, num);
@@ -249,49 +230,49 @@ TEST(TestObRowCompaction, multi_row_multi_column) {
   int64_t num = 0;
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = 2;
   ci.value_.set_int(1000);
   mock.add_cell(ci, true);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = 3;
   ci.value_.set_int(2000);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = 2;
   ci.value_.set_int(1000, true);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = 3;
   ci.value_.set_int(2000, true);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row2", &allocator_);
+  ci.row_key_.assign_ptr("row2", 4);
   ci.column_id_ = 2;
   ci.value_.set_int(3000);
   mock.add_cell(ci, true);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row2", &allocator_);
+  ci.row_key_.assign_ptr("row2", 4);
   ci.column_id_ = 3;
   ci.value_.set_int(4000);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row2", &allocator_);
+  ci.row_key_.assign_ptr("row2", 4);
   ci.column_id_ = 2;
   ci.value_.set_int(3000, true);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row2", &allocator_);
+  ci.row_key_.assign_ptr("row2", 4);
   ci.column_id_ = 3;
   ci.value_.set_int(4000, true);
   mock.add_cell(ci, false);
@@ -304,34 +285,28 @@ TEST(TestObRowCompaction, multi_row_multi_column) {
     bool tmp_irc = false;
     if (OB_SUCCESS == rc->get_cell(&tmp_ci, &tmp_irc)) {
       num += 1;
-      EXPECT_EQ(tmp_ci->table_id_, (uint64_t)1001);
+      EXPECT_EQ(tmp_ci->table_id_, 1001);
       int64_t tmp_value;
       tmp_ci->value_.get_int(tmp_value);
-      bool irf_check = false;
-      if (0 == tmp_ci->row_key_.compare(make_rowkey("row1", &allocator_))) {
+      if (0 == strcmp(tmp_ci->row_key_.ptr(), "row1")) {
         if (2 == tmp_ci->column_id_) {
           EXPECT_EQ(tmp_value, 2000);
         } else if (3 == tmp_ci->column_id_) {
           EXPECT_EQ(tmp_value, 4000);
-          irf_check = true;
         } else {
-          EXPECT_FALSE(true);
+          EXPECT_EQ(false, true);
         }
-      } else if (0 == tmp_ci->row_key_.compare(make_rowkey("row2", &allocator_))) {
+      } else if (0 == strcmp(tmp_ci->row_key_.ptr(), "row2")) {
         if (2 == tmp_ci->column_id_) {
           EXPECT_EQ(tmp_value, 6000);
         } else if (3 == tmp_ci->column_id_) {
           EXPECT_EQ(tmp_value, 8000);
-          irf_check = true;
         } else {
-          EXPECT_FALSE(true);
+          EXPECT_EQ(false, true);
         }
       } else {
-        EXPECT_FALSE(true);
+        EXPECT_EQ(false, true);
       }
-      bool is_row_finished = false;
-      EXPECT_EQ(OB_SUCCESS, rc->is_row_finished(&is_row_finished));
-      EXPECT_EQ(irf_check, is_row_finished);
     }
   }
   EXPECT_EQ(4, num);
@@ -343,85 +318,85 @@ TEST(TestObRowCompaction, multi_row_multi_column_with_ext) {
   int64_t num = 0;
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = OB_INVALID_ID;
   ci.value_.set_ext(ObActionFlag::OP_DEL_ROW);
   mock.add_cell(ci, true);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = 2;
   ci.value_.set_int(1000);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = OB_INVALID_ID;
   ci.value_.set_ext(ObActionFlag::OP_NOP);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = 3;
   ci.value_.set_int(2000);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = OB_INVALID_ID;
   ci.value_.set_ext(ObActionFlag::OP_ROW_DOES_NOT_EXIST);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = 2;
   ci.value_.set_int(1000, true);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row1", &allocator_);
+  ci.row_key_.assign_ptr("row1", 4);
   ci.column_id_ = 3;
   ci.value_.set_int(2000, true);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row2", &allocator_);
+  ci.row_key_.assign_ptr("row2", 4);
   ci.column_id_ = OB_INVALID_ID;
   ci.value_.set_ext(ObActionFlag::OP_DEL_ROW);
   mock.add_cell(ci, true);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row2", &allocator_);
+  ci.row_key_.assign_ptr("row2", 4);
   ci.column_id_ = 2;
   ci.value_.set_int(3000);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row2", &allocator_);
+  ci.row_key_.assign_ptr("row2", 4);
   ci.column_id_ = OB_INVALID_ID;
   ci.value_.set_ext(ObActionFlag::OP_ROW_DOES_NOT_EXIST);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row2", &allocator_);
+  ci.row_key_.assign_ptr("row2", 4);
   ci.column_id_ = 3;
   ci.value_.set_int(4000);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row2", &allocator_);
+  ci.row_key_.assign_ptr("row2", 4);
   ci.column_id_ = OB_INVALID_ID;
   ci.value_.set_ext(ObActionFlag::OP_NOP);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row2", &allocator_);
+  ci.row_key_.assign_ptr("row2", 4);
   ci.column_id_ = 2;
   ci.value_.set_int(3000, true);
   mock.add_cell(ci, false);
 
   ci.table_id_ = 1001;
-  ci.row_key_ = make_rowkey("row2", &allocator_);
+  ci.row_key_.assign_ptr("row2", 4);
   ci.column_id_ = 3;
   ci.value_.set_int(4000, true);
   mock.add_cell(ci, false);
@@ -433,49 +408,40 @@ TEST(TestObRowCompaction, multi_row_multi_column_with_ext) {
     ObCellInfo* tmp_ci = NULL;
     bool tmp_irc = false;
     if (OB_SUCCESS == rc->get_cell(&tmp_ci, &tmp_irc)) {
-      fprintf(stderr, "%s\n", print_cellinfo(tmp_ci));
       num += 1;
-      EXPECT_EQ(tmp_ci->table_id_, (uint64_t)1001);
+      EXPECT_EQ(tmp_ci->table_id_, 1001);
       int64_t tmp_value;
       tmp_ci->value_.get_int(tmp_value);
-      bool irf_check = false;
-      if (0 == tmp_ci->row_key_.compare(make_rowkey("row1", &allocator_))) {
+      if (0 == strcmp(tmp_ci->row_key_.ptr(), "row1")) {
         if (2 == tmp_ci->column_id_) {
           EXPECT_EQ(tmp_value, 2000);
         } else if (3 == tmp_ci->column_id_) {
           EXPECT_EQ(tmp_value, 4000);
-          irf_check = true;
         } else if (OB_INVALID_ID == tmp_ci->column_id_) {
-          //EXPECT_EQ(true, ObActionFlag::OP_NOP == tmp_ci->value_.get_ext()
-          //                || ObActionFlag::OP_DEL_ROW == tmp_ci->value_.get_ext()
-          //                || ObActionFlag::OP_ROW_DOES_NOT_EXIST == tmp_ci->value_.get_ext());
-          EXPECT_EQ(true, ObActionFlag::OP_DEL_ROW == tmp_ci->value_.get_ext());
+          EXPECT_EQ(true, ObActionFlag::OP_NOP == tmp_ci->value_.get_ext()
+                    || ObActionFlag::OP_DEL_ROW == tmp_ci->value_.get_ext()
+                    || ObActionFlag::OP_ROW_DOES_NOT_EXIST == tmp_ci->value_.get_ext());
         } else {
-          EXPECT_FALSE(true);
+          EXPECT_EQ(false, true);
         }
-      } else if (0 == tmp_ci->row_key_.compare(make_rowkey("row2", &allocator_))) {
+      } else if (0 == strcmp(tmp_ci->row_key_.ptr(), "row2")) {
         if (2 == tmp_ci->column_id_) {
           EXPECT_EQ(tmp_value, 6000);
         } else if (3 == tmp_ci->column_id_) {
           EXPECT_EQ(tmp_value, 8000);
-          irf_check = true;
         } else if (OB_INVALID_ID == tmp_ci->column_id_) {
-          //EXPECT_EQ(true, ObActionFlag::OP_NOP == tmp_ci->value_.get_ext()
-          //                || ObActionFlag::OP_DEL_ROW == tmp_ci->value_.get_ext()
-          //                || ObActionFlag::OP_ROW_DOES_NOT_EXIST == tmp_ci->value_.get_ext());
-          EXPECT_EQ(true, ObActionFlag::OP_DEL_ROW == tmp_ci->value_.get_ext());
+          EXPECT_EQ(true, ObActionFlag::OP_NOP == tmp_ci->value_.get_ext()
+                    || ObActionFlag::OP_DEL_ROW == tmp_ci->value_.get_ext()
+                    || ObActionFlag::OP_ROW_DOES_NOT_EXIST == tmp_ci->value_.get_ext());
         } else {
-          EXPECT_FALSE(true);
+          EXPECT_EQ(false, true);
         }
       } else {
-        EXPECT_FALSE(true);
+        EXPECT_EQ(false, true);
       }
-      bool is_row_finished = false;
-      EXPECT_EQ(OB_SUCCESS, rc->is_row_finished(&is_row_finished));
-      EXPECT_EQ(irf_check, is_row_finished);
     }
   }
-  EXPECT_EQ(6, num);
+  EXPECT_EQ(10, num);
 }
 
 void build_iterator(MockIterator& iter, const int64_t rn, const int64_t cn) {
@@ -485,7 +451,7 @@ void build_iterator(MockIterator& iter, const int64_t rn, const int64_t cn) {
 
   for (int64_t r = 0; r < rn; r++) {
     sprintf(rk_buf[r], "row%ld", r);
-    ci.row_key_ = make_rowkey(rk_buf[r]);
+    ci.row_key_.assign_ptr(rk_buf[r], strlen(rk_buf[r]) + 1);
     for (int64_t i = 0; i < cn; i++) {
       ci.column_id_ = i % 16;
       ci.value_.set_int(i + 2, true);
@@ -548,10 +514,9 @@ int main(int argc, char** argv) {
   ob_init_memory_pool();
   rc = new ObRowCompaction();
   testing::InitGoogleTest(&argc, argv);
-  int ret = RUN_ALL_TESTS();
-  //multi_update_perf(100, 1000, 112);
-  //multi_update_perf(100, 1000, 32);
+  RUN_ALL_TESTS();
+  multi_update_perf(100, 1000, 112);
+  multi_update_perf(100, 1000, 32);
   delete rc;
-  return ret;
 }
 

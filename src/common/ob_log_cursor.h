@@ -1,24 +1,6 @@
-/**
- * (C) 2007-2010 Taobao Inc.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * Version: $Id$
- *
- * Authors:
- *   yuanqi.xhf <yuanqi.xhf@taobao.com>
- *     - some work details if you want
- */
-
 #ifndef __OCEANBASE_COMMON_OB_LOG_CURSOR_H__
 #define __OCEANBASE_COMMON_OB_LOG_CURSOR_H__
 #include "ob_define.h"
-#include "tbsys.h"
-#include "serialization.h"
-#include "ob_log_entry.h"
-#include "ob_spin_rwlock.h"
 
 namespace sb {
 namespace common {
@@ -26,33 +8,40 @@ struct ObLogCursor {
   int64_t file_id_;
   int64_t log_id_;
   int64_t offset_;
-  ObLogCursor();
-  ~ObLogCursor();
-  bool is_valid() const;
-  int to_start();
-  void reset();
-  int serialize(char* buf, int64_t len, int64_t& pos) const;
-  int deserialize(const char* buf, int64_t len, int64_t& pos) const;
-  char* to_str() const;
-  int64_t to_string(char* buf, const int64_t len) const;
-  int this_entry(ObLogEntry& entry, const LogCommand cmd, const char* log_data, const int64_t data_len) const;
-  int next_entry(ObLogEntry& entry, const LogCommand cmd, const char* log_data, const int64_t data_len) const;
-  int advance(const ObLogEntry& entry);
-  int advance(LogCommand cmd, int64_t seq, const int64_t data_len);
-  bool newer_than(const ObLogCursor& that) const;
-  bool equal(const ObLogCursor& that) const;
-};
+  ObLogCursor(): file_id_(0), log_id_(0), offset_(0)
+  {}
+  ~ObLogCursor()
+  {}
+  bool is_valid() {
+    return file_id_ >= 0 && log_id_ >= 0 && offset_ >= 0;
+  }
+  int serialize(char* buf, int64_t len, int64_t& pos) const {
+    int rc = OB_SUCCESS;
+    if (!(OB_SUCCESS == serialization::encode_i64(buf, len, pos, file_id_)
+          && OB_SUCCESS == serialization::encode_i64(buf, len, pos, log_id_)
+          && OB_SUCCESS == serialization::encode_i64(buf, len, pos, offset_))) {
+      rc = OB_SERIALIZE_ERROR;
+      TBSYS_LOG(WARN, "ObLogSyncPoint.serialize(buf=%p, len=%ld, pos=%ld)=>%d", buf, len, pos, rc);
+    }
+    return rc;
+  }
 
-ObLogCursor& set_cursor(ObLogCursor& cursor, const int64_t file_id, const int64_t log_id, const int64_t offset);
-class ObAtomicLogCursor {
- public:
-  ObAtomicLogCursor() {}
-  ~ObAtomicLogCursor() {}
-  int get_cursor(ObLogCursor& cursor) const;
-  int set_cursor(ObLogCursor& cursor);
- private:
-  ObLogCursor log_cursor_;
-  mutable common::SpinRWLock cursor_lock_;
+  int deserialize(char* buf, int64_t len, int64_t& pos) const {
+    int rc = OB_SUCCESS;
+    if (!(OB_SUCCESS == serialization::decode_i64(buf, len, pos, (int64_t*)&file_id_)
+          && OB_SUCCESS == serialization::decode_i64(buf, len, pos, (int64_t*)&log_id_)
+          && OB_SUCCESS == serialization::decode_i64(buf, len, pos, (int64_t*)&offset_))) {
+      rc = OB_DESERIALIZE_ERROR;
+      TBSYS_LOG(WARN, "ObLogSyncPoint.deserialize(buf=%p, len=%ld, pos=%ld)=>%d", buf, len, pos, rc);
+    }
+    return rc;
+  }
+  char* to_str() {
+    static char buf[512];
+    snprintf(buf, sizeof(buf), "ObLogCursor{file_id=%ld, log_id=%ld, offset=%ld}", file_id_, log_id_, offset_);
+    buf[sizeof(buf) - 1] = 0;
+    return buf;
+  }
 };
 }; // end namespace common
 }; // end namespace sb

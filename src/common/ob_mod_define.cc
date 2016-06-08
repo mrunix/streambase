@@ -1,12 +1,21 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_mod_define.cc for ...
+ *
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
+ */
 #include "ob_mod_define.h"
 using namespace sb;
 using namespace sb::common;
-
-namespace sb {
-namespace common {
-ExpStat g_malloc_size_stat("size");
-}; // end namespace common
-}; // end namespace sb
 
 ObModInfo sb::common::OB_MOD_SET[G_MAX_MOD_NUM];
 
@@ -44,3 +53,4 @@ const char* sb::common::ObModSet::get_mod_name(const int32_t mod_id) const {
 int32_t sb::common::ObModSet::get_max_mod_num()const {
   return mod_num_;
 }
+

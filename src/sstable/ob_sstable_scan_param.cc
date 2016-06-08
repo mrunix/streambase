@@ -1,20 +1,22 @@
 /**
- *  (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- *  This program is free software; you can redistribute it
- *  and/or modify it under the terms of the GNU General Public
- *  License version 2 as published by the Free Software
- *  Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- *  ob_sstable_scan_param.cc is for what ...
+ * Version: 5567
  *
- *  Authors:
- *     qushan < qushan@taobao.com >
+ * ob_sstable_scan_param.cc
+ *
+ * Authors:
+ *     qushan <qushan@taobao.com>
+ * Changes:
+ *     huating <huating.zmq@taobao.com>
  *
  */
 
 
-#include "common/utility.h"
 #include "ob_sstable_scan_param.h"
 using namespace sb::common;
 namespace sb {
@@ -26,15 +28,40 @@ ObSSTableScanParam::~ObSSTableScanParam() {
 }
 
 void ObSSTableScanParam::reset() {
-  scan_flag_.flag_ = 0;
   memset(column_ids_, 0, sizeof(column_ids_));
   column_id_list_.init(OB_MAX_COLUMN_NUMBER, column_ids_);
+}
+
+int ObSSTableScanParam::assign(const common::ObScanParam& param) {
+  int ret = OB_SUCCESS;
+
+
+  int64_t column_id_size = param.get_column_id_size();
+  if (column_id_size > OB_MAX_COLUMN_NUMBER) {
+    ret = OB_SIZE_OVERFLOW;
+  } else {
+    // copy base class members
+    set_is_result_cached(param.get_is_result_cached());
+    set_version_range(param.get_version_range());
+    scan_direction_ = param.get_scan_direction();
+    read_mode_ = param.get_read_mode();
+    // copy range, donot copy start_key_ & end_key_,
+    // suppose they will not change in scan process.
+    range_ = *param.get_range();
+    range_.table_id_ = param.get_table_id();
+    const uint64_t* const column_id_begin = param.get_column_id();
+    memcpy(column_ids_, column_id_begin, column_id_size * sizeof(uint64_t));
+    column_id_list_.init(OB_MAX_COLUMN_NUMBER, column_ids_, column_id_size);
+  }
+  return ret;
 }
 
 bool ObSSTableScanParam::is_valid() const {
   int ret = true;
   if (range_.empty()) {
-    TBSYS_LOG(ERROR, "range=%s is empty, cannot find any key.", to_cstring(range_));
+    char range_buf[OB_RANGE_STR_BUFSIZ];
+    range_.to_string(range_buf, OB_RANGE_STR_BUFSIZ);
+    TBSYS_LOG(ERROR, "range=%s is empty, cannot find any key.", range_buf);
     ret = false;
   } else if (column_id_list_.get_array_index() <= 0) {
     TBSYS_LOG(ERROR, "query not request any columns=%ld",
@@ -44,20 +71,6 @@ bool ObSSTableScanParam::is_valid() const {
   return ret;
 }
 
-int64_t ObSSTableScanParam::to_string(char* buf, const int64_t buf_len) const {
-  int64_t pos = 0;
-  pos += snprintf(buf, buf_len, "%s", "scan range:");
-  if (pos < buf_len) {
-    pos += range_.to_string(buf + pos, buf_len - pos);
-  }
-
-  if (pos < buf_len) {
-    for (int64_t i = 0; i < column_id_list_.get_array_index() && pos < buf_len;  ++i) {
-      databuff_printf(buf, buf_len, pos, "<id=%lu>,", column_ids_[i]);
-    }
-  }
-  return pos;
-}
 }
 }
 

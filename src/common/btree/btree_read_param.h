@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./btree_read_param.h for ...
+ *
+ * Authors:
+ *   duolong <duolong@taobao.com>
+ *
+ */
 #ifndef OCEANBASE_COMMON_BTREE_BTREE_READ_PARAM_H_
 #define OCEANBASE_COMMON_BTREE_BTREE_READ_PARAM_H_
 
@@ -36,9 +51,10 @@ class BtreeReadParam {
   // 节点的个数
   int32_t node_length_;
   // 当前节点位置
-  int16_t node_pos_[CONST_MAX_DEPTH];
+  int32_t node_pos_[CONST_MAX_DEPTH];
 };
 } // end namespace common
 } // end namespace sb
 
 #endif
+

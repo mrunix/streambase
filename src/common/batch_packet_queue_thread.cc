@@ -1,31 +1,25 @@
-
-/*
- * (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
+ * Version: $Id$
  *
- *
- * Version: 0.1: batch_packet_queue_thread.cc,v 0.1 2010/09/30 10:00:00 chuanhui Exp $
+ * batch_packet_queue_thread.cc for ...
  *
  * Authors:
- *   chuanhui <rizhao.ych@taobao.com>
- *     - modify PacketQueueThread to support use mode of UpdateServer row mutation
+ *   rizhao <rizhao.ych@taobao.com>
  *
  */
-
-
+#include "tbnet.h"
 #include "batch_packet_queue_thread.h"
-#include "ob_trace_id.h"
-#include "ob_tsi_factory.h"
-#include "ob_profile_log.h"
-#include "ob_profile_type.h"
 
 namespace sb {
 namespace common {
 
+using namespace tbnet;
 
 // 构造
 BatchPacketQueueThread::BatchPacketQueueThread() : tbsys::CDefaultRunnable() {
@@ -145,16 +139,11 @@ void BatchPacketQueueThread::pushQueue(ObPacketQueue& packetQueue, int maxQueueL
 // Runnable 接口
 void BatchPacketQueueThread::run(tbsys::CThread*, void*) {
   int err = OB_SUCCESS;
-  int64_t wait_us = 10000;
-  ObPacket* tmp_packet = NULL;
+  tbnet::Packet* tmp_packet = NULL;
   while (!_stop) {
     _cond.lock();
-    while (!_stop) {
-      switch_.check_off(true);
-      if (_queue.size() > 0) {
-        break;
-      }
-      _cond.wait(static_cast<int32_t>(wait_us / 1000));
+    while (!_stop && _queue.size() == 0) {
+      _cond.wait();
     }
     if (_stop) {
       _cond.unlock();
@@ -163,7 +152,7 @@ void BatchPacketQueueThread::run(tbsys::CThread*, void*) {
 
     // 限速
     if (_waitTime > 0) checkSendSpeed();
-    ObPacket* packets[MAX_BATCH_NUM];
+    tbnet::Packet* packets[MAX_BATCH_NUM];
     int64_t batch_num = 0;
     // 取出packet
     /*
@@ -188,12 +177,8 @@ void BatchPacketQueueThread::run(tbsys::CThread*, void*) {
       _pushcond.unlock();
     }
 
-    bool __attribute__((unused)) ret = true;
+    bool ret = true;
     if (_handler && batch_num > 0) {
-      for (int64_t i = 0; i < batch_num; ++i) {
-        // 忽略log自带的trace id和chid字段
-        PROFILE_LOG(DEBUG, TRACE_ID CHANNEL_ID WAIT_TIME_US_IN_WRITE_QUEUE, packets[i]->get_trace_id(), packets[i]->get_channel_id(), tbsys::CTimeUtil::getTime() - packets[i]->get_receive_ts());
-      }
       ret = _handler->handleBatchPacketQueue(batch_num, packets, _args);
     }
     // 如果返回false, 不删除
@@ -205,15 +190,13 @@ void BatchPacketQueueThread::run(tbsys::CThread*, void*) {
     // }
   }
   if (_waitFinish) { // 把queue中所有的task做完
-    bool __attribute__((unused)) ret = true;
+    bool ret = true;
     _cond.lock();
     while (_queue.size() > 0) {
       tmp_packet = (ObPacket*) _queue.pop();
       _cond.unlock();
 
       if (_handler) {
-        // 忽略log自带的trace id和chid字段
-        PROFILE_LOG(DEBUG, TRACE_ID CHANNEL_ID WAIT_TIME_US_IN_WRITE_QUEUE, tmp_packet->get_trace_id(), tmp_packet->get_channel_id(), tbsys::CTimeUtil::getTime() - tmp_packet->get_receive_ts());
         ret = _handler->handleBatchPacketQueue(1, &tmp_packet, _args);
       }
       //if (ret) delete tmp_packet;
@@ -244,7 +227,7 @@ void BatchPacketQueueThread::setWaitTime(int t) {
 // 计算发送速度
 void BatchPacketQueueThread::checkSendSpeed() {
   if (_waitTime > _overage) {
-    usleep(static_cast<useconds_t>(_waitTime - _overage));
+    usleep(_waitTime - _overage);
   }
   _speed_t2 = tbsys::CTimeUtil::getTime();
   _overage += (_speed_t2 - _speed_t1) - _waitTime;
@@ -260,4 +243,5 @@ void BatchPacketQueueThread::clear() {
 
 }
 }
+
 

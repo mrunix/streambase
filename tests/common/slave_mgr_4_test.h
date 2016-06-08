@@ -1,7 +1,5 @@
 
-#include "common/ob_role_mgr.h"
 #include "common/ob_slave_mgr.h"
-#include "common/ob_base_client.h"
 #include "common/ob_packet_factory.h"
 
 using namespace sb::common;
@@ -9,14 +7,16 @@ using namespace sb::common;
 class SlaveMgr4Test {
  public:
   SlaveMgr4Test() {
-    ObServer server;
-    base_client_.initialize(server);
-    rpc_stub.init(&base_client_.get_client_mgr());
-    slave_mgr_.init(&role_mgr_, 1, &rpc_stub, 1000000, 15000000, 12000000);
+    streamer.setPacketFactory(&factory);
+    client_mgr.initialize(&transport, &streamer);
+    rpc_stub.init(&client_mgr);
+    slave_mgr_.init(1, &rpc_stub, 1000000, 15000000, 12000000);
+    transport.start();
   }
 
   ~SlaveMgr4Test() {
-    base_client_.destroy();
+    transport.stop();
+    transport.wait();
   }
 
   ObSlaveMgr* get_slave_mgr() {
@@ -25,8 +25,10 @@ class SlaveMgr4Test {
 
  private:
   ObSlaveMgr slave_mgr_;
-  ObRoleMgr role_mgr_;
 
-  ObBaseClient base_client_;
+  ObClientManager client_mgr;
   ObCommonRpcStub rpc_stub;
+  ObPacketFactory factory;
+  tbnet::Transport transport;
+  tbnet::DefaultPacketStreamer streamer;
 };

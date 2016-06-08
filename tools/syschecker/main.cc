@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +17,10 @@
 using namespace sb::common;
 using namespace sb::syschecker;
 
+namespace {
+const char* PUBLIC_SECTION_NAME = "public";
+}
+
 int main(int argc, char* argv[]) {
   int ret               = OB_SUCCESS;
   ObSyscheckerMain* sm  = ObSyscheckerMain::get_instance();
@@ -25,7 +29,7 @@ int main(int argc, char* argv[]) {
     fprintf(stderr, "cannot start syschecker, new ObSyscheckerMain failed\n");
     ret = OB_ERROR;
   } else {
-    ret = sm->start(argc, argv);
+    ret = sm->start(argc, argv, PUBLIC_SECTION_NAME);
   }
 
   return ret;

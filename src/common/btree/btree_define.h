@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./btree_define.h for ...
+ *
+ * Authors:
+ *   duolong <duolong@taobao.com>
+ *
+ */
 #ifndef OCEANBASE_COMMON_BTREE_BTREE_DEFINE_H_
 #define OCEANBASE_COMMON_BTREE_BTREE_DEFINE_H_
 
@@ -52,9 +67,7 @@ enum {
   // KEY重复了
   ERROR_CODE_KEY_REPEAT = 2,
   // 树超出最大深度了
-  ERROR_CODE_TOO_DEPTH = 3,
-  // 内存分配失败
-  ERROR_CODE_ALLOC_FAIL = 4,
+  ERROR_CODE_TOO_DEPTH = 3
 };
 
 /**
@@ -72,3 +85,4 @@ typedef int64_t BtreeKeyCompare(const char*, const char*);
 } // end namespace sb
 
 #endif
+

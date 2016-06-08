@@ -1,3 +1,0 @@
-
-
-java -cp ./obmonster.jar com.etao.monster.main.Launcher   $@

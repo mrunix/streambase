@@ -122,9 +122,17 @@ int print_scanner(const char* buffer, const int64_t len, int64_t& pos, FILE* fil
           pre_cell = cur_cell;
           if (first_cell) {
             first_cell = false;
-            fprintf(file, "table_name:%.*s, rowkey:%s\n", cur_cell->table_name_.length(), cur_cell->table_name_.ptr(),
-                    to_cstring(cur_cell->row_key_));
+            fprintf(file, "table_name:%.*s, rowkey:%.*s\n", cur_cell->table_name_.length(), cur_cell->table_name_.ptr(),
+                    cur_cell->row_key_.length(), cur_cell->row_key_.ptr());
           }
+          /*
+          fprintf(file, "table_name:%.*s, rowkey:%.*s, column_name:%.*s, ext:%ld, type:%d\n",
+              cur_cell->table_name_.length(), cur_cell->table_name_.ptr(),
+              cur_cell->row_key_.length(), cur_cell->row_key_.ptr(),
+              cur_cell->column_name_.length(), cur_cell->column_name_.ptr(),
+              cur_cell->value_.get_ext(),cur_cell->value_.get_type());
+          //cur_cell->value_.dump();
+          */
         } else {
           ret = OB_ERROR;
           TBSYS_LOG(ERROR, "get cell failed:ret[%d]", ret);
@@ -133,8 +141,8 @@ int print_scanner(const char* buffer, const int64_t len, int64_t& pos, FILE* fil
       }
 
       if (OB_SUCCESS == ret) {
-        fprintf(file, "table_name:%.*s, rowkey:%s\n", pre_cell->table_name_.length(), pre_cell->table_name_.ptr(),
-                to_cstring(pre_cell->row_key_));
+        fprintf(file, "table_name:%.*s, rowkey:%.*s\n", pre_cell->table_name_.length(), pre_cell->table_name_.ptr(),
+                pre_cell->row_key_.length(), pre_cell->row_key_.ptr());
       }
     }
   }

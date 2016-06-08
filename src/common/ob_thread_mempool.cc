@@ -1,22 +1,18 @@
-////===================================================================
-//
-// ob_thread_mempool.cc / common / Oceanbase
-//
-// Copyright (C) 2010 Taobao.com, Inc.
-//
-// Created on 2011-01-13 by Yubai (yubai.lk@taobao.com)
-//
-// -------------------------------------------------------------------
-//
-// Description
-//
-//
-// -------------------------------------------------------------------
-//
-// Change Log
-//
-////====================================================================
-
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_thread_mempool.cc for ...
+ *
+ * Authors:
+ *   yubai <yubai.lk@taobao.com>
+ *
+ */
 #include "tblog.h"
 #include "ob_thread_mempool.h"
 #include "ob_atomic.h"
@@ -127,7 +123,7 @@ int ObThreadMempool::init(const int32_t fixed_size, const int32_t max_free_num) 
     TBSYS_LOG(WARN, "pthread_key_create fail errno=%u", errno);
     ret = OB_ERROR;
   } else {
-    fixed_size_ = static_cast<int32_t>(fixed_size + sizeof(ObMemList*));
+    fixed_size_ = fixed_size + sizeof(ObMemList*);
     max_free_num_ = max_free_num;
   }
   return ret;
@@ -248,4 +244,5 @@ void thread_mempool_free(void* ptr) {
 }
 }
 }
+
 

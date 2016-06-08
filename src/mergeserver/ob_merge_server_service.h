@@ -1,43 +1,43 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_merge_server_service.h for ...
+ *
+ * Authors:
+ *   xielun <xielun.szd@taobao.com>
+ *
+ */
 #ifndef OCEANBASE_MERGESERVER_SERVICE_H_
 #define OCEANBASE_MERGESERVER_SERVICE_H_
 
+#include "tbnet.h"
 #include "common/ob_define.h"
 #include "common/data_buffer.h"
 #include "common/ob_obi_role.h"
 #include "common/thread_buffer.h"
-#include "common/ob_session_mgr.h"
-#include "common/nb_accessor/ob_nb_accessor.h"
-#include "common/ob_config_manager.h"
-#include "common/ob_version.h"
 #include "ob_ms_schema_task.h"
 #include "ob_ms_monitor_task.h"
-#include "ob_ms_service_monitor.h"
 #include "ob_ms_lease_task.h"
 #include "ob_ms_ups_task.h"
-#include "ob_ms_sql_proxy.h"
-#include "ob_query_cache.h"
-#include "easy_io_struct.h"
-#include "ob_merge_server_config.h"
-#include "common/ob_privilege_manager.h"
-#include "common/ob_statistics.h"
-#include "ob_get_privilege_task.h"
+#include "ob_merge_join_agent.h"
 
 namespace sb {
-namespace common {
-class ObMergerSchemaManager;
-class ObTabletLocationCache;
-class ObTabletLocationCacheProxy;
-class ObGeneralRpcStub;
-}
 namespace mergeserver {
 class ObMergeServer;
 class ObMergerRpcProxy;
-class ObMergerRootRpcProxy;
-class ObMergerAsyncRpcStub;
-class ObMergerSchemaProxy;
+class ObMergerRpcStub;
+class ObMergerSchemaManager;
+class ObMergerServiceMonitor;
+class ObMergerTabletLocationCache;
 static const int32_t RESPONSE_PACKET_BUFFER_SIZE = 1024 * 1024 * 2; //2MB
 static const int64_t RETRY_INTERVAL_TIME = 1000 * 1000; // usleep 1 s
-class ObMergeServerService: public ObVersionProvider {
+class ObMergeServerService {
  public:
   ObMergeServerService();
   ~ObMergeServerService();
@@ -46,8 +46,6 @@ class ObMergeServerService: public ObVersionProvider {
   int initialize(ObMergeServer* merge_server);
   int start();
   int destroy();
-  bool check_instance_role(const bool read_master) const;
-
  public:
   /// extend lease valid time = sys.cur_timestamp + delay
   void extend_lease(const int64_t delay);
@@ -58,209 +56,70 @@ class ObMergeServerService: public ObVersionProvider {
   /// register to root server
   int register_root_server(void);
 
-  sql::ObSQLSessionMgr* get_sql_session_mgr() const;
-  void set_sql_session_mgr(sql::ObSQLSessionMgr* mgr);
-  void set_sql_id_mgr(sql::ObSQLIdMgr* mgr) {sql_id_mgr_ = mgr;};
-  /* reload config after update local configuration succ */
-  int reload_config();
-
   int do_request(
     const int64_t receive_time,
     const int32_t packet_code,
     const int32_t version,
     const int32_t channel_id,
-    easy_request_t* req,
+    tbnet::Connection* connection,
     common::ObDataBuffer& in_buffer,
-    common::ObDataBuffer& out_buffer,
-    const int64_t timeout_us);
+    common::ObDataBuffer& out_buffer);
 
   //int get_agent(ObMergeJoinAgent *&agent);
   void handle_failed_request(const int64_t timeout, const int32_t packet_code);
-
-  mergeserver::ObMergerRpcProxy*  get_rpc_proxy() const {return rpc_proxy_;}
-  mergeserver::ObMergerRootRpcProxy* get_root_rpc() const {return root_rpc_;}
-  mergeserver::ObMergerAsyncRpcStub*   get_async_rpc() const {return async_rpc_;}
-  common::ObMergerSchemaManager* get_schema_mgr() const {return schema_mgr_;}
-  common::ObTabletLocationCacheProxy* get_cache_proxy() const {return cache_proxy_;}
-  common::ObStatManager* get_stat_manager() const { return service_monitor_; }
-
-  const common::ObVersion get_frozen_version() const {
-    return frozen_version_;
-  }
-
-  ObMergeServerConfig& get_config();
-  const ObMergeServerConfig& get_config() const;
  private:
-  // lease init 10s
-  static const int64_t DEFAULT_LEASE_TIME = 10 * 1000 * 1000L;
+  // lease init 20s
+  static const int64_t DEFAULT_LEASE_TIME = 20 * 1000 * 1000L;
 
   // warning: fetch schema interval can not be too long
   // because of the heartbeat handle will block tbnet thread
   static const int64_t FETCH_SCHEMA_INTERVAL = 30 * 1000;
 
-  // list sessions
-  int ms_list_sessions(
-    const int32_t version,
-    const int32_t channel_id,
-    easy_request_t* req,
-    common::ObDataBuffer& in_buffer,
-    common::ObDataBuffer& out_buffer);
-  // list sessions
-  int ms_kill_session(
-    const int32_t version,
-    const int32_t channel_id,
-    easy_request_t* req,
-    common::ObDataBuffer& in_buffer,
-    common::ObDataBuffer& out_buffer);
-  // kill sql session
-  int ms_sql_kill_session(
-    const int64_t receive_time,
-    const int32_t version,
-    const int32_t channel_id,
-    easy_request_t* req,
-    common::ObDataBuffer& in_buffer,
-    common::ObDataBuffer& out_buffer,
-    const int64_t timeout_us
-  );
   // heartbeat
   int ms_heartbeat(
     const int64_t receive_time,
     const int32_t version,
     const int32_t channel_id,
-    easy_request_t* req,
+    tbnet::Connection* connection,
     common::ObDataBuffer& in_buffer,
-    common::ObDataBuffer& out_buffer,
-    const int64_t timeout_us);
+    common::ObDataBuffer& out_buffer);
   // clear cache
   int ms_clear(
     const int64_t receive_time,
     const int32_t version,
     const int32_t channel_id,
-    easy_request_t* req,
+    tbnet::Connection* connection,
     common::ObDataBuffer& in_buffer,
-    common::ObDataBuffer& out_buffer,
-    const int64_t timeout_us);
+    common::ObDataBuffer& out_buffer);
   // monitor stat
   int ms_stat(
     const int64_t receive_time,
     const int32_t version,
     const int32_t channel_id,
-    easy_request_t* req,
+    tbnet::Connection* connection,
     common::ObDataBuffer& in_buffer,
-    common::ObDataBuffer& out_buffer,
-    const int64_t timeout_us);
-  // reload conf
-  int ms_reload_config(
-    const int64_t receive_time,
-    const int32_t version,
-    const int32_t channel_id,
-    easy_request_t* req,
-    common::ObDataBuffer& in_buffer,
-    common::ObDataBuffer& out_buffer,
-    const int64_t timeout_us);
+    common::ObDataBuffer& out_buffer);
   // get query
   int ms_get(
     const int64_t receive_time,
     const int32_t version,
     const int32_t channel_id,
-    easy_request_t* req,
+    tbnet::Connection* connection,
     common::ObDataBuffer& in_buffer,
-    common::ObDataBuffer& out_buffer,
-    const int64_t timeout_us);
+    common::ObDataBuffer& out_buffer);
   // scan query
   int ms_scan(
     const int64_t receive_time,
     const int32_t version,
     const int32_t channel_id,
-    easy_request_t* req,
-    common::ObDataBuffer& in_buffer,
-    common::ObDataBuffer& out_buffer,
-    const int64_t timeout_us);
-  int ms_sql_scan(
-    const int64_t start_time,
-    const int32_t version,
-    const int32_t channel_id,
-    easy_request_t* req,
-    common::ObDataBuffer& in_buffer,
-    common::ObDataBuffer& out_buffer,
-    const int64_t timeout_us);
-
-  int ms_accept_schema(
-    const int64_t receive_time,
-    const int32_t version,
-    const int32_t channel_id,
-    easy_request_t* req,
-    common::ObDataBuffer& in_buffer,
-    common::ObDataBuffer& out_buffer,
-    const int64_t timeout_us);
-
-
-  int send_sql_response(
-    easy_request_t* req,
-    common::ObDataBuffer& out_buffer,
-    ObSQLResultSet& result,
-    int32_t channel_id,
-    int64_t timeout_us);
-
-  int ms_sql_execute(
-    const int64_t start_time,
-    const int32_t version,
-    const int32_t channel_id,
-    easy_request_t* req,
-    common::ObDataBuffer& in_buffer,
-    common::ObDataBuffer& out_buffer,
-    const int64_t timeout_us);
-
-  int do_timeouted_req(
-    const int32_t version,
-    const int32_t channel_id,
-    easy_request_t* req,
+    tbnet::Connection* connection,
     common::ObDataBuffer& in_buffer,
     common::ObDataBuffer& out_buffer);
-
-  // mutate update
-  int ms_mutate(
-    const int64_t receive_time,
-    const int32_t version,
-    const int32_t channel_id,
-    easy_request_t* req,
-    common::ObDataBuffer& in_buffer,
-    common::ObDataBuffer& out_buffer,
-    const int64_t timeout_us);
-
-  // change log level
-  int ms_change_log_level(
-    const int64_t receive_time,
-    const int32_t version,
-    const int32_t channel_id,
-    easy_request_t* req,
-    common::ObDataBuffer& in_buffer,
-    common::ObDataBuffer& out_buffer,
-    const int64_t timeout_us);
-
-  int ms_set_config(
-    const int64_t receive_time,
-    const int32_t version,
-    const int32_t channel_id,
-    easy_request_t* req,
-    common::ObDataBuffer& in_buffer,
-    common::ObDataBuffer& out_buffer,
-    const int64_t timeout_us);
-
-  int ms_get_config(
-    const int64_t receive_time,
-    const int32_t version,
-    const int32_t channel_id,
-    easy_request_t* req,
-    common::ObDataBuffer& in_buffer,
-    common::ObDataBuffer& out_buffer,
-    const int64_t timeout_us);
-
  private:
-  ObConfigManager& get_config_mgr();
-
   // init server properties
-  int init_ms_properties_();
+  int init_ms_properties();
+  // check read master role
+  bool check_instance_role(const bool read_master) const;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(ObMergeServerService);
@@ -274,32 +133,16 @@ class ObMergeServerService: public ObVersionProvider {
   common::ObiRole instance_role_;
 
  private:
-  static const uint64_t MAX_INNER_TABLE_COUNT = 32;
-  static const uint64_t MAX_ROOT_SERVER_ACCESS_COUNT = 32;
-  static const int64_t REQUEST_EVENT_QUEUE_SIZE = 8192;
-  //
-  int64_t frozen_version_;
   ObMergerRpcProxy*  rpc_proxy_;
-  sb::common::ObGeneralRpcStub*  rpc_stub_;
-  ObMsSQLProxy sql_proxy_;
-  ObMergerAsyncRpcStub*   async_rpc_;
-  common::ObMergerSchemaManager* schema_mgr_;
-  ObMergerSchemaProxy* schema_proxy_;
-  sb::common::nb_accessor::ObNbAccessor* nb_accessor_;
-  ObMergerRootRpcProxy* root_rpc_;
+  ObMergerRpcStub*   rpc_stub_;
+  ObMergerSchemaManager* schema_mgr_;
   ObMergerUpsTask fetch_ups_task_;
   ObMergerSchemaTask fetch_schema_task_;
   ObMergerLeaseTask check_lease_task_;
   ObMergerMonitorTask monitor_task_;
-  ObTabletLocationCache* location_cache_;
-  common::ObTabletLocationCacheProxy* cache_proxy_;
+  ObMergerTabletLocationCache* location_cache_;
   ObMergerServiceMonitor* service_monitor_;
-  sb::common::ObSessionManager session_mgr_;
-  sql::ObSQLSessionMgr* sql_session_mgr_;
-  ObQueryCache* query_cache_;
-  common::ObPrivilegeManager* privilege_mgr_;
-  ObGetPrivilegeTask update_privilege_task_;
-  sql::ObSQLIdMgr* sql_id_mgr_;
+  common::ThreadSpecificBuffer merge_join_agent_buffer_;
 };
 
 inline void ObMergeServerService::extend_lease(const int64_t delay) {
@@ -309,16 +152,9 @@ inline void ObMergeServerService::extend_lease(const int64_t delay) {
 inline bool ObMergeServerService::check_lease(void) const {
   return tbsys::CTimeUtil::getTime() <= lease_expired_time_;
 }
-
-inline sql::ObSQLSessionMgr* ObMergeServerService::get_sql_session_mgr() const {
-  return sql_session_mgr_;
-}
-
-inline void ObMergeServerService::set_sql_session_mgr(sql::ObSQLSessionMgr* mgr) {
-  sql_session_mgr_ = mgr;
-}
-
 } /* mergeserver */
-} /* oceanbase */
+} /* sb */
 
 #endif /* end of include guard: OCEANBASE_MERGESERVER_SERVICE_H_ */
+
+

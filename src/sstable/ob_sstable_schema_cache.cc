@@ -1,14 +1,16 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_sstable_schema_cache.cc for sstable schema cache.
+ * Version: 5567
+ *
+ * ob_sstable_schema_cache.cc
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
+ *     huating <huating.zmq@taobao.com>
  *
  */
 #include <tblog.h>
@@ -18,9 +20,8 @@ namespace sb {
 namespace sstable {
 using namespace common;
 
-ObSSTableSchemaCache::ObSSTableSchemaCache()
-  : schema_array_(NULL), schema_buf_size_(DEFAULT_SCHEMA_BUF_SIZE), schema_cnt_(0) {
-
+ObSSTableSchemaCache::ObSSTableSchemaCache() : schema_cnt_(0) {
+  memset(schema_array_, 0, sizeof(ObSchemaNode) * MAX_SCHEMA_VER_COUNT);
 }
 
 ObSSTableSchemaCache::~ObSSTableSchemaCache() {
@@ -55,43 +56,6 @@ ObSSTableSchema* ObSSTableSchemaCache::get_schema(const uint64_t table_id,
   return schema;
 }
 
-int ObSSTableSchemaCache::ensure_schema_buf_space(const int64_t size) {
-  int ret               = OB_SUCCESS;
-  char* new_buf         = NULL;
-  int64_t reamin_size   = schema_buf_size_ - SCHEMA_NODE_SIZE * schema_cnt_;
-  int64_t schema_buf_len  = 0;
-
-  if (size <= 0) {
-    TBSYS_LOG(WARN, "invalid sstable schema size, size=%ld", size);
-    ret = OB_INVALID_ARGUMENT;
-  } else if (NULL == schema_array_ || (NULL != schema_array_ && size > reamin_size)) {
-    schema_buf_len = size > reamin_size
-                     ? (schema_buf_size_ * 2) : schema_buf_size_;
-    if (schema_buf_len - SCHEMA_NODE_SIZE * schema_cnt_ < size) {
-      schema_buf_len = SCHEMA_NODE_SIZE * schema_cnt_ + size * 2;
-    }
-    new_buf = static_cast<char*>(ob_malloc(schema_buf_len, ObModIds::OB_SSTABLE_SCHEMA));
-    if (NULL == new_buf) {
-      TBSYS_LOG(ERROR, "Problem allocating memory for sstable schema buffer");
-      ret = OB_ALLOCATE_MEMORY_FAILED;
-    } else {
-      memset(new_buf, 0, schema_buf_len);
-      if (NULL != schema_array_) {
-        TBSYS_LOG(INFO, "expand sstable schema cache, schema_cnt=%ld, "
-                  "old_schema_buf_size=%ld, new_schema_buf_size=%ld",
-                  schema_cnt_, schema_buf_size_, schema_buf_len);
-        memcpy(new_buf, schema_array_, SCHEMA_NODE_SIZE * schema_cnt_);
-        ob_free(schema_array_);
-        schema_array_ = NULL;
-      }
-      schema_buf_size_ = schema_buf_len;
-      schema_array_ = reinterpret_cast<ObSchemaNode*>(new_buf);
-    }
-  }
-
-  return ret;
-}
-
 int ObSSTableSchemaCache::add_schema(ObSSTableSchema* schema, const uint64_t table_id,
                                      const int64_t version) {
   int ret       = OB_SUCCESS;
@@ -102,16 +66,20 @@ int ObSSTableSchemaCache::add_schema(ObSSTableSchema* schema, const uint64_t tab
     TBSYS_LOG(WARN, "invalid param, schema=%p, table_id=%lu, version=%ld, schema_cnt=%ld",
               schema, table_id, version, schema_cnt_);
     ret = OB_ERROR;
-  } else {
+  } else if (schema_cnt_ >= MAX_SCHEMA_VER_COUNT) {
+    TBSYS_LOG(WARN, "can't add more schema into sstable schema cache, schema_cnt=%ld, "
+              "max_schema_cnt=%ld",
+              schema_cnt_, MAX_SCHEMA_VER_COUNT);
+    ret = OB_ERROR;
+  }
+
+  if (OB_SUCCESS == ret) {
     rwlock_.wrlock();
-    ret = ensure_schema_buf_space(SCHEMA_NODE_SIZE);
-    if (OB_SUCCESS == ret) {
-      index = find_schema_node_index(table_id, version);
-      if (index >= 0) {
-        TBSYS_LOG(INFO, "sstable schema existent, table_id=%lu, version=%ld, schema_cnt=%ld",
-                  table_id, version, schema_cnt_);
-        ret = OB_ENTRY_EXIST;
-      }
+    index = find_schema_node_index(table_id, version);
+    if (index >= 0) {
+      TBSYS_LOG(INFO, "sstable schema existent, table_id=%lu, version=%ld, schema_cnt=%ld",
+                table_id, version, schema_cnt_);
+      ret = OB_ENTRY_EXIST;
     }
 
     if (OB_SUCCESS == ret) {
@@ -247,16 +215,7 @@ int ObSSTableSchemaCache::clear() {
 }
 
 int ObSSTableSchemaCache::destroy() {
-  int ret = OB_SUCCESS;
-
-  ret = clear();
-
-  if (NULL != schema_array_) {
-    ob_free(schema_array_);
-    schema_array_ = NULL;
-  }
-
-  return ret;
+  return clear();
 }
 } // end namespace sstable
 } // end namespace sb

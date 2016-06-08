@@ -1,13 +1,26 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_packet.cc for ...
+ *
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
+ */
 #include "ob_packet.h"
 #include "ob_thread_mempool.h"
-#include "utility.h"
 
 namespace sb {
 namespace common {
 ObVarMemPool ObPacket::out_mem_pool_(OB_MAX_PACKET_LENGTH);
-uint32_t ObPacket::global_chid = 0;
-ObPacket::ObPacket() : no_free_(false), ob_packet_header_size_(0), api_version_(0), timeout_(0), data_length_(0),
-  priority_(NORMAL_PRI), target_id_(0), receive_ts_(0), session_id_(0), alloc_inner_mem_(false), trace_id_(0), req_sign_(0) {
+
+ObPacket::ObPacket() : api_version_(0), source_id_(0), target_id_(0), timeout_(0), data_length_(0), receive_ts_(0), priority_(NORMAL_PRI), connection_(NULL), alloc_inner_mem_(false) {
 }
 
 ObPacket::~ObPacket() {
@@ -16,38 +29,22 @@ ObPacket::~ObPacket() {
   }
 }
 
-void ObPacket::free() {
-  if (!no_free_) {
-    delete this;
-  }
-}
-
-uint32_t ObPacket::get_channel_id() const {
-  return chid_;
-}
-
-void ObPacket::set_channel_id(uint32_t chid) {
-  chid_ = chid;
-}
-
-int ObPacket::get_packet_len() const {
-  return packet_len_;
-}
-
-void ObPacket::set_packet_len(int length) {
-  packet_len_ = length;
-}
-
-void ObPacket::set_no_free() {
-  no_free_ = true;
-}
-
-int32_t ObPacket::get_packet_code() const {
-  return pcode_;
+int32_t ObPacket::get_packet_code() {
+  // tbnet::Packet method
+  return getPCode();
 }
 
 void ObPacket::set_packet_code(const int32_t packet_code) {
-  pcode_ = packet_code;
+  // tbnet::Packet method
+  setPCode(packet_code);
+}
+
+int32_t ObPacket::get_source_id() const {
+  return source_id_;
+}
+
+void ObPacket::set_source_id(const int32_t source_id) {
+  source_id_ = source_id;
 }
 
 int32_t ObPacket::get_target_id() const {
@@ -58,24 +55,12 @@ void ObPacket::set_target_id(const int32_t target_id) {
   target_id_ = target_id;
 }
 
-int64_t ObPacket::get_session_id() const {
-  return session_id_;
-}
-
-void ObPacket::set_session_id(const int64_t session_id) {
-  session_id_ = session_id;
-}
-
-int64_t ObPacket::get_expire_time() const {
-  return expire_time_;
-}
-
 int32_t ObPacket::get_api_version() const {
-  return static_cast<int32_t>(api_version_);
+  return api_version_;
 }
 
 void ObPacket::set_api_version(const int32_t api_version) {
-  api_version_ = static_cast<int16_t>(api_version);
+  api_version_ = api_version;
 }
 
 void ObPacket::set_data(const ObDataBuffer& buffer) {
@@ -86,20 +71,12 @@ ObDataBuffer* ObPacket::get_buffer() {
   return &buffer_;
 }
 
-ObDataBuffer* ObPacket::get_inner_buffer() {
-  return &inner_buffer_;
+tbnet::Connection* ObPacket::get_connection() const {
+  return connection_;
 }
 
-ObPacket* ObPacket::get_next() const {
-  return _next;
-}
-
-easy_request_t* ObPacket::get_request() const {
-  return req_;
-}
-
-void ObPacket::set_request(easy_request_t* r) {
-  req_ = r;
+void ObPacket::set_connection(tbnet::Connection* connection) {
+  connection_ = connection;
 }
 
 int ObPacket::serialize() {
@@ -135,38 +112,6 @@ int ObPacket::serialize() {
   return ret;
 }
 
-int ObPacket::serialize(ObDataBuffer* buffer) {
-  int ret = OB_SUCCESS;
-  if (NULL == buffer) {
-    TBSYS_LOG(WARN, "invalid argument buffer is %p", buffer);
-    ret = OB_INVALID_ARGUMENT;
-  } else {
-    ret = do_check_sum();
-    if (ret == OB_SUCCESS && target_id_ != OB_SELF_FLAG) {
-      int64_t buf_size = header_.get_serialize_size();
-      buf_size += buffer_.get_position();
-      if (buf_size > buffer->get_capacity()) {
-        TBSYS_LOG(WARN, "buffer capacity is not enough, need %ld, but actual is %ld",
-                  buf_size, buffer->get_capacity());
-        ret = OB_ERROR;
-      } else {
-        buffer->get_position() = 0;
-        ret = header_.serialize(buffer->get_data(), buffer->get_capacity(), buffer->get_position());
-        if (ret == OB_SUCCESS) {
-          if (buffer->get_remain() >= buffer_.get_position()) {
-            int64_t& current_position = buffer->get_position();
-            memcpy(buffer->get_data() + buffer->get_position(), buffer_.get_data(), buffer_.get_position());
-            current_position += buffer_.get_position();
-          } else {
-            ret = OB_ERROR;
-          }
-        }
-      }
-    }
-  }
-  return ret;
-}
-
 int ObPacket::deserialize() {
   int ret = OB_SUCCESS;
 
@@ -176,8 +121,6 @@ int ObPacket::deserialize() {
 
   if (ret == OB_SUCCESS) {
     ret = do_sum_check();
-  } else {
-    TBSYS_LOG(ERROR, "deserialize header_ failed, ret=%d", ret);
   }
 
   // buffer_'s position now point to the user data
@@ -188,15 +131,16 @@ int ObPacket::do_check_sum() {
   int ret = OB_SUCCESS;
 
   header_.set_magic_num(OB_PACKET_CHECKSUM_MAGIC);
-  header_.header_length_ = static_cast<int16_t>(header_.get_serialize_size());
+  header_.header_length_ = header_.get_serialize_size();
   header_.version_ = 0;
   header_.reserved_ = 0;
 
-  header_.data_length_ = static_cast<int32_t>(buffer_.get_position());
+  header_.data_length_ = buffer_.get_position();
   header_.data_zlength_ = header_.data_length_; // not compressed
 
   header_.data_checksum_ = common::ob_crc64(buffer_.get_data(), buffer_.get_position());
   header_.set_header_checksum();
+
   return ret;
 }
 
@@ -227,46 +171,52 @@ int ObPacket::do_sum_check() {
   return ret;
 }
 
-bool ObPacket::encode(char* output, int64_t len) {
-  int rc = OB_SUCCESS;
-  bool ret = true;
-  int64_t pos = 0;
-  uint16_t ob_packet_header_size = get_ob_packet_header_size();
-  if ((OB_SUCCESS == (rc = serialization::encode_i32(output, len, pos, OB_TBNET_PACKET_FLAG)))
-      && (OB_SUCCESS == (rc = serialization::encode_i32(output, len, pos, chid_)))
-      && (OB_SUCCESS == (rc = serialization::encode_i32(output, len, pos, pcode_)))
-      && (OB_SUCCESS == (rc = serialization::encode_i32(output, len, pos, packet_len_)))
-      && (OB_SUCCESS == (rc = serialization::encode_i16(output, len, pos, ob_packet_header_size)))
-      && (OB_SUCCESS == (rc = serialization::encode_i16(output, len, pos, api_version_)))
-      && (OB_SUCCESS == (rc = serialization::encode_i64(output, len, pos, session_id_)))
-      && (OB_SUCCESS == (rc = serialization::encode_i32(output, len, pos, timeout_))))
+bool ObPacket::encode(tbnet::DataBuffer* output) {
+  output->writeInt32(api_version_);
+  output->writeInt32(source_id_);
+  output->writeInt32(target_id_);
+  output->writeInt32(timeout_);
 
-  {
-#if !defined(_OB_VERSION) || _OB_VERSION<=300
-#elif _OB_VERSION>300
-    // lide.wd : 发包的时候，如果编译的时候是0.4 编译的，那么总是带上trace_id, 工具需要升级
-    rc = serialization::encode_i64(output, len, pos, trace_id_);
-    rc = serialization::encode_i64(output, len, pos, req_sign_);
-#endif
-    if (OB_SUCCESS == rc) {
-      memcpy(output + pos, inner_buffer_.get_data(), inner_buffer_.get_position());
+  const char* data = inner_buffer_.get_data();
+  int size = static_cast<int>(inner_buffer_.get_position());
+  output->writeBytes(data, size);
+  return true;
+}
+
+bool ObPacket::decode(tbnet::DataBuffer* input, tbnet::PacketHeader* header) {
+  bool rc = false;
+
+  int length = header->_dataLen;
+  api_version_ = input->readInt32();
+  length -= 4;
+  source_id_ = input->readInt32();
+  length -= 4;
+  target_id_ = input->readInt32();
+  length -= 4;
+  timeout_ = input->readInt32();
+  length -= 4;
+
+  // real data length
+  data_length_ = length - header_.get_serialize_size();
+
+  // inner_buffer_ is set when this packet is created
+  // see ObPacketFactory.createPacket
+  if (inner_buffer_.get_remain() >= length) {
+    rc = input->readBytes(inner_buffer_.get_data(), length);
+    if (rc) {
+      inner_buffer_.get_position() = length;
     }
+  } else {
+    TBSYS_LOG(ERROR, "innert buffer is not enough, need: %d, real: %ld", length, inner_buffer_.get_remain());
   }
 
-  if (OB_SUCCESS != rc) {
-    TBSYS_LOG(ERROR, "encode packet into request output buffer faild, output is %p, pos is %ld",
-              output, pos);
-    ret = false;
-  }
-  return ret;
+  receive_ts_ = tbsys::CTimeUtil::getTime();
+
+  return rc;
 }
 
 int32_t ObPacket::get_data_length() const {
   return data_length_;
-}
-
-void ObPacket::set_data_length(int32_t datalen) {
-  data_length_ = datalen;
 }
 
 void ObPacket::set_receive_ts(const int64_t receive_ts) {
@@ -290,7 +240,7 @@ int32_t ObPacket::get_packet_priority() const {
 }
 
 void ObPacket::set_source_timeout(const int64_t& timeout) {
-  timeout_ = static_cast<int32_t>(timeout);
+  timeout_ = timeout;
 }
 int64_t ObPacket::get_source_timeout() const {
   return timeout_;
@@ -304,34 +254,9 @@ ObDataBuffer* ObPacket::get_packet_buffer() {
   return &inner_buffer_;
 }
 
-const ObDataBuffer* ObPacket::get_packet_buffer() const {
-  return &inner_buffer_;
-}
-
 void ObPacket::set_packet_buffer(char* buffer, const int64_t buffer_length) {
   inner_buffer_.set_data(buffer, buffer_length);
 }
-
-int64_t ObPacket::get_header_size() const {
-  return header_.get_serialize_size();
-}
-uint64_t ObPacket::get_trace_id() const {
-  return trace_id_;
-}
-void ObPacket::set_trace_id(const uint64_t& trace_id) {
-  trace_id_ = trace_id;
-}
-uint64_t ObPacket::get_req_sign() const {
-  return req_sign_;
-}
-void ObPacket::set_req_sign(const uint64_t req_sign) {
-  req_sign_ = req_sign;
-}
-void ObPacket::set_ob_packet_header_size(const uint16_t ob_packet_header_size) {
-  ob_packet_header_size_ = ob_packet_header_size;
-}
-uint16_t ObPacket::get_ob_packet_header_size() const {
-  return ob_packet_header_size_;
-}
 } /* common */
-} /* oceanbase */
+} /* sb */
+

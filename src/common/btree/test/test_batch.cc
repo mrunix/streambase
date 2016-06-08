@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ./test/test_batch.cc for ...
+ *
+ * Authors:
+ *   duolong <duolong@taobao.com>
+ *
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -252,4 +267,5 @@ int main(int argc, char* argv[]) {
 
   return 0;
 }
+
 

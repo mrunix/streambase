@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * test_merger_timer_task.cc for ...
+ *
+ * Authors:
+ *   xielun <xielun.szd@taobao.com>
+ *
+ */
 #include <iostream>
 #include <sstream>
 #include <algorithm>
@@ -10,7 +25,7 @@
 #include "common/ob_tablet_info.h"
 #include "ob_ms_rpc_proxy.h"
 #include "ob_ms_tablet_location.h"
-#include "common/ob_schema_manager.h"
+#include "ob_ms_schema_manager.h"
 #include "ob_ms_rpc_stub.h"
 #include "ob_ms_schema_task.h"
 
@@ -64,8 +79,11 @@ TEST_F(TestTimerTask, test_fetch_schema) {
   ObServer root_server;
   root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
 
+  ObServer update_server;
+  update_server.set_ipv4_addr(addr, MockUpdateServer::UPDATE_SERVER_PORT);
+
   ObServer merge_server;
-  ObMergerRpcProxy proxy(1, timeout, root_server, merge_server);
+  ObMergerRpcProxy proxy(1, timeout, root_server, update_server, merge_server);
 
   EXPECT_TRUE(OB_SUCCESS != proxy.init(NULL, NULL, NULL));
   EXPECT_TRUE(OB_SUCCESS != proxy.init(&stub, NULL, NULL));
@@ -73,9 +91,9 @@ TEST_F(TestTimerTask, test_fetch_schema) {
   ObMergerSchemaManager* schema = new ObMergerSchemaManager;
   EXPECT_TRUE(NULL != schema);
   ObSchemaManagerV2 temp(200);
-  EXPECT_TRUE(OB_SUCCESS == schema->init(false, temp));
+  EXPECT_TRUE(OB_SUCCESS == schema->init(temp));
 
-  ObTabletLocationCache* location = new ObMergerTabletLocationCache;
+  ObMergerTabletLocationCache* location = new ObMergerTabletLocationCache;
   EXPECT_TRUE(NULL != location);
   EXPECT_TRUE(OB_SUCCESS == proxy.init(&stub, schema, location));
 
@@ -125,8 +143,11 @@ TEST_F(TestTimerTask, test_timer_fetch) {
   ObServer root_server;
   root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
 
+  ObServer update_server;
+  update_server.set_ipv4_addr(addr, MockUpdateServer::UPDATE_SERVER_PORT);
+
   ObServer merge_server;
-  ObMergerRpcProxy proxy(1, timeout, root_server, merge_server);
+  ObMergerRpcProxy proxy(1, timeout, root_server, update_server, merge_server);
 
   EXPECT_TRUE(OB_SUCCESS != proxy.init(NULL, NULL, NULL));
   EXPECT_TRUE(OB_SUCCESS != proxy.init(&stub, NULL, NULL));
@@ -134,9 +155,9 @@ TEST_F(TestTimerTask, test_timer_fetch) {
   ObMergerSchemaManager* schema = new ObMergerSchemaManager;
   EXPECT_TRUE(NULL != schema);
   ObSchemaManagerV2 temp(200);
-  EXPECT_TRUE(OB_SUCCESS == schema->init(false, temp));
+  EXPECT_TRUE(OB_SUCCESS == schema->init(temp));
 
-  ObTabletLocationCache* location = new ObMergerTabletLocationCache;
+  ObMergerTabletLocationCache* location = new ObMergerTabletLocationCache;
   EXPECT_TRUE(NULL != location);
   EXPECT_TRUE(OB_SUCCESS == proxy.init(&stub, schema, location));
 
@@ -164,6 +185,8 @@ TEST_F(TestTimerTask, test_timer_fetch) {
   server.stop();
   sleep(5);
 }
+
+
 
 
 

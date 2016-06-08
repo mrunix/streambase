@@ -1,5 +1,5 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010 Taobao Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,14 +20,47 @@ namespace sb {
 namespace client {
 using namespace common;
 
-ObServerManager::ObServerManager() {
+ObServerManager::ObServerManager()
+  : servers_count_(0), cur_merge_server_idx_(0), servers_(NULL) {
+
 }
 
 ObServerManager::~ObServerManager() {
+  if (NULL != servers_) {
+    ob_free(servers_);
+    servers_ = NULL;
+  }
+}
+
+int ObServerManager::init(const int64_t servers_count) {
+  int ret = OB_SUCCESS;
+
+  if (servers_count <= 2) {
+    TBSYS_LOG(WARN, "invalid param, servers_count=%ld", servers_count);
+    ret = OB_ERROR;
+  } else if (NULL != servers_) {
+    TBSYS_LOG(WARN, "server manager has been inited, servers_=%p", servers_);
+    ret = OB_ERROR;
+  }
+
+  if (OB_SUCCESS == ret) {
+    servers_ = reinterpret_cast<ObServer*>
+               (ob_malloc(servers_count * sizeof(ObServer)));
+    if (NULL == servers_) {
+      TBSYS_LOG(ERROR, "failed allocate for servers array.");
+      ret = OB_ERROR;
+    } else {
+      memset(servers_, 0, servers_count * sizeof(ObServer));
+      servers_count_ = servers_count;
+      cur_merge_server_idx_ = 2;
+    }
+  }
+
+  return ret;
 }
 
 const ObServer& ObServerManager::get_root_server() const {
-  return root_server_;
+  return servers_[0];
 }
 
 int ObServerManager::set_root_server(const ObServer& root_server) {
@@ -40,14 +73,14 @@ int ObServerManager::set_root_server(const ObServer& root_server) {
   }
 
   if (OB_SUCCESS == ret) {
-    root_server_ = root_server;
+    servers_[0] = root_server;
   }
 
   return ret;
 }
 
 const ObServer& ObServerManager::get_update_server() const {
-  return update_server_;
+  return servers_[1];
 }
 
 int ObServerManager::set_update_server(const ObServer& update_server) {
@@ -60,14 +93,14 @@ int ObServerManager::set_update_server(const ObServer& update_server) {
   }
 
   if (OB_SUCCESS == ret) {
-    update_server_ = update_server;
+    servers_[1] = update_server;
   }
 
   return ret;
 }
 
 const ObServer& ObServerManager::get_random_merge_server() const {
-  return merge_servers_.at(random() % merge_servers_.count());
+  return servers_[random() % (servers_count_ - 2) + 2];
 }
 
 int ObServerManager::add_merge_server(const ObServer& merge_server) {
@@ -77,31 +110,18 @@ int ObServerManager::add_merge_server(const ObServer& merge_server) {
     TBSYS_LOG(WARN, "invalid merge server, ip=%d, port=%d",
               merge_server.get_ipv4(), merge_server.get_port());
     ret = OB_ERROR;
-  } else {
-    merge_servers_.push_back(merge_server);
-  }
-
-  return ret;
-}
-
-
-const ObServer& ObServerManager::get_random_chunk_server() const {
-  return chunk_servers_.at(random() % chunk_servers_.count());
-}
-
-int ObServerManager::add_chunk_server(const ObServer& chunk_server) {
-  int ret = OB_SUCCESS;
-
-  if (chunk_server.get_ipv4() == 0 || chunk_server.get_port() == 0) {
-    TBSYS_LOG(WARN, "invalid merge server, ip=%d, port=%d",
-              chunk_server.get_ipv4(), chunk_server.get_port());
+  } else if (cur_merge_server_idx_ >= servers_count_) {
+    TBSYS_LOG(WARN, "no space to store merge server any more, "
+              "cur_merge_server_idx_=%ld, servers_count_=%ld",
+              cur_merge_server_idx_, servers_count_);
     ret = OB_ERROR;
-  } else {
-    chunk_servers_.push_back(chunk_server);
+  }
+
+  if (OB_SUCCESS == ret) {
+    servers_[cur_merge_server_idx_++] = merge_server;
   }
 
   return ret;
 }
-
 } // end namespace client
 } // end namespace sb

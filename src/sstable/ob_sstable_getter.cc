@@ -1,24 +1,25 @@
 /**
- * (C) 2010-2011 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  *
- * ob_sstable_getter.cc for get one or more columns from
- * sstables.
+ * Version: 5567
+ *
+ * ob_sstable_getter.cc
  *
  * Authors:
- *   huating <huating.zmq@taobao.com>
+ *     huating <huating.zmq@taobao.com>
  *
  */
 #include "common/utility.h"
 #include "common/ob_define.h"
 #include "common/ob_record_header.h"
 #include "common/ob_action_flag.h"
-#include "common/ob_common_stat.h"
 #include "ob_sstable_reader.h"
 #include "ob_sstable_getter.h"
+#include "ob_sstable_writer.h"
 #include "ob_blockcache.h"
 
 namespace sb {
@@ -26,14 +27,11 @@ namespace sstable {
 using namespace common;
 
 ObSSTableGetter::ObSSTableGetter()
-  : inited_(false), cur_state_(ITERATE_NORMAL),
-    not_exit_col_ret_nop_(false), is_row_finished_(false), readers_(NULL),
+  : inited_(false), cur_state_(ITERATE_NORMAL), readers_(NULL),
     readers_size_(0), cur_reader_idx_(0), prev_reader_idx_(-1),
     handled_cells_(0), column_group_num_(0), cur_column_group_idx_(0),
-    get_param_(NULL), cur_column_mask_(MAX_GET_COLUMN_COUNT_PRE_ROW),
-    getter_(cur_column_mask_), block_cache_(NULL),
-    block_index_cache_(NULL), sstable_row_cache_(NULL),
-    uncomp_buf_(DEFAULT_UNCOMP_BUF_SIZE), row_buf_(DEFAULT_ROW_BUF_SIZE) {
+    get_param_(NULL), getter_(cur_column_mask_), block_cache_(NULL),
+    block_index_cache_(NULL), uncomp_buf_(DEFAULT_UNCOMP_BUF_SIZE) {
   memset(column_group_, 0, OB_MAX_COLUMN_GROUP_NUMBER * sizeof(uint64_t));
   memset(&block_pos_, 0, sizeof(block_pos_));
 }
@@ -53,7 +51,7 @@ int ObSSTableGetter::check_internal_member() {
     ret = OB_ERROR;
   } else if (NULL == get_param_ || NULL == readers_ || readers_size_ <= 0) {
     TBSYS_LOG(WARN, "get_param or or readers is NULL, get_param=%p, "
-              "readers=%p, readers_size=%ld",
+              "readers=%p, readers_size=%d",
               get_param_, readers_, readers_size_);
     ret = OB_ERROR;
   }
@@ -68,8 +66,8 @@ int ObSSTableGetter::check_internal_member() {
                 cell_size, row_index, row_size);
       ret = OB_ERROR;
     } else if (cur_reader_idx_ >= readers_size_) {
-      TBSYS_LOG(WARN, "current reader index overflow, cur_reader_idx_=%ld, "
-                "readers_size_=%ld", cur_reader_idx_, readers_size_);
+      TBSYS_LOG(WARN, "current reader index overflow, cur_reader_idx_=%d, "
+                "readers_size_=%d", cur_reader_idx_, readers_size_);
       ret = OB_ERROR;
     }
   }
@@ -80,7 +78,7 @@ int ObSSTableGetter::check_internal_member() {
 int ObSSTableGetter::switch_row() {
   int ret               = OB_SUCCESS;
   bool need_load_block  = false;
-  int64_t __attribute__((unused)) cell_size = 0;
+  int64_t cell_size     = 0;
   const ObGetParam::ObRowIndex* row_index = NULL;
 
   cur_state_ = ITERATE_NORMAL;  //reset current state first
@@ -132,7 +130,7 @@ int ObSSTableGetter::switch_row() {
   return ret;
 }
 
-inline const ObCellInfo* ObSSTableGetter::get_cur_param_cell() const {
+const ObCellInfo* ObSSTableGetter::get_cur_param_cell() const {
   const ObCellInfo* cell  = NULL;
   const ObGetParam::ObRowIndex* row_index = NULL;
 
@@ -140,7 +138,7 @@ inline const ObCellInfo* ObSSTableGetter::get_cur_param_cell() const {
   cell = (*get_param_)[row_index[cur_reader_idx_].offset_];
   if (NULL == cell) {
     TBSYS_LOG(WARN, "crrent cell in get param is NULL, get_param=%p, "
-              "row_index=%p, cur_reader_idx_=%ld, cell_size=%ld, "
+              "row_index=%p, cur_reader_idx_=%d, cell_size=%ld, "
               "cur_index=%d",
               get_param_, row_index, cur_reader_idx_, get_param_->get_cell_size(),
               row_index[cur_reader_idx_].offset_);
@@ -166,8 +164,10 @@ int ObSSTableGetter::handle_row_not_found() {
      */
     if (0 != cur_column_group_idx_) {
       TBSYS_LOG(WARN, "row key doesn't exist in current column group, but it "
-                "exists in the other column group, cur_column_group_idx_=%ld, rowkey:%s",
-                cur_column_group_idx_, to_cstring(cell->row_key_));
+                "exists in the other column group, cur_column_group_idx_=%d",
+                cur_column_group_idx_);
+      hex_dump(cell->row_key_.ptr(), cell->row_key_.length(), true,
+               TBSYS_LOG_LEVEL_WARN);
       ret = OB_ERROR;
     } else {
       cur_column_group_idx_ = column_group_num_ - 1;
@@ -180,25 +180,16 @@ int ObSSTableGetter::handle_row_not_found() {
 
 int ObSSTableGetter::switch_column() {
   int ret = OB_SUCCESS;
-  bool is_row_finished = false;
 
   //get the next column for current row
   switch (cur_state_) {
   case ITERATE_NORMAL:
     if (OB_ITER_END == (ret = getter_.next_cell())) {
       ret = OB_GET_NEXT_ROW;
-    } else if (OB_SUCCESS == ret
-               && OB_SUCCESS == (ret = getter_.is_row_finished(&is_row_finished))
-               && is_row_finished
-               && cur_column_group_idx_ == column_group_num_ - 1) {
-      is_row_finished_ = true;
     }
     break;
   case ROW_NOT_FOUND:
     ret = handle_row_not_found();
-    if (OB_SUCCESS == ret) {
-      is_row_finished_ = true;
-    }
     break;
   case GET_NEXT_ROW:
     ret = OB_GET_NEXT_ROW;
@@ -219,7 +210,6 @@ int ObSSTableGetter::next_cell() {
 
   ret = check_internal_member();
   if (OB_SUCCESS == ret) {
-    is_row_finished_ = false;
     do {
       ret = switch_column();
       if (OB_GET_NEXT_ROW == ret) {
@@ -230,9 +220,6 @@ int ObSSTableGetter::next_cell() {
         }
       }
     } while (OB_GET_NEXT_ROW == ret);
-  }
-  if (OB_ITER_END == ret) {
-    is_row_finished_ = true;
   }
 
   return ret;
@@ -306,8 +293,6 @@ int ObSSTableGetter::get_cell(ObCellInfo** cell_info, bool* is_row_changed) {
 
 void ObSSTableGetter::reset() {
   cur_state_ = ITERATE_NORMAL;
-  not_exit_col_ret_nop_ = false;
-  is_row_finished_ = false;
 
   readers_ = NULL;
   readers_size_ = 0;
@@ -324,16 +309,13 @@ void ObSSTableGetter::reset() {
 
   block_cache_ = NULL;
   block_index_cache_ = NULL;
-  sstable_row_cache_ = NULL;
 }
 
 int ObSSTableGetter::init(ObBlockCache& block_cache,
                           ObBlockIndexCache& block_index_cache,
                           const common::ObGetParam& get_param,
                           const ObSSTableReader* const readers[],
-                          const int64_t reader_size,
-                          bool not_exit_col_ret_nop,
-                          ObSSTableRowCache* row_cache) {
+                          const int64_t reader_size) {
   int ret = OB_SUCCESS;
   inited_ = false;
 
@@ -346,17 +328,14 @@ int ObSSTableGetter::init(ObBlockCache& block_cache,
     ret = OB_ERROR;
   } else {
     reset();
-    not_exit_col_ret_nop_ = not_exit_col_ret_nop;
     readers_ = readers;
     readers_size_ = reader_size;
     get_param_ = &get_param;
     block_cache_ = &block_cache;
     block_index_cache_ = &block_index_cache;
-    sstable_row_cache_ = row_cache;
 
     inited_ = true;
     ret = filter_column_group();
-    FILL_TRACE_LOG("init sstable_getter_ filter_column_group done.");
     if (OB_SUCCESS == ret) {
       ret = load_cur_block();
       if (OB_SEARCH_NOT_FOUND == ret) {
@@ -374,40 +353,13 @@ int ObSSTableGetter::init(ObBlockCache& block_cache,
   return ret;
 }
 
-int ObSSTableGetter::fetch_cache_row(const ObRowkey& row_key,
-                                     const int64_t store_style, ObSSTableRowCacheValue& row_cache_val) {
-  int ret = OB_SUCCESS;
-
-  if (NULL == row_cache_val.buf_) {
-    TBSYS_LOG(WARN, "invalid cached row buf=%p, row_size=%ld",
-              row_cache_val.buf_, row_cache_val.size_);
-    ret = OB_INVALID_ARGUMENT;
-  } else if (0 == row_cache_val.size_) {
-    //if row is not existent,the cache row size is 0
-    ret = OB_SEARCH_NOT_FOUND;
-  } else {
-    ObSSTableBlockReader::BlockDataDesc data_desc(&rowkey_info_, row_key.get_obj_cnt(), store_style);
-    ret = getter_.init(row_key, row_cache_val.buf_, row_cache_val.size_,
-                       data_desc, sstable_row_cache_, true, not_exit_col_ret_nop_);
-    if (OB_SUCCESS != ret && OB_SEARCH_NOT_FOUND != ret) {
-      TBSYS_LOG(WARN, "block getter initialize error, ret=%d", ret);
-    }
-  }
-
-  return ret;
-}
-
 int ObSSTableGetter::load_cur_block() {
   int ret                 = OB_SUCCESS;
   SearchMode mode         = OB_SEARCH_MODE_GREATER_EQUAL;
   const ObCellInfo* cell  = NULL;
   uint64_t table_id       = OB_INVALID_ID;
-  bool is_row_cache_hit   = false;
-  int64_t store_style     = OB_SSTABLE_STORE_DENSE;
-  const ObSSTableTrailer& trailer = readers_[cur_reader_idx_]->get_trailer();
-  ObRowkey look_key;
+  ObString look_key;
   ObBlockIndexPositionInfo info;
-  ObSSTableRowCacheValue row_cache_val;
 
   if (NULL == readers_[cur_reader_idx_]) {
     ret = OB_SEARCH_NOT_FOUND;
@@ -425,66 +377,34 @@ int ObSSTableGetter::load_cur_block() {
   }
 
   if (OB_SUCCESS == ret) {
-    //get from sstable row cache if necessary
-    if (NULL != sstable_row_cache_) {
-      store_style = trailer.get_row_value_store_style();
-      ObSSTableRowCacheKey row_cache_key(
-        readers_[cur_reader_idx_]->get_sstable_id().sstable_file_id_,
-        column_group_[cur_column_group_idx_], look_key);
-      row_cache_key.sstable_id_ = readers_[cur_reader_idx_]->get_sstable_id().sstable_file_id_;
-      if (store_style == OB_SSTABLE_STORE_SPARSE) {
-        row_cache_key.table_id_ = static_cast<uint32_t>(table_id);
-      }
+    const ObSSTableTrailer& trailer = readers_[cur_reader_idx_]->get_trailer();
 
-      ret = sstable_row_cache_->get_row(row_cache_key, row_cache_val, row_buf_);
-      if (OB_SUCCESS == ret) {
-#ifndef _SSTABLE_NO_STAT_
-        OB_STAT_TABLE_INC(SSTABLE, table_id, INDEX_SSTABLE_ROW_CACHE_HIT, 1);
-#endif
-        is_row_cache_hit = true;
-      } else {
-#ifndef _SSTABLE_NO_STAT_
-        OB_STAT_TABLE_INC(SSTABLE, table_id, INDEX_SSTABLE_ROW_CACHE_MISS, 1);
-#endif
-      }
-      FILL_TRACE_LOG("check row cache hit=%d.", is_row_cache_hit);
-    }
+    memset(&info, 0, sizeof(info));
+    info.sstable_file_id_ = readers_[cur_reader_idx_]->get_sstable_id().sstable_file_id_;
+    info.offset_ = trailer.get_block_index_record_offset();
+    info.size_   = trailer.get_block_index_record_size();
 
-    if (NULL == sstable_row_cache_ || !is_row_cache_hit) {
-      info.sstable_file_id_ = readers_[cur_reader_idx_]->get_sstable_id().sstable_file_id_;
-      info.offset_ = trailer.get_block_index_record_offset();
-      info.size_   = trailer.get_block_index_record_size();
-
-      ret = block_index_cache_->get_single_block_pos_info(info, table_id,
-                                                          column_group_[cur_column_group_idx_],
-                                                          look_key, mode, block_pos_);
-    }
-
+    ret = block_index_cache_->get_single_block_pos_info(info, table_id,
+                                                        column_group_[cur_column_group_idx_],
+                                                        look_key, mode, block_pos_);
     if (OB_SUCCESS == ret) { //load block index success
       ret = init_column_mask();
       if (OB_SUCCESS == ret) {
-        if (is_row_cache_hit) {
-#ifndef _SSTABLE_NO_STAT_
-          OB_STAT_TABLE_INC(SSTABLE, table_id, INDEX_SSTABLE_GET_ROWS, 1);
-#endif
-          ret = fetch_cache_row(look_key, store_style, row_cache_val);
-        } else {
-          ret = fetch_block();
-        }
+        ret = fetch_block();
         if (OB_SUCCESS != ret && OB_SEARCH_NOT_FOUND != ret) {
           TBSYS_LOG(WARN, "fetch_block error, ret=%d", ret);
         }
       } else {
-        TBSYS_LOG(WARN, "failed to init column group column mask");
+        ret = OB_SEARCH_NOT_FOUND;
       }
     } else if (ret == OB_BEYOND_THE_RANGE) {
-      TBSYS_LOG(DEBUG, "Not find block for rowkey: %s", to_cstring(look_key));
+      TBSYS_LOG(DEBUG, "Not find block for rowkey:");
+      hex_dump(look_key.ptr(), look_key.length(), true);
       ret = OB_SEARCH_NOT_FOUND;
     } else {
       TBSYS_LOG(WARN, "failed to apply block index, ret=%d", ret);
     }
   }
-  FILL_TRACE_LOG("load_cur_block=%d.", ret);
 
   return ret;
 }
@@ -498,13 +418,10 @@ int ObSSTableGetter::init_column_mask() {
   int64_t cell_size     = 0;
   int64_t start         = 0;
   int64_t end           = 0;
-  int64_t rowkey_seq    = 0;
-  uint64_t column_group_id = OB_INVALID_ID;
   const ObSSTableReader* reader               = NULL;
   const ObSSTableSchema* schema               = NULL;
   const ObSSTableSchemaColumnDef* column_def  = NULL;
   const ObGetParam::ObRowIndex* row_index     = NULL;
-  ObRowkeyColumn column;
 
   /**
    * there is problem that the get param only includes unique cell
@@ -531,14 +448,12 @@ int ObSSTableGetter::init_column_mask() {
       table_id = (*get_param_)[start]->table_id_;
       schema = reader->get_schema();
       if (NULL == schema) {
-        TBSYS_LOG(WARN, "schema is NULL, cur_reader_idx_=%ld, reader=%p",
+        TBSYS_LOG(WARN, "schema is NULL, cur_reader_idx_=%d, reader=%p",
                   cur_reader_idx_, reader);
         ret = OB_ERROR;
-      } else if (schema->is_binary_rowkey_format(table_id)) {
-        ret = get_global_schema_rowkey_info(table_id, rowkey_info_);
       }
     } else {
-      TBSYS_LOG(WARN, "reader is NULL, cur_reader_idx_=%ld", cur_reader_idx_);
+      TBSYS_LOG(WARN, "reader is NULL, cur_reader_idx_=%d", cur_reader_idx_);
       ret = OB_ERROR;
     }
   }
@@ -550,89 +465,35 @@ int ObSSTableGetter::init_column_mask() {
     for (int64_t i = start; i < end && OB_SUCCESS == ret; ++i) {
       column_id = (*get_param_)[i]->column_id_;
       if (OB_FULL_ROW_COLUMN_ID == column_id) {
-        // add rowkey columns in first column group;
-        if (cur_column_group_idx_ == 0) {
-          column_def = schema->get_group_schema(table_id,
-                                                ObSSTableSchemaColumnDef::ROWKEY_COLUMN_GROUP_ID, column_count);
-          if (NULL != column_def && column_count > 0) {
-            for (int j = 0; j < column_count && OB_SUCCESS == ret; j++) {
-              ret = cur_column_mask_.add_column_id(ObScanColumnIndexes::Rowkey,
-                                                   column_def[j].rowkey_seq_ - 1, column_def[j].column_name_id_);
-            }
-          }
-        }
-
         //column id equal to 0, it means to get all the columns in row
         column_def = schema->get_group_schema(table_id,
                                               column_group_[cur_column_group_idx_],
                                               column_count);
         if (NULL != column_def && column_count > 0) {
           for (int j = 0; j < column_count && OB_SUCCESS == ret; j++) {
-            /**
-             * if one column belongs to several column group, only the first
-             * column group will handle it. except there is only one column
-             * group.
-             */
-            if (column_group_num_ > 1) {
-              index = static_cast<int32_t>(schema->find_offset_first_column_group_schema(
-                                             table_id, column_def[j].column_name_id_, column_group_id));
-            } else {
-              column_group_id = column_group_[cur_column_group_idx_];
-            }
-            if (column_group_id == column_group_[cur_column_group_idx_]) {
-              ret = cur_column_mask_.add_column_id(ObScanColumnIndexes::Normal, j, column_def[j].column_name_id_);
-            }
+            ret = cur_column_mask_.add_column_id(j, column_def[j].column_name_id_);
           }
         } else {
-          TBSYS_LOG(WARN, "failed to get column group schema, column_def=NULL,"
-                    "column_count=%ld, table_id=%lu, column_group_id=%lu",
-                    column_count, table_id, column_group_[cur_column_group_idx_]);
           ret = OB_ERROR;
         }
         break;
-      } else if (schema->is_binary_rowkey_format(table_id)
-                 && OB_SUCCESS == rowkey_info_.get_index(column_id, rowkey_seq, column)) {
-        // is binary rowkey column?
-        if (0 == cur_column_group_idx_) {
-          ret = cur_column_mask_.add_column_id(
-                  ObScanColumnIndexes::Rowkey, static_cast<int32_t>(rowkey_seq), column_id);
-        }
       } else if (!schema->is_column_exist(table_id, column_id)) {
         // column id not exist in schema, set to NOT_EXIST_COLUMN
         // return NullType .
         if (0 == cur_column_group_idx_) {
           ret = cur_column_mask_.add_column_id(
-                  ObScanColumnIndexes::NotExist, 0, column_id);
+                  ObScanColumnIndexes::NOT_EXIST_COLUMN, column_id);
         }
       } else {
-        /**
-         * if one column belongs to several column group, only the first
-         * column group will handle it. except there is only one column
-         * group.
-         */
-        index = static_cast<int32_t>(schema->find_offset_first_column_group_schema(
-                                       table_id, column_id, column_group_id));
-        if (column_group_id == ObSSTableSchemaColumnDef::ROWKEY_COLUMN_GROUP_ID) {
-          // rowkey column special case
-          // if current column is a rowkey column, handle it in first column group.
-          if (index >= 0 && cur_column_group_idx_ == 0) {
-            ret = cur_column_mask_.add_column_id(ObScanColumnIndexes::Rowkey, index, column_id);
-          }
-        } else if (column_group_num_ == 1) {
-          index = static_cast<int32_t>(schema->find_offset_column_group_schema(
-                                         table_id, column_group_[cur_column_group_idx_], column_id));
-          column_group_id = column_group_[cur_column_group_idx_];
-        }
-
-        if (column_group_id == column_group_[cur_column_group_idx_]) {
-          if (index < 0) {
-            /**
-             * not found column id, the column doesn't belong to current
-             * column group,do nothing.
-             */
-          } else {
-            ret = cur_column_mask_.add_column_id(ObScanColumnIndexes::Normal, index, column_id);
-          }
+        index = schema->find_offset_column_group_schema(
+                  table_id, column_group_[cur_column_group_idx_], column_id);
+        if (index < 0) {
+          /**
+           * not found column id, the column doesn't belong to current
+           * column group,do nothing.
+           */
+        } else {
+          ret = cur_column_mask_.add_column_id(index, column_id);
         }
       }
     }
@@ -655,13 +516,8 @@ int ObSSTableGetter::get_block_data(const uint64_t sstable_id, const uint64_t ta
   block_data_size = 0;
 
   if (OB_SUCCESS == ret) {
-    if (get_param_->get_is_result_cached()) {
-      ret = block_cache_->get_block(sstable_id,
-                                    block_pos_.offset_, block_pos_.size_, handler, table_id);
-    } else {
-      ret = block_cache_->get_block_sync_io(sstable_id,
-                                            block_pos_.offset_, block_pos_.size_, handler, table_id);
-    }
+    ret = block_cache_->get_block(sstable_id, block_pos_.offset_, block_pos_.size_,
+                                  handler, table_id);
     if (ret <= 0) {
       TBSYS_LOG(WARN, "load block from obcache failed, ret=%d", ret);
       ret = OB_ERROR;
@@ -671,8 +527,9 @@ int ObSSTableGetter::get_block_data(const uint64_t sstable_id, const uint64_t ta
   }
 
   if (OB_SUCCESS == ret) {
-    ret = ObRecordHeader::get_record_header(handler.get_buffer(), block_pos_.size_,
-                                            header, comp_buf, comp_data_size);
+    ret = ObRecordHeader::check_record(handler.get_buffer(), block_pos_.size_,
+                                       ObSSTableWriter::DATA_BLOCK_MAGIC, header,
+                                       comp_buf, comp_data_size);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(WARN, "invalid block data, block_size=%ld, sstable_id=%lu, table_id=%lu",
                 block_pos_.size_, sstable_id, table_id);
@@ -680,7 +537,7 @@ int ObSSTableGetter::get_block_data(const uint64_t sstable_id, const uint64_t ta
   }
 
   if (OB_SUCCESS == ret) {
-    ret = uncomp_buf_.ensure_space(header.data_length_, ObModIds::OB_SSTABLE_GET_SCAN);
+    ret = uncomp_buf_.ensure_space(header.data_length_, ObModIds::OB_SSTABLE_EGT_SCAN);
   }
 
   if (OB_SUCCESS == ret) {
@@ -734,7 +591,7 @@ int ObSSTableGetter::fetch_block() {
   if (OB_SUCCESS == ret) {
     reader = readers_[cur_reader_idx_];
     if (NULL == reader) {
-      TBSYS_LOG(WARN, "reader is NULL, cur_reader_idx_=%ld", cur_reader_idx_);
+      TBSYS_LOG(WARN, "reader is NULL, cur_reader_idx_=%d", cur_reader_idx_);
       ret = OB_ERROR;
     }
   }
@@ -746,54 +603,9 @@ int ObSSTableGetter::fetch_block() {
 
   if (OB_SUCCESS == ret) {
     store_style = reader->get_trailer().get_row_value_store_style();
-    int64_t rowkey_column_count = 0;
-    reader->get_schema()->get_rowkey_column_count(cell->table_id_, rowkey_column_count);
-    ObSSTableBlockReader::BlockDataDesc data_desc(&rowkey_info_, rowkey_column_count, store_style);
-    // translate cell->row_key_ to rowkey
-    ret = getter_.init(cell->row_key_, data_buf, data_size, data_desc,
-                       sstable_row_cache_, false, not_exit_col_ret_nop_);
+    ret = getter_.init(cell->row_key_, data_buf, data_size, store_style);
     if (OB_SUCCESS != ret && OB_SEARCH_NOT_FOUND != ret) {
       TBSYS_LOG(WARN, "block getter initialize error, ret=%d", ret);
-    }
-  }
-
-  if (NULL != sstable_row_cache_) {
-    ObSSTableRowCacheKey row_cache_key(
-      reader->get_sstable_id().sstable_file_id_,
-      column_group_[cur_column_group_idx_],
-      const_cast<ObRowkey&>(cell->row_key_));
-    ObSSTableRowCacheValue row_cache_val;
-
-    if (store_style == OB_SSTABLE_STORE_SPARSE) {
-      row_cache_key.table_id_ = static_cast<uint32_t>(cell->table_id_);
-    }
-    if (OB_SUCCESS == ret) {
-      ret = getter_.get_cache_row_value(row_cache_val);
-      if (OB_SUCCESS != ret) {
-        TBSYS_LOG(WARN, "failed to get sstable row cache value");
-      } else if (row_cache_val.size_ <= 0 || NULL == row_cache_val.buf_) {
-        TBSYS_LOG(WARN, "after sstable block getter reader row data, it "
-                  "returns invalid row value, row_buf=%p, row_size=%ld",
-                  row_cache_val.buf_, row_cache_val.size_);
-        ret = OB_INVALID_ARGUMENT;
-      } else {
-        ret = sstable_row_cache_->put_row(row_cache_key, row_cache_val);
-        if (OB_SUCCESS != ret) {
-          TBSYS_LOG(WARN, "failed put existent row into sstble row "
-                    "cache, buf=%p, size=%ld",
-                    row_cache_val.buf_, row_cache_val.size_);
-        }
-        ret = OB_SUCCESS;
-      }
-    } else if (OB_SEARCH_NOT_FOUND == ret) {
-      //if row isn't existent, we store the row cache value with size 0
-      ret = sstable_row_cache_->put_row(row_cache_key, row_cache_val);
-      if (OB_SUCCESS != ret) {
-        TBSYS_LOG(WARN, "failed put non-existent row into sstble row "
-                  "cache, buf=%p, size=%ld",
-                  row_cache_val.buf_, row_cache_val.size_);
-      }
-      ret = OB_SEARCH_NOT_FOUND;
     }
   }
 
@@ -826,8 +638,6 @@ int ObSSTableGetter::add_column_group_id(const ObSSTableSchema& schema,
    * FIXME:currently we don't handle one column belongs to
    * multiple column group, we only use the first column group the
    * column belongs to.
-   * DONOT add ROWKEY_COLUMN_GROUP_ID in column_group_
-   * it will be handled as special ROWKEY column in first column group.
    */
   column_index = schema.find_offset_first_column_group_schema(
                    table_id, column_id, column_group_id);
@@ -836,8 +646,7 @@ int ObSSTableGetter::add_column_group_id(const ObSSTableSchema& schema,
     TBSYS_LOG(DEBUG, "can't find column group id from sstable schema, "
               "table_id=%lu, column_id=%lu",
               table_id, column_id);
-  } else if (column_group_id != ObSSTableSchemaColumnDef::ROWKEY_COLUMN_GROUP_ID
-             && (!is_column_group_id_existent(column_group_id))) {
+  } else if (!is_column_group_id_existent(column_group_id)) {
     column_group_[column_group_num_++] = column_group_id;
   }
 
@@ -874,7 +683,7 @@ int ObSSTableGetter::filter_column_group() {
       table_id = (*get_param_)[start]->table_id_;
       schema = reader->get_schema();
       if (NULL == schema) {
-        TBSYS_LOG(WARN, "schema is NULL, cur_reader_idx_=%ld, "
+        TBSYS_LOG(WARN, "schema is NULL, cur_reader_idx_=%d, "
                   "reader=%p, table_id=%lu",
                   cur_reader_idx_, reader, table_id);
         ret = OB_ERROR;
@@ -888,11 +697,6 @@ int ObSSTableGetter::filter_column_group() {
     //reset current column group count and index
     column_group_num_ = 0;
     cur_column_group_idx_ = 0;
-
-    if (!schema->is_table_exist(table_id)) {
-      TBSYS_LOG(DEBUG, "table doesn't exist, table_id=%lu", table_id);
-      ret = OB_SEARCH_NOT_FOUND;
-    }
 
     for (int64_t i = start; i < end && OB_SUCCESS == ret; ++i) {
       column_id = (*get_param_)[i]->column_id_;
@@ -925,7 +729,7 @@ int ObSSTableGetter::filter_column_group() {
      * column default.
      */
     column_group_num_ = 1;
-    column_group_[0] = schema->get_table_first_column_group_id(table_id);
+    column_group_[0] = schema->get_column_def(0)->column_group_id_;
   }
 
   return ret;

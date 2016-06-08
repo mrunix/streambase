@@ -1,17 +1,17 @@
-/*
- *  (C) 2007-2010 Taobao Inc.
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License version 2 as
- *  published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
- *         ????.cc is for what ...
+ * Version: $Id$
  *
- *  Version: $Id: ipvsadm.c,v 1.27 2005/12/10 16:00:07 wensong Exp $
+ * thread_buffer.h for ...
  *
- *  Authors:
- *     qushan <qushan@taobao.com>
- *        - some work details if you want
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
  */
 #ifndef OCEANBASE_COMMON_THREAD_BUFFER_H_
 #define OCEANBASE_COMMON_THREAD_BUFFER_H_
@@ -43,9 +43,9 @@ class ThreadSpecificBuffer {
     int advance(const int32_t size);
     void reset() ;
 
-    inline int32_t used() const { return static_cast<int32_t>(end_ - start_); }
-    inline int32_t remain() const { return static_cast<int32_t>(end_of_storage_ - end_); }
-    inline int32_t capacity() const { return static_cast<int32_t>(end_of_storage_ - start_); }
+    inline int32_t used() const { return end_ - start_; }
+    inline int32_t remain() const { return end_of_storage_ - end_; }
+    inline int32_t capacity() const { return end_of_storage_ - start_; }
     inline char* current() const { return end_; }
 
    private:
@@ -72,4 +72,5 @@ class ThreadSpecificBuffer {
 
 
 #endif //OCEANBASE_COMMON_THREAD_BUFFER_H_
+
 

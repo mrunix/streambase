@@ -1,3 +1,18 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * test_groupby_operator.cc for ...
+ *
+ * Authors:
+ *   wushi <wushi.ly@taobao.com>
+ *
+ */
 #include <gtest/gtest.h>
 #include <stdlib.h>
 #include <time.h>
@@ -13,14 +28,12 @@
 #include "common/ob_action_flag.h"
 #include "common/ob_groupby.h"
 #include "mergeserver/ob_groupby_operator.h"
-#include "../common/test_rowkey_helper.h"
 using namespace sb;
 using namespace sb::common;
 using namespace sb::mergeserver;
 using namespace testing;
 using namespace std;
 
-static CharArena allocator_;
 
 TEST(ObGroupByParam, function) {
   char serialize_buf[2048];
@@ -84,7 +97,7 @@ TEST(ObGroupByParam, function) {
   int64_t agg_sum = 0;
   int64_t agg_count = 0;
   ObCellInfo cell;
-  ObInnerCellInfo* cell_out = NULL;
+  ObCellInfo* cell_out = NULL;
   ObString str;
   ObObj return_str_obj;
   ObObj groupby_str_obj;
@@ -109,12 +122,12 @@ TEST(ObGroupByParam, function) {
   cell.value_.set_int(return_int_value);
   EXPECT_EQ(org_cell_array.append(cell, cell_out), OB_SUCCESS);
   /// groupby cell, 3
-  str.assign(const_cast<char*>("groupby"), static_cast<int32_t>(strlen("groupby")));
+  str.assign(const_cast<char*>("groupby"), strlen("groupby"));
   cell.value_.set_varchar(str);
   EXPECT_EQ(org_cell_array.append(cell, cell_out), OB_SUCCESS);
   groupby_str_obj = cell_out->value_;
   /// return cell, 4
-  str.assign(const_cast<char*>("return"), static_cast<int32_t>(strlen("return")));
+  str.assign(const_cast<char*>("return"), strlen("return"));
   cell.value_.set_varchar(str);
   EXPECT_EQ(org_cell_array.append(cell, cell_out), OB_SUCCESS);
   return_str_obj = cell_out->value_;
@@ -124,7 +137,7 @@ TEST(ObGroupByParam, function) {
   agg_count += 1;
   agg_sum += 5;
   /// cell not used, 6
-  str.assign(const_cast<char*>("nouse"), static_cast<int32_t>(strlen("nouse")));
+  str.assign(const_cast<char*>("nouse"), strlen("nouse"));
   cell.value_.set_varchar(str);
   EXPECT_EQ(org_cell_array.append(cell, cell_out), OB_SUCCESS);
 
@@ -154,12 +167,12 @@ TEST(ObGroupByParam, function) {
   cell.value_.set_int(return_int_value + 6);
   EXPECT_EQ(org_cell_array.append(cell, cell_out), OB_SUCCESS);
   /// groupby cell, 3
-  str.assign(const_cast<char*>("groupby"), static_cast<int32_t>(strlen("groupby")));
+  str.assign(const_cast<char*>("groupby"), strlen("groupby"));
   cell.value_.set_varchar(str);
   EXPECT_EQ(org_cell_array.append(cell, cell_out), OB_SUCCESS);
   groupby_str_obj = cell_out->value_;
   /// return cell, 4
-  str.assign(const_cast<char*>("return1"), static_cast<int32_t>(strlen("return1")));
+  str.assign(const_cast<char*>("return1"), strlen("return1"));
   cell.value_.set_varchar(str);
   EXPECT_EQ(org_cell_array.append(cell, cell_out), OB_SUCCESS);
   /// aggregate value, 5
@@ -168,7 +181,7 @@ TEST(ObGroupByParam, function) {
   agg_count += 1;
   agg_sum += -8;
   /// cell not used, 6
-  str.assign(const_cast<char*>("nouse1"), static_cast<int32_t>(strlen("nouse1")));
+  str.assign(const_cast<char*>("nouse1"), strlen("nouse1"));
   cell.value_.set_varchar(str);
   EXPECT_EQ(org_cell_array.append(cell, cell_out), OB_SUCCESS);
 
@@ -198,12 +211,12 @@ TEST(ObGroupByParam, function) {
   cell.value_.set_int(return_int_value + 6);
   EXPECT_EQ(org_cell_array.append(cell, cell_out), OB_SUCCESS);
   /// groupby cell, 3
-  str.assign(const_cast<char*>("groupby1"), static_cast<int32_t>(strlen("groupby1")));
+  str.assign(const_cast<char*>("groupby1"), strlen("groupby1"));
   cell.value_.set_varchar(str);
   EXPECT_EQ(org_cell_array.append(cell, cell_out), OB_SUCCESS);
   groupby_str_obj = cell_out->value_;
   /// return cell, 4
-  str.assign(const_cast<char*>("return1"), static_cast<int32_t>(strlen("return1")));
+  str.assign(const_cast<char*>("return1"), strlen("return1"));
   cell.value_.set_varchar(str);
   EXPECT_EQ(org_cell_array.append(cell, cell_out), OB_SUCCESS);
   /// aggregate value, 5
@@ -212,7 +225,7 @@ TEST(ObGroupByParam, function) {
   agg_count += 1;
   agg_sum += -8;
   /// cell not used, 6
-  str.assign(const_cast<char*>("nouse1"), static_cast<int32_t>(strlen("nouse1")));
+  str.assign(const_cast<char*>("nouse1"), strlen("nouse1"));
   cell.value_.set_varchar(str);
   EXPECT_EQ(org_cell_array.append(cell, cell_out), OB_SUCCESS);
 
@@ -235,19 +248,18 @@ TEST(ObGroupByParam, row_change) {
   ObStringBuf buffer;
   ObString str;
   const char* c_str = NULL;
-  ObRowkey rowkey;
   ObCellInfo org_cell_info;
   ObCellArray org_cells;
-  ObInnerCellInfo*  cell_out;
+  ObCellInfo*  cell_out;
   ObString table_name;
   c_str = "table";
-  str.assign((char*)c_str, static_cast<int32_t>(strlen(c_str)));
+  str.assign((char*)c_str, strlen(c_str));
   EXPECT_EQ(buffer.write_string(str, &(table_name)), OB_SUCCESS);
   org_cell_info.table_name_ = table_name;
 
   c_str = "abc";
-  rowkey = make_rowkey(c_str, &allocator_);
-  EXPECT_EQ(buffer.write_string(rowkey, &(org_cell_info.row_key_)), OB_SUCCESS);
+  str.assign((char*)c_str, strlen(c_str));
+  EXPECT_EQ(buffer.write_string(str, &(org_cell_info.row_key_)), OB_SUCCESS);
 
   int groupby_one_val = 1;
   org_cell_info.value_.set_int(groupby_one_val);
@@ -256,8 +268,8 @@ TEST(ObGroupByParam, row_change) {
 
   int groupby_two_val = 2;
   c_str = "def";
-  rowkey = make_rowkey(c_str, &allocator_);
-  EXPECT_EQ(buffer.write_string(rowkey, &(org_cell_info.row_key_)), OB_SUCCESS);
+  str.assign((char*)c_str, strlen(c_str));
+  EXPECT_EQ(buffer.write_string(str, &(org_cell_info.row_key_)), OB_SUCCESS);
   org_cell_info.value_.set_int(groupby_two_val);
   EXPECT_EQ(org_cells.append(org_cell_info, cell_out), OB_SUCCESS);
   EXPECT_EQ(org_cells.append(org_cell_info, cell_out), OB_SUCCESS);
@@ -288,71 +300,11 @@ TEST(ObGroupByParam, row_change) {
   EXPECT_EQ(groupby_operator.next_cell(), OB_ITER_END);
 }
 
-TEST(ObGroupByParam, test_max) {
-  int err = 0;
-  ObGroupByParam param;
-  param.add_groupby_column(0, true);
-  param.add_aggregate_column(1, MAX, true);
-  ObCellArray cell_array;
-  ObCellInfo cell;
-  ObInnerCellInfo* cell_out = NULL;
-  //cell.table_name_.assign("table", strlen("table"));
-  cell.table_id_ = 1001;
-  cell.row_key_ = make_rowkey("row1", &allocator_);
-  // add first row
-  // row = row1
-  // column1 = 82
-  // timestamp = 1341827638373806L
-  //cell.column_name_.assign("column1", strlen("column1"));
-  cell.column_id_ = 2;
-  cell.value_.set_int(82);
-  err = cell_array.append(cell, cell_out);
-  EXPECT_EQ(0, err);
-  //cell.column_name_.assign("timestamp", strlen("timestamp"));
-  cell.column_id_ = 3;
-  cell.value_.set_int(1341827638373806L);
-  err = cell_array.append(cell, cell_out);
-  EXPECT_EQ(0, err);
-  ObCellArray result_array;
-  ObInnerCellInfo* result_cell = NULL;
-  err = param.aggregate(cell_array, 0, 1, result_array, 0, 1);
-
-  // add second row
-  // row = row2
-  // column1 = 82
-  // column2 = 1341829819829419L;
-  cell.row_key_ = make_rowkey("row2", &allocator_);
-  //cell.column_name_.assign("column1", strlen("column1"));
-  cell.column_id_ = 2;
-  cell.value_.set_int(82);
-  err = cell_array.append(cell, cell_out);
-  EXPECT_EQ(0, err);
-  //cell.column_name_.assign("timestamp", strlen("timestamp"));
-  cell.column_id_ = 2;
-  cell.value_.set_int(1341829819829419L);
-  err = cell_array.append(cell, cell_out);
-  EXPECT_EQ(0, err);
-  err = param.aggregate(cell_array, 2, 3, result_array, 0, 1);
-
-  // verify result
-  EXPECT_EQ(0, err);
-  err = result_array.get_cell(0, result_cell);
-  EXPECT_EQ(0, err);
-  int64_t int_val = 0;
-  err = result_cell->value_.get_int(int_val);
-  EXPECT_EQ(0, err);
-  EXPECT_EQ(82, int_val);
-
-  err = result_array.get_cell(1, result_cell);
-  EXPECT_EQ(0, err);
-  err = result_cell->value_.get_int(int_val);
-  EXPECT_EQ(0, err);
-  EXPECT_EQ(1341829819829419L, int_val);
-}
-
 int main(int argc, char** argv) {
-  srandom(static_cast<uint32_t>(time(NULL)));
+  srandom(time(NULL));
   ob_init_memory_pool(64 * 1024);
   InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+
+

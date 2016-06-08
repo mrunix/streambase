@@ -1,28 +1,27 @@
 /**
- * (C) 2007-2010 Taobao Inc.
+ * (C) 2010-2011 Alibaba Group Holding Limited.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
  *
  * Version: $Id$
  *
+ * ob_slave_mgr.h for ...
+ *
  * Authors:
  *   yanran <yanran.hfs@taobao.com>
- *     - some work details if you want
+ *
  */
-
 #ifndef OCEANBASE_COMMON_OB_SLAVE_MGR_H_
 #define OCEANBASE_COMMON_OB_SLAVE_MGR_H_
 
 #include "Mutex.h"
 
-#include "ob_role_mgr.h"
 #include "ob_server.h"
 #include "ob_link.h"
 #include "ob_common_rpc_stub.h"
 #include "ob_lease_common.h"
-#include "ob_log_cursor.h"
 
 namespace sb {
 namespace tests {
@@ -45,7 +44,6 @@ class ObSlaveMgr {
     ObDLink server_list_link;
     ObServer server;
     ObLease lease;
-    uint64_t send_log_point;
 
     bool is_lease_valid(int64_t redun_time) {
       return lease.is_lease_valid(redun_time);
@@ -63,8 +61,7 @@ class ObSlaveMgr {
   virtual ~ObSlaveMgr();
 
   /// @brief 初始化
-  int init(ObRoleMgr* role_mgr,
-           const uint32_t vip,
+  int init(const uint32_t vip,
            ObCommonRpcStub* rpc_stub,
            int64_t log_sync_timeout,
            int64_t lease_interval,
@@ -87,14 +84,6 @@ class ObSlaveMgr {
   /// @retval OB_SUCCESS 成功
   int delete_server(const ObServer& server);
 
-  /// @brief 清空整个list 列表
-  /// @brief 当主切换成备时使用
-  int reset_slave_list();
-
-  /// @brief 备主用来设置备备的日志同步点
-  int set_send_log_point(const ObServer& server, const uint64_t send_log_point);
-
-  int set_log_sync_timeout_us(const int64_t timeout);
   /// @brief 向各台Slave发送数据
   /// 目前依次向各台Slave发送数据, 并且等待Slave的成功返回
   /// Slave返回操作失败或者发送超时的情况下, 将Slave下线并等待租约(Lease)超时
@@ -103,10 +92,8 @@ class ObSlaveMgr {
   /// @retval OB_SUCCESS 成功
   /// @retval OB_PARTIAL_FAILED 同步Slave过程中有失败
   /// @retval otherwise 其他错误
-  virtual int send_data(const char* data, const int64_t length);
-  virtual int post_log_to_slave(const ObLogCursor& start_cursor, const ObLogCursor& end_cursor, const char* data, const int64_t length);
-  virtual int wait_post_log_to_slave(const char* data, const int64_t length, int64_t& delay_us);
-  virtual int64_t get_acked_clog_id() const { return 0; }
+  int send_data(const char* data, const int64_t length);
+
   /// @brief 获取Slave个数
   /// @retval slave_num_ Slave个数
   inline int get_num() const {return slave_num_;}
@@ -125,10 +112,7 @@ class ObSlaveMgr {
   /// @retval false 租约(Lease)已失效或者server不存在
   bool is_lease_valid(const ObServer& server) const;
 
-  int set_obi_role(ObiRole obi_role);
-  void print(char* buf, const int64_t buf_len, int64_t& pos);
-
- protected:
+ private:
   ServerNode* find_server_(const ObServer& server);
 
   inline int check_inner_stat() const {
@@ -142,9 +126,7 @@ class ObSlaveMgr {
 
   DISALLOW_COPY_AND_ASSIGN(ObSlaveMgr);
 
-  // private:
- protected:
-  ObRoleMgr* role_mgr_;
+ private:
   int64_t log_sync_timeout_;
   int64_t lease_interval_;
   int64_t lease_reserved_time_;
@@ -161,3 +143,4 @@ class ObSlaveMgr {
 } // end namespace sb
 
 #endif // OCEANBASE_COMMON_OB_SLAVE_MGR_H_
+

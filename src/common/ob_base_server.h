@@ -1,25 +1,34 @@
+/**
+ * (C) 2010-2011 Alibaba Group Holding Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ *
+ * Version: $Id$
+ *
+ * ob_base_server.h for ...
+ *
+ * Authors:
+ *   qushan <qushan@taobao.com>
+ *
+ */
 #ifndef OCEANBASE_COMMON_BASE_SERVER_H_
 #define OCEANBASE_COMMON_BASE_SERVER_H_
 
 #include <tbsys.h>
-#include "easy_io_struct.h"
-#include "easy_io.h"
+#include <tbnet.h>
 #include <string.h>
 #include "ob_define.h"
 #include "ob_packet.h"
 #include "data_buffer.h"
-#include "ob_packet_factory.h"
-#include "ob_packet_queue.h"
 
 namespace sb {
 namespace common {
-
-class ObBaseServer {
+class ObBaseServer : public tbnet::IServerAdapter {
  public:
   static const int MAX_TASK_QUEUE_SIZE = 1000;
   static const int DEV_NAME_LENGTH = 16;
-  static const int OB_LIBEASY_STATISTICS_TIMER = 60; // 60s
-  static const int FD_BUFFER_SIZE = 1024;
 
   ObBaseServer();
   virtual ~ObBaseServer();
@@ -30,10 +39,10 @@ class ObBaseServer {
   /** wait for packet thread queue */
   virtual void wait_for_queue();
 
-  /** wait for eio stop */
+  /** wait for transport stop */
   virtual void wait();
 
-  /** called when server is stop */
+  /** called when server is stop, before transport is stop */
   virtual void destroy();
 
   /** WARNING: not thread safe, caller should make sure there is only one thread doing this */
@@ -44,16 +53,11 @@ class ObBaseServer {
   /** WARNING: not thread safe, caller should make sure there is only one thread doing this */
   virtual void stop();
 
-  void stop_eio();
-
-  /** handle single packet*/
-  virtual int handlePacket(ObPacket* packet) = 0;
-
-  /** handle batch packets*/
-  virtual int handleBatchPacket(ObPacketQueue& packetQueue) = 0;
-
   /** whether enable batch process mode */
   void set_batch_process(const bool batch);
+
+  /** set the packet factory, this is used to create packet according to packet code */
+  int set_packet_factory(tbnet::IPacketFactory* packet_factory); // we can not use const here, since tbnet's interface is not const
 
   /** set the device name of the interface */
   int set_dev_name(const char* dev_name);
@@ -61,36 +65,31 @@ class ObBaseServer {
   /** set the port this server should listen on */
   int set_listen_port(const int port);
 
+  /** handle single packet */
+  virtual tbnet::IPacketHandler::HPRetCode handlePacket(tbnet::Connection* connection, tbnet::Packet* packet) = 0;
+
+  /** handle batch packets */
+  virtual bool handleBatchPacket(tbnet::Connection* connection, tbnet::PacketQueue& packetQueue) = 0;
+
   uint64_t get_server_id() const;
 
-  int send_response(const int32_t pcode, const int32_t version, const ObDataBuffer& buffer, easy_request_t* req, const uint32_t channel_id, const int64_t session_id = 0);
-  static void easy_timer_cb(EV_P_ ev_timer* w, int revents);
+  tbnet::Transport* get_transport();
+  tbnet::IPacketStreamer* get_packet_streamer();
 
-  virtual void on_ioth_start() {};
-
- private:
-  static void easy_on_ioth_start(void* arg) {
-    ObBaseServer* server = (ObBaseServer*)arg;
-    if (NULL != server) {
-      server->on_ioth_start();
-    }
-  };
+  int send_response(const int32_t pcode, const int32_t version, const ObDataBuffer& buffer, tbnet::Connection* connection, const int32_t channel_id);
 
  protected:
   volatile bool stoped_;
-  int io_thread_count_;
   int thread_count_;
   bool batch_;
   char dev_name_[DEV_NAME_LENGTH];
   int port_;
   uint64_t server_id_;
-
-  ObPacketFactory packet_factory_;
-  easy_io_t* eio_;
-  easy_io_handler_pt server_handler_;
-  uint32_t local_ip_;
-
+  tbnet::IPacketFactory* packet_factory_;
+  tbnet::DefaultPacketStreamer streamer_;
+  tbnet::Transport transport_;
 };
 } /* common */
-} /* oceanbase */
+} /* sb */
 #endif /* end of include guard: OCEANBASE_COMMON_BASE_SERVER_H_ */
+
