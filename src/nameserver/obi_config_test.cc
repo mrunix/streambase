@@ -1,21 +1,12 @@
 /*
- * Copyright (C) 2007-2011 Taobao Inc.
+ * src/nameserver/.cc
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * Description here
- *
- * Version: $Id$
- *
- * Authors:
- *   Zhifeng YANG <zhuweng.yzf@taobao.com>
- *     - some work details here
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
 
 #include <gtest/gtest.h>
 #include "common/ob_obi_config.h"
+
 using namespace sb::common;
 
 TEST(ObiConfigTest, test_serialization) {

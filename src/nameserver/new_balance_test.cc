@@ -1,25 +1,17 @@
-/**
- * (C) 2010-2011 Alibaba Group Holding Limited.
+/*
+ * src/nameserver/.cc
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * Version: $Id$
- *
- * ob_new_balance_test.cc
- *
- * Authors:
- *   Zhifeng YANG <zhuweng.yzf@taobao.com>
- *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
-#include "nameserver/ob_root_server2.h"
+
+#include "nameserver/nameserver.h"
 #include "common/ob_tablet_info.h"
-#include "nameserver/ob_root_meta2.h"
-#include "nameserver/ob_root_table2.h"
-#include "nameserver/ob_root_worker.h"
-#include "root_server_tester.h"
-#include "nameserver/ob_root_rpc_stub.h"
+#include "nameserver/nameserver_meta.h"
+#include "nameserver/nameserver_table.h"
+#include "nameserver/nameserver_worker.h"
+#include "nameserver_test.h"
+#include "nameserver/nameserver_rpc_stub.h"
+
 #include <gtest/gtest.h>
 #include <cassert>
 
@@ -81,6 +73,7 @@ BalanceTestParams::~BalanceTestParams() {
     sstables_per_table_ = NULL;
   }
 }
+
 ////////////////////////////////////////////////////////////////
 struct MigrateMsg {
   ObServer src_cs_;
@@ -268,7 +261,7 @@ class ObBalanceTest: public ::testing::Test {
 };
 
 void ObBalanceTest::SetUp() {
-  ASSERT_TRUE(server_.init("ob_new_balance_test.conf", 0, &worker_));
+  ASSERT_TRUE(server_.init("new_balance_test.conf", 0, &worker_));
   server_.migrate_wait_seconds_ = 20;
   server_.enable_rereplication_ = 0; // disable
   server_.start_threads();
