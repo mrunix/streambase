@@ -142,7 +142,6 @@ BUILD_EXECUTABLE()
 # Unittest
 FUNCTION(BUILD_TEST_APP name)
 	SET(${name}_sources
-		${name}.cc
 		${ARGN}
 	)
 
@@ -159,9 +158,9 @@ FUNCTION(BUILD_TEST_APP name)
 ENDFUNCTION()
 
 IF(WITH_TEST)
- 	BUILD_TEST_APP("base_main_test" test_main.cc)
-	BUILD_TEST_APP("nameserver_test")
-	BUILD_TEST_APP("tablet_info_manager_test")
-	BUILD_TEST_APP("nameserver_table_test")
+ 	BUILD_TEST_APP("base_main_test" base_main_test.cc test_main.cc)
+	BUILD_TEST_APP("nameserver_test" nameserver_test.cc)
+	BUILD_TEST_APP("tablet_info_manager_test" tablet_info_manager_test.cc)
+	BUILD_TEST_APP("nameserver_table_test" nameserver_table_test.cc)
+	BUILD_TEST_APP("mock_ups_4_root" mock_server.cc mock_update_server.cc test_update_server_main.cc)
 ENDIF()
-

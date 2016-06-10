@@ -1,18 +1,9 @@
-/**
- * (C) 2010-2011 Alibaba Group Holding Limited.
+/*
+ * src/nameserver/.cc
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * Version: $Id$
- *
- * mock_update_server.cc for ...
- *
- * Authors:
- *   daoan <daoan@taobao.com>
- *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
+
 #include "mock_update_server.h"
 #include "common/ob_result.h"
 #include "common/ob_define.h"

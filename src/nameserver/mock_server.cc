@@ -1,17 +1,7 @@
-/**
- * (C) 2010-2011 Alibaba Group Holding Limited.
+/*
+ * src/nameserver/.cc
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * Version: $Id$
- *
- * mock_server.cc for ...
- *
- * Authors:
- *   qushan <qushan@taobao.com>
- *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
 
 #include "mock_server.h"
@@ -28,7 +18,7 @@ int MockServer::set_self(const char* dev_name, const int32_t port) {
   if (OB_SUCCESS == ret) {
     bool res = self_.set_ipv4_addr(ip, port);
     if (!res) {
-      TBSYS_LOG(ERROR, "chunk server dev:%s, port:%s is invalid.",
+      TBSYS_LOG(ERROR, "chunk server dev:%s, port:%d is invalid.",
                 dev_name, port);
       ret = OB_ERROR;
     }

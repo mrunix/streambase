@@ -1,18 +1,18 @@
-/**
- * (C) 2010-2011 Alibaba Group Holding Limited.
+/*
+ * src/nameserver/.h
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * Version: $Id$
- *
- * mock_server.h for ...
- *
- * Authors:
- *   daoan <daoan@taobao.com>
- *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
+
+/*
+ * The definition for ...
+ *
+ * Library: nameserver
+ * Package: nameserver
+ * Module : MockServer, MockServerRunner
+ * Author : Michael(Yang Lifeng), 311155@qq.com
+ */
+
 #ifndef MOCK_SERVER_H_
 #define MOCK_SERVER_H_
 
@@ -29,6 +29,7 @@ using namespace sb::common;
 
 namespace sb {
 namespace nameserver {
+
 class MockServer : public ObSingleServer {
  public:
   virtual int initialize() {
@@ -70,10 +71,9 @@ class MockServerRunner : public tbsys::Runnable {
  private:
   MockServer& mock_server_;
 };
+
 }
 }
-
-
 
 #endif // MOCK_SERVER_H_
 
