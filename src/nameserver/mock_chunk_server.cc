@@ -1,18 +1,9 @@
-/**
- * (C) 2010-2011 Alibaba Group Holding Limited.
+/*
+ * src/nameserver/.cc
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * Version: $Id$
- *
- * mock_chunk_server.cc for ...
- *
- * Authors:
- *   daoan <daoan@taobao.com>
- *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
+
 #include "mock_chunk_server.h"
 #include "common/ob_result.h"
 #include "common/ob_define.h"
@@ -21,18 +12,22 @@
 
 using namespace sb::common;
 using namespace sb::nameserver;
+
 MockChunkServer::MockChunkServer()
   : control_thread_(this) {
 }
+
 MockChunkServer::~MockChunkServer() {
   control_thread_.stop();
   control_thread_.wait();
 }
+
 int MockChunkServer::set_args(int total, int number) {
   total_ = total;
   number_ = number;
   return 0;
 }
+
 int MockChunkServer::regist_self() {
   self_.reset_ipv4_10(number_ + 1);
   ThreadSpecificBuffer::Buffer* thread_buffer = response_packet_buffer_.get_buffer();
@@ -65,6 +60,7 @@ int MockChunkServer::regist_self() {
   thread_buffer->reset();
   return 0;
 }
+
 int MockChunkServer::initialize() {
   bool res = true;
   tbsys::CConfig config;
@@ -131,9 +127,11 @@ int MockChunkServer::do_request(ObPacket* base_packet) {
   }
   return ret;
 }
+
 MockChunkServer::controlThread::controlThread(MockChunkServer* server)
   : server_(server) {
 }
+
 void MockChunkServer::controlThread::run(tbsys::CThread* thread, void* arg) {
   sleep(1);
   server_->regist_self();
@@ -152,7 +150,6 @@ void MockChunkServer::controlThread::run(tbsys::CThread* thread, void* arg) {
     sleep(1);
   }
 }
-
 
 int MockChunkServer::handle_hb(ObPacket* ob_packet) {
   int ret = OB_SUCCESS;
@@ -174,6 +171,7 @@ int MockChunkServer::handle_hb(ObPacket* ob_packet) {
   TBSYS_LOG_US(INFO, "handle hb result:ret[%d]", ret);
   return ret;
 }
+
 int MockChunkServer::handle_drop(ObPacket* ob_packet) {
   int ret = OB_SUCCESS;
   ObDataBuffer* data = ob_packet->get_buffer();
@@ -200,6 +198,7 @@ int MockChunkServer::handle_drop(ObPacket* ob_packet) {
   TBSYS_LOG(INFO, "handle drop result:ret[%d]", ret);
   return ret;
 }
+
 int MockChunkServer::handle_start_merge(ObPacket* ob_packet) {
   int ret = OB_SUCCESS;
   ObDataBuffer* data = ob_packet->get_buffer();
@@ -232,6 +231,7 @@ int MockChunkServer::handle_start_merge(ObPacket* ob_packet) {
   }
   return ret;
 }
+
 int MockChunkServer::split_table() {
   TBSYS_LOG(INFO, "----- version %ld ----", version_);
   srandom(version_);
@@ -274,6 +274,7 @@ int MockChunkServer::split_table() {
   }
   return 0;
 }
+
 int MockChunkServer::generate_root_table() {
   root_table_.clear();
   srandom(seed_);
@@ -337,7 +338,7 @@ int MockChunkServer::report_tablets() {
       pre_key.assign_ptr((char*)it->first.c_str(), it->first.length());
       it++;
     }
-    if (it == root_table_.end() && last_is_mine < 3) {
+    if (it == root_table_.end() && last_is_mine) {  // last_is_mine < 3 ???
       ti.tablet_info_.range_.start_key_ = pre_key ;
       ti.tablet_info_.range_.border_flag_.set_max_value();
       report_list.add_tablet(ti);
@@ -374,7 +375,7 @@ int MockChunkServer::report_tablets(const ObTabletReportInfoList& tablets, int64
     // report tablets information.
     for (int64_t i = 0; i < tablets.get_tablet_size(); ++i) {
       const common::ObTabletReportInfo& info = tablets.get_tablet()[i];
-      TBSYS_LOG(DEBUG, "report begin dump tablets:i:%d, row count:%d",
+      TBSYS_LOG(DEBUG, "report begin dump tablets:i:%ld, row count:%ld",
                 i, info.tablet_info_.row_count_);
       info.tablet_info_.range_.hex_dump();
       TBSYS_LOG(DEBUG, "tablet occupy size:%ld, row count:%ld",
@@ -390,7 +391,7 @@ int MockChunkServer::report_tablets(const ObTabletReportInfoList& tablets, int64
 
   // 3. serialize time_stamp
   if (OB_SUCCESS == ret) {
-    TBSYS_LOG(DEBUG, "report_tablets, timestamp:%lld count = %ld", time_stamp, tablets.tablet_list_.get_array_index());
+    TBSYS_LOG(DEBUG, "report_tablets, timestamp:%ld count = %ld", time_stamp, tablets.tablet_list_.get_array_index());
     ret = serialization::encode_vi64(data_buff.get_data(),
                                      data_buff.get_capacity(), data_buff.get_position(), time_stamp);
     if (OB_SUCCESS != ret) {
@@ -455,6 +456,4 @@ int MockChunkServer::report_tablets(const ObTabletReportInfoList& tablets, int64
   return ret;
 
 }
-
-
 

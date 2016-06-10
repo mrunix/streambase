@@ -1,18 +1,9 @@
-/**
- * (C) 2010-2011 Alibaba Group Holding Limited.
+/*
+ * src/nameserver/.cc
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * Version: $Id$
- *
- * test_chunk_server_main.cc for ...
- *
- * Authors:
- *   daoan <daoan@taobao.com>
- *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
+
 #include "mock_chunk_server.h"
 
 using namespace sb::nameserver;
@@ -39,5 +30,4 @@ int main(int argc, char** argv) {
   update_server_thread.join();
   return 0;
 }
-
 

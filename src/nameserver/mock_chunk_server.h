@@ -1,28 +1,31 @@
-/**
- * (C) 2010-2011 Alibaba Group Holding Limited.
+/*
+ * src/nameserver/.h
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * Version: $Id$
- *
- * mock_chunk_server.h for ...
- *
- * Authors:
- *   daoan <daoan@taobao.com>
- *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
+
+/*
+ * The definition for ...
+ *
+ * Library: nameserver
+ * Package: nameserver
+ * Module : MockChunkServer
+ * Author : Michael(Yang Lifeng), 311155@qq.com
+ */
+
 #ifndef MOCK_CHUNK_SERVER_H_
 #define MOCK_CHUNK_SERVER_H_
+
 #include "mock_server.h"
 #include "common/ob_tablet_info.h"
 #include <map>
 #include <string>
+
 using namespace std;
 
 namespace sb {
 namespace nameserver {
+
 class MockChunkServer : public MockServer {
  public:
   MockChunkServer();
@@ -59,10 +62,9 @@ class MockChunkServer : public MockServer {
   };
   controlThread control_thread_;
 };
-}
-}
 
+}
+}
 
 #endif //MOCK_UPDATE_SERVER_H_
-
 
