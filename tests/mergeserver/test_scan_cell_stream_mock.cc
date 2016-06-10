@@ -37,7 +37,7 @@ using namespace sb::common;
 using namespace sb::mergeserver;
 using namespace std;
 namespace {
-ObServer root_server;
+ObServer name_server;
 ObServer update_server;
 ObServer merge_server;
 class MockRPCProxy: public ObMergerRpcProxy {

@@ -47,7 +47,7 @@ int MockUpdateServer::initialize() {
   dev_name = config.getString("update", "dev_name", NULL);
   set_listen_port(port);
   set_self(dev_name, port);
-  root_server_.set_ipv4_addr(vip, rport);
+  name_server_.set_ipv4_addr(vip, rport);
   return MockServer::initialize();
 }
 
@@ -117,7 +117,7 @@ int MockUpdateServer::handle_mock_freeze(ObPacket* ob_packet) {
                              thread_buff.get_capacity(), thread_buff.get_position());
       ret = common::serialization::encode_vi64(thread_buff.get_data(), thread_buff.get_capacity(), thread_buff.get_position(), version);
       if (OB_SUCCESS == ret) {
-        ret = client_manager_.send_request(root_server_, OB_WAITING_JOB_DONE, 1, 50000, thread_buff);
+        ret = client_manager_.send_request(name_server_, OB_WAITING_JOB_DONE, 1, 50000, thread_buff);
       }
       ObDataBuffer out_buffer(thread_buff.get_data(), thread_buff.get_position());
       if (ret == OB_SUCCESS) {

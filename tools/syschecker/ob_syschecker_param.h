@@ -39,7 +39,7 @@ class ObSyscheckerParam {
   void dump_param();
 
   inline const common::ObServer& get_root_server() const {
-    return root_server_;
+    return name_server_;
   }
 
   inline const common::ObServer& get_update_server() const {
@@ -93,7 +93,7 @@ class ObSyscheckerParam {
   int load_merge_server();
 
  private:
-  common::ObServer root_server_;
+  common::ObServer name_server_;
   common::ObServer update_server_;
   int64_t merge_server_count_;
   common::ObServer* merge_server_;

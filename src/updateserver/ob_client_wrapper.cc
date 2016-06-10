@@ -23,9 +23,9 @@ using namespace common;
 using namespace mergeserver;
 ObClientWrapper::ObClientWrapper(const int64_t rpc_retry_times,
                                  const int64_t rpc_timeout,
-                                 const ObServer& root_server,
+                                 const ObServer& name_server,
                                  const ObServer& update_server,
-                                 const ObServer& merge_server): rpc_proxy_(rpc_retry_times, rpc_timeout, root_server, update_server, merge_server), ups_rpc_agent_(rpc_proxy_) {
+                                 const ObServer& merge_server): rpc_proxy_(rpc_retry_times, rpc_timeout, name_server, update_server, merge_server), ups_rpc_agent_(rpc_proxy_) {
   init_ = false;
 }
 

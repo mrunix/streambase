@@ -93,7 +93,7 @@ struct MigrateMsg {
   }
 };
 
-class BalanceTestRpc : public sb::nameserver::ObRootRpcStub, public tbsys::CDefaultRunnable {
+class BalanceTestRpc : public sb::nameserver::NameServerRpcStub, public tbsys::CDefaultRunnable {
  public:
   BalanceTestRpc(): msg_head_(NULL), msg_count_(0), server_(NULL) {}
   virtual ~BalanceTestRpc() {}
@@ -236,9 +236,9 @@ void BalanceTestRpc::run(tbsys::CThread* thread, void* arg) {
   TBSYS_LOG(INFO, "balance test rpc thread finished");
 }
 
-class BalanceTestRootWorker: public ObRootWorkerForTest {
+class BalanceTestRootWorker: public NameServerWorkerForTest {
  public:
-  virtual ObRootRpcStub& get_rpc_stub() { return rpc_;}
+  virtual NameServerRpcStub& get_rpc_stub() { return rpc_;}
   BalanceTestRpc& get_test_stub() {return rpc_;}
  private:
   BalanceTestRpc rpc_;

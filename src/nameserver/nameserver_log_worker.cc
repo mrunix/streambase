@@ -17,18 +17,18 @@ int SYNC_WAIT_US = 10;
 namespace sb {
 using namespace common;
 namespace nameserver {
-ObRootLogWorker::ObRootLogWorker() {
+NameServerLogWorker::NameServerLogWorker() {
 }
 
-void ObRootLogWorker::set_root_server(NameServer* name_server) {
+void NameServerLogWorker::set_root_server(NameServer* name_server) {
   name_server_ = name_server;
 }
 
-void ObRootLogWorker::set_log_manager(ObRootLogManager* log_manager) {
+void NameServerLogWorker::set_log_manager(NameServerLogManager* log_manager) {
   log_manager_ = log_manager;
 }
 
-int ObRootLogWorker::sync_schema(const int64_t timestamp) {
+int NameServerLogWorker::sync_schema(const int64_t timestamp) {
   int ret = OB_SUCCESS;
   char* log_data = static_cast<char*>(ob_malloc(OB_MAX_PACKET_LENGTH));
   if (log_data == NULL) {
@@ -94,19 +94,19 @@ int ObRootLogWorker::sync_schema(const int64_t timestamp) {
   return ret;
 }
 
-int ObRootLogWorker::regist_cs(const ObServer& server, const int64_t timestamp) {
+int NameServerLogWorker::regist_cs(const ObServer& server, const int64_t timestamp) {
   return log_server_with_ts(OB_RT_CS_REGIST, server, timestamp);
 }
 
-int ObRootLogWorker::regist_ms(const ObServer& server, const int64_t timestamp) {
+int NameServerLogWorker::regist_ms(const ObServer& server, const int64_t timestamp) {
   return log_server_with_ts(OB_RT_MS_REGIST, server, timestamp);
 }
 
-int ObRootLogWorker::server_is_down(const ObServer& server, const int64_t timestamp) {
+int NameServerLogWorker::server_is_down(const ObServer& server, const int64_t timestamp) {
   return log_server_with_ts(OB_RT_SERVER_DOWN, server, timestamp);
 }
 
-int ObRootLogWorker::log_server_with_ts(const LogCommand cmd, const ObServer& server, const int64_t timestamp) {
+int NameServerLogWorker::log_server_with_ts(const LogCommand cmd, const ObServer& server, const int64_t timestamp) {
   int ret = OB_SUCCESS;
 
   char* log_data = static_cast<char*>(ob_malloc(OB_MAX_PACKET_LENGTH));
@@ -136,7 +136,7 @@ int ObRootLogWorker::log_server_with_ts(const LogCommand cmd, const ObServer& se
   return ret;
 }
 
-int ObRootLogWorker::report_cs_load(const ObServer& server, const int64_t capacity, const int64_t used) {
+int NameServerLogWorker::report_cs_load(const ObServer& server, const int64_t capacity, const int64_t used) {
   int ret = OB_SUCCESS;
 
   char* log_data = static_cast<char*>(ob_malloc(OB_MAX_PACKET_LENGTH));
@@ -170,7 +170,7 @@ int ObRootLogWorker::report_cs_load(const ObServer& server, const int64_t capaci
   return ret;
 }
 
-int ObRootLogWorker::cs_migrate_done(const ObRange& range, const ObServer& src_server, const ObServer& dest_server, const bool keep_src, const int64_t tablet_version) {
+int NameServerLogWorker::cs_migrate_done(const ObRange& range, const ObServer& src_server, const ObServer& dest_server, const bool keep_src, const int64_t tablet_version) {
   int ret = OB_SUCCESS;
 
   char* log_data = static_cast<char*>(ob_malloc(OB_MAX_PACKET_LENGTH));
@@ -212,7 +212,7 @@ int ObRootLogWorker::cs_migrate_done(const ObRange& range, const ObServer& src_s
   return ret;
 }
 
-int ObRootLogWorker::start_switch_root_table(const int64_t timestamp) {
+int NameServerLogWorker::start_switch_root_table(const int64_t timestamp) {
   int ret = OB_SUCCESS;
   ret = sync_schema(timestamp); // sync schema file content first
 
@@ -242,7 +242,7 @@ int ObRootLogWorker::start_switch_root_table(const int64_t timestamp) {
   return ret;
 }
 
-int ObRootLogWorker::start_report(const int64_t timestamp, const bool init_flag) {
+int NameServerLogWorker::start_report(const int64_t timestamp, const bool init_flag) {
   int ret = OB_SUCCESS;
   ret = sync_schema(timestamp); // sync schema file content first
 
@@ -276,7 +276,7 @@ int ObRootLogWorker::start_report(const int64_t timestamp, const bool init_flag)
   return ret;
 }
 
-int ObRootLogWorker::report_tablets(const common::ObServer& server, const common::ObTabletReportInfoList& tablets, const int64_t timestamp) {
+int NameServerLogWorker::report_tablets(const common::ObServer& server, const common::ObTabletReportInfoList& tablets, const int64_t timestamp) {
   int ret = OB_SUCCESS;
 
   char* log_data = NULL;
@@ -311,7 +311,7 @@ int ObRootLogWorker::report_tablets(const common::ObServer& server, const common
   return ret;
 }
 
-int ObRootLogWorker::add_new_tablet(const int count, const common::ObTabletInfo tablet, const int* server_indexs, const int64_t mem_version) {
+int NameServerLogWorker::add_new_tablet(const int count, const common::ObTabletInfo tablet, const int* server_indexs, const int64_t mem_version) {
   int ret = OB_SUCCESS;
 
   char* log_data = NULL;
@@ -357,53 +357,53 @@ int ObRootLogWorker::add_new_tablet(const int count, const common::ObTabletInfo 
   return ret;
 }
 
-int ObRootLogWorker::create_table_done() {
+int NameServerLogWorker::create_table_done() {
   return flush_log(OB_RT_CREATE_TABLE_DONE, NULL, 0);
 }
 
-int ObRootLogWorker::begin_balance() {
+int NameServerLogWorker::begin_balance() {
   // balance need not sync now
   // return flush_log(OB_RT_BEGIN_BALANCE, NULL, 0);
   return OB_SUCCESS;
 }
-int ObRootLogWorker::drop_current_build() {
+int NameServerLogWorker::drop_current_build() {
   return flush_log(OB_RT_DROP_CURRENT_BUILD, NULL, 0);
 }
-int ObRootLogWorker::drop_last_cs_during_merge() {
+int NameServerLogWorker::drop_last_cs_during_merge() {
   return flush_log(OB_RT_DROP_LAST_CS_DURING_MERGE, NULL, 0);
 }
 
-int ObRootLogWorker::balance_done() {
+int NameServerLogWorker::balance_done() {
   // balance need not sync now
   // return flush_log(OB_RT_BALANCE_DONE, NULL, 0);
   return OB_SUCCESS;
 }
 
-int ObRootLogWorker::us_mem_freezing(const ObServer& server, const int64_t timestamp) {
+int NameServerLogWorker::us_mem_freezing(const ObServer& server, const int64_t timestamp) {
   return log_server_with_ts(OB_RT_US_MEM_FRZEEING, server, timestamp);
 }
 
-int ObRootLogWorker::us_mem_frozen(const ObServer& server, const int64_t timestamp) {
+int NameServerLogWorker::us_mem_frozen(const ObServer& server, const int64_t timestamp) {
   return log_server_with_ts(OB_RT_US_MEM_FROZEN, server, timestamp);
 }
 
-int ObRootLogWorker::cs_start_merging(const ObServer& server) {
+int NameServerLogWorker::cs_start_merging(const ObServer& server) {
   return log_server(OB_RT_CS_START_MERGEING, server);
 }
 
-int ObRootLogWorker::cs_merge_over(const ObServer& server, const int64_t timestamp) {
+int NameServerLogWorker::cs_merge_over(const ObServer& server, const int64_t timestamp) {
   return log_server_with_ts(OB_RT_CS_MERGE_OVER, server, timestamp);
 }
 
-int ObRootLogWorker::unload_cs_done(const ObServer& server) {
+int NameServerLogWorker::unload_cs_done(const ObServer& server) {
   return log_server(OB_RT_CS_UNLOAD_DONE, server);
 }
 
-int ObRootLogWorker::unload_us_done(const ObServer& server) {
+int NameServerLogWorker::unload_us_done(const ObServer& server) {
   return log_server(OB_RT_US_UNLOAD_DONE, server);
 }
 
-int ObRootLogWorker::sync_us_frozen_version(const int64_t frozen_version) {
+int NameServerLogWorker::sync_us_frozen_version(const int64_t frozen_version) {
   int ret = OB_SUCCESS;
 
   char* log_data = static_cast<char*>(ob_malloc(OB_MAX_PACKET_LENGTH));
@@ -428,7 +428,7 @@ int ObRootLogWorker::sync_us_frozen_version(const int64_t frozen_version) {
   return ret;
 }
 
-int ObRootLogWorker::log_server(const LogCommand cmd, const ObServer& server) {
+int NameServerLogWorker::log_server(const LogCommand cmd, const ObServer& server) {
   int ret = OB_SUCCESS;
 
   char* log_data = static_cast<char*>(ob_malloc(OB_MAX_PACKET_LENGTH));
@@ -454,7 +454,7 @@ int ObRootLogWorker::log_server(const LogCommand cmd, const ObServer& server) {
   return ret;
 }
 
-int ObRootLogWorker::set_ups_list(const common::ObUpsList& ups_list) {
+int NameServerLogWorker::set_ups_list(const common::ObUpsList& ups_list) {
   int ret = OB_SUCCESS;
   int64_t pos = 0;
   char* log_data = static_cast<char*>(ob_malloc(OB_MAX_PACKET_LENGTH));
@@ -474,7 +474,7 @@ int ObRootLogWorker::set_ups_list(const common::ObUpsList& ups_list) {
   return ret;
 }
 
-int ObRootLogWorker::set_client_config(const common::ObClientConfig& client_conf) {
+int NameServerLogWorker::set_client_config(const common::ObClientConfig& client_conf) {
   int ret = OB_SUCCESS;
   int64_t pos = 0;
   char* log_data = static_cast<char*>(ob_malloc(OB_MAX_PACKET_LENGTH));
@@ -494,7 +494,7 @@ int ObRootLogWorker::set_client_config(const common::ObClientConfig& client_conf
   return ret;
 }
 
-int ObRootLogWorker::flush_log(const LogCommand cmd, const char* log_data, const int64_t& serialize_size) {
+int NameServerLogWorker::flush_log(const LogCommand cmd, const char* log_data, const int64_t& serialize_size) {
   int ret = OB_SUCCESS;
 
   TBSYS_LOG(DEBUG, "flush update log, cmd type: %d", cmd);
@@ -509,7 +509,7 @@ int ObRootLogWorker::flush_log(const LogCommand cmd, const char* log_data, const
 ///// slave apply log methods
 //////////////////////////////////////////////////
 
-int ObRootLogWorker::apply(common::LogCommand cmd, const char* log_data, const int64_t& data_len) {
+int NameServerLogWorker::apply(common::LogCommand cmd, const char* log_data, const int64_t& data_len) {
   int ret = OB_SUCCESS;
 
   TBSYS_LOG(INFO, "start replay log, cmd type: %d", cmd);
@@ -598,7 +598,7 @@ int ObRootLogWorker::apply(common::LogCommand cmd, const char* log_data, const i
   return ret;
 }
 
-int ObRootLogWorker::do_check_point(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_check_point(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   int64_t pos = 0;
@@ -626,7 +626,7 @@ int ObRootLogWorker::do_check_point(const char* log_data, const int64_t& log_len
   return ret;
 }
 
-int ObRootLogWorker::do_schema_sync(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_schema_sync(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   int64_t pos = 0;
@@ -670,7 +670,7 @@ int ObRootLogWorker::do_schema_sync(const char* log_data, const int64_t& log_len
   return ret;
 }
 
-int ObRootLogWorker::do_cs_regist(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_cs_regist(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   int64_t pos = 0;
@@ -691,7 +691,7 @@ int ObRootLogWorker::do_cs_regist(const char* log_data, const int64_t& log_lengt
   return ret;
 }
 
-int ObRootLogWorker::do_ms_regist(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_ms_regist(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   int64_t pos = 0;
@@ -712,7 +712,7 @@ int ObRootLogWorker::do_ms_regist(const char* log_data, const int64_t& log_lengt
   return ret;
 }
 
-int ObRootLogWorker::do_server_down(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_server_down(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   int64_t pos = 0;
@@ -740,7 +740,7 @@ int ObRootLogWorker::do_server_down(const char* log_data, const int64_t& log_len
   return ret;
 }
 
-int ObRootLogWorker::do_cs_load_report(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_cs_load_report(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   ObServer server;
@@ -766,7 +766,7 @@ int ObRootLogWorker::do_cs_load_report(const char* log_data, const int64_t& log_
   return ret;
 }
 
-int ObRootLogWorker::do_cs_migrate_done(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_cs_migrate_done(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   int64_t pos = 0;
@@ -803,7 +803,7 @@ int ObRootLogWorker::do_cs_migrate_done(const char* log_data, const int64_t& log
   return ret;
 }
 
-int ObRootLogWorker::do_start_switch(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_start_switch(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   int64_t pos = 0;
@@ -823,7 +823,7 @@ int ObRootLogWorker::do_start_switch(const char* log_data, const int64_t& log_le
   return ret;
 }
 
-int ObRootLogWorker::do_start_report(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_start_report(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   int64_t pos = 0;
@@ -847,7 +847,7 @@ int ObRootLogWorker::do_start_report(const char* log_data, const int64_t& log_le
   return ret;
 }
 
-int ObRootLogWorker::do_report_tablets(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_report_tablets(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   int64_t pos = 0;
@@ -872,7 +872,7 @@ int ObRootLogWorker::do_report_tablets(const char* log_data, const int64_t& log_
   return ret;
 }
 
-int ObRootLogWorker::do_add_new_tablet(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_add_new_tablet(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   int64_t pos = 0;
@@ -907,7 +907,7 @@ int ObRootLogWorker::do_add_new_tablet(const char* log_data, const int64_t& log_
   return ret;
 }
 
-int ObRootLogWorker::do_create_table_done() {
+int NameServerLogWorker::do_create_table_done() {
   //while (true)
   //{
   //  TBSYS_LOG(DEBUG, "do_create_table_done name_server_->build_sync_flag_ %d", name_server_->build_sync_flag_);
@@ -924,25 +924,25 @@ int ObRootLogWorker::do_create_table_done() {
   return OB_SUCCESS;
 }
 
-int ObRootLogWorker::do_begin_balance() {
+int NameServerLogWorker::do_begin_balance() {
   name_server_->server_status_ = NameServer::STATUS_BALANCING;
   return OB_SUCCESS;
 }
-int ObRootLogWorker::do_drop_current_build() {
+int NameServerLogWorker::do_drop_current_build() {
   name_server_->drop_this_build_ = true;
   return OB_SUCCESS;
 }
-int ObRootLogWorker::do_drop_last_cs_during_merge() {
+int NameServerLogWorker::do_drop_last_cs_during_merge() {
   name_server_->drop_last_cs = true;
   return OB_SUCCESS;
 }
 
-int ObRootLogWorker::do_balance_done() {
+int NameServerLogWorker::do_balance_done() {
   name_server_->server_status_ = NameServer::STATUS_SLEEP;
   return OB_SUCCESS;
 }
 
-int ObRootLogWorker::do_us_mem_freezing(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_us_mem_freezing(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   int64_t pos = 0;
@@ -969,7 +969,7 @@ int ObRootLogWorker::do_us_mem_freezing(const char* log_data, const int64_t& log
   return ret;
 }
 
-int ObRootLogWorker::do_us_mem_frozen(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_us_mem_frozen(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   int64_t pos = 0;
@@ -990,7 +990,7 @@ int ObRootLogWorker::do_us_mem_frozen(const char* log_data, const int64_t& log_l
   return ret;
 }
 
-int ObRootLogWorker::do_cs_start_merging(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_cs_start_merging(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   int64_t pos = 0;
@@ -1005,7 +1005,7 @@ int ObRootLogWorker::do_cs_start_merging(const char* log_data, const int64_t& lo
   return ret;
 }
 
-int ObRootLogWorker::do_cs_merge_over(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_cs_merge_over(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   int64_t pos = 0;
@@ -1026,7 +1026,7 @@ int ObRootLogWorker::do_cs_merge_over(const char* log_data, const int64_t& log_l
   return ret;
 }
 
-int ObRootLogWorker::do_cs_unload_done(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_cs_unload_done(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   int64_t pos = 0;
@@ -1041,7 +1041,7 @@ int ObRootLogWorker::do_cs_unload_done(const char* log_data, const int64_t& log_
   return ret;
 }
 
-int ObRootLogWorker::do_us_unload_done(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_us_unload_done(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   int64_t pos = 0;
@@ -1056,7 +1056,7 @@ int ObRootLogWorker::do_us_unload_done(const char* log_data, const int64_t& log_
   return ret;
 }
 
-int ObRootLogWorker::do_sync_frozen_version(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_sync_frozen_version(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
 
   int64_t pos = 0;
@@ -1070,7 +1070,7 @@ int ObRootLogWorker::do_sync_frozen_version(const char* log_data, const int64_t&
   return ret;
 }
 
-int ObRootLogWorker::do_set_ups_list(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_set_ups_list(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
   int64_t pos = 0;
   ObUpsList ups_list;
@@ -1082,7 +1082,7 @@ int ObRootLogWorker::do_set_ups_list(const char* log_data, const int64_t& log_le
   return ret;
 }
 
-int ObRootLogWorker::do_set_client_config(const char* log_data, const int64_t& log_length) {
+int NameServerLogWorker::do_set_client_config(const char* log_data, const int64_t& log_length) {
   int ret = OB_SUCCESS;
   int64_t pos = 0;
   ObClientConfig client_conf;
@@ -1094,7 +1094,7 @@ int ObRootLogWorker::do_set_client_config(const char* log_data, const int64_t& l
   return ret;
 }
 
-void ObRootLogWorker::reset_cs_hb_time() {
+void NameServerLogWorker::reset_cs_hb_time() {
   //int64_t now = tbsys::CTimeUtil::getTime();
 
   tbsys::CRLockGuard guard(name_server_->server_manager_rwlock_);
@@ -1105,12 +1105,12 @@ void ObRootLogWorker::reset_cs_hb_time() {
   }
 }
 
-void ObRootLogWorker::exit() {
+void NameServerLogWorker::exit() {
   name_server_->worker_->stop();
 }
 
 
-uint64_t ObRootLogWorker::get_cur_log_file_id() {
+uint64_t NameServerLogWorker::get_cur_log_file_id() {
   uint64_t ret = 0;
   if (NULL != log_manager_) {
     ret = log_manager_->get_cur_log_file_id();
@@ -1118,7 +1118,7 @@ uint64_t ObRootLogWorker::get_cur_log_file_id() {
   return ret;
 }
 
-uint64_t ObRootLogWorker::get_cur_log_seq() {
+uint64_t NameServerLogWorker::get_cur_log_seq() {
   uint64_t ret = 0;
   if (NULL != log_manager_) {
     ret = log_manager_->get_cur_log_seq();

@@ -15,7 +15,7 @@ ObRootLogReplay::ObRootLogReplay() {
 ObRootLogReplay::~ObRootLogReplay() {
 }
 
-void ObRootLogReplay::set_log_manager(ObRootLogManager* log_manager) {
+void ObRootLogReplay::set_log_manager(NameServerLogManager* log_manager) {
   log_manager_ = log_manager;
 }
 

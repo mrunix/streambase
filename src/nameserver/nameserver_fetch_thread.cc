@@ -44,7 +44,7 @@ int ObRootFetchThread::got_ckpt(uint64_t ckpt_id) {
   return recover_ret_;
 }
 
-void ObRootFetchThread::set_log_manager(ObRootLogManager* log_manager) {
+void ObRootFetchThread::set_log_manager(NameServerLogManager* log_manager) {
   log_manager_ = log_manager;
 }
 

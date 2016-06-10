@@ -87,7 +87,7 @@ int ObUpdateServer::initialize() {
   }
   ups_master_.set_ipv4_addr(param_.get_ups_vip(), param_.get_ups_port());
 
-  root_server_.set_ipv4_addr(param_.get_root_server_ip(), param_.get_root_server_port());
+  name_server_.set_ipv4_addr(param_.get_root_server_ip(), param_.get_root_server_port());
 
   if (strlen(param_.get_ups_inst_master_ip()) > 0) {
     ups_inst_master_.set_ipv4_addr(param_.get_ups_inst_master_ip(), param_.get_ups_inst_master_port());
@@ -305,7 +305,7 @@ int ObUpdateServer::start_service() {
   err = start_threads();
 
   if (OB_SUCCESS == err) {
-    RPC_CALL_WITH_RETRY(get_obi_role, INT64_MAX, DEFAULT_NETWORK_TIMEOUT, root_server_, obi_role_);
+    RPC_CALL_WITH_RETRY(get_obi_role, INT64_MAX, DEFAULT_NETWORK_TIMEOUT, name_server_, obi_role_);
 
     if (obi_role_.get_role() == ObiRole::INIT) {
       TBSYS_LOG(INFO, "get_obi_role=INIT, waiting for new obi role");
@@ -314,7 +314,7 @@ int ObUpdateServer::start_service() {
              && ObRoleMgr::STOP != role_mgr_.get_state()
              && ObRoleMgr::ERROR != role_mgr_.get_state()) {
         usleep(DEFAULT_GET_OBI_ROLE_INTERVAL);
-        RPC_CALL_WITH_RETRY(get_obi_role, INT64_MAX, DEFAULT_NETWORK_TIMEOUT, root_server_, obi_role_);
+        RPC_CALL_WITH_RETRY(get_obi_role, INT64_MAX, DEFAULT_NETWORK_TIMEOUT, name_server_, obi_role_);
       }
     }
 
@@ -1067,7 +1067,7 @@ int ObUpdateServer::report_frozen_version_() {
   uint64_t last_frozen_version = 0;
   ret = table_mgr_.get_last_frozen_memtable_version(last_frozen_version);
   if (OB_SUCCESS == ret) {
-    ret = RPC_CALL_WITH_RETRY(report_freeze, num_times, timeout, root_server_, ups_master_, last_frozen_version);
+    ret = RPC_CALL_WITH_RETRY(report_freeze, num_times, timeout, name_server_, ups_master_, last_frozen_version);
   }
   if (OB_RESPONSE_TIME_OUT == ret) {
     TBSYS_LOG(ERROR, "report fronzen version timeout, num_times=%d, timeout=%ldus", num_times, timeout);
@@ -1085,7 +1085,7 @@ int ObUpdateServer::update_schema(const bool always_try, const bool write_log) {
   int64_t timeout = param_.get_fetch_schema_timeout_us();
 
   CommonSchemaManagerWrapper schema_mgr;
-  err = RPC_CALL_WITH_RETRY(fetch_schema, num_times, timeout, root_server_, 0, schema_mgr);
+  err = RPC_CALL_WITH_RETRY(fetch_schema, num_times, timeout, name_server_, 0, schema_mgr);
 
   if (OB_RESPONSE_TIME_OUT == err) {
     TBSYS_LOG(ERROR, "fetch schema timeout, num_times=%d, timeout=%ldus",
@@ -2383,7 +2383,7 @@ int ObUpdateServer::ups_create_memtable_index() {
   // 发送返回消息给nameserver
   int64_t retry_times = param_.get_resp_root_times();
   int64_t timeout = param_.get_resp_root_timeout_us();
-  ret = RPC_CALL_WITH_RETRY(send_freeze_memtable_resp, retry_times, timeout, root_server_, ups_master_, new_version);
+  ret = RPC_CALL_WITH_RETRY(send_freeze_memtable_resp, retry_times, timeout, name_server_, ups_master_, new_version);
   if (OB_SUCCESS != ret) {
     TBSYS_LOG(WARN, "send freeze memtable resp fail ret_code=%d schema_version=%ld", ret, new_version);
   }

@@ -89,15 +89,15 @@ TEST_F(TestRpcProxy, test_multi_schema)
   EXPECT_TRUE(OB_SUCCESS == client_manager.initialize(&transport, &streamer));
   EXPECT_TRUE(OB_SUCCESS == stub.init(&buffer, &client_manager));
 
-  ObServer root_server;
-  root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
+  ObServer name_server;
+  name_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
 
   ObServer update_server;
   update_server.set_ipv4_addr(addr, MockUpdateServer::UPDATE_SERVER_PORT);
 
   ObServer merge_server;
   merge_server.set_ipv4_addr(addr, 10256);
-  ObMergerRpcProxy proxy(0, timeout, root_server, update_server, merge_server);
+  ObMergerRpcProxy proxy(0, timeout, name_server, update_server, merge_server);
 
   ObMergerSchemaManager * schema = new ObMergerSchemaManager;
   EXPECT_TRUE(NULL != schema);
@@ -146,14 +146,14 @@ TEST_F(TestRpcProxy, test_multi_schema)
 
 TEST_F(TestRpcProxy, test_init)
 {
-  ObServer root_server;
-  root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
+  ObServer name_server;
+  name_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
 
   ObServer update_server;
   update_server.set_ipv4_addr(addr, MockUpdateServer::UPDATE_SERVER_PORT);
 
   ObServer merge_server;
-  ObMergerRpcProxy proxy(0, timeout, root_server, update_server, merge_server);
+  ObMergerRpcProxy proxy(0, timeout, name_server, update_server, merge_server);
 
   ObMergerRpcStub stub;
   EXPECT_TRUE(OB_SUCCESS != proxy.init(NULL, NULL, NULL));
@@ -168,7 +168,7 @@ TEST_F(TestRpcProxy, test_init)
 
   EXPECT_TRUE(OB_SUCCESS == proxy.init(&stub, schema, location));
   EXPECT_TRUE(timeout == proxy.get_rpc_timeout());
-  EXPECT_TRUE(root_server == proxy.get_root_server());
+  EXPECT_TRUE(name_server == proxy.get_root_server());
   EXPECT_TRUE(update_server == proxy.get_update_server());
   EXPECT_TRUE(NULL != proxy.get_rpc_stub());
 
@@ -195,15 +195,15 @@ TEST_F(TestRpcProxy, test_register)
   EXPECT_TRUE(OB_SUCCESS == stub.init(&buffer, &client_manager));
 
   //
-  ObServer root_server;
-  root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
+  ObServer name_server;
+  name_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
 
   ObServer update_server;
   update_server.set_ipv4_addr(addr, MockUpdateServer::UPDATE_SERVER_PORT);
 
   ObServer merge_server;
   merge_server.set_ipv4_addr(addr, 10256);
-  ObMergerRpcProxy proxy(0, timeout, root_server, update_server, merge_server);
+  ObMergerRpcProxy proxy(0, timeout, name_server, update_server, merge_server);
 
   // not init
   EXPECT_TRUE(OB_SUCCESS != proxy.register_merger(merge_server));
@@ -253,8 +253,8 @@ TEST_F(TestRpcProxy, test_schema)
   EXPECT_TRUE(OB_SUCCESS == client_manager.initialize(&transport, &streamer));
   EXPECT_TRUE(OB_SUCCESS == stub.init(&buffer, &client_manager));
 
-  ObServer root_server;
-  root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
+  ObServer name_server;
+  name_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
 
   ObServer update_server;
   update_server.set_ipv4_addr(addr, MockUpdateServer::UPDATE_SERVER_PORT);
@@ -262,7 +262,7 @@ TEST_F(TestRpcProxy, test_schema)
 
   ObServer merge_server;
   merge_server.set_ipv4_addr(addr, 10256);
-  ObMergerRpcProxy proxy(0, timeout, root_server, update_server, merge_server);
+  ObMergerRpcProxy proxy(0, timeout, name_server, update_server, merge_server);
 
   // not init
   int64_t timestamp = 1234;
@@ -337,15 +337,15 @@ TEST_F(TestRpcProxy, test_ups) {
   EXPECT_TRUE(OB_SUCCESS == client_manager.initialize(&transport, &streamer));
   EXPECT_TRUE(OB_SUCCESS == stub.init(&buffer, &client_manager));
 
-  ObServer root_server;
-  root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
+  ObServer name_server;
+  name_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
 
   ObServer update_server;
   update_server.set_ipv4_addr(addr, MockUpdateServer::UPDATE_SERVER_PORT);
 
   ObServer merge_server;
   merge_server.set_ipv4_addr(addr, 10256);
-  ObMergerRpcProxy proxy(0, timeout, root_server, update_server, merge_server);
+  ObMergerRpcProxy proxy(0, timeout, name_server, update_server, merge_server);
 
   // not init
   ObMergerTabletLocation cs_addr;
@@ -440,15 +440,15 @@ TEST_F(TestRpcProxy, test_cs) {
   EXPECT_TRUE(OB_SUCCESS == client_manager.initialize(&transport, &streamer));
   EXPECT_TRUE(OB_SUCCESS == stub.init(&buffer, &client_manager));
 
-  ObServer root_server;
-  root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
+  ObServer name_server;
+  name_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
 
   ObServer update_server;
   update_server.set_ipv4_addr(addr, MockUpdateServer::UPDATE_SERVER_PORT);
 
   ObServer merge_server;
   merge_server.set_ipv4_addr(addr, 10256);
-  ObMergerRpcProxy proxy(3, timeout, root_server, update_server, merge_server);
+  ObMergerRpcProxy proxy(3, timeout, name_server, update_server, merge_server);
 
   // not init
   ObMergerTabletLocation cs_addr;

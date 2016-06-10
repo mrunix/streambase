@@ -31,7 +31,7 @@ class ObClientWrapper {
   //
   ObClientWrapper(const int64_t rpc_retry_times,
                   const int64_t rpc_timeout,
-                  const ObServer& root_server,
+                  const ObServer& name_server,
                   const ObServer& update_server,
                   const ObServer& merge_server);
 

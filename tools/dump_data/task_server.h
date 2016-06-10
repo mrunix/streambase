@@ -14,7 +14,7 @@ class TaskServer: public BaseServer {
  public:
   // all tables in root server
   TaskServer(const char* file_name, const int64_t timeout_times, const int64_t max_count,
-             const int64_t timeout, const common::ObServer& root_server);
+             const int64_t timeout, const common::ObServer& name_server);
 
   virtual ~TaskServer();
 
@@ -60,7 +60,7 @@ class TaskServer: public BaseServer {
   TaskFactory task_factory_;
   TaskManager task_manager_;
   TaskOutput task_output_;
-  common::ObServer root_server_;
+  common::ObServer name_server_;
   common::ObServer update_server_;
   common::ObSchemaManagerV2 schema_;
 };

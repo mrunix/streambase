@@ -43,11 +43,11 @@ int MockChunkServer::regist_self() {
                              thread_buff.get_capacity(), thread_buff.get_position());
   ret = common::serialization::encode_bool(thread_buff.get_data(), thread_buff.get_capacity(), thread_buff.get_position(), false);
   char str[60];
-  root_server_.to_string(str, 60);
+  name_server_.to_string(str, 60);
   if (OB_SUCCESS == ret) {
     do {
       TBSYS_LOG(INFO, "root server is %s", str);
-      ret = client_manager_.send_request(root_server_, OB_SERVER_REGISTER, 1, 50000, thread_buff);
+      ret = client_manager_.send_request(name_server_, OB_SERVER_REGISTER, 1, 50000, thread_buff);
       if (OB_SUCCESS != ret) sleep(1);
     } while (OB_SUCCESS != ret);
   }
@@ -95,7 +95,7 @@ int MockChunkServer::initialize() {
   set_listen_port(port);
   set_self(dev_name, port);
   TBSYS_LOG(INFO, "root server vip =%s port = %d", vip, rport);
-  root_server_.set_ipv4_addr(vip, rport);
+  name_server_.set_ipv4_addr(vip, rport);
   control_thread_.start();
   return MockServer::initialize();
 
@@ -168,7 +168,7 @@ int MockChunkServer::handle_hb(ObPacket* ob_packet) {
     ObDataBuffer out_buffer(thread_buffer->current(), thread_buffer->remain());
     ObServer client_server = self_;
     ret = client_server.serialize(out_buffer.get_data(), out_buffer.get_capacity(), out_buffer.get_position());
-    ret = client_manager_.post_request(root_server_, OB_HEARTBEAT, 1 , out_buffer);
+    ret = client_manager_.post_request(name_server_, OB_HEARTBEAT, 1 , out_buffer);
   }
 
   TBSYS_LOG_US(INFO, "handle hb result:ret[%d]", ret);
@@ -399,7 +399,7 @@ int MockChunkServer::report_tablets(const ObTabletReportInfoList& tablets, int64
   }
 
   if (OB_SUCCESS == ret) {
-    ret = client_manager_.send_request(root_server_, OB_REPORT_TABLETS,
+    ret = client_manager_.send_request(name_server_, OB_REPORT_TABLETS,
                                        1 , report_timeout, data_buff);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(ERROR, "send_request(ReportTablets) to RootServer failed: ret[%d].", ret);
@@ -441,7 +441,7 @@ int MockChunkServer::report_tablets(const ObTabletReportInfoList& tablets, int64
       }
 
       if (OB_SUCCESS == ret) {
-        ret = client_manager_.send_request(root_server_, OB_WAITING_JOB_DONE,
+        ret = client_manager_.send_request(name_server_, OB_WAITING_JOB_DONE,
                                            1 , report_timeout, data_buff);
         if (OB_SUCCESS != ret) {
           TBSYS_LOG(ERROR, "ObClientManager::send_request(schema_changed) to "

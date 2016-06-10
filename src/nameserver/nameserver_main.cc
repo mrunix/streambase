@@ -1,5 +1,5 @@
 /*
- * src/nameserver/.cc
+ * src/nameserver/nameserver_main.cc
  *
  * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
@@ -8,8 +8,8 @@
 
 namespace {
 const char* STR_NAME_SECTION = "name_server";
-const char* STR_DEV_NAME = "dev_name";
-const char* STR_LISTEN_PORT = "port";
+const char* STR_DEV_NAME     = "dev_name";
+const char* STR_LISTEN_PORT  = "port";
 }
 
 const char* build_date();
@@ -19,8 +19,10 @@ namespace sb {
 using common::OB_SUCCESS;
 using common::OB_ERROR;
 namespace nameserver {
+
 NameServerMain::NameServerMain() {
 }
+
 common::BaseMain* NameServerMain::get_instance() {
   if (instance_ == NULL) {
     instance_ = new(std::nothrow)NameServerMain();
@@ -31,18 +33,18 @@ common::BaseMain* NameServerMain::get_instance() {
 void NameServerMain::print_version() {
   fprintf(stderr, "nameserver (%s %s)\n", PACKAGE_STRING, RELEASEID);
   fprintf(stderr, "BUILD_TIME: %s %s\n\n", build_date(), build_time());
-  fprintf(stderr, "Copyright (c) 2007-2011 Taobao Inc.\n");
+  fprintf(stderr, "Copyright (c) 2016 Michael(311155@qq.com)\n");
 }
 
-static const int START_REPORT_SIG = 49;
-static const int START_MERGE_SIG = 50;
-static const int DUMP_ROOT_TABLE_TO_LOG = 51;
+static const int START_REPORT_SIG            = 49;
+static const int START_MERGE_SIG             = 50;
+static const int DUMP_ROOT_TABLE_TO_LOG      = 51;
 static const int DUMP_AVAILABLE_SEVER_TO_LOG = 52;
-static const int SWITCH_SCHEMA = 53;
-static const int RELOAD_CONFIG = 54;
-static const int DO_CHECK_POINT = 55;
-static const int DROP_CURRENT_MERGE = 56;
-static const int CREATE_NEW_TABLE = 57;
+static const int SWITCH_SCHEMA               = 53;
+static const int RELOAD_CONFIG               = 54;
+static const int DO_CHECK_POINT              = 55;
+static const int DROP_CURRENT_MERGE          = 56;
+static const int CREATE_NEW_TABLE            = 57;
 
 int NameServerMain::do_work() {
   //add signal I want to catch
@@ -78,6 +80,7 @@ int NameServerMain::do_work() {
   }
   return ret;
 }
+
 void NameServerMain::do_signal(const int sig) {
   switch (sig) {
   case SIGTERM:
@@ -90,6 +93,7 @@ void NameServerMain::do_signal(const int sig) {
     break;
   }
 }
+
 }
 }
 

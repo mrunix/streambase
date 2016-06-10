@@ -1,20 +1,21 @@
 /*
- * src/nameserver/.h
+ * src/nameserver/nameserver_worker.h
  *
  * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
 
 /*
- * The definition for .
+ * The definition for NameServerWorker.
  *
  * Library: nameserver
  * Package: nameserver
- * Module :
+ * Module : NameServerWorker
  * Author : Michael(Yang Lifeng), 311155@qq.com
  */
 
 #ifndef OCEANBASE_ROOTSERVER_ROOT_WORKER_H_
 #define OCEANBASE_ROOTSERVER_ROOT_WORKER_H_
+
 #include "common/ob_define.h"
 #include "common/ob_base_server.h"
 #include "common/thread_buffer.h"
@@ -41,11 +42,13 @@ class ObGetParam;
 class ObScanParam;
 class ObRange;
 }
+
 namespace nameserver {
-class NameWorker : public sb::common::ObBaseServer, public tbnet::IPacketQueueHandler {
+
+class NameServerWorker : public sb::common::ObBaseServer, public tbnet::IPacketQueueHandler {
  public:
-  NameWorker();
-  virtual ~NameWorker();
+  NameServerWorker();
+  virtual ~NameServerWorker();
 
   tbnet::IPacketHandler::HPRetCode handlePacket(tbnet::Connection* connection, tbnet::Packet* packet);
   bool handleBatchPacket(tbnet::Connection* connection, tbnet::PacketQueue& packetQueue);
@@ -59,10 +62,10 @@ class NameWorker : public sb::common::ObBaseServer, public tbnet::IPacketQueueHa
   bool start_merge();
   int set_config_file_name(const char* conf_file_name);
 
-  ObRootLogManager* get_log_manager();
+  NameServerLogManager* get_log_manager();
   common::ObRoleMgr* get_role_manager();
   common::ThreadSpecificBuffer::Buffer* get_rpc_buffer() const;
-  virtual ObRootRpcStub& get_rpc_stub();
+  virtual NameServerRpcStub& get_rpc_stub();
   int64_t get_rpc_timeout() const;
   ObRootStatManager& get_stat_manager();
  private:
@@ -165,21 +168,21 @@ class NameWorker : public sb::common::ObBaseServer, public tbnet::IPacketQueueHa
   common::ObCheckRunnable check_thread_;
   ObRootFetchThread fetch_thread_;
 
-  ObRootRpcStub rt_rpc_stub_;
+  NameServerRpcStub ns_rpc_stub_;
   ObRootLogReplay log_replay_thread_;
-  ObRootLogManager log_manager_;
+  NameServerLogManager log_manager_;
   ObRootStatManager stat_manager_;
 };
 
-inline ObRootRpcStub& NameWorker::get_rpc_stub() {
-  return rt_rpc_stub_;
+inline NameServerRpcStub& NameServerWorker::get_rpc_stub() {
+  return ns_rpc_stub_;
 }
 
-inline int64_t NameWorker::get_rpc_timeout() const {
+inline int64_t NameServerWorker::get_rpc_timeout() const {
   return network_timeout_;
 }
 
-inline ObRootStatManager& NameWorker::get_stat_manager() {
+inline ObRootStatManager& NameServerWorker::get_stat_manager() {
   return stat_manager_;
 }
 }

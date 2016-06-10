@@ -78,12 +78,12 @@ TEST_F(TestRpcStub, test_find_server) {
   EXPECT_TRUE(OB_SUCCESS == client_manager.initialize(&transport, &streamer));
   EXPECT_TRUE(OB_SUCCESS == stub.init(&buffer, &client_manager));
 
-  ObServer root_server;
-  root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
+  ObServer name_server;
+  name_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
 
   // register error
   ObServer update_server;
-  EXPECT_TRUE(OB_SUCCESS != stub.find_server(timeout, root_server, update_server));
+  EXPECT_TRUE(OB_SUCCESS != stub.find_server(timeout, name_server, update_server));
 
   // server thread
   MockRootServer server;
@@ -93,10 +93,10 @@ TEST_F(TestRpcStub, test_find_server) {
   root_server_thread.start(&test_root_server, NULL);
   sleep(2);
 
-  EXPECT_TRUE(OB_SUCCESS == stub.find_server(timeout, root_server, update_server));
+  EXPECT_TRUE(OB_SUCCESS == stub.find_server(timeout, name_server, update_server));
   EXPECT_TRUE(MockUpdateServer::UPDATE_SERVER_PORT == update_server.get_port());
 
-  EXPECT_TRUE(OB_SUCCESS == stub.find_server(timeout, root_server, update_server));
+  EXPECT_TRUE(OB_SUCCESS == stub.find_server(timeout, name_server, update_server));
   EXPECT_TRUE(MockUpdateServer::UPDATE_SERVER_PORT == update_server.get_port());
 
   transport.stop();
@@ -122,11 +122,11 @@ TEST_F(TestRpcStub, test_register_server) {
   ObServer merge_server;
   merge_server.set_ipv4_addr(addr, 12356);
 
-  ObServer root_server;
-  root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
+  ObServer name_server;
+  name_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
 
   // register error
-  EXPECT_TRUE(OB_SUCCESS != stub.register_server(timeout, root_server, merge_server, true));
+  EXPECT_TRUE(OB_SUCCESS != stub.register_server(timeout, name_server, merge_server, true));
 
   // server thread
   MockRootServer server;
@@ -136,8 +136,8 @@ TEST_F(TestRpcStub, test_register_server) {
   root_server_thread.start(&test_root_server, NULL);
   sleep(2);
 
-  EXPECT_TRUE(OB_SUCCESS == stub.register_server(timeout, root_server, merge_server, true));
-  EXPECT_TRUE(OB_SUCCESS == stub.register_server(timeout, root_server, merge_server, true));
+  EXPECT_TRUE(OB_SUCCESS == stub.register_server(timeout, name_server, merge_server, true));
+  EXPECT_TRUE(OB_SUCCESS == stub.register_server(timeout, name_server, merge_server, true));
 
   transport.stop();
   server.stop();
@@ -158,8 +158,8 @@ TEST_F(TestRpcStub, test_scan_root_table) {
   EXPECT_TRUE(OB_SUCCESS == stub.init(&buffer, &client_manager));
 
   // self server
-  ObServer root_server;
-  root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
+  ObServer name_server;
+  name_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
 
   // scan root error
   char* string = "test_table";
@@ -168,7 +168,7 @@ TEST_F(TestRpcStub, test_scan_root_table) {
   ObString row_key;
   row_key.assign(string, strlen(string));
   ObScanner scanner;
-  EXPECT_TRUE(OB_SUCCESS != stub.fetch_tablet_location(timeout, root_server, root_table, table_id, row_key, scanner));
+  EXPECT_TRUE(OB_SUCCESS != stub.fetch_tablet_location(timeout, name_server, root_table, table_id, row_key, scanner));
 
   // start root server
   MockRootServer server;
@@ -179,7 +179,7 @@ TEST_F(TestRpcStub, test_scan_root_table) {
 
   // root table id = 0
   root_table = 0;
-  EXPECT_TRUE(OB_SUCCESS == stub.fetch_tablet_location(timeout, root_server, root_table, table_id, row_key, scanner));
+  EXPECT_TRUE(OB_SUCCESS == stub.fetch_tablet_location(timeout, name_server, root_table, table_id, row_key, scanner));
 
   transport.stop();
   server.stop();
@@ -200,8 +200,8 @@ TEST_F(TestRpcStub, test_fetch_schema) {
   EXPECT_TRUE(OB_SUCCESS == stub.init(&buffer, &client_manager));
 
   // self server
-  ObServer root_server;
-  root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
+  ObServer name_server;
+  name_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
 
   // start root server
   MockRootServer server;
@@ -213,10 +213,10 @@ TEST_F(TestRpcStub, test_fetch_schema) {
   ObSchemaManagerV2 manager;
   // wrong version
   int64_t timestamp = 1023;
-  EXPECT_TRUE(OB_SUCCESS != stub.fetch_schema(timeout, root_server, timestamp, manager));
+  EXPECT_TRUE(OB_SUCCESS != stub.fetch_schema(timeout, name_server, timestamp, manager));
 
   timestamp = 1024;
-  EXPECT_TRUE(OB_SUCCESS == stub.fetch_schema(timeout, root_server, timestamp, manager));
+  EXPECT_TRUE(OB_SUCCESS == stub.fetch_schema(timeout, name_server, timestamp, manager));
   EXPECT_TRUE(manager.get_version() == 1025);
 
   transport.stop();

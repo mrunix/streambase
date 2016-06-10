@@ -1,28 +1,21 @@
-/**
- * (C) 2010-2011 Alibaba Group Holding Limited.
+/*
+ * src/nameserver/nameserver.cc
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * Version: $Id$
- *
- * root_server_test.cc for ...
- *
- * Authors:
- *   qushan <qushan@taobao.com>
- *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
+
 #include <gtest/gtest.h>
 
-#include "root_server_tester.h"
-#include "nameserver/ob_root_server2.h"
+#include "nameserver_test.h"
+#include "nameserver/nameserver.h"
 #include "common/ob_tablet_info.h"
-#include "nameserver/ob_root_meta2.h"
-#include "nameserver/ob_root_table2.h"
+#include "nameserver/nameserver_meta.h"
+#include "nameserver/nameserver_table.h"
+
 using namespace sb;
 using namespace sb::common;
 using namespace sb::nameserver;
+
 void print(const ObString& p) {
   char str[1024];
   int i = 0;
@@ -32,7 +25,8 @@ void print(const ObString& p) {
   str[i] = 0;
   TBSYS_LOG(INFO, "%s", str);
 }
-void create_root_table(NameServer* root_server) {
+
+void create_root_table(NameServer* name_server) {
   char buf1[10][30];
   char buf2[10][30];
   ObServer server1(ObServer::IPV4, "10.10.10.1", 1001);
@@ -116,7 +110,7 @@ void create_root_table(NameServer* root_server) {
   report_info.tablet_location_ = location;
   report_list1.add_tablet(report_info);
 
-  root_server->report_tablets(server1, report_list1, 0);
+  name_server->report_tablets(server1, report_list1, 0);
   //    2: ba1-ca1 ca1-da1 ea1-fa1 fa1-
   info1.range_.border_flag_.set_inclusive_end();
   info1.range_.border_flag_.unset_inclusive_start();
@@ -170,7 +164,7 @@ void create_root_table(NameServer* root_server) {
   report_info.tablet_location_ = location;
   report_list2.add_tablet(report_info);
 
-  root_server->report_tablets(server2, report_list2, 0);
+  name_server->report_tablets(server2, report_list2, 0);
 
   //    3: aa1-ba1 ba1-ca1 ca1-da1 da1-ea1 ea1-fa1 fa1-
 
@@ -252,7 +246,7 @@ void create_root_table(NameServer* root_server) {
   report_info.tablet_location_ = location;
   report_list3.add_tablet(report_info);
 
-  root_server->report_tablets(server3, report_list3, 0);
+  name_server->report_tablets(server3, report_list3, 0);
 
   //    4: aa1-ba1 ca1-da1 da1-ea1 fa1-
   info1.range_.border_flag_.set_inclusive_end();
@@ -307,47 +301,49 @@ void create_root_table(NameServer* root_server) {
   report_info.tablet_location_ = location;
   report_list4.add_tablet(report_info);
 
-  root_server->report_tablets(server4, report_list4, 0);
+  name_server->report_tablets(server4, report_list4, 0);
 
 }
+
 //由于其他功能还不完善, 测试暂时不加
 TEST(ObRootServer2Test2, regist_server) {
   ObServer server(ObServer::IPV4, "10.10.10.1", 1001);
-  NameServer root_server;
-  ObRootWorkerForTest worker;
-  ASSERT_TRUE(root_server.init("./root_server.conf", 100, &worker));
-  ObRootServerTester tester(&root_server);
+  NameServer name_server;
+  NameServerWorkerForTest worker;
+  ASSERT_TRUE(name_server.init("./name_server.conf", 100, &worker));
+  NameServerTester tester(&name_server);
   tester.get_wait_init_time() = 2 * 1000000;
-  root_server.start_threads();
+  name_server.start_threads();
   int status;
   sleep(3);
 
-  int ret = root_server.regist_server(server, false, status);
+  int ret = name_server.regist_server(server, false, status);
   ASSERT_EQ(OB_SUCCESS, ret);
 
   ObChunkServerManager& server_manager = tester.get_server_manager();
   ObChunkServerManager::iterator it = server_manager.find_by_ip(server);
   ASSERT_TRUE(it != server_manager.end());
   //ASSERT_EQ(0, status);
-  root_server.stop_threads();
+  name_server.stop_threads();
 }
+
 TEST(ObRootServer2Test2, init_report) {
-  NameServer* root_server;
-  ObRootWorkerForTest worker;
-  root_server = worker.get_root_server();
-  ASSERT_TRUE(root_server->init("./root_server.conf", 100, &worker));
-  ObRootServerTester tester(root_server);
+  NameServer* name_server;
+  NameServerWorkerForTest worker;
+  name_server = worker.get_root_server();
+  ASSERT_TRUE(name_server->init("./name_server.conf", 100, &worker));
+  NameServerTester tester(name_server);
   tester.get_wait_init_time() = 3 * 1000000;
   ObServer server(ObServer::IPV4, "10.10.10.1", 1001);
   ObServer server2(ObServer::IPV4, "10.10.10.2", 1001);
   ASSERT_TRUE(!(server == server2));
   int64_t time_stamp = 0;
-  root_server->start_threads();
+  name_server->start_threads();
   int status;
   sleep(3);
-  int ret = root_server->regist_server(server, false, status);
+  int ret = name_server->regist_server(server, false, status);
   ASSERT_EQ(ret, OB_SUCCESS);
-  ret = root_server->regist_server(server2, false, status);
+  ret = name_server->regist_server(server2, false, status);
   ASSERT_EQ(ret, OB_SUCCESS);
   // now we have two cs
 
@@ -389,7 +385,7 @@ TEST(ObRootServer2Test2, init_report) {
   report_info.tablet_location_ = location;
   report_list1.add_tablet(report_info);
 
-  //ASSERT_EQ(0,root_server.got_reported(info1, location));  //(,"ba1"]  server
+  //ASSERT_EQ(0,name_server.got_reported(info1, location));  //(,"ba1"]  server
 
   info1.range_.border_flag_.unset_min_value();
   info1.range_.start_key_.assign_buffer(buf1[1], 30);
@@ -401,7 +397,7 @@ TEST(ObRootServer2Test2, init_report) {
   report_info.tablet_location_ = location;
   report_list1.add_tablet(report_info);
 
-  ret = root_server->report_tablets(server, report_list1, time_stamp);
+  ret = name_server->report_tablets(server, report_list1, time_stamp);
   ASSERT_EQ(OB_SUCCESS, ret);
 
   location.chunkserver_ = server2;
@@ -444,12 +440,12 @@ TEST(ObRootServer2Test2, init_report) {
   report_info.tablet_location_ = location;
   report_list2.add_tablet(report_info);
 
-  ret = root_server->report_tablets(server2, report_list2, time_stamp);
+  ret = name_server->report_tablets(server2, report_list2, time_stamp);
   ASSERT_EQ(OB_SUCCESS, ret);
 
   //mimic schema_changed
-  //root_server->waiting_job_done(server,time_stamp );
-  //root_server->waiting_job_done(server2,time_stamp );
+  //name_server->waiting_job_done(server,time_stamp );
+  //name_server->waiting_job_done(server2,time_stamp );
   //wait unload send
   //while (worker.unload_old_table_times < 2)
   //{
@@ -495,58 +491,60 @@ TEST(ObRootServer2Test2, init_report) {
 
     }
   }
-  root_server->stop_threads();
+  name_server->stop_threads();
 }
+
 TEST(ObRootServer2Test2, update_capacity_info) {
-  NameServer* root_server;
-  ObRootWorkerForTest worker;
-  root_server = worker.get_root_server();
-  ASSERT_TRUE(root_server->init("./root_server.conf", 100, &worker));
-  ObRootServerTester tester(root_server);
+  NameServer* name_server;
+  NameServerWorkerForTest worker;
+  name_server = worker.get_root_server();
+  ASSERT_TRUE(name_server->init("./name_server.conf", 100, &worker));
+  NameServerTester tester(name_server);
   ObServer server(ObServer::IPV4, "10.10.10.1", 1001);
   ObServer server2(ObServer::IPV4, "10.10.10.2", 1001);
   ASSERT_TRUE(!(server == server2));
   tester.get_wait_init_time() = 2 * 1000000;
-  root_server->start_threads();
+  name_server->start_threads();
   int status;
   sleep(3);
-  int ret = root_server->regist_server(server, false, status);
+  int ret = name_server->regist_server(server, false, status);
   ASSERT_EQ(OB_SUCCESS, ret);
-  root_server->regist_server(server2, false, status);
+  name_server->regist_server(server2, false, status);
   ASSERT_EQ(OB_SUCCESS, ret);
   // now we have two cs
 
   tester.get_lease_duration() = 100 * 1000 * 1000;
-  ASSERT_EQ(OB_SUCCESS, root_server->update_capacity_info(server, 50, 10));
+  ASSERT_EQ(OB_SUCCESS, name_server->update_capacity_info(server, 50, 10));
   ObChunkServerManager& server_manager = tester.get_server_manager();
   ObServerStatus* it = server_manager.find_by_ip(server);
   ASSERT_TRUE(it != NULL);
   ASSERT_EQ(20, it->disk_info_.get_percent());
-  root_server->stop_threads();
+  name_server->stop_threads();
 }
+
 //migrate_over
 TEST(ObRootServer2Test2, migrate_over) {
   // init make a root table
-  NameServer* root_server;
-  ObRootWorkerForTest worker;
-  root_server = worker.get_root_server();
+  NameServer* name_server;
+  NameServerWorkerForTest worker;
+  name_server = worker.get_root_server();
   int64_t now = tbsys::CTimeUtil::getTime();
-  ASSERT_TRUE(root_server->init("./root_server.conf", 100, &worker));
-  ObRootServerTester tester(root_server);
+  ASSERT_TRUE(name_server->init("./name_server.conf", 100, &worker));
+  NameServerTester tester(name_server);
   ObServer server(ObServer::IPV4, "10.10.10.1", 1001);
   ObServer server2(ObServer::IPV4, "10.10.10.2", 1001);
   ObServer server3(ObServer::IPV4, "10.10.10.3", 1001);
   ObServer server4(ObServer::IPV4, "10.10.10.4", 1001);
   ASSERT_TRUE(!(server == server2));
   int64_t time_stamp = now;
-  root_server->start_threads();
+  name_server->start_threads();
 
   int status;
   tester.get_wait_init_time() = 2 * 1000000;
   sleep(2);
-  int ret = root_server->regist_server(server, false, status);
+  int ret = name_server->regist_server(server, false, status);
   ASSERT_EQ(OB_SUCCESS, ret);
-  ret = root_server->regist_server(server2, false, status);
+  ret = name_server->regist_server(server2, false, status);
   ASSERT_EQ(OB_SUCCESS, ret);
   // now we have two cs
 
@@ -584,7 +582,7 @@ TEST(ObRootServer2Test2, migrate_over) {
   report_info.tablet_location_ = location;
   report_list1.add_tablet(report_info);
 
-  //ASSERT_EQ(0,root_server.got_reported(info1, location));  //(,"ba1"]  server
+  //ASSERT_EQ(0,name_server.got_reported(info1, location));  //(,"ba1"]  server
 
   info1.range_.border_flag_.unset_min_value();
   info1.range_.start_key_.assign_buffer(buf1[1], 30);
@@ -596,7 +594,7 @@ TEST(ObRootServer2Test2, migrate_over) {
   report_info.tablet_location_ = location;
   report_list1.add_tablet(report_info);
 
-  ret = root_server->report_tablets(server, report_list1, time_stamp);
+  ret = name_server->report_tablets(server, report_list1, time_stamp);
   ASSERT_EQ(OB_SUCCESS, ret);
 
   location.chunkserver_ = server2;
@@ -639,7 +637,7 @@ TEST(ObRootServer2Test2, migrate_over) {
   report_info.tablet_location_ = location;
   report_list2.add_tablet(report_info);
 
-  ret = root_server->report_tablets(server2, report_list2, time_stamp);
+  ret = name_server->report_tablets(server2, report_list2, time_stamp);
   ASSERT_EQ(OB_SUCCESS, ret);
   //wait unload send
   //while (worker.unload_old_table_times < 2)
@@ -686,7 +684,7 @@ TEST(ObRootServer2Test2, migrate_over) {
 
     }
   }
-  root_server->regist_server(server3, false, status);
+  name_server->regist_server(server3, false, status);
   info1.range_.table_id_ = 10001;
   info1.range_.border_flag_.set_inclusive_end();
   info1.range_.border_flag_.unset_inclusive_start();
@@ -704,7 +702,7 @@ TEST(ObRootServer2Test2, migrate_over) {
   pos = server_manager.find_by_ip(server2);
   int server2_index = pos - server_manager.begin();
 
-  root_server->migrate_over(info1.range_, server2, server3, true, 1);
+  name_server->migrate_over(info1.range_, server2, server3, true, 1);
 
   t_tb->find_range(info1.range_, start, end);
   bool found_server3 = false;
@@ -721,10 +719,10 @@ TEST(ObRootServer2Test2, migrate_over) {
   }
   ASSERT_TRUE(found_server2);
   ASSERT_TRUE(found_server3);
-  root_server->regist_server(server4, false, status);
+  name_server->regist_server(server4, false, status);
   pos = server_manager.find_by_ip(server4);
   int server4_index = pos - server_manager.begin();
-  root_server->migrate_over(info1.range_, server2, server4, false, 1);
+  name_server->migrate_over(info1.range_, server2, server4, false, 1);
   TBSYS_LOG(INFO, "check migrate 2->4 ");
 
   found_server2 = false;
@@ -745,14 +743,15 @@ TEST(ObRootServer2Test2, migrate_over) {
   ASSERT_FALSE(found_server2);
   ASSERT_TRUE(found_server3);
   ASSERT_TRUE(found_server4);
-  root_server->stop_threads();
+  name_server->stop_threads();
 }
+
 TEST(ObRootServer2Test2, cs_stop_start_data_keep) {
-  NameServer* root_server;
-  ObRootWorkerForTest worker;
-  root_server = worker.get_root_server();
-  ASSERT_TRUE(root_server->init("./root_server.conf", 100, &worker));
-  ObRootServerTester tester(root_server);
+  NameServer* name_server;
+  NameServerWorkerForTest worker;
+  name_server = worker.get_root_server();
+  ASSERT_TRUE(name_server->init("./name_server.conf", 100, &worker));
+  NameServerTester tester(name_server);
   ObServer server1(ObServer::IPV4, "10.10.10.1", 1001);
   ObServer server2(ObServer::IPV4, "10.10.10.2", 1001);
   ObServer server3(ObServer::IPV4, "10.10.10.3", 1001);
@@ -761,10 +760,10 @@ TEST(ObRootServer2Test2, cs_stop_start_data_keep) {
   int status;
   tester.get_wait_init_time() = 2 * 1000000;
   sleep(1);
-  root_server->regist_server(server1, false, status);
-  root_server->regist_server(server2, false, status);
-  root_server->regist_server(server3, false, status);
-  root_server->regist_server(server4, false, status);
+  name_server->regist_server(server1, false, status);
+  name_server->regist_server(server2, false, status);
+  name_server->regist_server(server3, false, status);
+  name_server->regist_server(server4, false, status);
   // now we have two cs
 
   tester.get_lease_duration() = 100 * 1000 * 1000;
@@ -773,7 +772,7 @@ TEST(ObRootServer2Test2, cs_stop_start_data_keep) {
 
   //all commond sended.
   //mimic report
-  create_root_table(root_server);
+  create_root_table(name_server);
   //mimic schema_changed
   sleep(2);
   NameTable* rt_q = tester.get_root_table_for_query();
@@ -782,7 +781,7 @@ TEST(ObRootServer2Test2, cs_stop_start_data_keep) {
   rt_q->dump();
   //cs start again
   TBSYS_LOG(INFO, " ------------------- server start again -------------------");
-  root_server->regist_server(server3, false, status);
+  name_server->regist_server(server3, false, status);
   char buf1[10][30];
   char buf2[10][30];
   ObTabletReportInfoList report_list1;
@@ -873,15 +872,15 @@ TEST(ObRootServer2Test2, cs_stop_start_data_keep) {
   report_info.tablet_info_ = info1;
   report_info.tablet_location_ = location;
   report_list3.add_tablet(report_info);
-  root_server->report_tablets(server3, report_list3, 0);
+  name_server->report_tablets(server3, report_list3, 0);
   sleep(1);
   rt_q->dump();
-  root_server->stop_threads();
+  name_server->stop_threads();
 }
 
 // bugfix http://bugfree.corp.taobao.com/Bug.php?BugID=113521
 struct MigrateTestEnv {
-  ObRootWorkerForTest worker_;
+  NameServerWorkerForTest worker_;
   ObServer cs1_;
   ObServer cs2_;
   ObTabletInfo info1_;
@@ -901,7 +900,7 @@ MigrateTestEnv::MigrateTestEnv()
 void MigrateTestEnv::setup() {
   // 1. init
   NameServer* rs = worker_.get_root_server();
-  ASSERT_TRUE(rs->init("./root_server.conf", 100, &worker_));
+  ASSERT_TRUE(rs->init("./name_server.conf", 100, &worker_));
 
   rs->start_threads();
   sleep(1);
@@ -958,7 +957,7 @@ TEST(ObRootServer2Test2, migrate_over2_1) {
   env.setup();
 
   NameServer* rs = env.worker_.get_root_server();
-  ObRootServerTester tester(rs);
+  NameServerTester tester(rs);
   ObChunkServerManager& csmgr = tester.get_server_manager();
   NameTable* roottable = tester.get_root_table_for_query();
 
@@ -988,7 +987,7 @@ TEST(ObRootServer2Test2, migrate_over2_2) {
   env.setup();
 
   NameServer* rs = env.worker_.get_root_server();
-  ObRootServerTester tester(rs);
+  NameServerTester tester(rs);
   ObChunkServerManager& csmgr = tester.get_server_manager();
   NameTable* roottable = tester.get_root_table_for_query();
 
@@ -1016,7 +1015,7 @@ TEST(ObRootServer2Test2, migrate_over2_3) {
   env.setup();
 
   NameServer* rs = env.worker_.get_root_server();
-  ObRootServerTester tester(rs);
+  NameServerTester tester(rs);
   ObChunkServerManager& csmgr = tester.get_server_manager();
   NameTable* roottable = tester.get_root_table_for_query();
 
@@ -1044,7 +1043,7 @@ TEST(ObRootServer2Test2, migrate_over2_4) {
   env.setup();
 
   NameServer* rs = env.worker_.get_root_server();
-  ObRootServerTester tester(rs);
+  NameServerTester tester(rs);
   ObChunkServerManager& csmgr = tester.get_server_manager();
   NameTable* roottable = tester.get_root_table_for_query();
 

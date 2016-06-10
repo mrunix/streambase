@@ -11,14 +11,14 @@
 namespace sb {
 namespace nameserver {
 using namespace common;
-ObRootRpcStub::ObRootRpcStub()
+NameServerRpcStub::NameServerRpcStub()
   : thread_buffer_(NULL) {
 }
 
-ObRootRpcStub::~ObRootRpcStub() {
+NameServerRpcStub::~NameServerRpcStub() {
 }
 
-int ObRootRpcStub::init(const ObClientManager* client_mgr, common::ThreadSpecificBuffer* tsbuffer) {
+int NameServerRpcStub::init(const ObClientManager* client_mgr, common::ThreadSpecificBuffer* tsbuffer) {
   OB_ASSERT(NULL != client_mgr);
   OB_ASSERT(NULL != tsbuffer);
   ObCommonRpcStub::init(client_mgr);
@@ -26,7 +26,7 @@ int ObRootRpcStub::init(const ObClientManager* client_mgr, common::ThreadSpecifi
   return OB_SUCCESS;
 }
 
-int ObRootRpcStub::slave_register(const common::ObServer& master, const common::ObServer& slave_addr, common::ObFetchParam& fetch_param, const int64_t timeout) {
+int NameServerRpcStub::slave_register(const common::ObServer& master, const common::ObServer& slave_addr, common::ObFetchParam& fetch_param, const int64_t timeout) {
   int err = OB_SUCCESS;
   ObDataBuffer data_buff;
 
@@ -76,7 +76,7 @@ int ObRootRpcStub::slave_register(const common::ObServer& master, const common::
   return err;
 }
 
-int ObRootRpcStub::get_thread_buffer_(common::ObDataBuffer& data_buffer) {
+int NameServerRpcStub::get_thread_buffer_(common::ObDataBuffer& data_buffer) {
   int ret = OB_SUCCESS;
   if (NULL == thread_buffer_) {
     TBSYS_LOG(ERROR, "thread_buffer_ = NULL");
@@ -94,7 +94,7 @@ int ObRootRpcStub::get_thread_buffer_(common::ObDataBuffer& data_buffer) {
   return ret;
 }
 
-int ObRootRpcStub::set_obi_role(const common::ObServer& ups, const common::ObiRole& role, const int64_t timeout_us) {
+int NameServerRpcStub::set_obi_role(const common::ObServer& ups, const common::ObiRole& role, const int64_t timeout_us) {
   int ret = OB_SUCCESS;
   ObDataBuffer msgbuf;
 
@@ -120,7 +120,7 @@ int ObRootRpcStub::set_obi_role(const common::ObServer& ups, const common::ObiRo
   return ret;
 }
 
-int ObRootRpcStub::switch_schema(const common::ObServer& ups, const common::ObSchemaManagerV2& schema_manager, const int64_t timeout_us) {
+int NameServerRpcStub::switch_schema(const common::ObServer& ups, const common::ObSchemaManagerV2& schema_manager, const int64_t timeout_us) {
   int ret = OB_SUCCESS;
   ObDataBuffer msgbuf;
 
@@ -150,7 +150,7 @@ int ObRootRpcStub::switch_schema(const common::ObServer& ups, const common::ObSc
   return ret;
 }
 
-int ObRootRpcStub::migrate_tablet(const common::ObServer& src_cs, const common::ObServer& dest_cs, const common::ObRange& range, bool keey_src, const int64_t timeout_us) {
+int NameServerRpcStub::migrate_tablet(const common::ObServer& src_cs, const common::ObServer& dest_cs, const common::ObRange& range, bool keey_src, const int64_t timeout_us) {
   int ret = OB_SUCCESS;
   ObDataBuffer msgbuf;
 
@@ -181,7 +181,7 @@ int ObRootRpcStub::migrate_tablet(const common::ObServer& src_cs, const common::
   return ret;
 }
 
-int ObRootRpcStub::create_tablet(const common::ObServer& cs, const common::ObRange& range, const int64_t mem_version, const int64_t timeout_us) {
+int NameServerRpcStub::create_tablet(const common::ObServer& cs, const common::ObRange& range, const int64_t mem_version, const int64_t timeout_us) {
   int ret = OB_SUCCESS;
   ObDataBuffer msgbuf;
 
@@ -210,7 +210,7 @@ int ObRootRpcStub::create_tablet(const common::ObServer& cs, const common::ObRan
   return ret;
 }
 
-int ObRootRpcStub::get_last_frozen_version(const common::ObServer& ups, const int64_t timeout_us, int64_t& frozen_version) {
+int NameServerRpcStub::get_last_frozen_version(const common::ObServer& ups, const int64_t timeout_us, int64_t& frozen_version) {
   int ret = OB_SUCCESS;
   ObDataBuffer msgbuf;
   frozen_version = -1;
@@ -240,7 +240,7 @@ int ObRootRpcStub::get_last_frozen_version(const common::ObServer& ups, const in
   return ret;
 }
 
-int ObRootRpcStub::get_obi_role(const common::ObServer& master, const int64_t timeout_us, common::ObiRole& obi_role) {
+int NameServerRpcStub::get_obi_role(const common::ObServer& master, const int64_t timeout_us, common::ObiRole& obi_role) {
   int ret = OB_SUCCESS;
   ObDataBuffer msgbuf;
 
@@ -268,7 +268,7 @@ int ObRootRpcStub::get_obi_role(const common::ObServer& master, const int64_t ti
   return ret;
 }
 
-int ObRootRpcStub::heartbeat_to_cs(const common::ObServer& cs, const int64_t lease_time, const int64_t frozen_mem_version) {
+int NameServerRpcStub::heartbeat_to_cs(const common::ObServer& cs, const int64_t lease_time, const int64_t frozen_mem_version) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 2;
   ObDataBuffer msgbuf;
@@ -290,7 +290,7 @@ int ObRootRpcStub::heartbeat_to_cs(const common::ObServer& cs, const int64_t lea
   return ret;
 }
 
-int ObRootRpcStub::heartbeat_to_ms(const common::ObServer& ms, const int64_t lease_time, const int64_t schema_version, const common::ObiRole& role) {
+int NameServerRpcStub::heartbeat_to_ms(const common::ObServer& ms, const int64_t lease_time, const int64_t schema_version, const common::ObiRole& role) {
   int ret = OB_SUCCESS;
   ObDataBuffer msgbuf;
   static const int MY_VERSION = 3;

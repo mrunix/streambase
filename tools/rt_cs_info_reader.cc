@@ -23,7 +23,7 @@ using namespace sb::common;
 using namespace sb::nameserver;
 
 ObClientManager client;
-ObServer root_server;
+ObServer name_server;
 int main(int argc, char** argv) {
   if (argc != 3) {
     printf("%s root_ip root_port \n", argv[0]);
@@ -37,12 +37,12 @@ int main(int argc, char** argv) {
   streamer_.setPacketFactory(&packet_factory_);
   transport_.start();
   client.initialize(&transport_, &streamer_);
-  root_server.set_ipv4_addr(argv[1], atoi(argv[2]));
+  name_server.set_ipv4_addr(argv[1], atoi(argv[2]));
   char* p_data = (char*)malloc(1024 * 1024 * 2);
   ObDataBuffer data_buff(p_data, 1024 * 1024 * 2);
   int ret = OB_SUCCESS;
   if (OB_SUCCESS == ret) {
-    ret = client.send_request(root_server, OB_DUMP_CS_INFO, 1,
+    ret = client.send_request(name_server, OB_DUMP_CS_INFO, 1,
                               100000, data_buff);
   }
   int64_t pos = 0;

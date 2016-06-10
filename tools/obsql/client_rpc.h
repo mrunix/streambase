@@ -33,11 +33,11 @@ class ObClientServerStub {
 
  public:
   // warning: rpc_buff should be only used by rpc stub for reset
-  int initialize(const sb::common::ObServer& root_server,
+  int initialize(const sb::common::ObServer& name_server,
                  const sb::common::ObClientManager* rpc_frame);
 
   /*
-  	int initialize(const sb::common::ObServer & root_server,
+  	int initialize(const sb::common::ObServer & name_server,
           const sb::common::ObClientManager * rpc_frame,
           const sb::common::ObServer & update_server,
           const sb::nameserver::ObChunkServerManager & obcsm);
@@ -68,7 +68,7 @@ class ObClientServerStub {
   int start_gc(const int32_t reserve);
 
   const sb::common::ObServer&
-  get_root_server() const { return root_server_; }
+  get_root_server() const { return name_server_; }
   const sb::common::ObServer&
   get_update_server() const { return update_server_; }
   std::vector<sb::common::ObServer>&
@@ -90,7 +90,7 @@ class ObClientServerStub {
 
  private:
   bool init_;                                             // init stat for inner check
-  sb::common::ObServer root_server_;               // root server addr
+  sb::common::ObServer name_server_;               // root server addr
   sb::common::ObServer update_server_;
   std::vector<sb::common::ObServer> merge_server_list_;  // merge server addr
   std::vector<sb::common::ObServer> chunk_server_list_;   //chunk servers

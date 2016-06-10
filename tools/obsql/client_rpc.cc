@@ -17,7 +17,7 @@ ObClientServerStub::~ObClientServerStub() {
 }
 
 
-int ObClientServerStub::initialize(const ObServer& root_server,
+int ObClientServerStub::initialize(const ObServer& name_server,
                                    const ObClientManager* rpc_frame) {
   int ret = OB_SUCCESS;
   if (init_ || (NULL == rpc_frame)) {
@@ -25,7 +25,7 @@ int ObClientServerStub::initialize(const ObServer& root_server,
               (init_ ? "ture" : "false"), rpc_frame);
     ret = OB_ERROR;
   } else {
-    root_server_ = root_server;
+    name_server_ = name_server;
     rpc_frame_ = rpc_frame;
     init_ = true;
 
@@ -46,7 +46,7 @@ int ObClientServerStub::initialize(const ObServer& root_server,
 }
 
 /*
-int ObClientServerStub::initialize(const ObServer & root_server,
+int ObClientServerStub::initialize(const ObServer & name_server,
     const ObClientManager * rpc_frame,
     const ObServer & update_server,
     const ObChunkServerManager & obcsm)
@@ -60,7 +60,7 @@ int ObClientServerStub::initialize(const ObServer & root_server,
   }
   else
   {
-    root_server_ = root_server;
+    name_server_ = name_server;
     rpc_frame_ = rpc_frame;
     init_ = true;
 
@@ -310,7 +310,7 @@ int ObClientServerStub::rs_dump_cs_info(ObChunkServerManager& obcsm) {
 
   // step 2. send request for fetch new schema
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server_,
+    ret = rpc_frame_->send_request(name_server_,
                                    OB_DUMP_CS_INFO, DEFAULT_VERSION, timeout, data_buff);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "send request to remote server for cs_dump_tablet_image failed"
@@ -416,7 +416,7 @@ int ObClientServerStub::get_update_server(ObServer& update_server) {
   ret = get_frame_buffer(data_buff);
   // step 1. send get update server info request
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server_, OB_GET_UPDATE_SERVER_INFO, DEFAULT_VERSION,
+    ret = rpc_frame_->send_request(name_server_, OB_GET_UPDATE_SERVER_INFO, DEFAULT_VERSION,
                                    timeout, data_buff);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "send request to root server for register server failed:ret[%d]", ret);
@@ -463,7 +463,7 @@ int ObClientServerStub::fetch_schema(ObSchemaManagerV2& schema) {
 
   // step 2. send get update server info request
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server_, OB_FETCH_SCHEMA, DEFAULT_VERSION,
+    ret = rpc_frame_->send_request(name_server_, OB_FETCH_SCHEMA, DEFAULT_VERSION,
                                    timeout, data_buff);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "send request to root server for getting schema");
@@ -517,7 +517,7 @@ int ObClientServerStub::start_merge(const int64_t frozen_memtable_version, const
 
   // step 2. send request for fetch new schema
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server_,
+    ret = rpc_frame_->send_request(name_server_,
                                    OB_START_MERGE, DEFAULT_VERSION, timeout, data_buff);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "send request to remote server for start_merge failed"
@@ -558,7 +558,7 @@ int ObClientServerStub::drop_tablets(const int64_t frozen_memtable_version) {
 
   // step 2. send request for fetch new schema
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server_,
+    ret = rpc_frame_->send_request(name_server_,
                                    OB_START_MERGE, DEFAULT_VERSION, timeout, data_buff);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "send request to remote server for start_merge failed"
@@ -597,7 +597,7 @@ int ObClientServerStub::start_gc(const int32_t reserve) {
   }
 
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server_,
+    ret = rpc_frame_->send_request(name_server_,
                                    OB_CS_START_GC, DEFAULT_VERSION, timeout, data_buff);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "send request to remote server for cs_dump_tablet_image failed"

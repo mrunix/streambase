@@ -37,14 +37,14 @@ ObRootServerRpcStub::~ObRootServerRpcStub() {
 }
 
 
-int ObRootServerRpcStub::init(const ObServer& root_server, const ObClientManager* rpc_frame) {
+int ObRootServerRpcStub::init(const ObServer& name_server, const ObClientManager* rpc_frame) {
   int ret = OB_SUCCESS;
   if (init_ || (NULL == rpc_frame)) {
     TBSYS_LOG(ERROR, "already inited or check input failed:inited[%s], rpc_frame[%p]",
               (init_ ? "ture" : "false"), rpc_frame);
     ret = OB_ERROR;
   } else {
-    root_server_ = root_server;
+    name_server_ = name_server;
     rpc_frame_ = rpc_frame;
     init_ = true;
   }
@@ -105,11 +105,11 @@ int ObRootServerRpcStub::fetch_schema(const int64_t timestamp, ObSchemaManagerV2
 
   // step 2. send request for fetch new schema
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server_, OB_FETCH_SCHEMA, DEFAULT_VERSION, timeout, data_buff);
+    ret = rpc_frame_->send_request(name_server_, OB_FETCH_SCHEMA, DEFAULT_VERSION, timeout, data_buff);
     if (ret != OB_SUCCESS) {
       const int32_t MAX_SERVER_ADDR_SIZE = 128;
       char server_addr[MAX_SERVER_ADDR_SIZE];
-      root_server_.to_string(server_addr, MAX_SERVER_ADDR_SIZE);
+      name_server_.to_string(server_addr, MAX_SERVER_ADDR_SIZE);
       TBSYS_LOG(ERROR, "send request to root server(%s) for fetch schema failed"
                 ":timestamp[%ld], ret[%d].", server_addr, timestamp, ret);
     }
@@ -195,7 +195,7 @@ int ObRootServerRpcStub::report_tablets(const ObTabletReportInfoList& tablets, i
   }
 
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server_, OB_REPORT_TABLETS,
+    ret = rpc_frame_->send_request(name_server_, OB_REPORT_TABLETS,
                                    DEFAULT_VERSION, report_timeout, data_buff);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(ERROR, "send_request(ReportTablets) to RootServer failed: ret[%d].", ret);
@@ -237,7 +237,7 @@ int ObRootServerRpcStub::report_tablets(const ObTabletReportInfoList& tablets, i
       }
 
       if (OB_SUCCESS == ret) {
-        ret = rpc_frame_->send_request(root_server_, OB_WAITING_JOB_DONE,
+        ret = rpc_frame_->send_request(name_server_, OB_WAITING_JOB_DONE,
                                        DEFAULT_VERSION, report_timeout, data_buff);
         if (OB_SUCCESS != ret) {
           TBSYS_LOG(ERROR, "ObClientManager::send_request(schema_changed) to "
@@ -246,7 +246,7 @@ int ObRootServerRpcStub::report_tablets(const ObTabletReportInfoList& tablets, i
       }
 
       char addr_buf[BUFSIZ];
-      if (!root_server_.to_string(addr_buf, BUFSIZ)) {
+      if (!name_server_.to_string(addr_buf, BUFSIZ)) {
         strcpy(addr_buf, "Get Server IP failed");
       }
 
@@ -303,7 +303,7 @@ int ObRootServerRpcStub::register_server(const common::ObServer& server,
 
   // step 2. send request for fetch new schema
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server_,
+    ret = rpc_frame_->send_request(name_server_,
                                    OB_SERVER_REGISTER, DEFAULT_VERSION, register_timeout, data_buff);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "send request to root server for register failed"
@@ -371,7 +371,7 @@ int ObRootServerRpcStub::report_capacity_info(const common::ObServer& server,
 
   // step 2. send request for fetch new schema
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server_,
+    ret = rpc_frame_->send_request(name_server_,
                                    OB_REPORT_CAPACITY_INFO, DEFAULT_VERSION, report_timeout, data_buff);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "send request to root server for report capacity failed"
@@ -548,7 +548,7 @@ int ObRootServerRpcStub::migrate_over(
 
   // step 2. send request for report tablet migrate over.
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server_,
+    ret = rpc_frame_->send_request(name_server_,
                                    OB_MIGRATE_OVER, DEFAULT_VERSION, timeout, data_buff);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "send request to root server for register failed"
@@ -580,7 +580,7 @@ int ObRootServerRpcStub::get_update_server(common::ObServer& update_server, bool
   ret = get_frame_buffer(data_buff);
   // step 1. send get update server info request
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server_,
+    ret = rpc_frame_->send_request(name_server_,
                                    for_merge ? OB_GET_UPDATE_SERVER_INFO_FOR_MERGE : OB_GET_UPDATE_SERVER_INFO,
                                    DEFAULT_VERSION, timeout, data_buff);
     if (ret != OB_SUCCESS) {
@@ -623,7 +623,7 @@ int ObRootServerRpcStub::get_frozen_time(int64_t frozen_version, int64_t& frozen
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(WARN, "encode frozen_version faied: frozen_version=%ld", frozen_version);
     } else {
-      ret = rpc_frame_->send_request(root_server_, OB_UPS_GET_TABLE_TIME_STAMP,
+      ret = rpc_frame_->send_request(name_server_, OB_UPS_GET_TABLE_TIME_STAMP,
                                      DEFAULT_VERSION, timeout, data_buff);
     }
 
@@ -663,7 +663,7 @@ int ObRootServerRpcStub::get_merge_delay_interval(int64_t& interval) const {
   ret = get_frame_buffer(data_buff);
   // step 1. send get update server info request
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server_,
+    ret = rpc_frame_->send_request(name_server_,
                                    OB_GET_MERGE_DELAY_INTERVAL,
                                    DEFAULT_VERSION, timeout, data_buff);
     if (ret != OB_SUCCESS) {
@@ -709,7 +709,7 @@ int ObRootServerRpcStub::async_heartbeat(const ObServer& client) {
 
   // step 2. rpc frame send request and receive the response
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->post_request(root_server_,
+    ret = rpc_frame_->post_request(name_server_,
                                    OB_HEARTBEAT, DEFAULT_VERSION, data_buff);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(ERROR, "post request to root server "
@@ -740,7 +740,7 @@ int ObRootServerRpcStub::get_migrate_dest_location(
 
   // step 2. send request for report tablet migrate over.
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server_,
+    ret = rpc_frame_->send_request(name_server_,
                                    OB_CS_GET_MIGRATE_DEST_LOC, DEFAULT_VERSION, timeout, data_buff);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "send request to root server for register failed"
@@ -792,7 +792,7 @@ int ObRootServerRpcStub::get_last_frozen_memtable_version(int64_t& last_version)
 
   // step 2. send request for report tablet migrate over.
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server_,
+    ret = rpc_frame_->send_request(name_server_,
                                    OB_UPS_GET_LAST_FROZEN_VERSION, DEFAULT_VERSION, timeout, data_buff);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "send request to root server for register failed"
@@ -901,7 +901,7 @@ int ObRootServerRpcStub::get_tablet_info(const common::ObSchemaManagerV2& schema
     param.set_is_read_consistency(false);
   }
 
-  if ((OB_SUCCESS == ret) && ((ret = scan(root_server_, timeout, param, scanner)) != OB_SUCCESS)) {
+  if ((OB_SUCCESS == ret) && ((ret = scan(name_server_, timeout, param, scanner)) != OB_SUCCESS)) {
     TBSYS_LOG(ERROR, "get tablet from nameserver failed:[%d]", ret);
   }
 

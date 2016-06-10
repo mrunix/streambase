@@ -31,21 +31,21 @@ TEST(ObRootServer2LogTest, do_cs_regist) {
   int64_t ts = 123456;
 
   NameServer master;
-  ObRootWorkerForTest master_worker;
-  ASSERT_TRUE(master.init("./root_server.conf", 100, &master_worker));
-  ObRootServerTester master_wrapper(&master);
+  NameServerWorkerForTest master_worker;
+  ASSERT_TRUE(master.init("./name_server.conf", 100, &master_worker));
+  NameServerTester master_wrapper(&master);
   master_wrapper.stop_thread();
 
   NameServer slave;
-  ObRootWorkerForTest slave_worker;
-  ASSERT_TRUE(slave.init("./root_server.conf", 100, &slave_worker));
-  ObRootServerTester slave_wrapper(&slave);
+  NameServerWorkerForTest slave_worker;
+  ASSERT_TRUE(slave.init("./name_server.conf", 100, &slave_worker));
+  NameServerTester slave_wrapper(&slave);
   slave_wrapper.stop_thread();
 
   int ret = master.regist_server(server, false, status, ts);
   ASSERT_EQ(OB_SUCCESS, ret);
 
-  ObRootLogWorker log_worker = slave_wrapper.get_log_worker();
+  NameServerLogWorker log_worker = slave_wrapper.get_log_worker();
   log_worker.do_cs_regist(server, ts);
 
   ObChunkServerManager& master_server_manager = master_wrapper.get_server_manager();
@@ -75,21 +75,21 @@ TEST(ObRootServer2LogTest, do_ms_regist) {
   int64_t ts = 123456;
 
   NameServer master;
-  ObRootWorkerForTest master_worker;
-  ASSERT_TRUE(master.init("./root_server.conf", 100, &master_worker));
-  ObRootServerTester master_wrapper(&master);
+  NameServerWorkerForTest master_worker;
+  ASSERT_TRUE(master.init("./name_server.conf", 100, &master_worker));
+  NameServerTester master_wrapper(&master);
   master_wrapper.stop_thread();
 
   NameServer slave;
-  ObRootWorkerForTest slave_worker;
-  ASSERT_TRUE(slave.init("./root_server.conf", 100, &slave_worker));
-  ObRootServerTester slave_wrapper(&slave);
+  NameServerWorkerForTest slave_worker;
+  ASSERT_TRUE(slave.init("./name_server.conf", 100, &slave_worker));
+  NameServerTester slave_wrapper(&slave);
   slave_wrapper.stop_thread();
 
   int ret = master.regist_server(server, true, status, ts);
   ASSERT_EQ(OB_SUCCESS, ret);
 
-  ObRootLogWorker log_worker = slave_wrapper.get_log_worker();
+  NameServerLogWorker log_worker = slave_wrapper.get_log_worker();
   log_worker.do_ms_regist(server, ts);
 
   ObChunkServerManager& master_server_manager = master_wrapper.get_server_manager();
@@ -118,19 +118,19 @@ TEST(ObRootServer2LogTest, do_server_down) {
   int64_t ts = 123456;
 
   NameServer master;
-  ObRootWorkerForTest master_worker;
-  ASSERT_TRUE(master.init("./root_server.conf", 100, &master_worker));
+  NameServerWorkerForTest master_worker;
+  ASSERT_TRUE(master.init("./name_server.conf", 100, &master_worker));
 
   NameServer slave;
-  ObRootWorkerForTest slave_worker;
-  ASSERT_TRUE(slave.init("./root_server.conf", 100, &slave_worker));
+  NameServerWorkerForTest slave_worker;
+  ASSERT_TRUE(slave.init("./name_server.conf", 100, &slave_worker));
 
-  ObRootServerTester wrapper(&slave);
+  NameServerTester wrapper(&slave);
   wrapper.stop_thread();
   int ret = master.regist_server(server, false, status, ts);
   ASSERT_EQ(OB_SUCCESS, ret);
 
-  ObRootLogWorker log_worker = wrapper.get_log_worker();
+  NameServerLogWorker log_worker = wrapper.get_log_worker();
   log_worker.do_cs_regist(server, ts); // up server
 
   ObChunkServerManager& server_manager = wrapper.get_server_manager();
@@ -154,15 +154,15 @@ TEST(ObRootServer2LogTest, do_load_report) {
   int64_t used = 1234;
 
   NameServer master;
-  ObRootWorkerForTest master_worker;
-  ASSERT_TRUE(master.init("./root_server.conf", 100, &master_worker));
-  ObRootServerTester master_wrapper(&master);
+  NameServerWorkerForTest master_worker;
+  ASSERT_TRUE(master.init("./name_server.conf", 100, &master_worker));
+  NameServerTester master_wrapper(&master);
   master_wrapper.stop_thread();
 
   NameServer slave;
-  ObRootWorkerForTest slave_worker;
-  ASSERT_TRUE(slave.init("./root_server.conf", 100, &slave_worker));
-  ObRootServerTester slave_wrapper(&slave);
+  NameServerWorkerForTest slave_worker;
+  ASSERT_TRUE(slave.init("./name_server.conf", 100, &slave_worker));
+  NameServerTester slave_wrapper(&slave);
   slave_wrapper.stop_thread();
 
   int ret = master.regist_server(server, false, status, ts);
@@ -170,7 +170,7 @@ TEST(ObRootServer2LogTest, do_load_report) {
   ret = master.update_capacity_info(server, cap, used);
   ASSERT_EQ(OB_SUCCESS, ret);
 
-  ObRootLogWorker log_worker = slave_wrapper.get_log_worker();
+  NameServerLogWorker log_worker = slave_wrapper.get_log_worker();
   log_worker.do_cs_regist(server, ts);
   log_worker.do_cs_load_report(server, cap, used);
 
@@ -196,15 +196,15 @@ TEST(ObRootServer2LogTest, do_load_report) {
 
 TEST(ObRootServer2LogTest, start_switch) {
   NameServer master;
-  ObRootWorkerForTest master_worker;
-  ASSERT_TRUE(master.init("./root_server.conf", 100, &master_worker));
-  ObRootServerTester master_wrapper(&master);
+  NameServerWorkerForTest master_worker;
+  ASSERT_TRUE(master.init("./name_server.conf", 100, &master_worker));
+  NameServerTester master_wrapper(&master);
   master_wrapper.stop_thread();
 
   NameServer slave;
-  ObRootWorkerForTest slave_worker;
-  ASSERT_TRUE(slave.init("./root_server.conf", 100, &slave_worker));
-  ObRootServerTester slave_wrapper(&slave);
+  NameServerWorkerForTest slave_worker;
+  ASSERT_TRUE(slave.init("./name_server.conf", 100, &slave_worker));
+  NameServerTester slave_wrapper(&slave);
   slave_wrapper.stop_thread();
 
   master_wrapper.set_master(true);
@@ -220,7 +220,7 @@ TEST(ObRootServer2LogTest, start_switch) {
 
   int64_t ts = master.get_time_stamp_changing();
 
-  ObRootLogWorker log_worker = slave_wrapper.get_log_worker();
+  NameServerLogWorker log_worker = slave_wrapper.get_log_worker();
   log_worker.do_start_report(ts, true);
   log_worker.do_start_switch(ts);
   TBSYS_LOG(DEBUG, "slave start switch done");
@@ -234,15 +234,15 @@ TEST(ObRootServer2LogTest, start_switch) {
 //TEST(ObRootServer2LogTest, start_report)
 //{
 //  NameServer master;
-//  ObRootWorkerForTest master_worker;
-//  ASSERT_TRUE(master.init("./root_server.conf", 100, &master_worker));
-//  ObRootServerTester master_wrapper(&master);
+//  NameServerWorkerForTest master_worker;
+//  ASSERT_TRUE(master.init("./name_server.conf", 100, &master_worker));
+//  NameServerTester master_wrapper(&master);
 //  master_wrapper.stop_thread();
 //
 //  NameServer slave;
-//  ObRootWorkerForTest slave_worker;
-//  ASSERT_TRUE(slave.init("./root_server.conf", 100, &slave_worker));
-//  ObRootServerTester slave_wrapper(&slave);
+//  NameServerWorkerForTest slave_worker;
+//  ASSERT_TRUE(slave.init("./name_server.conf", 100, &slave_worker));
+//  NameServerTester slave_wrapper(&slave);
 //  slave_wrapper.stop_thread();
 //
 //  master_wrapper.set_master(true);
@@ -257,7 +257,7 @@ TEST(ObRootServer2LogTest, start_switch) {
 //
 //  int64_t ts = master.get_time_stamp_changing();
 //
-//  ObRootLogWorker log_worker = slave_wrapper.get_log_worker();
+//  NameServerLogWorker log_worker = slave_wrapper.get_log_worker();
 //  log_worker.do_start_report(ts, true);
 //  TBSYS_LOG(DEBUG, "slave start switch done");
 //
@@ -269,9 +269,9 @@ TEST(ObRootServer2LogTest, start_switch) {
 //
 TEST(ObRootServer2LogTest, create_table_done) {
   NameServer server;
-  ObRootWorkerForTest worker;
-  ASSERT_TRUE(server.init("./root_server.conf", 100, &worker));
-  ObRootServerTester wrapper(&server);
+  NameServerWorkerForTest worker;
+  ASSERT_TRUE(server.init("./name_server.conf", 100, &worker));
+  NameServerTester wrapper(&server);
   wrapper.stop_thread();
 
   ASSERT_FALSE(wrapper.get_create_table_done());
@@ -283,9 +283,9 @@ TEST(ObRootServer2LogTest, create_table_done) {
 
 TEST(ObRootServer2LogTest, begin_balance) {
   NameServer server;
-  ObRootWorkerForTest worker;
-  ASSERT_TRUE(server.init("./root_server.conf", 100, &worker));
-  ObRootServerTester wrapper(&server);
+  NameServerWorkerForTest worker;
+  ASSERT_TRUE(server.init("./name_server.conf", 100, &worker));
+  NameServerTester wrapper(&server);
   wrapper.stop_thread();
 
   ASSERT_NE(NameServer::STATUS_BALANCING, wrapper.get_server_status());
@@ -296,9 +296,9 @@ TEST(ObRootServer2LogTest, begin_balance) {
 
 TEST(ObRootServer2LogTest, balance_done) {
   NameServer server;
-  ObRootWorkerForTest worker;
-  ASSERT_TRUE(server.init("./root_server.conf", 100, &worker));
-  ObRootServerTester wrapper(&server);
+  NameServerWorkerForTest worker;
+  ASSERT_TRUE(server.init("./name_server.conf", 100, &worker));
+  NameServerTester wrapper(&server);
   wrapper.stop_thread();
 
   wrapper.get_log_worker().do_begin_balance();
@@ -310,9 +310,9 @@ TEST(ObRootServer2LogTest, balance_done) {
 
 TEST(ObRootServer2LogTest, us_schema_changing) {
   NameServer server;
-  ObRootWorkerForTest worker;
-  ASSERT_TRUE(server.init("./root_server.conf", 100, &worker));
-  ObRootServerTester wrapper(&server);
+  NameServerWorkerForTest worker;
+  ASSERT_TRUE(server.init("./name_server.conf", 100, &worker));
+  NameServerTester wrapper(&server);
   wrapper.stop_thread();
 
   ObServerStatus* us = wrapper.get_update_server();
@@ -325,9 +325,9 @@ TEST(ObRootServer2LogTest, us_schema_changing) {
 
 TEST(ObRootServer2LogTest, us_schema_changed) {
   NameServer server;
-  ObRootWorkerForTest worker;
-  ASSERT_TRUE(server.init("./root_server.conf", 100, &worker));
-  ObRootServerTester wrapper(&server);
+  NameServerWorkerForTest worker;
+  ASSERT_TRUE(server.init("./name_server.conf", 100, &worker));
+  NameServerTester wrapper(&server);
   wrapper.stop_thread();
 
   ObServerStatus* us = wrapper.get_update_server();
@@ -343,9 +343,9 @@ TEST(ObRootServer2LogTest, cs_schema_changing) {
   int64_t ts = 123456;
 
   NameServer root;
-  ObRootWorkerForTest worker;
-  ASSERT_TRUE(root.init("./root_server.conf", 100, &worker));
-  ObRootServerTester wrapper(&root);
+  NameServerWorkerForTest worker;
+  ASSERT_TRUE(root.init("./name_server.conf", 100, &worker));
+  NameServerTester wrapper(&root);
   wrapper.stop_thread();
 
   wrapper.get_log_worker().do_cs_regist(server, ts);
@@ -365,9 +365,9 @@ TEST(ObRootServer2LogTest, cs_schema_changed) {
   int64_t ts = 12345;
 
   NameServer root;
-  ObRootWorkerForTest worker;
-  ASSERT_TRUE(root.init("./root_server.conf", 100, &worker));
-  ObRootServerTester wrapper(&root);
+  NameServerWorkerForTest worker;
+  ASSERT_TRUE(root.init("./name_server.conf", 100, &worker));
+  NameServerTester wrapper(&root);
   wrapper.stop_thread();
 
   wrapper.get_log_worker().do_cs_regist(server, ts);
@@ -384,9 +384,9 @@ TEST(ObRootServer2LogTest, cs_schema_changed) {
 
 TEST(ObRootServer2LogTest, us_unload_done) {
   NameServer server;
-  ObRootWorkerForTest worker;
-  ASSERT_TRUE(server.init("./root_server.conf", 100, &worker));
-  ObRootServerTester wrapper(&server);
+  NameServerWorkerForTest worker;
+  ASSERT_TRUE(server.init("./name_server.conf", 100, &worker));
+  NameServerTester wrapper(&server);
   wrapper.stop_thread();
 
   ObServerStatus* us = wrapper.get_update_server();
@@ -402,9 +402,9 @@ TEST(ObRootServer2LogTest, cs_unload_done) {
   int64_t ts = 123456;
 
   NameServer root;
-  ObRootWorkerForTest worker;
-  ASSERT_TRUE(root.init("./root_server.conf", 100, &worker));
-  ObRootServerTester wrapper(&root);
+  NameServerWorkerForTest worker;
+  ASSERT_TRUE(root.init("./name_server.conf", 100, &worker));
+  NameServerTester wrapper(&root);
   wrapper.stop_thread();
 
   wrapper.get_log_worker().do_cs_regist(server, ts);
@@ -450,10 +450,10 @@ TEST(ObRootServer2LogTest, do_cs_migrate_done) {
 
   report_list.add_tablet(report_info);
 
-  ObRootServer2ForTest root;
-  ObRootWorkerForTest worker;
-  ASSERT_TRUE(root.init("./root_server.conf", 100, &worker));
-  ObRootServerTester wrapper(&root);
+  NameServerForTest root;
+  NameServerWorkerForTest worker;
+  ASSERT_TRUE(root.init("./name_server.conf", 100, &worker));
+  NameServerTester wrapper(&root);
   wrapper.stop_thread();
 
   ASSERT_FALSE(root.has_been_called_);
@@ -497,10 +497,10 @@ TEST(ObRootServer2LogTest, do_report_tablets) {
 
   report_list.add_tablet(report_info);
 
-  ObRootServer2ForTest root;
-  ObRootWorkerForTest worker;
-  ASSERT_TRUE(root.init("./root_server.conf", 100, &worker));
-  ObRootServerTester wrapper(&root);
+  NameServerForTest root;
+  NameServerWorkerForTest worker;
+  ASSERT_TRUE(root.init("./name_server.conf", 100, &worker));
+  NameServerTester wrapper(&root);
   wrapper.stop_thread();
 
   ASSERT_FALSE(root.has_been_called_);

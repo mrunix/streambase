@@ -81,7 +81,7 @@ const char* OBUPS_TABLE_AVAILABLE_WARN_SIZE_GB = "table_available_warn_size_gb";
 const char* OBUPS_TABLE_AVAILABLE_ERROR_SIZE_GB = "table_available_error_size_gb";
 const char* OBUPS_WARM_UP_TIME_S = "warm_up_time_s";
 
-const char* OBUPS_RS_SECTION  = "root_server";
+const char* OBUPS_RS_SECTION  = "name_server";
 
 const char* OBUPS_STANDALONE_SECTION = "standalone";
 const char* OBUPS_STANDALONE_SCHEMA = "test_schema";

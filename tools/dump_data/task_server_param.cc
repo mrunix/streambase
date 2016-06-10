@@ -17,7 +17,7 @@ static const char* OBTS_TASK_QUEUE_SIZE = "task_queue_size";
 static const char* OBTS_TASK_THREAD_COUNT = "task_thread_count";
 static const char* OBTS_NETWORK_TIMEOUT = "network_timeout_us";
 
-static const char* OBTS_RS_SECTION = "root_server";
+static const char* OBTS_RS_SECTION = "name_server";
 static const char* OBTS_RS_VIP = "vip";
 static const char* OBTS_RS_PORT = "port";
 

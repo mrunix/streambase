@@ -63,17 +63,17 @@ const ObServer& ObServerManager::get_root_server() const {
   return servers_[0];
 }
 
-int ObServerManager::set_root_server(const ObServer& root_server) {
+int ObServerManager::set_root_server(const ObServer& name_server) {
   int ret = OB_SUCCESS;
 
-  if (root_server.get_ipv4() == 0 || root_server.get_port() == 0) {
+  if (name_server.get_ipv4() == 0 || name_server.get_port() == 0) {
     TBSYS_LOG(WARN, "invalid root server, ip=%d, port=%d",
-              root_server.get_ipv4(), root_server.get_port());
+              name_server.get_ipv4(), name_server.get_port());
     ret = OB_ERROR;
   }
 
   if (OB_SUCCESS == ret) {
-    servers_[0] = root_server;
+    servers_[0] = name_server;
   }
 
   return ret;

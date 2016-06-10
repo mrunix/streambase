@@ -54,7 +54,7 @@ class GFactory {
  public:
   GFactory();
   ~GFactory();
-  int initialize(const sb::common::ObServer& root_server);
+  int initialize(const sb::common::ObServer& name_server);
   int start();
   int stop();
   int wait();

@@ -40,12 +40,12 @@ class ObServerRpc {
   // warning: rpc_buff should be only used by rpc stub for reset
   int init(const common::ObClientManager* rpc_frame);
 
-  int fetch_schema(const common::ObServer& root_server,
+  int fetch_schema(const common::ObServer& name_server,
                    const int64_t timestap,
                    common::ObSchemaManagerV2& schema_mgr,
                    const int64_t timeout);
 
-  int fetch_update_server(const common::ObServer& root_server,
+  int fetch_update_server(const common::ObServer& name_server,
                           common::ObServer& update_server,
                           const int64_t timeout);
 

@@ -235,8 +235,8 @@ TEST_F(TestTabletManager, test_report_tablets) {
   ObChunkServerMain* cm = ObChunkServerMain::get_instance();
   ObChunkServer& cs = cm->get_chunk_server();
   // init global root server
-  ObServer& root_server = const_cast<ObServer&>(cs.get_root_server());
-  root_server.set_ipv4_addr(dst_addr, MOCK_SERVER_LISTEN_PORT);
+  ObServer& name_server = const_cast<ObServer&>(cs.get_root_server());
+  name_server.set_ipv4_addr(dst_addr, MOCK_SERVER_LISTEN_PORT);
 
   // init global client manager
   ObClientManager& client_manager = const_cast<ObClientManager&>(cs.get_client_manager());

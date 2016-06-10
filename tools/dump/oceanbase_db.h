@@ -62,7 +62,7 @@ class OceanbaseDb {
   void mark_ms_failure(ObServer& server, std::string& table, const ObString& rowkey);
   void try_mark_server_fail(TabletInfo& tablet_info, ObServer& server, bool& do_erase_tablet);
 
-  common::ObServer root_server_;
+  common::ObServer name_server_;
   tbnet::Transport transport_;
   common::ObPacketFactory packet_factory_;
   tbnet::DefaultPacketStreamer streamer_;

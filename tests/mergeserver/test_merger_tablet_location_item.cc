@@ -238,10 +238,10 @@ TEST_F(TestTabletLocationItem, test_serialize) {
 
 TEST_F(TestTabletLocationItem, test_sort) {
   ObMergerTabletLocationList list;
-  ObServer root_server;
+  ObServer name_server;
   const char* addr = "localhost";
-  root_server.set_ipv4_addr(addr, 8888);
-  int32_t server_ip = root_server.get_ipv4();
+  name_server.set_ipv4_addr(addr, 8888);
+  int32_t server_ip = name_server.get_ipv4();
 
   // one server
   ObTabletLocation location;
@@ -251,7 +251,7 @@ TEST_F(TestTabletLocationItem, test_sort) {
   //location.tablet_id_ = 1;
   location.chunkserver_ = temp;
   list.add(location);
-  EXPECT_TRUE(OB_SUCCESS == list.sort(root_server));
+  EXPECT_TRUE(OB_SUCCESS == list.sort(name_server));
 
   int64_t count = list.size();
   for (int64_t i = 0; i < count - 1; ++i) {
@@ -263,7 +263,7 @@ TEST_F(TestTabletLocationItem, test_sort) {
   temp.set_ipv4_addr(rand() % 10245, 1024);
   location.chunkserver_ = temp;
   list.add(location);
-  EXPECT_TRUE(OB_SUCCESS == list.sort(root_server));
+  EXPECT_TRUE(OB_SUCCESS == list.sort(name_server));
 
   count = list.size();
   for (int64_t i = 0; i < count - 1; ++i) {
@@ -272,9 +272,9 @@ TEST_F(TestTabletLocationItem, test_sort) {
   }
 
   // three server
-  location.chunkserver_ = root_server;
+  location.chunkserver_ = name_server;
   list.add(location);
-  EXPECT_TRUE(OB_SUCCESS == list.sort(root_server));
+  EXPECT_TRUE(OB_SUCCESS == list.sort(name_server));
 
   count = list.size();
   for (int64_t i = 0; i < count - 1; ++i) {

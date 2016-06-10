@@ -68,7 +68,7 @@ int ObServerRpc::get_frame_buffer(ObDataBuffer& data_buffer) const {
   return ret;
 }
 
-int ObServerRpc::fetch_schema(const ObServer& root_server,
+int ObServerRpc::fetch_schema(const ObServer& name_server,
                               const int64_t timestap,
                               ObSchemaManagerV2& schema,
                               const int64_t timeout) {
@@ -77,11 +77,11 @@ int ObServerRpc::fetch_schema(const ObServer& root_server,
   ObResultCode result_code;
   ObDataBuffer data_buff;
 
-  if (root_server.get_ipv4() == 0 || root_server.get_port() == 0
+  if (name_server.get_ipv4() == 0 || name_server.get_port() == 0
       || timestap < 0 || timeout <= 0) {
     TBSYS_LOG(WARN, "invalid param, ip=%d, port=%d, timestap=%ld, "
               "timeout=%ld",
-              root_server.get_ipv4(), root_server.get_port(),
+              name_server.get_ipv4(), name_server.get_port(),
               timestap, timeout);
     ret = OB_ERROR;
   } else if (NULL == rpc_frame_) {
@@ -106,7 +106,7 @@ int ObServerRpc::fetch_schema(const ObServer& root_server,
 
   // step 2. send request for fetch new schema
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server,
+    ret = rpc_frame_->send_request(name_server,
                                    OB_FETCH_SCHEMA, DEFAULT_VERSION,
                                    timeout, data_buff);
     if (ret != OB_SUCCESS) {
@@ -145,7 +145,7 @@ int ObServerRpc::fetch_schema(const ObServer& root_server,
   return ret;
 }
 
-int ObServerRpc::fetch_update_server(const ObServer& root_server,
+int ObServerRpc::fetch_update_server(const ObServer& name_server,
                                      ObServer& update_server,
                                      const int64_t timeout) {
   int ret     = OB_SUCCESS;
@@ -153,10 +153,10 @@ int ObServerRpc::fetch_update_server(const ObServer& root_server,
   ObResultCode result_code;
   ObDataBuffer data_buff;
 
-  if (root_server.get_ipv4() == 0 || root_server.get_port() == 0
+  if (name_server.get_ipv4() == 0 || name_server.get_port() == 0
       || timeout <= 0) {
     TBSYS_LOG(WARN, "invalid param, ip=%d, port=%d, timeout=%ld",
-              root_server.get_ipv4(), root_server.get_port(),
+              name_server.get_ipv4(), name_server.get_port(),
               timeout);
     ret = OB_ERROR;
   } else if (NULL == rpc_frame_) {
@@ -170,7 +170,7 @@ int ObServerRpc::fetch_update_server(const ObServer& root_server,
 
   // step 1. send get update server info request
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server,
+    ret = rpc_frame_->send_request(name_server,
                                    OB_GET_UPDATE_SERVER_INFO,
                                    DEFAULT_VERSION,
                                    timeout, data_buff);

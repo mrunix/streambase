@@ -13,14 +13,14 @@ using namespace sb::common;
 using namespace sb::tools;
 
 TaskServer::TaskServer(const char* result_file, const int64_t timeout_times,
-                       const int64_t max_count, const int64_t timeout, const ObServer& root_server)
+                       const int64_t max_count, const int64_t timeout, const ObServer& name_server)
   : task_manager_(timeout_times, max_count) {
   status_ = INVALID_STAT;
   result_file_ = result_file;
   timeout_ = timeout;
   memtable_version_ = -1;
   modify_timestamp_ = -1;
-  root_server_ = root_server;
+  name_server_ = name_server;
 }
 
 int TaskServer::init(const int64_t thread, const int64_t queue, RpcStub* rpc,
@@ -53,7 +53,7 @@ int TaskServer::init_service(void) {
     TBSYS_LOG(ERROR, "check service status failed:status[%d]", status_);
   } else {
     // step 1. fetch schema and check table name
-    ret = rpc_->get_schema(root_server_, timeout_, 0, schema_);
+    ret = rpc_->get_schema(name_server_, timeout_, 0, schema_);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(ERROR, "get newest schema failed:ret[%d]", ret);
     }
@@ -62,7 +62,7 @@ int TaskServer::init_service(void) {
   ObServer update_server;
   // step 2. get update server addr
   if (OB_SUCCESS == ret) {
-    ret = rpc_->get_update_server(root_server_, timeout_, update_server);
+    ret = rpc_->get_update_server(name_server_, timeout_, update_server);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "get update server failed:ret[%d]", ret);
     } else {
@@ -85,7 +85,7 @@ int TaskServer::init_service(void) {
 
   // step 4. init task factory
   if (OB_SUCCESS == ret) {
-    ret = task_factory_.init(memtable_version_, timeout_, root_server_, &schema_,
+    ret = task_factory_.init(memtable_version_, timeout_, name_server_, &schema_,
                              rpc_, &task_manager_);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "factory init failed:ret[%d]", ret);

@@ -1,28 +1,19 @@
-/**
- * (C) 2010-2011 Alibaba Group Holding Limited.
+/*
+ * src/nameserver/tablet_info_manager_test.cc
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * Version: $Id$
- *
- * test_tablet_info_manager.cc for ...
- *
- * Authors:
- *   qushan <qushan@taobao.com>
- *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
-
 
 #include <gtest/gtest.h>
 #include <unistd.h>
 #include "common/ob_malloc.h"
 #include "common/ob_vector.h"
-#include "nameserver/ob_tablet_info_manager.h"
-#include "nameserver/ob_root_meta2.h"
+#include "nameserver/tablet_info_manager.h"
+#include "nameserver/nameserver_meta.h"
+
 using namespace sb::common;
 using namespace sb::nameserver;
+
 namespace {
 void build_range(ObRange& r, int64_t tid, int8_t flag, const char* sk, const char* ek) {
 
@@ -78,6 +69,7 @@ TEST(TabletInfoManagerTest, test) {
 
   delete tester;
 }
+
 TEST(TabletInfoManagerTest, compare) {
   ObRange r1, r2, r3, r4;
   const char* key1 = "foo1";
@@ -121,6 +113,4 @@ int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
-
-
 

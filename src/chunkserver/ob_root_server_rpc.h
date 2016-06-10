@@ -136,7 +136,7 @@ class ObRootServerRpcStub {
 
   /**
    * @brief get updater addr from nameserver
-   * @param [out] update_server the add of update_server from root_server
+   * @param [out] update_server the add of update_server from name_server
    * @param for_merge [in] ups use two ports,one service the client,the other used for merge
    */
   int get_update_server(common::ObServer& update_server, bool for_merge = false);
@@ -188,7 +188,7 @@ class ObRootServerRpcStub {
 
  private:
   bool init_;                                         // init stat for inner check
-  common::ObServer root_server_;                      // root server addr
+  common::ObServer name_server_;                      // root server addr
   const common::ObClientManager* rpc_frame_;          // rpc frame for send request
 };
 

@@ -144,7 +144,7 @@ int MyMain::parse_cmd_line(int argc, char* argv[], MyArguments& args) {
 
 class ObRsStressRunnable : public tbsys::CDefaultRunnable {
  public:
-  ObRsStressRunnable(ObRootRpcStub& rpc_stub, ObServer& rs, MyArguments& args);
+  ObRsStressRunnable(NameServerRpcStub& rpc_stub, ObServer& rs, MyArguments& args);
   virtual ~ObRsStressRunnable();
   virtual void run(tbsys::CThread* thread, void* arg);
   static uint64_t get_succ_count();
@@ -152,7 +152,7 @@ class ObRsStressRunnable : public tbsys::CDefaultRunnable {
  private:
   static uint64_t succ_count;
   static uint64_t fail_count;
-  ObRootRpcStub& rpc_stub_;
+  NameServerRpcStub& rpc_stub_;
   ObServer& rs_;
   MyArguments& args_;
 };
@@ -160,7 +160,7 @@ class ObRsStressRunnable : public tbsys::CDefaultRunnable {
 uint64_t ObRsStressRunnable::succ_count = 0;
 uint64_t ObRsStressRunnable::fail_count = 0;
 
-ObRsStressRunnable::ObRsStressRunnable(ObRootRpcStub& rpc_stub, ObServer& rs, MyArguments& args)
+ObRsStressRunnable::ObRsStressRunnable(NameServerRpcStub& rpc_stub, ObServer& rs, MyArguments& args)
   : rpc_stub_(rpc_stub), rs_(rs), args_(args) {
 }
 
@@ -203,7 +203,7 @@ int main(int argc, char* argv[]) {
     ObServer server(ObServer::IPV4, args.rs_host, args.rs_port);
     ObBaseClient client;
     ThreadSpecificBuffer tsbuffer;
-    ObRootRpcStub rpc_stub;
+    NameServerRpcStub rpc_stub;
     if (OB_SUCCESS != (ret = client.initialize(server))) {
       printf("failed to init client, err=%d\n", ret);
     } else if (OB_SUCCESS != (ret = rpc_stub.init(&client.get_client_mgr(), &tsbuffer))) {

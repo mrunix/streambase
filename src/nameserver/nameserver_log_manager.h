@@ -23,11 +23,12 @@
 
 namespace sb {
 namespace nameserver {
-class ObRootLogManager : public common::ObLogWriter {
+
+class NameServerLogManager: public common::ObLogWriter {
  public:
   static const int UINT64_MAX_LEN;
-  ObRootLogManager();
-  ~ObRootLogManager();
+  NameServerLogManager();
+  ~NameServerLogManager();
 
  public:
   int init(NameServer* name_server, common::ObSlaveMgr* slave_mgr);
@@ -49,7 +50,7 @@ class ObRootLogManager : public common::ObLogWriter {
   inline uint64_t get_replay_point() {return replay_point_;}
   inline uint64_t get_check_point() {return ckpt_id_;}
 
-  ObRootLogWorker* get_log_worker() { return &log_worker_; }
+  NameServerLogWorker* get_log_worker() { return &log_worker_; }
   tbsys::CThreadMutex* get_log_sync_mutex() { return &log_sync_mutex_; }
 
  private:
@@ -62,7 +63,7 @@ class ObRootLogManager : public common::ObLogWriter {
   char log_dir_[common::OB_MAX_FILE_NAME_LENGTH];
 
   NameServer* name_server_;
-  ObRootLogWorker log_worker_;
+  NameServerLogWorker log_worker_;
   tbsys::CThreadMutex log_sync_mutex_;
 };
 } /* nameserver */

@@ -31,12 +31,12 @@ class ObRootFetchThread : public common::ObFetchRunnable {
 
   int got_ckpt(uint64_t ckpt_id);
 
-  void set_log_manager(ObRootLogManager* log_manager);
+  void set_log_manager(NameServerLogManager* log_manager);
 
  private:
   int recover_ret_;
   bool is_recover_done_;
-  ObRootLogManager* log_manager_;
+  NameServerLogManager* log_manager_;
 };
 } /* nameserver */
 } /* sb */

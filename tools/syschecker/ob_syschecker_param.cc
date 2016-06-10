@@ -18,7 +18,7 @@
 #include "ob_syschecker_param.h"
 
 namespace {
-static const char* OBRS_SECTION = "root_server";
+static const char* OBRS_SECTION = "name_server";
 static const char* OBRS_IP = "vip";
 static const char* OBRS_PORT = "port";
 
@@ -216,7 +216,7 @@ int ObSyscheckerParam::load_from_config() {
     }
   }
   if (OB_SUCCESS == ret) {
-    bool res = root_server_.set_ipv4_addr(root_server_ip,
+    bool res = name_server_.set_ipv4_addr(root_server_ip,
                                           root_server_port);
     if (!res) {
       TBSYS_LOG(WARN, "root server ip=%s, port=%d is invalid.",
@@ -351,11 +351,11 @@ int ObSyscheckerParam::load_from_config() {
 void ObSyscheckerParam::dump_param() {
   char server_str[OB_MAX_IP_SIZE];
 
-  root_server_.to_string(server_str, OB_MAX_IP_SIZE);
-  fprintf(stderr, "root_server: \n"
+  name_server_.to_string(server_str, OB_MAX_IP_SIZE);
+  fprintf(stderr, "name_server: \n"
           "    vip: %s \n"
           "    port: %d \n",
-          server_str, root_server_.get_port());
+          server_str, name_server_.get_port());
 
   update_server_.to_string(server_str, OB_MAX_IP_SIZE);
   fprintf(stderr, "update_server: \n"

@@ -24,15 +24,24 @@ const char* OBRT_LOG_SYNC_TYPE = "log_sync_type";
 
 namespace sb {
 namespace nameserver {
+
 using namespace common;
-const int ObRootLogManager::UINT64_MAX_LEN = 32;
-ObRootLogManager::ObRootLogManager() : ckpt_id_(0), replay_point_(0), max_log_id_(0), rt_server_status_(0), is_initialized_(false), is_log_dir_empty_(false) {
+
+const int NameServerLogManager::UINT64_MAX_LEN = 32;
+
+NameServerLogManager::NameServerLogManager()
+  : ckpt_id_(0)
+  , replay_point_(0)
+  , max_log_id_(0)
+  , rt_server_status_(0)
+  , is_initialized_(false)
+  , is_log_dir_empty_(false) {
 }
 
-ObRootLogManager::~ObRootLogManager() {
+NameServerLogManager::~NameServerLogManager() {
 }
 
-int ObRootLogManager::init(NameServer* name_server, common::ObSlaveMgr* slave_mgr) {
+int NameServerLogManager::init(NameServer* name_server, common::ObSlaveMgr* slave_mgr) {
   int ret = OB_SUCCESS;
 
   if (is_initialized_) {
@@ -132,7 +141,7 @@ int ObRootLogManager::init(NameServer* name_server, common::ObSlaveMgr* slave_mg
   return ret;
 }
 
-int ObRootLogManager::add_slave(const common::ObServer& server, uint64_t& new_log_file_id) {
+int NameServerLogManager::add_slave(const common::ObServer& server, uint64_t& new_log_file_id) {
   int ret = OB_SUCCESS;
 
   ObSlaveMgr* slave_mgr = get_slave_mgr();
@@ -154,7 +163,7 @@ int ObRootLogManager::add_slave(const common::ObServer& server, uint64_t& new_lo
   return ret;
 }
 
-int ObRootLogManager::do_after_recover_check_point() {
+int NameServerLogManager::do_after_recover_check_point() {
   TBSYS_LOG(INFO, "[NOTICE] after recovery checkpointing");
   name_server_->start_threads();
   name_server_->wait_init_finished();
@@ -163,7 +172,7 @@ int ObRootLogManager::do_after_recover_check_point() {
 }
 
 // called by start_as_master
-int ObRootLogManager::replay_log() {
+int NameServerLogManager::replay_log() {
   int ret = OB_SUCCESS;
 
   ObLogReader log_reader;
@@ -247,7 +256,7 @@ int ObRootLogManager::replay_log() {
 }
 
 // called by slave's fetch_thread when downloaded the remote ckpt file
-int ObRootLogManager::recover_checkpoint(const uint64_t checkpoint_id) {
+int NameServerLogManager::recover_checkpoint(const uint64_t checkpoint_id) {
   int ret = OB_SUCCESS;
 
   ckpt_id_ = checkpoint_id;
@@ -269,7 +278,7 @@ int ObRootLogManager::recover_checkpoint(const uint64_t checkpoint_id) {
   return ret;
 }
 
-int ObRootLogManager::do_check_point(const uint64_t checkpoint_id/* = 0 */) {
+int NameServerLogManager::do_check_point(const uint64_t checkpoint_id/* = 0 */) {
   // do check point
   int ret = OB_SUCCESS;
 
@@ -329,7 +338,7 @@ int ObRootLogManager::do_check_point(const uint64_t checkpoint_id/* = 0 */) {
   return ret;
 }
 
-int ObRootLogManager::load_server_status() {
+int NameServerLogManager::load_server_status() {
   int ret = OB_SUCCESS;
 
   int err = 0;

@@ -24,15 +24,15 @@
 #include "common/ob_client_config.h"
 namespace sb {
 namespace nameserver {
-class ObRootLogManager;
+class NameServerLogManager;
 class NameServer;
-class ObRootLogWorker {
+class NameServerLogWorker {
  public:
-  ObRootLogWorker();
+  NameServerLogWorker();
 
  public:
   void set_root_server(NameServer* name_server);
-  void set_log_manager(ObRootLogManager* log_manager);
+  void set_log_manager(NameServerLogManager* log_manager);
   int apply(common::LogCommand cmd, const char* log_data, const int64_t& data_len);
 
   uint64_t get_cur_log_file_id();
@@ -114,7 +114,7 @@ class ObRootLogWorker {
 
  private:
   NameServer* name_server_;
-  ObRootLogManager* log_manager_;
+  NameServerLogManager* log_manager_;
 };
 } /* nameserver */
 } /* sb */

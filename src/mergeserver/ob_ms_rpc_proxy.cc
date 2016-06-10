@@ -48,12 +48,12 @@ ObMergerRpcProxy::ObMergerRpcProxy(const ObServerType type): ups_list_lock_(tbsy
 }
 
 ObMergerRpcProxy::ObMergerRpcProxy(const int64_t retry_times, const int64_t timeout,
-                                   const ObServer& root_server, const ObServer& update_server, const ObServer& merge_server,
+                                   const ObServer& name_server, const ObServer& update_server, const ObServer& merge_server,
                                    const ObServerType type) {
   init_ = false;
   rpc_retry_times_ = retry_times;
   rpc_timeout_ = timeout;
-  root_server_ = root_server;
+  name_server_ = name_server;
   update_server_ = update_server;
   merge_server_ = merge_server;
   server_type_ = type;
@@ -101,7 +101,7 @@ int ObMergerRpcProxy::fetch_update_server_list(int32_t& count) {
     ret = OB_ERROR;
   } else {
     ObUpsList list;
-    ret = rpc_stub_->fetch_server_list(rpc_timeout_, root_server_, list);
+    ret = rpc_stub_->fetch_server_list(rpc_timeout_, name_server_, list);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(WARN, "fetch server list from root server failed:ret[%d]", ret);
     } else {
@@ -180,7 +180,7 @@ int ObMergerRpcProxy::get_new_schema(const int64_t timestamp, const ObSchemaMana
     ret = OB_OP_NOT_ALLOW;
   } else {
     int64_t new_version = 0;
-    ret = rpc_stub_->fetch_schema_version(rpc_timeout_, root_server_, new_version);
+    ret = rpc_stub_->fetch_schema_version(rpc_timeout_, name_server_, new_version);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(WARN, "fetch schema version failed:ret[%d]", ret);
     } else if (new_version <= timestamp) {
@@ -227,7 +227,7 @@ int ObMergerRpcProxy::fetch_new_schema(const int64_t timestamp, const ObSchemaMa
           TBSYS_LOG(ERROR, "check replacement new schema failed:schema[%p]", schema);
           ret = OB_INNER_STAT_ERROR;
         } else {
-          ret = rpc_stub_->fetch_schema(rpc_timeout_, root_server_, 0, *schema);
+          ret = rpc_stub_->fetch_schema(rpc_timeout_, name_server_, 0, *schema);
           if (ret != OB_SUCCESS) {
             TBSYS_LOG(WARN, "rpc fetch schema failed:version[%ld], ret[%d]", timestamp, ret);
           } else {
@@ -263,7 +263,7 @@ int ObMergerRpcProxy::fetch_schema_version(int64_t& timestamp) {
     TBSYS_LOG(ERROR, "%s", "check inner stat failed");
     ret = OB_INNER_STAT_ERROR;
   } else {
-    ret = rpc_stub_->fetch_schema_version(rpc_timeout_, root_server_, timestamp);
+    ret = rpc_stub_->fetch_schema_version(rpc_timeout_, name_server_, timestamp);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(WARN, "fetch schema version failed:ret[%d]", ret);
     } else {
@@ -377,7 +377,7 @@ int ObMergerRpcProxy::scan_root_table(const uint64_t table_id, const ObString& r
   int ret = OB_SUCCESS;
   ObScanner scanner;
   // root table id = 0
-  ret = rpc_stub_->fetch_tablet_location(rpc_timeout_, root_server_, 0,
+  ret = rpc_stub_->fetch_tablet_location(rpc_timeout_, name_server_, 0,
                                          table_id, row_key, scanner);
   if (ret != OB_SUCCESS) {
     TBSYS_LOG(WARN, "fetch tablet location failed:table_id[%lu], length[%d], ret[%d]",
@@ -539,7 +539,7 @@ int ObMergerRpcProxy::register_merger(const ObServer& merge_server) {
     ret = OB_INNER_STAT_ERROR;
   } else {
     for (int64_t i = 0; i <= rpc_retry_times_; ++i) {
-      ret = rpc_stub_->register_server(rpc_timeout_, root_server_, merge_server, true);
+      ret = rpc_stub_->register_server(rpc_timeout_, name_server_, merge_server, true);
       if (ret != OB_SUCCESS) {
         TBSYS_LOG(WARN, "register merge server failed:ret[%d]", ret);
         usleep(RETRY_INTERVAL_TIME);
@@ -559,7 +559,7 @@ int ObMergerRpcProxy::async_heartbeat(const ObServer& merge_server) {
     ret = OB_INNER_STAT_ERROR;
   } else {
     /// async send heartbeat no need retry
-    ret = rpc_stub_->heartbeat_server(rpc_timeout_, root_server_, merge_server, OB_MERGESERVER);
+    ret = rpc_stub_->heartbeat_server(rpc_timeout_, name_server_, merge_server, OB_MERGESERVER);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(WARN, "heartbeat with root server failed:ret[%d]", ret);
     }

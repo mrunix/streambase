@@ -22,18 +22,18 @@
 
 namespace sb {
 namespace nameserver {
-class ObRootLogManager;
+class NameServerLogManager;
 class ObRootLogReplay : public common::ObLogReplayRunnable {
  public:
   ObRootLogReplay();
   ~ObRootLogReplay();
 
  public:
-  void set_log_manager(ObRootLogManager* log_manage);
+  void set_log_manager(NameServerLogManager* log_manage);
   int replay(common::LogCommand cmd, uint64_t seq, const char* log_data, const int64_t data_len);
 
  private:
-  ObRootLogManager* log_manager_;
+  NameServerLogManager* log_manager_;
 };
 } /* nameserver */
 } /* sb */

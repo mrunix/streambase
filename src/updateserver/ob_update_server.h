@@ -330,7 +330,7 @@ class ObUpdateServer
   common::ObRoleMgr role_mgr_;
   common::ObiRole obi_role_;
   ObiSlaveStat obi_slave_stat_;
-  common::ObServer root_server_;
+  common::ObServer name_server_;
   common::ObServer ups_master_;
   common::ObServer self_addr_;
   common::ObServer ups_inst_master_;

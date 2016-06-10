@@ -22,8 +22,8 @@ using namespace sb::common;
 using namespace sb::mergeserver;
 
 ObMSUpsStreamWrapper::ObMSUpsStreamWrapper(const int64_t retry_times,
-                                           const int64_t timeout, const ObServer& root_server)
-  : rpc_proxy_(retry_times, timeout, root_server, update_server_,
+                                           const int64_t timeout, const ObServer& name_server)
+  : rpc_proxy_(retry_times, timeout, name_server, update_server_,
                merge_server_, common::CHUNK_SERVER) {
   schema_mgr_ = NULL;
 }

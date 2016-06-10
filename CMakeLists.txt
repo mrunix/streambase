@@ -44,11 +44,11 @@ ENDIF()
 # Set COMMON FLAGS
 SET(COMMON_CFLAGS "-g -O2 -D__STDC_LIMIT_MACROS -D_NO_EXCEPTION -DCOMPATIBLE -Wall -Wextra -Werror")
 SET(COMMON_CFLAGS "${COMMON_CFLAGS} -Wformat -Wno-conversion -Wno-deprecated -fPIC")
-SET(COMMON_CFLAGS "${COMMON_CFLAGS} -Wno-unused-but-set-variable -Wno-unused-result")
+SET(COMMON_CFLAGS "${COMMON_CFLAGS} -Wno-unused-but-set-variable -Wno-unused-result -Wno-unused-parameter")
 
 SET(COMMON_CXXFLAGS "-g -O2 -D__STDC_LIMIT_MACROS -D_NO_EXCEPTION -DCOMPATIBLE -Wall -Wextra -Werror")
 SET(COMMON_CXXFLAGS "${COMMON_CXXFLAGS} -Wformat -Wno-conversion -Wno-deprecated -fPIC")
-SET(COMMON_CXXFLAGS "${COMMON_CXXFLAGS} -Wno-unused-but-set-variable -Wno-unused-result")
+SET(COMMON_CXXFLAGS "${COMMON_CXXFLAGS} -Wno-unused-but-set-variable -Wno-unused-result -Wno-unused-parameter")
 
 
 # Set COMMON DEFINES

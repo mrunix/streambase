@@ -370,9 +370,9 @@ int main(int argc, char ** argv)
 {
   ob_init_memory_pool();
   MockRootServer server;
-  MockServerRunner root_server(server);
+  MockServerRunner name_server(server);
   tbsys::CThread root_server_thread;
-  root_server_thread.start(&root_server, NULL);
+  root_server_thread.start(&name_server, NULL);
   root_server_thread.join();
   return 0;
 }

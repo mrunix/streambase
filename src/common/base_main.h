@@ -16,10 +16,11 @@
 #ifndef OCEANBASE_ROOTSERVER_BASE_MAIN_H_
 #define OCEANBASE_ROOTSERVER_BASE_MAIN_H_
 #include <tbsys.h>
-
 #include "ob_define.h"
+
 namespace sb {
 namespace common {
+
 class BaseMain {
  public:
   //static BaseMain* instance() {
@@ -42,6 +43,7 @@ class BaseMain {
   static void sign_handler(const int sig);
   bool use_deamon_;
 };
+
 }
 }
 #endif

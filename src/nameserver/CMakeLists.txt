@@ -137,3 +137,30 @@ SET(LOCAL_LIBRARIES
 	nameserver.static
 )
 BUILD_EXECUTABLE()
+
+
+# Unittest
+FUNCTION(BUILD_TEST_APP name)
+	SET(${name}_sources
+		${name}.cc
+		${ARGN}
+	)
+
+	CLEAR_VARS()
+	SET(LOCAL_MODULE     "${name}")
+	SET(LOCAL_CXX_FLAGS  "${COMMON_CXXFLAGS} -Wno-write-strings")
+	SET(LOCAL_CXX_FILES  ${${name}_sources})
+	SET(LOCAL_LIBRARIES
+		tbsys.static
+		common.static
+		nameserver.static
+	)
+	BUILD_UNITTEST()
+ENDFUNCTION()
+
+IF(WITH_TEST)
+ 	BUILD_TEST_APP("base_main_test" test_main.cc)
+	BUILD_TEST_APP("nameserver_test")
+	BUILD_TEST_APP("tablet_info_manager_test")
+ENDIF()
+

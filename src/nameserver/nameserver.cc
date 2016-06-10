@@ -189,7 +189,7 @@ NameServer::~NameServer() {
   }
   have_inited_ = false;
 }
-bool NameServer::init(const char* config_file_name, const int64_t now, NameWorker* worker) {
+bool NameServer::init(const char* config_file_name, const int64_t now, NameServerWorker* worker) {
   bool res = true;
   worker_ = worker;
   log_worker_ = worker_->get_log_manager()->get_log_worker();

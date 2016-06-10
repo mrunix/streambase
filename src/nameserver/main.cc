@@ -7,12 +7,13 @@
 #include <malloc.h>
 #include "nameserver_main.h"
 #include "common/ob_malloc.h"
+
 using namespace sb::nameserver;
 using namespace sb::common;
+
 namespace {
 static const int DEFAULT_MMAP_MAX_VAL = 1024 * 1024 * 1024;
 };
-
 
 int main(int argc, char* argv[]) {
   mallopt(M_MMAP_MAX, DEFAULT_MMAP_MAX_VAL);

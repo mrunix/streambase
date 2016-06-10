@@ -52,58 +52,58 @@ class ObMergerRpcStub {
 
   // register to root server as a merge server by rpc call
   // param  @timeout  action timeout
-  //        @root_server root server addr
+  //        @name_server root server addr
   //        @merge_server merge server addr
   //        @is_merger merge server status
-  int register_server(const int64_t timeout, const common::ObServer& root_server,
+  int register_server(const int64_t timeout, const common::ObServer& name_server,
                       const common::ObServer& merge_server, const bool is_merger) const;
 
   // heartbeat to root server for alive
   // param  @timeout  action timeout
-  //        @root_server root server addr
+  //        @name_server root server addr
   //        @merge_server merge server addr
   //        @server_role server role
-  int heartbeat_server(const int64_t timeout, const common::ObServer& root_server,
+  int heartbeat_server(const int64_t timeout, const common::ObServer& name_server,
                        const common::ObServer& merge_server, const common::ObRole server_role) const;
 
   // get update server vip addr through root server rpc call
   // param  @timeout  action timeout
-  //        @root_server root server addr
+  //        @name_server root server addr
   //        @update_server output server addr
-  int find_server(const int64_t timeout, const common::ObServer& root_server,
+  int find_server(const int64_t timeout, const common::ObServer& name_server,
                   common::ObServer& update_server) const;
 
   // get update server list for read through root server rpc call
   // param  @timeout  action timeout
-  //        @root_server root server addr
+  //        @name_server root server addr
   //        @ups_list output server addr list info
-  int fetch_server_list(const int64_t timeout, const common::ObServer& root_server,
+  int fetch_server_list(const int64_t timeout, const common::ObServer& name_server,
                         common::ObUpsList& server_list) const;
 
   // get tables schema info through root server rpc call
   // param  @timeout  action timeout
-  //        @root_server root server addr
+  //        @name_server root server addr
   //        @timestamp  fetch cmd input param
   //        @schema fetch cmd output schema data
-  int fetch_schema(const int64_t timeout, const common::ObServer& root_server,
+  int fetch_schema(const int64_t timeout, const common::ObServer& name_server,
                    const int64_t timestamp, common::ObSchemaManagerV2& schema) const;
 
   // get tables schema newest version through root server rpc call
   // param  @timeout  action timeout
-  //        @root_server root server addr
+  //        @name_server root server addr
   //        @timestamp output new version
-  int fetch_schema_version(const int64_t timeout, const common::ObServer& root_server,
+  int fetch_schema_version(const int64_t timeout, const common::ObServer& name_server,
                            int64_t& timestamp) const;
 
  public:
   // get tablet location info through root server rpc call
   // param  @timeout  action timeout
-  //        @root_server root server addr
+  //        @name_server root server addr
   //        @root_table root table name
   //        @table_id look up table id
   //        @row_key look up row key
   //        @scanner scaned tablets location result set
-  int fetch_tablet_location(const int64_t timeout, const common::ObServer& root_server,
+  int fetch_tablet_location(const int64_t timeout, const common::ObServer& name_server,
                             const uint64_t root_table_id, const uint64_t table_id,
                             const common::ObString& row_key, common::ObScanner& scanner) const;
 

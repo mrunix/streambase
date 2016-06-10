@@ -28,7 +28,7 @@ ObUpsRpcStub :: ObUpsRpcStub() {
 ObUpsRpcStub :: ~ObUpsRpcStub() {
 }
 
-int ObUpsRpcStub :: fetch_schema(const ObServer& root_server, const int64_t timestamp,
+int ObUpsRpcStub :: fetch_schema(const ObServer& name_server, const int64_t timestamp,
                                  CommonSchemaManagerWrapper& schema_mgr, const int64_t timeout_us) {
   int err = OB_SUCCESS;
   ObDataBuffer data_buff;
@@ -51,7 +51,7 @@ int ObUpsRpcStub :: fetch_schema(const ObServer& root_server, const int64_t time
 
   // step 2. send request to fetch new schema
   if (OB_SUCCESS == err) {
-    err = client_mgr_->send_request(root_server,
+    err = client_mgr_->send_request(name_server,
                                     OB_FETCH_SCHEMA, DEFAULT_VERSION, timeout_us, data_buff);
     if (err != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "send request to root server for fetch schema failed"
@@ -236,7 +236,7 @@ int ObUpsRpcStub :: slave_register_standalone(const ObServer& master,
   return err;
 }
 
-int ObUpsRpcStub :: send_freeze_memtable_resp(const ObServer& root_server,
+int ObUpsRpcStub :: send_freeze_memtable_resp(const ObServer& name_server,
                                               const ObServer& ups_master, const int64_t schema_timestamp, const int64_t timeout_us) {
   int err = OB_SUCCESS;
   ObDataBuffer data_buff;
@@ -263,7 +263,7 @@ int ObUpsRpcStub :: send_freeze_memtable_resp(const ObServer& root_server,
 
   // step 1. send freeze memtable resp
   if (OB_SUCCESS == err) {
-    err = client_mgr_->send_request(root_server,
+    err = client_mgr_->send_request(name_server,
                                     OB_WAITING_JOB_DONE, DEFAULT_VERSION, timeout_us, data_buff);
     if (err != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "send freeze memtable failed, err[%d].", err);
@@ -285,7 +285,7 @@ int ObUpsRpcStub :: send_freeze_memtable_resp(const ObServer& root_server,
   return err;
 }
 
-int ObUpsRpcStub :: report_freeze(const common::ObServer& root_server,
+int ObUpsRpcStub :: report_freeze(const common::ObServer& name_server,
                                   const common::ObServer& ups_master, const int64_t frozen_version, const int64_t timeout_us) {
   int err = OB_SUCCESS;
   ObDataBuffer data_buff;
@@ -312,7 +312,7 @@ int ObUpsRpcStub :: report_freeze(const common::ObServer& root_server,
 
   // step 1. send freeze memtable resp
   if (OB_SUCCESS == err) {
-    err = client_mgr_->send_request(root_server,
+    err = client_mgr_->send_request(name_server,
                                     OB_UPDATE_SERVER_REPORT_FREEZE, DEFAULT_VERSION, timeout_us, data_buff);
     if (err != OB_SUCCESS) {
       TBSYS_LOG(ERROR, "send freeze memtable failed, err[%d].", err);

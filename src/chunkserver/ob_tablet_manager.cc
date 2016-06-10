@@ -756,9 +756,9 @@ int ObTabletManager::report_capacity_info() {
     TBSYS_LOG(ERROR, "report_capacity_info invalid status, cur_serving_idx=%ld", cur_serving_idx_);
     err = OB_ERROR;
   } else {
-    const ObServer& root_server = THE_CHUNK_SERVER.get_root_server();
+    const ObServer& name_server = THE_CHUNK_SERVER.get_root_server();
     ObRootServerRpcStub root_stub;
-    err = root_stub.init(root_server, &(THE_CHUNK_SERVER.get_client_manager()));
+    err = root_stub.init(name_server, &(THE_CHUNK_SERVER.get_client_manager()));
     if (OB_SUCCESS != err) {
       TBSYS_LOG(WARN, "failed to init root stub, err=%d", err);
     } else {
@@ -1238,11 +1238,11 @@ int ObTabletManager::fill_tablet_info(const ObTablet& tablet,
 int ObTabletManager::send_tablet_report(const ObTabletReportInfoList& tablets, bool has_more) {
   int err = OB_SUCCESS;
 
-  const ObServer& root_server = THE_CHUNK_SERVER.get_root_server();
+  const ObServer& name_server = THE_CHUNK_SERVER.get_root_server();
   ObRootServerRpcStub root_stub;
 
   if (OB_SUCCESS != (err =
-                       root_stub.init(root_server, &(THE_CHUNK_SERVER.get_client_manager())))) {
+                       root_stub.init(name_server, &(THE_CHUNK_SERVER.get_client_manager())))) {
     TBSYS_LOG(WARN, "failed to init root stub, err=%d", err);
   } else if (OB_SUCCESS != (err =
                               root_stub.report_tablets(tablets, 0 /*not used*/, has_more))) {

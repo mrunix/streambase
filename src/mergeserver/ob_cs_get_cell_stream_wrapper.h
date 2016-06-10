@@ -31,7 +31,7 @@ namespace mergeserver {
 class ObMSUpsStreamWrapper {
  public:
   ObMSUpsStreamWrapper(const int64_t retry_times, const int64_t timeout,
-                       const common::ObServer& root_server);
+                       const common::ObServer& name_server);
 
   virtual ~ObMSUpsStreamWrapper();
 

@@ -13,7 +13,7 @@ TaskFactory::TaskFactory() {
   task_manager_ = NULL;
 }
 
-int TaskFactory::init(const int64_t version, const int64_t timeout, const ObServer& root_server,
+int TaskFactory::init(const int64_t version, const int64_t timeout, const ObServer& name_server,
                       const ObSchemaManagerV2* schema, RpcStub* rpc, TaskManager* manager) {
   int ret = OB_SUCCESS;
   if ((NULL == rpc) || (NULL == manager) || (NULL == schema)) {
@@ -23,7 +23,7 @@ int TaskFactory::init(const int64_t version, const int64_t timeout, const ObServ
   } else {
     memtable_version_ = version;
     timeout_ = timeout;
-    root_server_ = root_server;
+    name_server_ = name_server;
     rpc_ = rpc;
     schema_ = schema;
     task_manager_ = manager;
@@ -222,7 +222,7 @@ int TaskFactory::get_table_tablet(const char* table_name, const uint64_t table_i
         TBSYS_LOG(ERROR, "add cell failed:ret[%d]", ret);
         break;
       }
-      ret = rpc_->get(root_server_, timeout_, param, scanner);
+      ret = rpc_->get(name_server_, timeout_, param, scanner);
       if (ret != OB_SUCCESS) {
         TBSYS_LOG(ERROR, "get root table for tablet failed:table[%lu], ret[%d]", table_id, ret);
         break;

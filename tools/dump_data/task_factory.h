@@ -16,7 +16,7 @@ class TaskFactory {
 
  public:
   /// init status data
-  int init(const int64_t version, const int64_t timeout, const common::ObServer& root_server,
+  int init(const int64_t version, const int64_t timeout, const common::ObServer& name_server,
            const common::ObSchemaManagerV2* schema, RpcStub* rpc, TaskManager* manager);
 
   /// get all the dump task
@@ -58,7 +58,7 @@ class TaskFactory {
   RpcStub* rpc_;
   int64_t timeout_;
   int64_t memtable_version_;
-  common::ObServer root_server_;
+  common::ObServer name_server_;
   std::set<std::string> dump_tables_;
   const common::ObSchemaManagerV2* schema_;
   TaskManager* task_manager_;

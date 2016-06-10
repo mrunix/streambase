@@ -23,7 +23,7 @@ using namespace sb::common;
 
 namespace {
 const char* OBMS_MS_SECTION = "merge_server";
-const char* OBMS_RS_SECTION = "root_server";
+const char* OBMS_RS_SECTION = "name_server";
 const char* OBMS_PORT = "port";
 const char* OBMS_VIP = "vip";
 const char* OBMS_DEVNAME = "dev_name";

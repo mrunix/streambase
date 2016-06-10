@@ -120,7 +120,7 @@ void ObMergeServer::destroy() {
 
 int ObMergeServer::init_root_server() {
   int ret = OB_SUCCESS;
-  bool res = root_server_.set_ipv4_addr(
+  bool res = name_server_.set_ipv4_addr(
                ms_params_.get_root_server_ip(), ms_params_.get_root_server_port());
   if (!res) {
     TBSYS_LOG(ERROR, "root server address invalid: %s:%d",
@@ -147,7 +147,7 @@ const common::ObServer& ObMergeServer::get_self() const {
   return self_;
 }
 const common::ObServer& ObMergeServer::get_root_server() const {
-  return root_server_;
+  return name_server_;
 }
 
 const common::ObServer& ObMergeServer::get_update_server() const {

@@ -76,7 +76,7 @@ class ObMergeServer : public common::ObSingleServer {
   common::ThreadSpecificBuffer rpc_buffer_;
   common::ObClientManager client_manager_;
   common::ObServer self_;
-  common::ObServer root_server_;
+  common::ObServer name_server_;
   common::ObServer update_server_;
   ObMergeServerService service_;
 };

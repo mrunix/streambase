@@ -38,14 +38,14 @@ using namespace common;
 namespace api {
 OceanbaseDb::OceanbaseDb(const char* ip, unsigned short port, int64_t timeout) {
   inited_ = false;
-  root_server_.set_ipv4_addr(ip, port);
+  name_server_.set_ipv4_addr(ip, port);
   timeout_ = timeout;
   TBSYS_LOG(INFO, "timeout is %d", timeout_);
 }
 
 OceanbaseDb::OceanbaseDb(int32_t ip, unsigned short port) {
   inited_ = false;
-  root_server_.set_ipv4_addr(ip, port);
+  name_server_.set_ipv4_addr(ip, port);
 }
 
 OceanbaseDb::~OceanbaseDb() {
@@ -223,7 +223,7 @@ int OceanbaseDb::get_ms_location(const DbRowKey& row_key, std::string& table_nam
     int retires = kTabletDupNr;
 
     while (retires--) {
-      ret = do_server_get(root_server_, row_key, ds.get_scanner(),
+      ret = do_server_get(name_server_, row_key, ds.get_scanner(),
                           ds.get_buffer(), table_name, columns);
       if (ret == OB_SUCCESS)
         break;
@@ -386,7 +386,7 @@ int OceanbaseDb::fetch_schema(common::ObSchemaManager& schema_manager) {
   serialization::encode_vi64(data_buff.get_data(),
                              data_buff.get_capacity(), data_buff.get_position(), 1);
 
-  ret = client_.send_request(root_server_, OB_FETCH_SCHEMA, 1,
+  ret = client_.send_request(name_server_, OB_FETCH_SCHEMA, 1,
                              100000, data_buff);
 
   int64_t pos = 0;

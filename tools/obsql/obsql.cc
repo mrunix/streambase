@@ -120,7 +120,7 @@ void GFactory::init_rowkey_map() {
 
 }
 
-int GFactory::initialize(const ObServer& root_server) {
+int GFactory::initialize(const ObServer& name_server) {
   common::ob_init_memory_pool(64 * 1024, false);
   common::ob_init_crc64_table(OB_DEFAULT_CRC64_POLYNOM);
   init_cmd_map();
@@ -138,7 +138,7 @@ int GFactory::initialize(const ObServer& root_server) {
     return ret;
   }
 
-  ret = rpc_stub_.initialize(root_server, &client_.get_client_manager());
+  ret = rpc_stub_.initialize(name_server, &client_.get_client_manager());
   if (OB_SUCCESS != ret) {
     TBSYS_LOG(ERROR, "initialize rpc stub failed, ret:%d", ret);
   }
@@ -223,7 +223,7 @@ int parse_show_command(char*& cmdstr, ObServer& server) {
     token = get_token(cmdstr);
     if (token == NULL) {
       return cmd_type;
-    } else if (strcmp(token, "root_server") == 0) {
+    } else if (strcmp(token, "name_server") == 0) {
       cmd_type = CMD_SHOW_STATS_ROOT;
       server = GFactory::get_instance().get_rpc_stub().get_root_server();
     } else if (strcmp(token, "update_server") == 0) {
@@ -344,7 +344,7 @@ void usage() {
 void cmd_usage() {
   fprintf(stderr, "\nUsage: \n");
   fprintf(stderr, "show schema -- show table schema\n");
-  fprintf(stderr, "show stats root_server/update_server/chunk_server/merge_server [XXX.XXX.XXX.XXX]\n");
+  fprintf(stderr, "show stats name_server/update_server/chunk_server/merge_server [XXX.XXX.XXX.XXX]\n");
   fprintf(stderr, "show tablets [XXX.XXX.XXX.XXX] [disk_no]/[disk_no_1, disk_no_2]/[disk_no_1~disk_no_2]\n");
   fprintf(stderr, "help -- get usage help\n");
   fprintf(stderr, "exit -- exit obsql\n");
@@ -362,7 +362,7 @@ void cmd_usage() {
 }
 
 
-int parse_obsql_options(int argc, char* argv[], ObServer& root_server) {
+int parse_obsql_options(int argc, char* argv[], ObServer& name_server) {
   int ret = 0;
   const char* addr = NULL;
   int32_t port = 0;
@@ -398,9 +398,9 @@ int parse_obsql_options(int argc, char* argv[], ObServer& root_server) {
     };
   }
 
-  ret = root_server.set_ipv4_addr(addr, port);
+  ret = name_server.set_ipv4_addr(addr, port);
   if (!ret) {
-    fprintf(stderr, "root_server addr invalid, addr=%s, port=%d\n", addr, port);
+    fprintf(stderr, "name_server addr invalid, addr=%s, port=%d\n", addr, port);
     return OB_ERROR;
   }
 
@@ -415,15 +415,15 @@ int main(const int argc, char* argv[]) {
   int cmd_type;
   char* token = NULL;
 
-  ObServer root_server;
+  ObServer name_server;
 
-  ret = parse_obsql_options(argc, argv, root_server);
+  ret = parse_obsql_options(argc, argv, name_server);
   if (OB_SUCCESS != ret) {
     usage();
     return ret;
   }
 
-  ret = GFactory::get_instance().initialize(root_server);
+  ret = GFactory::get_instance().initialize(name_server);
   if (OB_SUCCESS != ret) {
     fprintf(stderr, "initialize GFactory error, ret=%d\n", ret);
     return ret;

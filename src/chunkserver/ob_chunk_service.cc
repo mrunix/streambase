@@ -669,7 +669,7 @@ int ObChunkService::cs_heart_beat(
     }
   }
 
-  // send heartbeat request to root_server
+  // send heartbeat request to name_server
   if (OB_SUCCESS == rc.result_code_) {
     ObRootServerRpcStub& rs_rpc_stub = chunk_server_->get_rs_rpc_stub();
     rc.result_code_ = rs_rpc_stub.async_heartbeat(chunk_server_->get_self());
@@ -1383,7 +1383,7 @@ void ObChunkService::get_merge_delay_interval() {
 void ObChunkService::LeaseChecker::runTimerTask() {
   if (NULL != service_ && service_->inited_) {
     if (!service_->is_valid_lease() && !service_->in_register_process_) {
-      TBSYS_LOG(INFO, "lease expired, re-register to root_server");
+      TBSYS_LOG(INFO, "lease expired, re-register to name_server");
       service_->register_self();
     }
 

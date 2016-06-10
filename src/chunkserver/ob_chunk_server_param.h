@@ -79,7 +79,7 @@ class ObChunkServerParam {
   inline const sstable::ObBlockIndexCacheConf& get_block_index_cache_conf() const { return bic_conf_; }
   inline const sstable::ObBlockIndexCacheConf& get_join_cache_conf() const { return jc_conf_; }
 
-  inline const common::ObServer& get_root_server() const { return root_server_; }
+  inline const common::ObServer& get_root_server() const { return name_server_; }
 
  private:
   int load_string(char* dest, const int32_t size,
@@ -93,7 +93,7 @@ class ObChunkServerParam {
   char dev_name_[OB_MAX_IP_SIZE];
   int32_t chunk_server_port_;
   int32_t retry_times_;
-  common::ObServer root_server_;
+  common::ObServer name_server_;
 
 
   int32_t task_queue_size_;

@@ -58,7 +58,7 @@ const char* OBCS_FETCH_UPSLIST_INTERVAL = "upslist_interval_us";
 const char* OBCS_TASK_LEFT_TIME = "task_left_time_us";
 const char* OBCS_WRITE_SSTABLE_IO_TYPE = "write_sstable_io_type";
 
-const char* OBRS_SECTION = "root_server";
+const char* OBRS_SECTION = "name_server";
 const char* OBRS_IP = "vip";
 const char* OBRS_PORT = "port";
 
@@ -153,7 +153,7 @@ int ObChunkServerParam::load_from_config() {
   }
 
   if (OB_SUCCESS == ret) {
-    bool res = root_server_.set_ipv4_addr(root_server_ip, root_server_port);
+    bool res = name_server_.set_ipv4_addr(root_server_ip, root_server_port);
     if (!res) {
       TBSYS_LOG(ERROR, "root server ip %s, port:%d is invalid.", root_server_ip, root_server_port);
       ret = OB_ERROR;

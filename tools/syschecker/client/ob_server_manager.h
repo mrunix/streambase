@@ -26,7 +26,7 @@ class ObServerManager {
   int init(const int64_t servers_count);
 
   const common::ObServer& get_root_server() const;
-  int set_root_server(const common::ObServer& root_server);
+  int set_root_server(const common::ObServer& name_server);
 
   const common::ObServer& get_update_server() const;
   int set_update_server(const common::ObServer& update_server);

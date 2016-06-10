@@ -76,14 +76,14 @@ int ObMergerRpcStub::get_rpc_buffer(ObDataBuffer& data_buffer) const {
 }
 
 
-int ObMergerRpcStub::find_server(const int64_t timeout, const ObServer& root_server,
+int ObMergerRpcStub::find_server(const int64_t timeout, const ObServer& name_server,
                                  ObServer& update_server) const {
   int ret = OB_SUCCESS;
   ObDataBuffer data_buff;
   ret = get_rpc_buffer(data_buff);
   // step 1. send get update server info request
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server, OB_GET_UPDATE_SERVER_INFO, DEFAULT_VERSION,
+    ret = rpc_frame_->send_request(name_server, OB_GET_UPDATE_SERVER_INFO, DEFAULT_VERSION,
                                    timeout, data_buff);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(WARN, "send request to root server for find update server failed:ret[%d]", ret);
@@ -115,14 +115,14 @@ int ObMergerRpcStub::find_server(const int64_t timeout, const ObServer& root_ser
   return ret;
 }
 
-int ObMergerRpcStub::fetch_server_list(const int64_t timeout, const ObServer& root_server,
+int ObMergerRpcStub::fetch_server_list(const int64_t timeout, const ObServer& name_server,
                                        ObUpsList& server_list) const {
   int ret = OB_SUCCESS;
   ObDataBuffer data_buff;
   ret = get_rpc_buffer(data_buff);
   // step 1. send get update server list info request
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server, OB_GET_UPS, DEFAULT_VERSION,
+    ret = rpc_frame_->send_request(name_server, OB_GET_UPS, DEFAULT_VERSION,
                                    timeout, data_buff);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(WARN, "send request to root server for find update server failed:ret[%d]", ret);
@@ -154,7 +154,7 @@ int ObMergerRpcStub::fetch_server_list(const int64_t timeout, const ObServer& ro
 }
 
 // heartbeat rpc through register server interface
-int ObMergerRpcStub::heartbeat_server(const int64_t timeout, const ObServer& root_server,
+int ObMergerRpcStub::heartbeat_server(const int64_t timeout, const ObServer& name_server,
                                       const ObServer& merge_server, const ObRole server_role) const {
   int ret = OB_SUCCESS;
   UNUSED(timeout);
@@ -178,7 +178,7 @@ int ObMergerRpcStub::heartbeat_server(const int64_t timeout, const ObServer& roo
   }
   // step 3. send request for server heartbeat
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->post_request(root_server, OB_HEARTBEAT, NEW_VERSION, data_buff);
+    ret = rpc_frame_->post_request(name_server, OB_HEARTBEAT, NEW_VERSION, data_buff);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(WARN, "post request to root server for heartbeat failed:ret[%d]", ret);
     }
@@ -187,7 +187,7 @@ int ObMergerRpcStub::heartbeat_server(const int64_t timeout, const ObServer& roo
 }
 
 
-int ObMergerRpcStub::register_server(const int64_t timeout, const ObServer& root_server,
+int ObMergerRpcStub::register_server(const int64_t timeout, const ObServer& name_server,
                                      const ObServer& merge_server, const bool is_merger) const {
   int ret = OB_SUCCESS;
   ObDataBuffer data_buff;
@@ -210,7 +210,7 @@ int ObMergerRpcStub::register_server(const int64_t timeout, const ObServer& root
   }
   // step 3. send request for server register
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server, OB_SERVER_REGISTER, DEFAULT_VERSION,
+    ret = rpc_frame_->send_request(name_server, OB_SERVER_REGISTER, DEFAULT_VERSION,
                                    timeout, data_buff);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(WARN, "send request to root server for register server failed:ret[%d]", ret);
@@ -232,14 +232,14 @@ int ObMergerRpcStub::register_server(const int64_t timeout, const ObServer& root
 
 
 // fetch schema current version
-int ObMergerRpcStub::fetch_schema_version(const int64_t timeout, const common::ObServer& root_server,
+int ObMergerRpcStub::fetch_schema_version(const int64_t timeout, const common::ObServer& name_server,
                                           int64_t& timestamp) const {
   int ret = OB_SUCCESS;
   ObDataBuffer data_buff;
   ret = get_rpc_buffer(data_buff);
   // step 1. send request for fetch schema newest version
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server, OB_FETCH_SCHEMA_VERSION, DEFAULT_VERSION,
+    ret = rpc_frame_->send_request(name_server, OB_FETCH_SCHEMA_VERSION, DEFAULT_VERSION,
                                    timeout, data_buff);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(WARN, "send request to root server for fetch schema version failed:ret[%d]", ret);
@@ -270,7 +270,7 @@ int ObMergerRpcStub::fetch_schema_version(const int64_t timeout, const common::O
   return ret;
 }
 
-int ObMergerRpcStub::fetch_schema(const int64_t timeout, const ObServer& root_server,
+int ObMergerRpcStub::fetch_schema(const int64_t timeout, const ObServer& name_server,
                                   const int64_t version, ObSchemaManagerV2& schema) const {
   int ret = OB_SUCCESS;
   ObDataBuffer data_buff;
@@ -286,7 +286,7 @@ int ObMergerRpcStub::fetch_schema(const int64_t timeout, const ObServer& root_se
   }
   // step 2. send request for fetch new schema
   if (OB_SUCCESS == ret) {
-    ret = rpc_frame_->send_request(root_server, OB_FETCH_SCHEMA, DEFAULT_VERSION,
+    ret = rpc_frame_->send_request(name_server, OB_FETCH_SCHEMA, DEFAULT_VERSION,
                                    timeout, data_buff);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(WARN, "send request to root server for fetch schema failed:"
@@ -536,7 +536,7 @@ int ObMergerRpcStub::scan(const int64_t timeout, ObMergerTabletLocationList& lis
 }
 
 
-int ObMergerRpcStub::fetch_tablet_location(const int64_t timeout, const ObServer& root_server,
+int ObMergerRpcStub::fetch_tablet_location(const int64_t timeout, const ObServer& name_server,
                                            const uint64_t root_table_id, const uint64_t table_id, const ObString& row_key,
                                            ObScanner& scanner) const {
   ObCellInfo cell;
@@ -553,7 +553,7 @@ int ObMergerRpcStub::fetch_tablet_location(const int64_t timeout, const ObServer
   if (ret != OB_SUCCESS) {
     TBSYS_LOG(ERROR, "add cell to get param failed:ret[%d]", ret);
   } else {
-    ret = get(timeout, root_server, get_param, scanner);
+    ret = get(timeout, name_server, get_param, scanner);
     if (ret != OB_SUCCESS) {
       TBSYS_LOG(WARN, "scan root server for get chunk server location failed:"
                 "table_id[%lu], ret[%d]", table_id, ret);

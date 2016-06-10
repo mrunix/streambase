@@ -42,7 +42,7 @@ class MockChunkServer : public MockServer {
   int split_table();
  private:
   tbsys::CThreadMutex mutex_;
-  ObServer root_server_;
+  ObServer name_server_;
   int total_;
   int number_;
   int64_t root_table_size_;

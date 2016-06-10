@@ -63,8 +63,8 @@ TEST_F(TestClientWrapper, init) {
   const char* addr = "localhost";
   int64_t rpc_retry_times = 3;
   int64_t rpc_timeout = 20;
-  ObServer root_server;
-  root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
+  ObServer name_server;
+  name_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
 
   ObServer update_server;
   update_server.set_ipv4_addr(addr, MockUpdateServer::UPDATE_SERVER_PORT);
@@ -73,7 +73,7 @@ TEST_F(TestClientWrapper, init) {
   ObUpsTableMgr ups_table_mgr;
   ups_table_mgr.init();
 
-  ObClientWrapper client_wrapper(rpc_retry_times, rpc_timeout, root_server,
+  ObClientWrapper client_wrapper(rpc_retry_times, rpc_timeout, name_server,
                                  update_server, merge_server, ups_table_mgr);
 
   ObMergerRpcStub stub;
@@ -89,7 +89,7 @@ TEST_F(TestClientWrapper, init) {
 
   EXPECT_TRUE(OB_SUCCESS == client_wrapper.init(&stub, schema, location));
   EXPECT_TRUE(rpc_timeout == client_wrapper.get_proxy().get_rpc_timeout());
-  EXPECT_TRUE(root_server == client_wrapper.get_proxy().get_root_server());
+  EXPECT_TRUE(name_server == client_wrapper.get_proxy().get_root_server());
   EXPECT_TRUE(update_server == client_wrapper.get_proxy().get_update_server());
   EXPECT_TRUE(NULL != client_wrapper.get_proxy().get_rpc_stub());
 
@@ -129,13 +129,13 @@ TEST_F(TestClientWrapper, get) {
   sleep(2);
 
   //init the client_wrapper
-  ObServer root_server;
-  root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
+  ObServer name_server;
+  name_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
   ObServer update_server;
   update_server.set_ipv4_addr(addr, 2302);
   ObServer merge_server;
   merge_server.set_ipv4_addr(addr, 10256);
-  //ObMergerRpcProxy proxy(3, timeout, root_server, update_server, merge_server);
+  //ObMergerRpcProxy proxy(3, timeout, name_server, update_server, merge_server);
   //set the manager_param
   ObMergerSchemaManager* manager_param = new ObMergerSchemaManager;
   tbsys::CConfig c1;
@@ -150,7 +150,7 @@ TEST_F(TestClientWrapper, get) {
   ret = ups_table_mgr.set_schemas(ups_schema_mgr);
   EXPECT_EQ(0, ret);
 
-  ObClientWrapper* client_wrapper = new ObClientWrapper(1, timeout, root_server,
+  ObClientWrapper* client_wrapper = new ObClientWrapper(1, timeout, name_server,
                                                         update_server, merge_server, ups_table_mgr);
 
   //set the get_param

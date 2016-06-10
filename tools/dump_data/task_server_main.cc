@@ -71,9 +71,9 @@ int main(int argc, char** argv) {
 
 int main_routine(const set<string>& tables, const TaskServerParam& param) {
   int ret = OB_SUCCESS;
-  ObServer root_server(ObServer::IPV4, param.get_root_server_ip(), param.get_root_server_port());
+  ObServer name_server(ObServer::IPV4, param.get_root_server_ip(), param.get_root_server_port());
   TaskServer server(param.get_result_file(), param.get_timeout_times(), param.get_max_visit_count(),
-                    param.get_network_timeout(), root_server);
+                    param.get_network_timeout(), name_server);
   RpcStub rpc(server.get_client(), server.get_buffer());
   //
   TaskFactory& task_factory = server.get_task_factory();

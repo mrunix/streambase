@@ -53,11 +53,11 @@ class ObMergerRpcProxy {
   // construct func
   // param  @retry_times rpc call retry times when error occured
   //        @timeout every rpc call timeout
-  //        @root_server root server addr for some interface
+  //        @name_server root server addr for some interface
   //        @update_server update server addr for some interface
   //        @mege_server merge server local host addr for input
   ObMergerRpcProxy(const int64_t retry_times, const int64_t timeout,
-                   const common::ObServer& root_server, const common::ObServer& update_server,
+                   const common::ObServer& name_server, const common::ObServer& update_server,
                    const common::ObServer& merge_server, const common::ObServerType type = common::MERGE_SERVER);
 
   virtual ~ObMergerRpcProxy();
@@ -108,10 +108,10 @@ class ObMergerRpcProxy {
   }
 
   const common::ObServer& get_root_server(void) const {
-    return root_server_;
+    return name_server_;
   }
   void set_root_server(const common::ObServer& server) {
-    root_server_ = server;
+    name_server_ = server;
   }
 
   const common::ObServer& get_update_server(void) const {
@@ -251,7 +251,7 @@ class ObMergerRpcProxy {
   int get_first_tablet_location(const common::ObScanParam& param, common::ObString& search_key,
                                 char** temp_buffer, ObMergerTabletLocationList& location);
 
-  // scan tablet location through root_server rpc call
+  // scan tablet location through name_server rpc call
   // param  @table_id table id of root table
   //        @row_key row key included in tablet range
   //        @location tablet location
@@ -268,7 +268,7 @@ class ObMergerRpcProxy {
   int64_t rpc_retry_times_;                     // rpc retry times
   char max_range_[MAX_RANGE_LEN];               // for debug print range string
   char max_rowkey_[MAX_ROWKEY_LEN];             // 8 0xFF as max rowkey
-  common::ObServer root_server_;                // root server addr
+  common::ObServer name_server_;                // root server addr
   common::ObServer merge_server_;               // merge server addr
   common::ObServer update_server_;              // update server vip addr
   // update server list

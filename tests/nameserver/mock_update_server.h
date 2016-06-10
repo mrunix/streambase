@@ -28,7 +28,7 @@ class MockUpdateServer : public MockServer {
  private:
   int handle_mock_freeze(ObPacket* ob_packet);
   int handle_drop_tablets(ObPacket* ob_packet);
-  ObServer root_server_;
+  ObServer name_server_;
 
 };
 }

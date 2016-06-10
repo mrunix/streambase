@@ -86,7 +86,7 @@ const char* inet_ntoa_r(const uint64_t ipport) {
   return buffer;
 }
 
-NameWorker::NameWorker()
+NameServerWorker::NameServerWorker()
   : is_registered_(false),
     task_read_queue_size_(DEFAULT_TASK_READ_QUEUE_SIZE),
     task_write_queue_size_(DEFAULT_TASK_WRITE_QUEUE_SIZE),
@@ -95,14 +95,17 @@ NameWorker::NameWorker()
     stat_manager_() {
   config_file_name_[0] = '\0';
 }
-NameWorker::~NameWorker() {
+
+NameServerWorker::~NameServerWorker() {
 }
-int NameWorker::set_config_file_name(const char* conf_file_name) {
+
+int NameServerWorker::set_config_file_name(const char* conf_file_name) {
   strncpy(config_file_name_, conf_file_name, OB_MAX_FILE_NAME_LENGTH);
   config_file_name_[OB_MAX_FILE_NAME_LENGTH - 1] = '\0';
   return OB_SUCCESS;
 }
-int NameWorker::initialize() {
+
+int NameServerWorker::initialize() {
   int ret = OB_SUCCESS;
 
   if (OB_SUCCESS == ret) {
@@ -110,7 +113,7 @@ int NameWorker::initialize() {
   }
 
   if (OB_SUCCESS == ret) {
-    ret = rt_rpc_stub_.init(&client_manager, &my_thread_buffer);
+    ret = ns_rpc_stub_.init(&client_manager, &my_thread_buffer);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(WARN, "init rpc stub failed, err=%d", ret);
     }
@@ -148,7 +151,7 @@ int NameWorker::initialize() {
     int64_t log_sync_timeout = TBSYS_CONFIG.getInt(STR_NAME_SECTION, STR_LOG_SYNC_TIMEOUT_US, DEFAULT_LOG_SYNC_TIMEOUT_US);
     int64_t lease_interval = TBSYS_CONFIG.getInt(STR_NAME_SECTION, STR_LEASE_INTERVAL_US, DEFAULT_LEASE_INTERVAL_US);
     int64_t lease_reserv = TBSYS_CONFIG.getInt(STR_NAME_SECTION, STR_LEASE_RESERVED_TIME_US, DEFAULT_LEASE_RESERVED_TIME_US);
-    ret = slave_mgr_.init(vip, &rt_rpc_stub_, log_sync_timeout, lease_interval, lease_reserv);
+    ret = slave_mgr_.init(vip, &ns_rpc_stub_, log_sync_timeout, lease_interval, lease_reserv);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(WARN, "failed to init slave manager, err=%d", ret);
     }
@@ -182,7 +185,7 @@ int NameWorker::initialize() {
     rt_master_.set_ipv4_addr(vip, port_);
 
     int64_t vip_check_period_us = TBSYS_CONFIG.getInt(STR_NAME_SECTION, STR_VIP_CHECK_PERIOD_US, DEFAULT_VIP_CHECK_PERIOD_US);
-    ret = check_thread_.init(&role_mgr_, vip, vip_check_period_us, &rt_rpc_stub_, &rt_master_, &self_addr_);
+    ret = check_thread_.init(&role_mgr_, vip, vip_check_period_us, &ns_rpc_stub_, &rt_master_, &self_addr_);
   }
 
   if (ret == OB_SUCCESS) {
@@ -196,7 +199,7 @@ int NameWorker::initialize() {
   return ret;
 }
 
-int NameWorker::start_service() {
+int NameServerWorker::start_service() {
   int ret = OB_ERROR;
 
   ObRoleMgr::Role role = role_mgr_.get_role();
@@ -212,7 +215,7 @@ int NameWorker::start_service() {
   return ret;
 }
 
-int NameWorker::start_as_master() {
+int NameServerWorker::start_as_master() {
   int ret = OB_ERROR;
   TBSYS_LOG(INFO, "[NOTICE] master start step1");
   ret = log_manager_.init(&name_server_, &slave_mgr_);
@@ -229,7 +232,6 @@ int NameWorker::start_as_master() {
     TBSYS_LOG(INFO, "[NOTICE] master start step3");
     log_manager_.get_log_worker()->reset_cs_hb_time();
   }
-
 
   if (ret == OB_SUCCESS) {
     TBSYS_LOG(INFO, "[NOTICE] master start step4");
@@ -258,7 +260,7 @@ int NameWorker::start_as_master() {
   return ret;
 }
 
-int NameWorker::start_as_slave() {
+int NameServerWorker::start_as_slave() {
   int err = OB_SUCCESS;
 
   // get obi role from the master
@@ -350,7 +352,7 @@ int NameWorker::start_as_slave() {
 
       //get last frozen mem table version from updateserver
       int64_t frozen_version = 1;
-      if (OB_SUCCESS == rt_rpc_stub_.get_last_frozen_version(name_server_.get_update_server_info(),
+      if (OB_SUCCESS == ns_rpc_stub_.get_last_frozen_version(name_server_.get_update_server_info(),
                                                              network_timeout_, frozen_version)) {
         name_server_.report_frozen_memtable(frozen_version, false);
       } else {
@@ -380,12 +382,12 @@ int NameWorker::start_as_slave() {
   return err;
 }
 
-int NameWorker::get_obi_role_from_master() {
+int NameServerWorker::get_obi_role_from_master() {
   int ret = OB_SUCCESS;
   ObiRole role;
   const static int SLEEP_US_WHEN_INIT = 2000 * 1000; // 2s
   while (true) {
-    ret = rt_rpc_stub_.get_obi_role(rt_master_, network_timeout_, role);
+    ret = ns_rpc_stub_.get_obi_role(rt_master_, network_timeout_, role);
     if (OB_SUCCESS != ret) {
       TBSYS_LOG(ERROR, "failed to get obi_role from the master, err=%d", ret);
       break;
@@ -408,12 +410,12 @@ int NameWorker::get_obi_role_from_master() {
   return ret;
 }
 
-void NameWorker::destroy() {
+void NameServerWorker::destroy() {
   role_mgr_.set_state(ObRoleMgr::STOP);
 
   if (ObRoleMgr::SLAVE == role_mgr_.get_role()) {
     if (is_registered_) {
-      rt_rpc_stub_.slave_quit(rt_master_, self_addr_, DEFAULT_SLAVE_QUIT_TIMEOUT);
+      ns_rpc_stub_.slave_quit(rt_master_, self_addr_, DEFAULT_SLAVE_QUIT_TIMEOUT);
       is_registered_ = false;
     }
     log_thread_queue_.stop();
@@ -430,7 +432,7 @@ void NameWorker::destroy() {
   name_server_.stop_threads();
 }
 
-void NameWorker::wait_for_queue() {
+void NameServerWorker::wait_for_queue() {
   if (ObRoleMgr::SLAVE == role_mgr_.get_role()) {
     log_thread_queue_.wait();
     TBSYS_LOG(INFO, "log thread stopped");
@@ -447,7 +449,7 @@ void NameWorker::wait_for_queue() {
   }
 }
 
-tbnet::IPacketHandler::HPRetCode NameWorker::handlePacket(tbnet::Connection* connection, tbnet::Packet* packet) {
+tbnet::IPacketHandler::HPRetCode NameServerWorker::handlePacket(tbnet::Connection* connection, tbnet::Packet* packet) {
   tbnet::IPacketHandler::HPRetCode rc = tbnet::IPacketHandler::FREE_CHANNEL;
   if (!packet->isRegularPacket()) {
     TBSYS_LOG(WARN, "control packet, packet code: %d", ((tbnet::ControlPacket*)packet)->getCommand());
@@ -545,13 +547,15 @@ tbnet::IPacketHandler::HPRetCode NameWorker::handlePacket(tbnet::Connection* con
   }
   return rc;
 }
-bool NameWorker::handleBatchPacket(tbnet::Connection* connection, tbnet::PacketQueue& packetQueue) {
+
+bool NameServerWorker::handleBatchPacket(tbnet::Connection* connection, tbnet::PacketQueue& packetQueue) {
   UNUSED(connection);
   UNUSED(packetQueue);
   TBSYS_LOG(ERROR, "you should not reach this, not supporrted");
   return true;
 }
-bool NameWorker::handlePacketQueue(tbnet::Packet* packet, void* args) {
+
+bool NameServerWorker::handlePacketQueue(tbnet::Packet* packet, void* args) {
   bool ret = true;
   int return_code = OB_SUCCESS;
   static __thread int64_t worker_counter = 0;
@@ -737,7 +741,7 @@ bool NameWorker::handlePacketQueue(tbnet::Packet* packet, void* args) {
   return ret;//if return true packet will be deleted.
 }
 
-bool NameWorker::start_merge() {
+bool NameServerWorker::start_merge() {
   //int64_t now = tbsys::CTimeUtil::getTime();
   bool ret = false;
   int retry = 0;
@@ -748,9 +752,10 @@ bool NameWorker::start_merge() {
   }
   return ret;
 }
-int NameWorker::rt_get_update_server_info(const int32_t version, ObDataBuffer& in_buff,
-                                          tbnet::Connection* conn, const uint32_t channel_id, ObDataBuffer& out_buff,
-                                          bool use_inner_port /* = false*/) {
+
+int NameServerWorker::rt_get_update_server_info(const int32_t version, ObDataBuffer& in_buff,
+                                                tbnet::Connection* conn, const uint32_t channel_id, ObDataBuffer& out_buff,
+                                                bool use_inner_port /* = false*/) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -793,8 +798,8 @@ int NameWorker::rt_get_update_server_info(const int32_t version, ObDataBuffer& i
   return ret;
 }
 
-int NameWorker::rt_get_merge_delay_interval(const int32_t version, ObDataBuffer& in_buff,
-                                            tbnet::Connection* conn, const uint32_t channel_id, ObDataBuffer& out_buff) {
+int NameServerWorker::rt_get_merge_delay_interval(const int32_t version, ObDataBuffer& in_buff,
+                                                  tbnet::Connection* conn, const uint32_t channel_id, ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -829,8 +834,8 @@ int NameWorker::rt_get_merge_delay_interval(const int32_t version, ObDataBuffer&
 }
 
 
-int NameWorker::rt_scan(const int32_t version, ObDataBuffer& in_buff,
-                        tbnet::Connection* conn, const uint32_t channel_id, ObDataBuffer& out_buff) {
+int NameServerWorker::rt_scan(const int32_t version, ObDataBuffer& in_buff,
+                              tbnet::Connection* conn, const uint32_t channel_id, ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -880,8 +885,8 @@ int NameWorker::rt_scan(const int32_t version, ObDataBuffer& in_buff,
 }
 //ObResultCode rt_get(const ObGetParam& get_param, ObScanner& scanner);
 
-int NameWorker::rt_get(const int32_t version, ObDataBuffer& in_buff,
-                       tbnet::Connection* conn, const uint32_t channel_id, ObDataBuffer& out_buff) {
+int NameServerWorker::rt_get(const int32_t version, ObDataBuffer& in_buff,
+                             tbnet::Connection* conn, const uint32_t channel_id, ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -939,8 +944,8 @@ int NameWorker::rt_get(const int32_t version, ObDataBuffer& in_buff,
   return ret;
 }
 
-int NameWorker::rt_fetch_schema(const int32_t version, common::ObDataBuffer& in_buff,
-                                tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_fetch_schema(const int32_t version, common::ObDataBuffer& in_buff,
+                                      tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
@@ -1000,8 +1005,9 @@ int NameWorker::rt_fetch_schema(const int32_t version, common::ObDataBuffer& in_
   }
   return ret;
 }
-int NameWorker::rt_fetch_schema_version(const int32_t version, common::ObDataBuffer& in_buff,
-                                        tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+
+int NameServerWorker::rt_fetch_schema_version(const int32_t version, common::ObDataBuffer& in_buff,
+                                              tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
@@ -1034,8 +1040,8 @@ int NameWorker::rt_fetch_schema_version(const int32_t version, common::ObDataBuf
   return ret;
 }
 
-int NameWorker::rt_report_tablets(const int32_t version, common::ObDataBuffer& in_buff,
-                                  tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_report_tablets(const int32_t version, common::ObDataBuffer& in_buff,
+                                        tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -1084,8 +1090,9 @@ int NameWorker::rt_report_tablets(const int32_t version, common::ObDataBuffer& i
 
   return ret;
 }
-int NameWorker::rt_waiting_jsb_done(const int32_t version, common::ObDataBuffer& in_buff,
-                                    tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+
+int NameServerWorker::rt_waiting_jsb_done(const int32_t version, common::ObDataBuffer& in_buff,
+                                          tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -1124,8 +1131,8 @@ int NameWorker::rt_waiting_jsb_done(const int32_t version, common::ObDataBuffer&
 
 }
 
-int NameWorker::rt_register(const int32_t version, common::ObDataBuffer& in_buff,
-                            tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_register(const int32_t version, common::ObDataBuffer& in_buff,
+                                  tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -1173,8 +1180,8 @@ int NameWorker::rt_register(const int32_t version, common::ObDataBuffer& in_buff
 
 }
 
-int NameWorker::rt_migrate_over(const int32_t version, common::ObDataBuffer& in_buff,
-                                tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_migrate_over(const int32_t version, common::ObDataBuffer& in_buff,
+                                      tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -1233,8 +1240,8 @@ int NameWorker::rt_migrate_over(const int32_t version, common::ObDataBuffer& in_
   return ret;
 
 }
-int NameWorker::rt_report_capacity_info(const int32_t version, common::ObDataBuffer& in_buff,
-                                        tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_report_capacity_info(const int32_t version, common::ObDataBuffer& in_buff,
+                                              tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -1280,8 +1287,8 @@ int NameWorker::rt_report_capacity_info(const int32_t version, common::ObDataBuf
   return ret;
 
 }
-int NameWorker::rt_heartbeat(const int32_t version, common::ObDataBuffer& in_buff,
-                             tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_heartbeat(const int32_t version, common::ObDataBuffer& in_buff,
+                                   tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 2;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -1313,8 +1320,8 @@ int NameWorker::rt_heartbeat(const int32_t version, common::ObDataBuffer& in_buf
   }
   return ret;
 }
-int NameWorker::rt_dump_cs_info(const int32_t version, common::ObDataBuffer& in_buff,
-                                tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_dump_cs_info(const int32_t version, common::ObDataBuffer& in_buff,
+                                      tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
@@ -1354,8 +1361,8 @@ int NameWorker::rt_dump_cs_info(const int32_t version, common::ObDataBuffer& in_
   return ret;
 
 }
-int NameWorker::rt_fetch_stats(const int32_t version, common::ObDataBuffer& in_buff,
-                               tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_fetch_stats(const int32_t version, common::ObDataBuffer& in_buff,
+                                     tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
@@ -1383,19 +1390,19 @@ int NameWorker::rt_fetch_stats(const int32_t version, common::ObDataBuffer& in_b
 
 }
 
-ObRootLogManager* NameWorker::get_log_manager() {
+NameServerLogManager* NameServerWorker::get_log_manager() {
   return &log_manager_;
 }
 
-ObRoleMgr* NameWorker::get_role_manager() {
+ObRoleMgr* NameServerWorker::get_role_manager() {
   return &role_mgr_;
 }
 
-common::ThreadSpecificBuffer::Buffer* NameWorker::get_rpc_buffer() const {
+common::ThreadSpecificBuffer::Buffer* NameServerWorker::get_rpc_buffer() const {
   return my_thread_buffer.get_buffer();
 }
 
-int NameWorker::rt_ping(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_ping(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
@@ -1418,7 +1425,7 @@ int NameWorker::rt_ping(const int32_t version, common::ObDataBuffer& in_buff, tb
   return ret;
 }
 
-int NameWorker::rt_slave_quit(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_slave_quit(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
 
@@ -1463,7 +1470,7 @@ int NameWorker::rt_slave_quit(const int32_t version, common::ObDataBuffer& in_bu
   return ret;
 }
 
-int NameWorker::rt_update_server_report_freeze(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_update_server_report_freeze(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   int64_t frozen_version = 0;
@@ -1511,7 +1518,7 @@ int NameWorker::rt_update_server_report_freeze(const int32_t version, common::Ob
 }
 
 
-int NameWorker::rt_slave_register(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_slave_register(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   if (version != MY_VERSION) {
@@ -1583,7 +1590,7 @@ int NameWorker::rt_slave_register(const int32_t version, common::ObDataBuffer& i
   return ret;
 }
 
-int NameWorker::slave_register_(common::ObFetchParam& fetch_param) {
+int NameServerWorker::slave_register_(common::ObFetchParam& fetch_param) {
   int err = OB_SUCCESS;
   int64_t timeout = TBSYS_CONFIG.getInt(STR_NAME_SECTION, STR_REGISTER_TIMEOUT_US, DEFAULT_REGISTER_TIMEOUT_US);
   const ObServer& self_addr = self_addr_;
@@ -1592,7 +1599,7 @@ int NameWorker::slave_register_(common::ObFetchParam& fetch_param) {
   for (int64_t i = 0; ObRoleMgr::STOP != role_mgr_.get_state()
        && OB_RESPONSE_TIME_OUT == err; i++) {
     // slave register
-    err = rt_rpc_stub_.slave_register(rt_master_, self_addr_, fetch_param, timeout);
+    err = ns_rpc_stub_.slave_register(rt_master_, self_addr_, fetch_param, timeout);
     if (OB_RESPONSE_TIME_OUT == err) {
       TBSYS_LOG(INFO, "slave register timeout, i=%ld, err=%d", i, err);
     }
@@ -1623,7 +1630,7 @@ int NameWorker::slave_register_(common::ObFetchParam& fetch_param) {
   return err;
 }
 
-int NameWorker::rt_renew_lease(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_renew_lease(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   int ret = OB_SUCCESS;
   if (version != MY_VERSION) {
@@ -1664,7 +1671,7 @@ int NameWorker::rt_renew_lease(const int32_t version, common::ObDataBuffer& in_b
   return ret;
 }
 
-int NameWorker::rt_grant_lease(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_grant_lease(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   static const int MY_VERSION = 1;
   int ret = OB_SUCCESS;
   if (version != MY_VERSION) {
@@ -1703,7 +1710,7 @@ int NameWorker::rt_grant_lease(const int32_t version, common::ObDataBuffer& in_b
   return ret;
 }
 
-int NameWorker::rt_slave_write_log(const int32_t version, common::ObDataBuffer& in_buffer, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buffer) {
+int NameServerWorker::rt_slave_write_log(const int32_t version, common::ObDataBuffer& in_buffer, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buffer) {
   static const int MY_VERSION = 1;
   common::ObResultCode result_msg;
   result_msg.result_code_ = OB_SUCCESS;
@@ -1804,7 +1811,7 @@ int NameWorker::rt_slave_write_log(const int32_t version, common::ObDataBuffer& 
 }
 
 
-int NameWorker::rt_get_obi_role(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_get_obi_role(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(version);
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
@@ -1833,7 +1840,7 @@ int NameWorker::rt_get_obi_role(const int32_t version, common::ObDataBuffer& in_
   return ret;
 }
 
-int NameWorker::rt_set_obi_role(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_set_obi_role(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   UNUSED(version);
@@ -1855,7 +1862,7 @@ int NameWorker::rt_set_obi_role(const int32_t version, common::ObDataBuffer& in_
   return ret;
 }
 
-int NameWorker::rt_admin(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_admin(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   UNUSED(version);
@@ -1876,7 +1883,7 @@ int NameWorker::rt_admin(const int32_t version, common::ObDataBuffer& in_buff, t
   return ret;
 }
 
-int NameWorker::do_admin(int admin_cmd) {
+int NameServerWorker::do_admin(int admin_cmd) {
   int ret = OB_SUCCESS;
   switch (admin_cmd) {
   case OB_RS_ADMIN_CHECKPOINT:
@@ -1921,7 +1928,7 @@ int NameWorker::do_admin(int admin_cmd) {
   return ret;
 }
 
-int NameWorker::rt_change_log_level(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_change_log_level(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   UNUSED(version);
@@ -1948,7 +1955,7 @@ int NameWorker::rt_change_log_level(const int32_t version, common::ObDataBuffer&
   return ret;
 }
 
-int NameWorker::rt_stat(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_stat(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int MY_VERSION = 1;
   UNUSED(version);
@@ -1973,7 +1980,7 @@ int NameWorker::rt_stat(const int32_t version, common::ObDataBuffer& in_buff, tb
 
 using sb::common::databuff_printf;
 
-int NameWorker::do_stat(int stat_key, char* buf, const int64_t buf_len, int64_t& pos) {
+int NameServerWorker::do_stat(int stat_key, char* buf, const int64_t buf_len, int64_t& pos) {
   int ret = OB_SUCCESS;
   TBSYS_LOG(DEBUG, "do_stat start, stat_key=%d buf=%p buf_len=%ld pos=%ld",
             stat_key, buf, buf_len, pos);
@@ -1993,7 +2000,7 @@ int NameWorker::do_stat(int stat_key, char* buf, const int64_t buf_len, int64_t&
   return ret;
 }
 
-int NameWorker::rt_get_obi_config(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_get_obi_config(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   UNUSED(version);
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
@@ -2014,7 +2021,7 @@ int NameWorker::rt_get_obi_config(const int32_t version, common::ObDataBuffer& i
   return ret;
 }
 
-int NameWorker::rt_set_obi_config(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_set_obi_config(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   static const int OLD_VERSION = 1;
   static const int MY_VERSION = 2;
@@ -2057,7 +2064,7 @@ int NameWorker::rt_set_obi_config(const int32_t version, common::ObDataBuffer& i
   return ret;
 }
 
-int NameWorker::rt_get_ups(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_get_ups(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
@@ -2078,7 +2085,7 @@ int NameWorker::rt_get_ups(const int32_t version, common::ObDataBuffer& in_buff,
   return ret;
 }
 
-int NameWorker::rt_set_ups_config(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_set_ups_config(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
@@ -2106,7 +2113,7 @@ int NameWorker::rt_set_ups_config(const int32_t version, common::ObDataBuffer& i
   return ret;
 }
 
-int NameWorker::rt_get_client_config(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_get_client_config(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
@@ -2127,7 +2134,7 @@ int NameWorker::rt_get_client_config(const int32_t version, common::ObDataBuffer
   return ret;
 }
 
-int NameWorker::rt_get_cs_list(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_get_cs_list(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   UNUSED(in_buff);
   static const int MY_VERSION = 1;
@@ -2148,7 +2155,7 @@ int NameWorker::rt_get_cs_list(const int32_t version, common::ObDataBuffer& in_b
   return ret;
 }
 
-int NameWorker::rt_get_ms_list(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
+int NameServerWorker::rt_get_ms_list(const int32_t version, common::ObDataBuffer& in_buff, tbnet::Connection* conn, const uint32_t channel_id, common::ObDataBuffer& out_buff) {
   int ret = OB_SUCCESS;
   UNUSED(in_buff);
   static const int MY_VERSION = 1;

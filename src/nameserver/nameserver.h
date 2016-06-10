@@ -1,5 +1,5 @@
 /*
- * src/nameserver/name_server.h
+ * src/nameserver/nameserver.h
  *
  * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
@@ -46,8 +46,8 @@ class ObTabletReportInfoList;
 }
 namespace nameserver {
 class NameTable;
-class ObRootServerTester;
-class NameWorker;
+class NameServerTester;
+class NameServerWorker;
 class NameServer {
  public:
   static const int STATUS_INIT         = 0;
@@ -79,7 +79,7 @@ class NameServer {
   NameServer();
   virtual ~NameServer();
 
-  bool init(const char* config_file_name, const int64_t now, NameWorker* worker);
+  bool init(const char* config_file_name, const int64_t now, NameServerWorker* worker);
   void start_threads();
   void stop_threads();
 
@@ -166,8 +166,8 @@ class NameServer {
   int serialize_cs_list(char* buf, const int64_t buf_len, int64_t& pos) const;
   int serialize_ms_list(char* buf, const int64_t buf_len, int64_t& pos) const;
 
-  friend class ObRootServerTester;
-  friend class ObRootLogWorker;
+  friend class NameServerTester;
+  friend class NameServerLogWorker;
   friend class ::ObBalanceTest;
   friend class ::ObBalanceTest_test_n_to_2_Test;
   friend class ::ObBalanceTest_test_timeout_Test;
@@ -325,8 +325,8 @@ class NameServer {
   int64_t pre_frozen_mem_version_;
   int64_t last_frozen_time_;
 
-  NameWorker* worker_;//who does the net job
-  ObRootLogWorker* log_worker_;
+  NameServerWorker* worker_;//who does the net job
+  NameServerLogWorker* log_worker_;
 
   common::ObiRole obi_role_;        // my role as sb instance
   int32_t tablet_replicas_num_;

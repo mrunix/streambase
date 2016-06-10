@@ -82,11 +82,11 @@ TEST_F(TestTaskFactory, test_get_tablets) {
   uint64_t count = 0;
   TaskFactory factory;
   EXPECT_TRUE(OB_SUCCESS != factory.get_all_tablets(count));
-  ObServer root_server;
+  ObServer name_server;
   const char* addr = "localhost";
-  root_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
+  name_server.set_ipv4_addr(addr, MockRootServer::ROOT_SERVER_PORT);
   TaskManager task_manager;
-  EXPECT_TRUE(OB_SUCCESS == factory.init(1, 1000 * 1000, root_server,
+  EXPECT_TRUE(OB_SUCCESS == factory.init(1, 1000 * 1000, name_server,
                                          &schema, &rpc, &task_manager));
 
   // no table
