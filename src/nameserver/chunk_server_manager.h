@@ -60,7 +60,7 @@ const int16_t CHUNK_SERVER_MAGIC = 0xCDFF;
  * so the chunk server can report his tablets to root server. when the chunk server
  * finish reporting, it will let the root server knows. root server will change chunk server's
  * status to STATUS_REPORTED. when every alive chunk server has a status with STATUS_REPORTED.
- * root server can repacles his old root_table with the new one. then
+ * root server can repacles his old name_table with the new one. then
  * the root server will give them the command star_new_schema, and change their status to
  * STATUS_SERVING.
  *

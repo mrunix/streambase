@@ -93,7 +93,7 @@ TEST(BalanceCandidateTest, ObCandidateServerBySharedManager2) {
 
   ObTabletInfo tablet_info;
   ObTabletInfoManager* info = new ObTabletInfoManager();
-  NameTable* root_table = new NameTable(info);
+  NameTable* name_table = new NameTable(info);
 
   tablet_info.range_.border_flag_.unset_inclusive_start();
   tablet_info.range_.border_flag_.set_inclusive_end();
@@ -101,35 +101,35 @@ TEST(BalanceCandidateTest, ObCandidateServerBySharedManager2) {
   tablet_info.range_.border_flag_.set_max_value();
 
   tablet_info.range_.table_id_ = 1;
-  root_table->add(tablet_info, 0, 0);
-  root_table->add(tablet_info, 2, 0);  // 0, 2
+  name_table->add(tablet_info, 0, 0);
+  name_table->add(tablet_info, 2, 0);  // 0, 2
 
   tablet_info.range_.table_id_ = 2;
-  root_table->add(tablet_info, 1, 0);
-  root_table->add(tablet_info, 2, 0);  // 1, 2
+  name_table->add(tablet_info, 1, 0);
+  name_table->add(tablet_info, 2, 0);  // 1, 2
 
   tablet_info.range_.table_id_ = 3;
-  root_table->add(tablet_info, 1, 0);
-  root_table->add(tablet_info, 3, 0);  // 1,3
+  name_table->add(tablet_info, 1, 0);
+  name_table->add(tablet_info, 3, 0);  // 1,3
 
   tablet_info.range_.table_id_ = 4;
-  root_table->add(tablet_info, 2, 0);
-  root_table->add(tablet_info, 3, 0);  // 2, 3
+  name_table->add(tablet_info, 2, 0);
+  name_table->add(tablet_info, 3, 0);  // 2, 3
 
   tablet_info.range_.table_id_ = 5;
-  root_table->add(tablet_info, 1, 0);
-  root_table->add(tablet_info, 2, 0);  // 1,2
+  name_table->add(tablet_info, 1, 0);
+  name_table->add(tablet_info, 2, 0);  // 1,2
 
   tablet_info.range_.table_id_ = 6;
-  root_table->add(tablet_info, 2, 0);
-  root_table->add(tablet_info, 3, 0);  // 2, 3
+  name_table->add(tablet_info, 2, 0);
+  name_table->add(tablet_info, 3, 0);  // 2, 3
 
   ObCandidateServerBySharedManager2 shared_manager;
   ObCandidateServerBySharedManager2::effectiveServer effective_server;
   ObTabletInfoManager* info2 = new ObTabletInfoManager();
   NameTable* root_table2 = new NameTable(info2);
-  root_table->sort();
-  root_table->shrink_to(root_table2);
+  name_table->sort();
+  name_table->shrink_to(root_table2);
 
   effective_server.server_indexes_[0] = 1;
 
@@ -166,7 +166,7 @@ TEST(BalanceCandidateTest, ObCandidateServerBySharedManager2) {
   ASSERT_EQ(1, it->server_index_);
   it++;
   ASSERT_EQ(2, it->server_index_);
-  delete root_table;
+  delete name_table;
   delete info;
   delete root_table2;
   delete info2;

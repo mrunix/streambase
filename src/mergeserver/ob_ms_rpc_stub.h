@@ -99,7 +99,7 @@ class ObMergerRpcStub {
   // get tablet location info through root server rpc call
   // param  @timeout  action timeout
   //        @name_server root server addr
-  //        @root_table root table name
+  //        @name_table root table name
   //        @table_id look up table id
   //        @row_key look up row key
   //        @scanner scaned tablets location result set

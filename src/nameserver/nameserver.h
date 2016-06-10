@@ -289,7 +289,7 @@ class NameServer {
   int64_t time_stamp_changing_;
   int64_t frozen_mem_version_;
 
-  mutable tbsys::CThreadMutex root_table_build_mutex_; //any time only one thread can modify root_table
+  mutable tbsys::CThreadMutex root_table_build_mutex_; //any time only one thread can modify name_table
   //ObRootTable one for query
   //another for receive reporting and build new one
   NameTable* root_table_for_query_;

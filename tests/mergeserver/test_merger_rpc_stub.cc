@@ -163,12 +163,12 @@ TEST_F(TestRpcStub, test_scan_root_table) {
 
   // scan root error
   char* string = "test_table";
-  uint64_t root_table = 0;
+  uint64_t name_table = 0;
   uint64_t table_id = 100;
   ObString row_key;
   row_key.assign(string, strlen(string));
   ObScanner scanner;
-  EXPECT_TRUE(OB_SUCCESS != stub.fetch_tablet_location(timeout, name_server, root_table, table_id, row_key, scanner));
+  EXPECT_TRUE(OB_SUCCESS != stub.fetch_tablet_location(timeout, name_server, name_table, table_id, row_key, scanner));
 
   // start root server
   MockRootServer server;
@@ -178,8 +178,8 @@ TEST_F(TestRpcStub, test_scan_root_table) {
   sleep(2);
 
   // root table id = 0
-  root_table = 0;
-  EXPECT_TRUE(OB_SUCCESS == stub.fetch_tablet_location(timeout, name_server, root_table, table_id, row_key, scanner));
+  name_table = 0;
+  EXPECT_TRUE(OB_SUCCESS == stub.fetch_tablet_location(timeout, name_server, name_table, table_id, row_key, scanner));
 
   transport.stop();
   server.stop();

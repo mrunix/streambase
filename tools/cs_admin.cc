@@ -255,7 +255,7 @@ int dump_tablet_image(const vector<string>& param) {
 
 typedef std::map<ObString, map<string, int64_t> > SimpleRootTable;
 
-int store_root_table(ObScanner& scanner, SimpleRootTable& root_table, bool& end_of_table, ObString& end_row_key) {
+int store_root_table(ObScanner& scanner, SimpleRootTable& name_table, bool& end_of_table, ObString& end_row_key) {
   int ret = OB_SUCCESS;
 
   ObScannerIterator iter;
@@ -269,7 +269,7 @@ int store_root_table(ObScanner& scanner, SimpleRootTable& root_table, bool& end_
   ObString last_row_key;
 
   end_of_table = false;
-  root_table.clear();
+  name_table.clear();
 
   for (iter = scanner.begin(); iter != scanner.end(); iter++) {
     ObCellInfo* cell_info = NULL;
@@ -289,7 +289,7 @@ int store_root_table(ObScanner& scanner, SimpleRootTable& root_table, bool& end_
         //string row_key_str(column_strbuf);
         //fprintf(stderr, "column_strbuf=%s\n", column_strbuf);
         //hex_dump(cell_info->row_key_.ptr(), cell_info->row_key_.length());
-        root_table.insert(make_pair(last_row_key, root_item));
+        name_table.insert(make_pair(last_row_key, root_item));
         root_item.clear();
       }
 
@@ -326,7 +326,7 @@ int store_root_table(ObScanner& scanner, SimpleRootTable& root_table, bool& end_
   }
 
   if (OB_SUCCESS == ret && last_row_key.ptr()) {
-    root_table.insert(make_pair(last_row_key, root_item));
+    name_table.insert(make_pair(last_row_key, root_item));
     if (last_row_key.length() >= 1 && *(unsigned char*)(last_row_key.ptr()) == 0xff) {
       end_of_table = true;
     }
@@ -334,16 +334,16 @@ int store_root_table(ObScanner& scanner, SimpleRootTable& root_table, bool& end_
   }
 
 
-  //fprintf(stderr, "row_count=%d, size=%d\n", row_count,root_table.size());
+  //fprintf(stderr, "row_count=%d, size=%d\n", row_count,name_table.size());
   return ret;
 }
 
-int64_t sum_total_line(const SimpleRootTable& root_table) {
-  SimpleRootTable::const_iterator it = root_table.begin();
+int64_t sum_total_line(const SimpleRootTable& name_table) {
+  SimpleRootTable::const_iterator it = name_table.begin();
   map<string, int64_t>::const_iterator item_it ;
   int64_t total_line = 0;
 
-  while (it != root_table.end()) {
+  while (it != name_table.end()) {
     //const ObString & row_key = it->first;
     //hex_dump(row_key.ptr(), row_key.length());
     const map<string, int64_t>& item = it->second;
@@ -379,7 +379,7 @@ int scan_root_table(const vector<string>& param) {
   query_range.border_flag_.set_min_value();
   query_range.border_flag_.set_max_value();
 
-  SimpleRootTable root_table;
+  SimpleRootTable name_table;
 
   bool end_of_table = false;
   ObString end_row_key;
@@ -394,10 +394,10 @@ int scan_root_table(const vector<string>& param) {
     if (OB_SUCCESS != ret) {
       fprintf(stderr, "scan root server error, ret = %d", ret);
     } else {
-      store_root_table(scanner, root_table, end_of_table, end_row_key);
-      total_line = sum_total_line(root_table);
+      store_root_table(scanner, name_table, end_of_table, end_row_key);
+      total_line = sum_total_line(name_table);
       sum_line  += total_line;
-      //fprintf(stderr, "size=%d,total_line=%ld\n", (int)root_table.size(), sum_total_line(root_table));
+      //fprintf(stderr, "size=%d,total_line=%ld\n", (int)name_table.size(), sum_total_line(name_table));
     }
 
     //fprintf(stderr, "end_of_table=%d\n", end_of_table);

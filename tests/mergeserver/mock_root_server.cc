@@ -239,7 +239,7 @@ int MockRootServer::handle_get_root(ObPacket* ob_packet) {
     ObCellInfo cell;
 
     // the first row
-    sprintf(table, "root_table");
+    sprintf(table, "name_table");
     cell.table_name_.assign(table, strlen(table));
 
     sprintf(rowkey, "row_100");

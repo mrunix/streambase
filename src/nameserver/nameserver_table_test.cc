@@ -1,29 +1,21 @@
-/**
- * (C) 2010-2011 Alibaba Group Holding Limited.
+/*
+ * src/nameserver/nameserver_table_test.cc
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * Version: $Id$
- *
- * test_root_table2.cc for ...
- *
- * Authors:
- *   qushan <qushan@taobao.com>
- *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
-
 
 #include <gtest/gtest.h>
 #include <unistd.h>
+
 #include "common/ob_malloc.h"
 #include "common/ob_vector.h"
-#include "nameserver/ob_tablet_info_manager.h"
-#include "nameserver/ob_root_meta2.h"
-#include "nameserver/ob_root_table2.h"
+#include "nameserver/tablet_info_manager.h"
+#include "nameserver/nameserver_meta.h"
+#include "nameserver/nameserver_table.h"
+
 using namespace sb::common;
 using namespace sb::nameserver;
+
 namespace {
 void build_range(ObRange& r, int64_t tid, int8_t flag, const char* sk, const char* ek) {
 
@@ -38,7 +30,7 @@ void build_range(ObRange& r, int64_t tid, int8_t flag, const char* sk, const cha
 }
 }
 
-TEST(RootTable2Test, test_sort) {
+TEST(NameTableTest, test_sort) {
   ObRange r1, r2, r3, r4;
   const char* key1 = "foo1";
   const char* key2 = "key2";
@@ -64,16 +56,16 @@ TEST(RootTable2Test, test_sort) {
 
 
   ObTabletInfoManager* info_manager = new ObTabletInfoManager();
-  NameTable* root_table = new NameTable(info_manager);
-  root_table->add(t2, 1, 0);
-  root_table->add(t3, 2, 0);
-  root_table->add(t1, 3, 0);
-  root_table->add(t1, 4, 0);
+  NameTable* name_table = new NameTable(info_manager);
+  name_table->add(t2, 1, 0);
+  name_table->add(t3, 2, 0);
+  name_table->add(t1, 3, 0);
+  name_table->add(t1, 4, 0);
 
-  root_table->sort();
-  NameMeta* it = root_table->begin();
+  name_table->sort();
+  NameMeta* it = name_table->begin();
 
-  const ObTabletInfo* tablet_info = ((const NameTable*)root_table)->get_tablet_info(it);
+  const ObTabletInfo* tablet_info = ((const NameTable*)name_table)->get_tablet_info(it);
 
   EXPECT_TRUE(tablet_info != NULL);
   EXPECT_TRUE(tablet_info->range_.equal(r1));
@@ -81,14 +73,14 @@ TEST(RootTable2Test, test_sort) {
   it++;
   it++;
   it++;
-  tablet_info = ((const NameTable*)root_table)->get_tablet_info(it);
+  tablet_info = ((const NameTable*)name_table)->get_tablet_info(it);
 
   EXPECT_TRUE(tablet_info != NULL);
   EXPECT_TRUE(tablet_info->range_.equal(r3));
-  delete root_table;
+  delete name_table;
   delete info_manager;
 }
-TEST(RootTable2Test, test_shrink_to) {
+TEST(NameTableTest, test_shrink_to) {
   ObRange r1, r2, r3, r4;
   const char* key1 = "foo1";
   const char* key2 = "key2";
@@ -111,19 +103,19 @@ TEST(RootTable2Test, test_shrink_to) {
 
 
   ObTabletInfoManager* info_manager = new ObTabletInfoManager();
-  NameTable* root_table = new NameTable(info_manager);
-  root_table->add(t2, 0, 0);
-  root_table->add(t3, 0, 0);
-  root_table->add(t1, 0, 0);
-  root_table->add(t1, 1, 0);
-  root_table->sort();
-  NameMeta* it = root_table->begin();
+  NameTable* name_table = new NameTable(info_manager);
+  name_table->add(t2, 0, 0);
+  name_table->add(t3, 0, 0);
+  name_table->add(t1, 0, 0);
+  name_table->add(t1, 1, 0);
+  name_table->sort();
+  NameMeta* it = name_table->begin();
 
 
   ObTabletInfoManager* info_manager2 = new ObTabletInfoManager();
   NameTable* shrink_table = new NameTable(info_manager2);
-  root_table->shrink_to(shrink_table);
-  delete root_table;
+  name_table->shrink_to(shrink_table);
+  delete name_table;
   delete info_manager;
 
   it = shrink_table->begin();
@@ -143,7 +135,7 @@ TEST(RootTable2Test, test_shrink_to) {
   delete shrink_table;
   delete info_manager2;
 }
-TEST(RootTable2Test, test_find_key) {
+TEST(NameTableTest, test_find_key) {
   ObRange r1, r2, r3, r4, r5, r6;
   const char* key1 = "foo1";
   const char* key2 = "key2";
@@ -171,24 +163,24 @@ TEST(RootTable2Test, test_find_key) {
 
 
   ObTabletInfoManager* info_manager = new ObTabletInfoManager();
-  NameTable* root_table = new NameTable(info_manager);
-  root_table->add(t2, 2, 0);
-  root_table->add(t3, 3, 0);
-  root_table->add(t1, 0, 0);
-  root_table->add(t1, 1, 0);
-  root_table->add(t5, 1, 0);
-  root_table->add(t6, 1, 0);
-  root_table->add(t4, 1, 0);
-  root_table->sort();
+  NameTable* name_table = new NameTable(info_manager);
+  name_table->add(t2, 2, 0);
+  name_table->add(t3, 3, 0);
+  name_table->add(t1, 0, 0);
+  name_table->add(t1, 1, 0);
+  name_table->add(t5, 1, 0);
+  name_table->add(t6, 1, 0);
+  name_table->add(t4, 1, 0);
+  name_table->sort();
 
 
   ObTabletInfoManager* info_manager2 = new ObTabletInfoManager();
   NameTable* shrink_table = new NameTable(info_manager2);
-  root_table->shrink_to(shrink_table);
+  name_table->shrink_to(shrink_table);
 
   shrink_table->sort();
 
-  delete root_table;
+  delete name_table;
   delete info_manager;
 
   char fk[] = "key3";
@@ -204,7 +196,7 @@ TEST(RootTable2Test, test_find_key) {
   delete shrink_table;
   delete info_manager2;
 }
-TEST(RootTable2Test, test_find_range) {
+TEST(NameTableTest, test_find_range) {
   ObRange r1, r2, r3, r4, r5;
   const char* key1 = "foo1";
   const char* key2 = "key2";
@@ -228,22 +220,22 @@ TEST(RootTable2Test, test_find_range) {
 
 
   ObTabletInfoManager* info_manager = new ObTabletInfoManager();
-  NameTable* root_table = new NameTable(info_manager);
-  root_table->add(t2, 2, 0);
-  root_table->add(t3, 3, 0);
-  root_table->add(t1, 0, 0);
-  root_table->add(t1, 1, 0);
-  root_table->add(t4, 1, 0);
-  root_table->sort();
+  NameTable* name_table = new NameTable(info_manager);
+  name_table->add(t2, 2, 0);
+  name_table->add(t3, 3, 0);
+  name_table->add(t1, 0, 0);
+  name_table->add(t1, 1, 0);
+  name_table->add(t4, 1, 0);
+  name_table->sort();
 
 
   ObTabletInfoManager* info_manager2 = new ObTabletInfoManager();
   NameTable* shrink_table = new NameTable(info_manager2);
-  root_table->shrink_to(shrink_table);
+  name_table->shrink_to(shrink_table);
 
   shrink_table->sort();
 
-  delete root_table;
+  delete name_table;
   delete info_manager;
 
   NameTable::const_iterator first;
@@ -263,7 +255,7 @@ TEST(RootTable2Test, test_find_range) {
   delete info_manager2;
 }
 
-TEST(RootTable2Test, test_range_pos_type) {
+TEST(NameTableTest, test_range_pos_type) {
   ObRange r1, r2, r3, r4, r5, r6, r7, r8;
   const char* key1 = "foo1";
   const char* key1_2 = "foo2";
@@ -289,21 +281,21 @@ TEST(RootTable2Test, test_range_pos_type) {
   ObTabletInfo t3(r3, 0, 0);
 
   ObTabletInfoManager* info_manager = new ObTabletInfoManager();
-  NameTable* root_table = new NameTable(info_manager);
-  root_table->add(t2, 2, 0);
-  root_table->add(t3, 3, 0);
-  root_table->add(t1, 0, 0);
-  root_table->add(t1, 1, 0);
-  root_table->sort();
+  NameTable* name_table = new NameTable(info_manager);
+  name_table->add(t2, 2, 0);
+  name_table->add(t3, 3, 0);
+  name_table->add(t1, 0, 0);
+  name_table->add(t1, 1, 0);
+  name_table->sort();
 
 
   ObTabletInfoManager* info_manager2 = new ObTabletInfoManager();
   NameTable* shrink_table = new NameTable(info_manager2);
-  root_table->shrink_to(shrink_table);
+  name_table->shrink_to(shrink_table);
 
   shrink_table->sort();
 
-  delete root_table;
+  delete name_table;
   delete info_manager;
 
   NameTable::const_iterator first;
@@ -329,7 +321,7 @@ TEST(RootTable2Test, test_range_pos_type) {
   delete shrink_table;
   delete info_manager2;
 }
-TEST(RootTable2Test, test_split_range_top) {
+TEST(NameTableTest, test_split_range_top) {
   ObRange r1, r2, r3, r4, r5;
   const char* key1 = "foo1";
   const char* key2 = "key2";
@@ -351,21 +343,21 @@ TEST(RootTable2Test, test_split_range_top) {
   ObTabletInfo t3(r3, 0, 0);
 
   ObTabletInfoManager* info_manager = new ObTabletInfoManager();
-  NameTable* root_table = new NameTable(info_manager);
-  root_table->add(t2, 2, 0);
-  root_table->add(t3, 3, 0);
-  root_table->add(t1, 0, 0);
-  root_table->add(t1, 1, 0);
-  root_table->sort();
+  NameTable* name_table = new NameTable(info_manager);
+  name_table->add(t2, 2, 0);
+  name_table->add(t3, 3, 0);
+  name_table->add(t1, 0, 0);
+  name_table->add(t1, 1, 0);
+  name_table->sort();
 
 
   ObTabletInfoManager* info_manager2 = new ObTabletInfoManager();
   NameTable* shrink_table = new NameTable(info_manager2);
-  root_table->shrink_to(shrink_table);
+  name_table->shrink_to(shrink_table);
 
   shrink_table->sort();
 
-  delete root_table;
+  delete name_table;
   delete info_manager;
 
   NameTable::const_iterator first;
@@ -388,7 +380,7 @@ TEST(RootTable2Test, test_split_range_top) {
   delete shrink_table;
   delete info_manager2;
 }
-TEST(RootTable2Test, test_split_range_middle) {
+TEST(NameTableTest, test_split_range_middle) {
   ObRange r1, r2, r3, r4, r5;
   const char* key1 = "foo1";
   const char* key2 = "key2";
@@ -411,21 +403,21 @@ TEST(RootTable2Test, test_split_range_middle) {
   ObTabletInfo t3(r3, 0, 0);
 
   ObTabletInfoManager* info_manager = new ObTabletInfoManager();
-  NameTable* root_table = new NameTable(info_manager);
-  root_table->add(t2, 2, 0);
-  root_table->add(t3, 3, 0);
-  root_table->add(t1, 0, 0);
-  root_table->add(t1, 1, 0);
-  root_table->sort();
+  NameTable* name_table = new NameTable(info_manager);
+  name_table->add(t2, 2, 0);
+  name_table->add(t3, 3, 0);
+  name_table->add(t1, 0, 0);
+  name_table->add(t1, 1, 0);
+  name_table->sort();
 
 
   ObTabletInfoManager* info_manager2 = new ObTabletInfoManager();
   NameTable* shrink_table = new NameTable(info_manager2);
-  root_table->shrink_to(shrink_table);
+  name_table->shrink_to(shrink_table);
 
   shrink_table->sort();
 
-  delete root_table;
+  delete name_table;
   delete info_manager;
 
   NameTable::const_iterator first;
@@ -448,7 +440,7 @@ TEST(RootTable2Test, test_split_range_middle) {
   delete shrink_table;
   delete info_manager2;
 }
-TEST(RootTable2Test, test_add_range) {
+TEST(NameTableTest, test_add_range) {
   ObRange r1, r2, r3, r4, r5;
   const char* key1 = "foo1";
   const char* key2 = "key2";
@@ -472,21 +464,21 @@ TEST(RootTable2Test, test_add_range) {
   ObTabletInfo t3(r3, 0, 0);
 
   ObTabletInfoManager* info_manager = new ObTabletInfoManager();
-  NameTable* root_table = new NameTable(info_manager);
-  root_table->add(t2, 2, 0);
-  root_table->add(t3, 3, 0);
-  root_table->add(t1, 0, 0);
-  root_table->add(t1, 1, 0);
-  root_table->sort();
+  NameTable* name_table = new NameTable(info_manager);
+  name_table->add(t2, 2, 0);
+  name_table->add(t3, 3, 0);
+  name_table->add(t1, 0, 0);
+  name_table->add(t1, 1, 0);
+  name_table->sort();
 
 
   ObTabletInfoManager* info_manager2 = new ObTabletInfoManager();
   NameTable* shrink_table = new NameTable(info_manager2);
-  root_table->shrink_to(shrink_table);
+  name_table->shrink_to(shrink_table);
 
   shrink_table->sort();
 
-  delete root_table;
+  delete name_table;
   delete info_manager;
 
   NameTable::const_iterator first;
@@ -519,7 +511,7 @@ TEST(RootTable2Test, test_add_range) {
   delete shrink_table;
   delete info_manager2;
 }
-TEST(RootTable2Test, test_add_lost_range) {
+TEST(NameTableTest, test_add_lost_range) {
   ObRange r1, r2, r3, r4, r5;
   const char* key1 = "foo1";
   const char* key2 = "key2";
@@ -541,22 +533,22 @@ TEST(RootTable2Test, test_add_lost_range) {
   ObTabletInfo t3(r3, 0, 0);
 
   ObTabletInfoManager* info_manager = new ObTabletInfoManager();
-  NameTable* root_table = new NameTable(info_manager);
-  root_table->add(t2, 2, 0);
-  root_table->add(t3, 3, 0);
-  root_table->add(t1, 0, 0);
-  root_table->add(t1, 1, 0);
-  root_table->sort();
+  NameTable* name_table = new NameTable(info_manager);
+  name_table->add(t2, 2, 0);
+  name_table->add(t3, 3, 0);
+  name_table->add(t1, 0, 0);
+  name_table->add(t1, 1, 0);
+  name_table->sort();
 
 
   ObTabletInfoManager* info_manager2 = new ObTabletInfoManager();
   NameTable* shrink_table = new NameTable(info_manager2);
-  root_table->shrink_to(shrink_table);
+  name_table->shrink_to(shrink_table);
 
   shrink_table->sort();
   shrink_table->add_lost_range();
 
-  delete root_table;
+  delete name_table;
   delete info_manager;
 
   NameTable::const_iterator first;
@@ -572,7 +564,7 @@ TEST(RootTable2Test, test_add_lost_range) {
   delete shrink_table;
   delete info_manager2;
 }
-TEST(RootTable2Test, test_create_table) {
+TEST(NameTableTest, test_create_table) {
   ObRange r1, r2, r3, r4, r5, r6;
   const char* key1 = "foo1";
   const char* key2 = "key2";
@@ -597,22 +589,22 @@ TEST(RootTable2Test, test_create_table) {
   ObTabletInfo t6(r6, 0, 0);
 
   ObTabletInfoManager* info_manager = new ObTabletInfoManager();
-  NameTable* root_table = new NameTable(info_manager);
-  root_table->add(t2, 2, 0);
-  root_table->add(t3, 3, 0);
-  root_table->add(t1, 0, 0);
-  root_table->add(t1, 1, 0);
-  root_table->add(t4, 1, 0);
-  root_table->sort();
+  NameTable* name_table = new NameTable(info_manager);
+  name_table->add(t2, 2, 0);
+  name_table->add(t3, 3, 0);
+  name_table->add(t1, 0, 0);
+  name_table->add(t1, 1, 0);
+  name_table->add(t4, 1, 0);
+  name_table->sort();
 
 
   ObTabletInfoManager* info_manager2 = new ObTabletInfoManager();
   NameTable* shrink_table = new NameTable(info_manager2);
-  root_table->shrink_to(shrink_table);
+  name_table->shrink_to(shrink_table);
 
   shrink_table->sort();
 
-  delete root_table;
+  delete name_table;
   delete info_manager;
 
   int32_t server_indexes[3];
@@ -641,7 +633,7 @@ TEST(RootTable2Test, test_create_table) {
 }
 
 
-TEST(RootTable2Test, test_split_range_top_max) {
+TEST(NameTableTest, test_split_range_top_max) {
   ObRange r1, r2, r3, r4, r5;
   const char* key1 = "foo1";
   const char* key2 = "key2";
@@ -661,22 +653,22 @@ TEST(RootTable2Test, test_split_range_top_max) {
   ObTabletInfo t3(r3, 0, 0);
 
   ObTabletInfoManager* info_manager = new ObTabletInfoManager();
-  NameTable* root_table = new NameTable(info_manager);
-  root_table->add(t2, 2, 0);
-  root_table->add(t3, 3, 0);
-  root_table->add(t1, 0, 0);
-  root_table->add(t1, 1, 0);
-  root_table->sort();
+  NameTable* name_table = new NameTable(info_manager);
+  name_table->add(t2, 2, 0);
+  name_table->add(t3, 3, 0);
+  name_table->add(t1, 0, 0);
+  name_table->add(t1, 1, 0);
+  name_table->sort();
 
 
   ObTabletInfoManager* info_manager2 = new ObTabletInfoManager();
   NameTable* shrink_table = new NameTable(info_manager2);
-  root_table->shrink_to(shrink_table);
+  name_table->shrink_to(shrink_table);
 
   shrink_table->sort();
   shrink_table->dump();
 
-  delete root_table;
+  delete name_table;
   delete info_manager;
 
   NameTable::const_iterator first;

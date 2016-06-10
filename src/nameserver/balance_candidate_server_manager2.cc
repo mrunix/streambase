@@ -145,9 +145,9 @@ void ObCandidateServerBySharedManager2::scan_root_meta(NameTable::const_iterator
   return;
 }
 //caculate the shared count by scan root table
-void ObCandidateServerBySharedManager2::scan_root_table(NameTable* root_table) {
-  NameTable::iterator it = root_table->begin();
-  for (; it < root_table->end() ; ++it) {
+void ObCandidateServerBySharedManager2::scan_root_table(NameTable* name_table) {
+  NameTable::iterator it = name_table->begin();
+  for (; it < name_table->end() ; ++it) {
     scan_root_meta(it);
   }
 }

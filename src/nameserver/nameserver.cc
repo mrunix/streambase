@@ -1673,7 +1673,7 @@ int NameServer::regist_server(const ObServer& server, bool is_merge, int32_t& st
       //now we always want cs report its tablet
       status = START_REPORTING;
       if (!is_merge && START_REPORTING == status) {
-        tbsys::CThreadGuard mutex_guard(&root_table_build_mutex_); //this for only one thread modify root_table
+        tbsys::CThreadGuard mutex_guard(&root_table_build_mutex_); //this for only one thread modify name_table
         tbsys::CWLockGuard root_table_guard(root_table_rwlock_);
         tbsys::CWLockGuard server_info_guard(server_manager_rwlock_);
         ObChunkServerManager::iterator it;
@@ -2472,7 +2472,7 @@ int NameServer::write_new_info_to_root_table(
         }
       }
       if (found_it_index != OB_INVALID_INDEX) {
-        TBSYS_LOG(DEBUG, "write a tablet to root_table found_it_index = %d server_index =%d tablet_version = %ld",
+        TBSYS_LOG(DEBUG, "write a tablet to name_table found_it_index = %d server_index =%d tablet_version = %ld",
                   found_it_index, server_index, tablet_version);
 
         //tablet_info.range_.hex_dump(TBSYS_LOG_LEVEL_DEBUG);
@@ -3458,7 +3458,7 @@ void NameServer::heartbeatChecker::run(tbsys::CThread* thread, void* arg) {
             name_server_->server_manager_.set_server_down(it);
             name_server_->log_worker_->server_is_down(it->server_, now);
 
-            tbsys::CThreadGuard mutex_guard(&(name_server_->root_table_build_mutex_)); //this for only one thread modify root_table
+            tbsys::CThreadGuard mutex_guard(&(name_server_->root_table_build_mutex_)); //this for only one thread modify name_table
             tbsys::CWLockGuard guard(name_server_->root_table_rwlock_);
             if (name_server_->root_table_for_query_ != NULL) {
               name_server_->root_table_for_query_->server_off_line(it - name_server_->server_manager_.begin(), now);

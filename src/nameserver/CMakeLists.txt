@@ -162,5 +162,6 @@ IF(WITH_TEST)
  	BUILD_TEST_APP("base_main_test" test_main.cc)
 	BUILD_TEST_APP("nameserver_test")
 	BUILD_TEST_APP("tablet_info_manager_test")
+	BUILD_TEST_APP("nameserver_table_test")
 ENDIF()
 
