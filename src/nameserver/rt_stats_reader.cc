@@ -1,17 +1,7 @@
-/**
- * (C) 2010-2011 Alibaba Group Holding Limited.
+/*
+ * src/nameserver/.cc
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * Version: $Id$
- *
- * rt_stats_reader.cc for ...
- *
- * Authors:
- *   daoan <daoan@taobao.com>
- *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
 
 #include "common/ob_packet_factory.h"
@@ -21,7 +11,8 @@
 #include "common/ob_scanner.h"
 #include "common/ob_result.h"
 #include "common/utility.h"
-#include "nameserver/ob_root_stat.h"
+#include "nameserver/nameserver_stat.h"
+
 using namespace sb;
 using namespace sb::common;
 using namespace sb::nameserver;
@@ -29,6 +20,7 @@ using namespace sb::nameserver;
 ObClientManager client;
 ObServer name_server;
 char* str[4] = {"ok_get", "ok_scan", "err_get", "err_scan"};
+
 int main(int argc, char** argv) {
   if (argc != 3) {
     printf("%s root_ip root_port \n", argv[0]);
@@ -68,7 +60,7 @@ int main(int argc, char** argv) {
     ObStatManager::const_iterator it = stat.begin();
     for (; it != stat.end(); ++it) {
       for (int i = 0; i < 4; i++) {
-        TBSYS_LOG(INFO, "%s %lld", str[i], it->get_value(i));
+        TBSYS_LOG(INFO, "%s %ld", str[i], it->get_value(i));
       }
     }
   } else {

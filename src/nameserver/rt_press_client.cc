@@ -1,17 +1,7 @@
-/**
- * (C) 2010-2011 Alibaba Group Holding Limited.
+/*
+ * src/nameserver/.cc
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * Version: $Id$
- *
- * rt_press_client.cc for ...
- *
- * Authors:
- *   daoan <daoan@taobao.com>
- *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
 
 #include "common/ob_packet_factory.h"
@@ -20,11 +10,13 @@
 #include "common/ob_string.h"
 #include "common/ob_scanner.h"
 #include "common/ob_result.h"
+
 using namespace sb;
 using namespace sb::common;
 
 ObClientManager client;
 ObServer name_server;
+
 int scan_root(ObString& row_key, ObScanner& scanner, ObDataBuffer& data_buff) {
   ObCellInfo cell;
   cell.table_id_ = 1001;
@@ -58,7 +50,7 @@ int scan_root(ObString& row_key, ObScanner& scanner, ObDataBuffer& data_buff) {
       scanner.clear();
       ret = scanner.deserialize(data_buff.get_data(), data_buff.get_position(), pos);
       if (OB_SUCCESS != ret) {
-        TBSYS_LOG(ERROR, "deserialize scanner from buff failed:pos[%lld], ret[%d]", pos, ret);
+        TBSYS_LOG(ERROR, "deserialize scanner from buff failed:pos[%ld], ret[%d]", pos, ret);
       }
     }
 
@@ -70,6 +62,7 @@ int scan_root(ObString& row_key, ObScanner& scanner, ObDataBuffer& data_buff) {
   }
   return ret;
 }
+
 int main(int argc, char** argv) {
   if (argc != 3) {
     printf("%s root_ip root_port\n", argv[0]);
@@ -99,7 +92,7 @@ int main(int argc, char** argv) {
     }
     count++;
     if (count >= 1000) {
-      TBSYS_LOG_US(INFO, "finish %d scan", count);
+      TBSYS_LOG_US(INFO, "finish %ld scan", count);
       count = 0;
     }
     ObScannerIterator iter = scanner.begin();
@@ -114,7 +107,7 @@ int main(int argc, char** argv) {
       if ((cell->column_name_.compare("1_port") == 0)
           || (cell->column_name_.compare("2_port") == 0)
           || (cell->column_name_.compare("3_port") == 0)) {
-        int64_t port;
+        int64_t port = 0;
         ret = cell->value_.get_int(port);
         bool is_ok = false;
         for (int j = 0; j < 3; j++) {

@@ -1,26 +1,17 @@
 /*
- * Copyright (C) 2007-2011 Taobao Inc.
+ * src/nameserver/.cc
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * unit test for ObiRole
- *
- * Version: $Id$
- *
- * Authors:
- *   Zhifeng YANG <zhuweng.yzf@taobao.com>
- *     - some work details here
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
 
 #include <gtest/gtest.h>
 #include "common/ob_obi_role.h"
+
 using namespace sb::common;
 
 TEST(ObObiRoleTest, test_serialization) {
   ObiRole obi_role;
-  ASSERT_TRUE(ObiRole::INIT == obi_role.get_role());
+  ASSERT_TRUE(ObiRole::MASTER == obi_role.get_role());
   obi_role.set_role(ObiRole::MASTER);
   char buff[64];
   int64_t pos = 0;
