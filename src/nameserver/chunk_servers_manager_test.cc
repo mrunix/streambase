@@ -1,27 +1,19 @@
-/**
- * (C) 2010-2011 Alibaba Group Holding Limited.
+/*
+ * src/nameserver/.cc
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * Version: $Id$
- *
- * chunk_servers_manager_test.cc for ...
- *
- * Authors:
- *   qushan <qushan@taobao.com>
- *
+ * Copyright (C) 2016 Michael(311155@qq.com). All rights reserved.
  */
+
 #include <gtest/gtest.h>
-#include "nameserver/ob_chunk_server_manager.h"
+#include "nameserver/chunk_server_manager.h"
 #include <tbsys.h>
 #include <unistd.h>
 
 using namespace sb;
 using namespace sb::common;
 using namespace sb::nameserver;
-TEST(ObChunkServerManagerTest, find) {
+
+TEST(ChunkServerManagerTest, find) {
   ObChunkServerManager chunk_m;
   {
     ObServer server(ObServer::IPV4, "10.10.1.1", 100);
