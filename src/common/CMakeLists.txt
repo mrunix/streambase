@@ -76,7 +76,7 @@ SET(common_sources
 CLEAR_VARS()
 SET(LOCAL_MODULE     "common")
 SET(LOCAL_C_FLAGS    "${COMMON_CFLAGS}")	# ob_priority_scheduler.h:34:33: error: AVX vector return without AVX enabled changes the ABI [-Werror=psabi]
-SET(LOCAL_CXX_FLAGS  "${COMMON_CXXFLAGS}")	# ob_priority_scheduler.h:34:33: error: AVX vector return without AVX enabled changes the ABI [-Werror=psabi]
+SET(LOCAL_CXX_FLAGS  "${COMMON_CXXFLAGS} -Wno-strict-aliasing")	# ob_priority_scheduler.h:34:33: error: AVX vector return without AVX enabled changes the ABI [-Werror=psabi]
 SET(LOCAL_CXX_FILES  ${common_sources})
 SET(LOCAL_LIBRARIES
 	${SYSLIBS}
